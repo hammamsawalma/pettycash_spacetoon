@@ -81,8 +81,8 @@ export default function InvoicesPage() {
                         ))}
                     </div>
 
-                    {/* Add Invoice Button */}
-                    {!!user && (
+                    {/* Add Invoice Button — hidden for GENERAL_MANAGER (view-only) */}
+                    {!!user && user.role !== 'GENERAL_MANAGER' && (
                         <button onClick={() => router.push('/invoices/new')} className="w-full py-6 md:py-7 text-sm md:text-lg font-bold rounded-2xl bg-[#7F56D9] hover:bg-[#7F56D9]-hover text-white border-none flex items-center justify-center gap-2 shadow-sm mt-2">
                             <span>أضف فاتورة جديدة</span>
                         </button>

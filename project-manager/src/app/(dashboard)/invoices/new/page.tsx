@@ -927,7 +927,25 @@ function NewInvoicePageInner() {
         );
     }
 
-    // All other roles get the full form
+    // GENERAL_MANAGER is view-only — redirect to invoice list
+    if (role === "GENERAL_MANAGER") {
+        return (
+            <DashboardLayout title="غير مصرح">
+                <div className="flex flex-col items-center justify-center py-24 gap-4 text-center" dir="rtl">
+                    <div className="w-16 h-16 rounded-2xl bg-red-50 flex items-center justify-center">
+                        <span className="text-3xl">🚫</span>
+                    </div>
+                    <h2 className="text-xl font-bold text-gray-800">غير مصرح لك بإضافة فاتورة</h2>
+                    <p className="text-gray-500 text-sm max-w-xs">المدير العام لديه صلاحية العرض فقط. إضافة الفواتير متاحة للموظفين والمحاسبين ومدراء المشاريع.</p>
+                    <a href="/invoices" className="mt-2 px-6 py-2.5 rounded-xl bg-slate-800 text-white font-semibold text-sm hover:bg-slate-700 transition-all">
+                        العودة لقائمة الفواتير
+                    </a>
+                </div>
+            </DashboardLayout>
+        );
+    }
+
+    // All other authorized roles get the full form
     return <FullInvoiceForm />;
 }
 
