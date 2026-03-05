@@ -1,6 +1,0 @@
-{
-    "installCommand": "npm --prefix project-manager install",
-    "buildCommand": "npm --prefix project-manager run build",
-    "outputDirectory": "project-manager/.next",
-    "framework": "nextjs"
-}
