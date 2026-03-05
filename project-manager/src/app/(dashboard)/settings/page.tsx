@@ -1,0 +1,388 @@
+"use client"
+import DashboardLayout from "@/components/layout/DashboardLayout";
+import { Card } from "@/components/ui/Card";
+import { Button } from "@/components/ui/Button";
+import { User, Image as ImageIcon, Phone, Lock, LogOut, Settings2, ShieldCheck } from "lucide-react";
+import { useState, useTransition, useActionState, useEffect, useRef } from "react";
+import { useAuth } from "@/context/AuthContext";
+import { logout } from "@/actions/auth";
+import { updateProfile, updatePhone, updatePassword } from "@/actions/users";
+import { FileUpload } from "@/components/ui/FileUpload";
+import toast from "react-hot-toast";
+import { getAutoApprovalRule, setAutoApprovalRule, disableAutoApprovalRule } from "@/actions/autoApproval";
+import { useCurrency } from "@/context/CurrencyContext";
+import { updateGlobalCurrency } from "@/actions/settings";
+
+export default function SettingsPage() {
+    const { user } = useAuth();
+    const { currency, setCurrency } = useCurrency();
+    const [activeTab, setActiveTab] = useState("profile");
+    const [isPending, startTransition] = useTransition();
+
+    const [profileState, profileAction, profilePending] = useActionState(updateProfile, null);
+    const [phoneState, phoneAction, phonePending] = useActionState(updatePhone, null);
+    const [passwordState, passwordAction, passwordPending] = useActionState(updatePassword, null);
+
+    const profileFormRef = useRef<HTMLFormElement>(null);
+    const phoneFormRef = useRef<HTMLFormElement>(null);
+    const passwordFormRef = useRef<HTMLFormElement>(null);
+
+    // AutoApproval state (ADMIN only)
+    const [autoRule, setAutoRule] = useState<{ maxAmount: number; requiresManager: boolean; isActive: boolean } | null>(null);
+    const [autoAmount, setAutoAmount] = useState("");
+    const [autoRequiresManager, setAutoRequiresManager] = useState(false);
+    const [isSavingAuto, setIsSavingAuto] = useState(false);
+
+    useEffect(() => {
+        if (profileState?.error) toast.error(profileState.error);
+        if (profileState?.success) { toast.success(profileState.message || "تم حفظ التعديلات بنجاح"); }
+    }, [profileState]);
+
+    useEffect(() => {
+        if (phoneState?.error) toast.error(phoneState.error);
+        if (phoneState?.success) { toast.success(phoneState.message || "تم تحديث رقم الجوال"); phoneFormRef.current?.reset(); }
+    }, [phoneState]);
+
+    useEffect(() => {
+        if (passwordState?.error) toast.error(passwordState.error);
+        if (passwordState?.success) { toast.success(passwordState.message || "تم تحديث كلمة المرور"); passwordFormRef.current?.reset(); }
+    }, [passwordState]);
+
+    // Load auto-approval rule for ADMIN
+    useEffect(() => {
+        if (user?.role === "ADMIN") {
+            getAutoApprovalRule().then(rule => {
+                if (rule) {
+                    setAutoRule(rule);
+                    setAutoAmount(rule.maxAmount.toString());
+                    setAutoRequiresManager(rule.requiresManager);
+                }
+            });
+        }
+    }, [user?.role]);
+
+    const handleSaveAutoRule = async () => {
+        const amount = parseFloat(autoAmount);
+        if (isNaN(amount) || amount < 0) { toast.error("أدخل مبلغاً صحيحاً"); return; }
+        setIsSavingAuto(true);
+        const res = await setAutoApprovalRule(amount, autoRequiresManager);
+        setIsSavingAuto(false);
+        if (res?.error) toast.error(res.error);
+        else { toast.success("تم حفظ قاعدة الاعتماد التلقائي ✅"); getAutoApprovalRule().then(r => r && setAutoRule(r)); }
+    };
+
+    const handleDisableAutoRule = async () => {
+        setIsSavingAuto(true);
+        const res = await disableAutoApprovalRule();
+        setIsSavingAuto(false);
+        if (res?.error) toast.error(res.error);
+        else { toast.success("تم تعطيل الاعتماد التلقائي"); setAutoRule(null); }
+    };
+
+    const handleLogout = () => {
+        startTransition(() => {
+            logout();
+        });
+    };
+
+    return (
+        <DashboardLayout title="إدارة حسابك">
+            <div className="flex flex-col md:flex-row gap-4 md:gap-6 pb-6 w-full max-w-4xl mx-auto">
+
+                {/* Settings Sidebar Menu */}
+                <Card className="w-full md:w-64 flex md:flex-col gap-2 shrink-0 p-2 md:p-6 shadow-sm border-gray-100 overflow-x-auto custom-scrollbar md:overflow-visible rounded-2xl">
+                    <button
+                        onClick={() => setActiveTab("profile")}
+                        className={`min-w-max md:w-full flex items-center gap-2 md:gap-3 px-4 py-3 font-bold text-xs md:text-sm rounded-xl transition-colors ${activeTab === 'profile' ? 'bg-[#7F56D9]/10 text-[#7F56D9]' : 'text-gray-500 hover:bg-gray-50 hover:text-gray-900'}`}
+                    >
+                        <User className="w-4 h-4 md:w-5 md:h-5" />
+                        الملف الشخصي
+                    </button>
+                    <button
+                        onClick={() => setActiveTab("phone")}
+                        className={`min-w-max md:w-full flex items-center gap-2 md:gap-3 px-4 py-3 font-bold text-xs md:text-sm rounded-xl transition-colors ${activeTab === 'phone' ? 'bg-[#7F56D9]/10 text-[#7F56D9]' : 'text-gray-500 hover:bg-gray-50 hover:text-gray-900'}`}
+                    >
+                        <Phone className="w-4 h-4 md:w-5 md:h-5" />
+                        رقم الجوال
+                    </button>
+                    <button
+                        onClick={() => setActiveTab("password")}
+                        className={`min-w-max md:w-full flex items-center gap-2 md:gap-3 px-4 py-3 font-bold text-xs md:text-sm rounded-xl transition-colors ${activeTab === 'password' ? 'bg-[#7F56D9]/10 text-[#7F56D9]' : 'text-gray-500 hover:bg-gray-50 hover:text-gray-900'}`}
+                    >
+                        <Lock className="w-4 h-4 md:w-5 md:h-5" />
+                        كلمة المرور
+                    </button>
+                    {/* Admin-only: advanced settings */}
+                    {user?.role === "ADMIN" && (
+                        <button
+                            onClick={() => setActiveTab("advanced")}
+                            className={`min-w-max md:w-full flex items-center gap-2 md:gap-3 px-4 py-3 font-bold text-xs md:text-sm rounded-xl transition-colors ${activeTab === 'advanced' ? 'bg-amber-50 text-amber-700' : 'text-gray-500 hover:bg-gray-50 hover:text-gray-900'}`}
+                        >
+                            <Settings2 className="w-4 h-4 md:w-5 md:h-5" />
+                            إعدادات متقدمة
+                        </button>
+                    )}
+                    <div className="md:pt-4 md:mt-4 md:border-t md:border-gray-100 mr-auto md:mr-0 pl-2 md:pl-0">
+                        <Button type="button" disabled={isPending} isLoading={isPending} variant="danger" className="min-w-max md:w-full flex items-center gap-2 md:gap-3 px-4 py-3 text-xs md:text-sm rounded-xl font-bold shadow-sm" onClick={handleLogout}>
+                            <LogOut className="w-4 h-4 md:w-5 md:h-5" />
+                            تسجيل الخروج
+                        </Button>
+                    </div>
+                </Card>
+
+                {/* Settings Content */}
+                <Card className="flex-1 p-5 md:p-8 shadow-sm border-gray-100 rounded-2xl">
+                    {activeTab === 'profile' && (
+                        <>
+                            <h3 className="text-base md:text-xl font-bold text-gray-900 mb-6 border-b border-gray-100 pb-4">تعديل الملف الشخصي</h3>
+                            <form ref={profileFormRef} className="space-y-6 md:space-y-8" action={profileAction}>
+                                {/* Profile Image Upload */}
+                                <div className="mb-6 md:mb-8">
+                                    <label className="block text-xs md:text-sm font-bold text-gray-400 mb-2">الصورة الشخصية</label>
+                                    <FileUpload
+                                        name="image"
+                                        accept="image/png, image/jpeg, image/webp"
+                                        maxSizeMB={5}
+                                        placeholder="اضغط لرفع صورة شخصية"
+                                        description="أو اسحب واسقط الصورة هنا"
+                                        variant="avatar"
+                                        previewUrl={user?.image || null}
+                                    />
+                                </div>
+
+                                {/* Form Fields */}
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+                                    {/* Using design image style: label at top-right (small grey text), value below (bold black text), edit icon far left */}
+                                    <div className="relative group p-4 border border-gray-100 rounded-2xl bg-gray-50 focus-within:ring-2 focus-within:ring-[#7F56D9]/50 focus-within:bg-white transition-all">
+                                        <label className="block text-[10px] md:text-xs font-bold text-gray-400 mb-1">اسم الموظف</label>
+                                        <input
+                                            type="text"
+                                            defaultValue={user?.name || ""}
+                                            className="w-full bg-transparent font-bold text-gray-900 text-sm md:text-base outline-none pr-1 focus:ring-0"
+                                        />
+                                        <div className="absolute left-4 top-1/2 -translate-y-1/2 text-[#7F56D9] opacity-50 group-hover:opacity-100 transition-opacity">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" /></svg>
+                                        </div>
+                                    </div>
+
+                                    <div className="relative group p-4 border border-gray-100 rounded-2xl bg-gray-50 focus-within:ring-2 focus-within:ring-[#7F56D9]/50 focus-within:bg-white transition-all">
+                                        <label className="block text-[10px] md:text-xs font-bold text-gray-400 mb-1">البريد الالكتروني</label>
+                                        <input
+                                            type="email"
+                                            defaultValue={user?.email || ""}
+                                            className="w-full bg-transparent font-bold text-gray-900 text-sm md:text-base outline-none pr-1 flex-1 focus:ring-0"
+                                        />
+                                        <div className="absolute left-4 top-1/2 -translate-y-1/2 text-[#7F56D9] opacity-50 group-hover:opacity-100 transition-opacity">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" /></svg>
+                                        </div>
+                                    </div>
+
+                                    <div className="relative group p-4 border border-gray-100 rounded-2xl bg-gray-50 transition-all md:col-span-2 flex items-center justify-between">
+                                        <div className="flex-1 w-full">
+                                            <label className="block text-[10px] md:text-xs font-bold text-gray-400 mb-1">رقم الجوال</label>
+                                            <input
+                                                type="tel"
+                                                defaultValue="+966 50 123 4567" // user phone logic placeholder
+                                                disabled
+                                                className="w-full bg-transparent font-bold text-gray-600 text-sm md:text-base outline-none pr-1 dir-ltr text-right cursor-not-allowed"
+                                                title="لتغيير رقم الجوال الرجاء الانتقال الى تبويب رقم الجوال"
+                                            />
+                                        </div>
+                                        <button type="button" onClick={() => setActiveTab("phone")} className="shrink-0 ml-2 text-[#7F56D9] bg-purple-50 px-3 py-1.5 rounded-lg hover:bg-[#7F56D9] hover:text-white transition-colors text-[10px] md:text-xs font-bold shadow-sm">
+                                            تغيير
+                                        </button>
+                                    </div>
+
+                                    {/* Mocking Address Field from design */}
+                                    <div className="relative group p-4 border border-gray-100 rounded-2xl bg-gray-50 focus-within:ring-2 focus-within:ring-[#7F56D9]/50 focus-within:bg-white transition-all md:col-span-2">
+                                        <label className="block text-[10px] md:text-xs font-bold text-gray-400 mb-1">العنوان</label>
+                                        <input
+                                            type="text"
+                                            defaultValue="الرياض، المملكة العربية السعودية"
+                                            className="w-full bg-transparent font-bold text-gray-900 text-sm md:text-base outline-none pr-1 flex-1 focus:ring-0"
+                                        />
+                                        <div className="absolute left-4 top-1/2 -translate-y-1/2 text-[#7F56D9] opacity-50 group-hover:opacity-100 transition-opacity">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" /></svg>
+                                        </div>
+                                    </div>
+
+                                </div>
+
+                                <div className="pt-4 mt-6 md:mt-8 flex flex-col sm:flex-row gap-3">
+                                    <Button variant="primary" type="submit" className="w-full sm:w-1/2 py-3 text-sm md:text-base font-bold rounded-xl shadow-sm" disabled={profilePending}>
+                                        {profilePending ? "جاري الحفظ..." : "حفظ التغييرات"}
+                                    </Button>
+                                    <Button variant="outline" type="button" className="w-full sm:w-1/2 py-3 text-sm md:text-base font-bold rounded-xl border-gray-200">
+                                        الغاء
+                                    </Button>
+                                </div>
+                            </form>
+                        </>
+                    )}
+
+                    {activeTab === 'phone' && (
+                        <>
+                            <h3 className="text-base md:text-xl font-bold text-gray-900 mb-6 border-b border-gray-100 pb-4">تغيير رقم الجوال</h3>
+                            <form ref={phoneFormRef} className="space-y-6" action={phoneAction}>
+                                <div>
+                                    <label className="block text-xs md:text-sm font-bold text-gray-400 mb-2">رقم الجوال الجديد</label>
+                                    <div className="w-full flex rounded-xl border border-gray-200 overflow-hidden bg-white focus-within:ring-2 focus-within:ring-[#7F56D9] shadow-sm">
+                                        <span className="px-5 py-4 bg-gray-50 border-l border-gray-200 text-gray-500 font-bold dir-ltr">+966</span>
+                                        <input
+                                            type="tel"
+                                            name="phone"
+                                            placeholder="5XXXXXXXX"
+                                            className="w-full p-4 outline-none bg-transparent text-gray-900 font-bold dir-ltr text-right placeholder:font-normal placeholder:text-gray-300"
+                                            required
+                                        />
+                                    </div>
+                                </div>
+                                <Button variant="primary" type="submit" className="w-full py-3.5 text-sm md:text-base font-bold rounded-xl shadow-sm" disabled={phonePending}>
+                                    {phonePending ? "جاري التحديث..." : "تحديث رقم الجوال"}
+                                </Button>
+                            </form>
+                        </>
+                    )}
+
+                    {activeTab === 'password' && (
+                        <>
+                            <h3 className="text-base md:text-xl font-bold text-gray-900 mb-6 border-b border-gray-100 pb-4">تغيير كلمة المرور</h3>
+                            <form ref={passwordFormRef} className="space-y-4 md:space-y-6" action={passwordAction}>
+                                <div>
+                                    <label className="block text-xs md:text-sm font-bold text-gray-400 mb-2">كلمة المرور الحالية</label>
+                                    <input
+                                        type="password"
+                                        name="currentPassword"
+                                        className="w-full rounded-xl border border-gray-200 p-4 outline-none focus:ring-2 focus:ring-[#7F56D9] font-bold shadow-sm"
+                                        required
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-xs md:text-sm font-bold text-gray-400 mb-2">كلمة المرور الجديدة</label>
+                                    <input
+                                        type="password"
+                                        name="newPassword"
+                                        className="w-full rounded-xl border border-gray-200 p-4 outline-none focus:ring-2 focus:ring-[#7F56D9] font-bold shadow-sm"
+                                        required
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-xs md:text-sm font-bold text-gray-400 mb-2">تأكيد كلمة المرور الجديدة</label>
+                                    <input
+                                        type="password"
+                                        name="confirmPassword"
+                                        className="w-full rounded-xl border border-gray-200 p-4 outline-none focus:ring-2 focus:ring-[#7F56D9] font-bold shadow-sm"
+                                        required
+                                    />
+                                </div>
+                                <Button variant="primary" type="submit" className="w-full py-3.5 text-sm md:text-base font-bold rounded-xl mt-4 shadow-sm" disabled={passwordPending}>
+                                    {passwordPending ? "جاري التحديث..." : "تحديث كلمة المرور"}
+                                </Button>
+                            </form>
+                        </>
+                    )}
+
+                    {activeTab === 'advanced' && user?.role === 'ADMIN' && (
+                        <>
+                            <div className="flex items-center gap-3 mb-6 border-b border-gray-100 pb-4">
+                                <ShieldCheck className="w-6 h-6 text-amber-600" />
+                                <h3 className="text-base md:text-xl font-bold text-gray-900">الاعتماد التلقائي للفواتير</h3>
+                            </div>
+
+                            {/* Status badge */}
+                            <div className={`flex items-center gap-2 mb-6 px-4 py-3 rounded-xl ${autoRule ? 'bg-emerald-50 border border-emerald-200' : 'bg-gray-50 border border-gray-200'}`}>
+                                <span className={`w-2.5 h-2.5 rounded-full ${autoRule ? 'bg-emerald-500 animate-pulse' : 'bg-gray-300'}`} />
+                                <p className={`text-sm font-bold ${autoRule ? 'text-emerald-700' : 'text-gray-500'}`}>
+                                    {autoRule
+                                        ? `مُفعَّل — الفواتير حتى ${autoRule.maxAmount.toLocaleString()} ${currency} تُعتمد تلقائياً`
+                                        : 'معطَّل — جميع الفواتير تحتاج موافقة يدوية'}
+                                </p>
+                            </div>
+
+                            <div className="space-y-5">
+                                <div>
+                                    <label className="block text-xs md:text-sm font-bold text-gray-600 mb-2">{`الحد الأقصى للاعتماد التلقائي (${currency})`}</label>
+                                    <input
+                                        type="number"
+                                        min="0"
+                                        step="1"
+                                        value={autoAmount}
+                                        onChange={e => setAutoAmount(e.target.value)}
+                                        placeholder="مثال: 500"
+                                        className="w-full rounded-xl border border-gray-200 p-4 outline-none focus:ring-2 focus:ring-amber-400 font-bold shadow-sm"
+                                    />
+                                    <p className="text-xs text-gray-400 mt-1">الفواتير بمبلغ أقل من أو يساوي هذا المبلغ ستُعتمد تلقائياً عند إنشائها.</p>
+                                </div>
+
+                                <div className="flex items-center gap-3 p-4 bg-gray-50 rounded-xl">
+                                    <input
+                                        id="requiresManager"
+                                        type="checkbox"
+                                        checked={autoRequiresManager}
+                                        onChange={e => setAutoRequiresManager(e.target.checked)}
+                                        className="w-4 h-4 accent-[#7F56D9]"
+                                    />
+                                    <label htmlFor="requiresManager" className="text-sm font-bold text-gray-700 cursor-pointer">
+                                        يحتاج موافقة المدير حتى عند تجاوز الحد
+                                    </label>
+                                </div>
+
+                                <div className="flex flex-col sm:flex-row gap-3 pt-2">
+                                    <Button
+                                        variant="primary"
+                                        className="flex-1 font-bold rounded-xl h-11 bg-amber-600 hover:bg-amber-700"
+                                        onClick={handleSaveAutoRule}
+                                        disabled={isSavingAuto}
+                                        isLoading={isSavingAuto}
+                                    >
+                                        حفظ الإعداد
+                                    </Button>
+                                    {autoRule && (
+                                        <Button
+                                            variant="outline"
+                                            className="flex-1 font-bold rounded-xl h-11 text-red-600 border-red-200 hover:bg-red-50"
+                                            onClick={handleDisableAutoRule}
+                                            disabled={isSavingAuto}
+                                        >
+                                            تعطيل الاعتماد التلقائي
+                                        </Button>
+                                    )}
+                                </div>
+                            </div>
+
+                            {/* Global Currency Setting */}
+                            <div className="pt-6 mt-6 border-t border-gray-100">
+                                <h3 className="text-sm font-bold text-gray-900 mb-4">إعدادات العملة الافتراضية</h3>
+                                <div className="space-y-4">
+                                    <label className="block text-xs md:text-sm font-bold text-gray-600 mb-2">اختر العملة للمشروع بأكمله</label>
+                                    <select
+                                        value={currency}
+                                        onChange={async (e) => {
+                                            const newCurrency = e.target.value;
+                                            setCurrency(newCurrency);
+                                            const res = await updateGlobalCurrency(newCurrency);
+                                            if (res.error) toast.error(res.error);
+                                            else toast.success("تم تحديث العملة بنجاح");
+                                        }}
+                                        className="w-full rounded-xl border border-gray-200 p-4 outline-none focus:ring-2 focus:ring-[#7F56D9] font-bold shadow-sm"
+                                    >
+                                        <option value="ر.ق">ريال قطري (ر.ق)</option>
+                                        <option value="ر.س">ريال سعودي (ر.س)</option>
+                                        <option value="د.إ">درهم إماراتي (د.إ)</option>
+                                        <option value="د.ك">دينار كويتي (د.ك)</option>
+                                        <option value="ر.ع">ريال عماني (ر.ع)</option>
+                                        <option value="د.ب">دينار بحريني (د.ب)</option>
+                                        <option value="USD">دولار أمريكي (USD)</option>
+                                        <option value="EUR">يورو (EUR)</option>
+                                    </select>
+                                    <p className="text-xs text-gray-400 mt-2">تحديث هذه العملة سيؤثر على جميع الحسابات والفواتير في النظام.</p>
+                                </div>
+                            </div>
+                        </>
+                    )}
+
+                </Card>
+            </div>
+        </DashboardLayout>
+    );
+}

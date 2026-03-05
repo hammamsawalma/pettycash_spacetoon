@@ -1,0 +1,27 @@
+{
+    "name": "Spacetoon Pocket",
+    "short_name": "SpacePocket",
+    "description": "نظام إدارة المشاريع والمالية",
+    "theme_color": "#7F56D9",
+    "background_color": "#f8f9fa",
+    "display": "standalone",
+    "orientation": "portrait",
+    "start_url": "/",
+    "scope": "/",
+    "lang": "ar",
+    "dir": "rtl",
+    "icons": [
+        {
+            "src": "/spacetoon-logo.png",
+            "sizes": "192x192",
+            "type": "image/png",
+            "purpose": "any maskable"
+        },
+        {
+            "src": "/spacetoon-logo.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "any maskable"
+        }
+    ]
+}

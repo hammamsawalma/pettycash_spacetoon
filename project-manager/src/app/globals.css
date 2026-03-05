@@ -1,0 +1,57 @@
+@import "tailwindcss";
+
+:root {
+  --background: #f8f9fa;
+  --foreground: #171717;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-cairo);
+}
+
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-cairo), Arial, Helvetica, sans-serif;
+}
+/* ─── Print / PDF Styles ──────────────────────────────────── */
+@media print {
+  /* Hide everything except the main invoice content */
+  nav,
+  aside,
+  header,
+  [data-print-hide],
+  .no-print {
+    display: none !important;
+  }
+
+  /* Full-width content area */
+  main, body, html {
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    background: white !important;
+    font-size: 12pt;
+  }
+
+  /* Invoice detail card — expand to fill the page */
+  .invoice-print-area {
+    max-width: 100% !important;
+    box-shadow: none !important;
+    border: none !important;
+  }
+
+  /* Force page to be A4-friendly */
+  @page {
+    margin: 1.5cm;
+    size: A4;
+  }
+
+  /* Collapse the sidebar column in grid layouts */
+  .grid {
+    display: block !important;
+  }
+}

@@ -1,0 +1,376 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+// ─────────────────────────────────────────────
+// USER
+// ─────────────────────────────────────────────
+model User {
+  id                  String               @id @default(uuid())
+  name                String
+  email               String?              @unique
+  phone               String               @unique
+  password            String
+  role                String               @default("USER") // ADMIN | GENERAL_MANAGER | GLOBAL_ACCOUNTANT | USER
+  jobTitle            String?
+  salary              Float?
+  image               String?
+  createdAt           DateTime             @default(now())
+  updatedAt           DateTime             @updatedAt
+  isDeleted           Boolean              @default(false)
+  deletedAt           DateTime?
+
+  // Relations
+  deposits            Deposit[]
+  invoicesCreated     Invoice[]            @relation("InvoiceCreator")
+  receivedMessages    Message[]            @relation("MessageReceiver")
+  sentMessages        Message[]            @relation("MessageSender")
+  managedProjects     Project[]            @relation("ProjectManager")
+  memberships         ProjectMember[]
+  purchases           Purchase[]
+  custodies           EmployeeCustody[]
+  outOfPocketDebts    OutOfPocketDebt[]
+  walletEntries       WalletEntry[]        @relation("WalletEntryCreator")
+  settledDebts        OutOfPocketDebt[]    @relation("DebtSettler")
+  financeRequests     FinanceRequest[]     @relation("FinanceRequester")
+  approvedRequests    FinanceRequest[]     @relation("FinanceApprover")
+  custodyReturnsMade  CustodyReturn[]      @relation("CustodyReturner")  // D2: audit trail
+  custodyReturnsRecorded CustodyReturn[]   @relation("CustodyRecorder")  // D2: audit trail
+}
+
+// ─────────────────────────────────────────────
+// COMPANY WALLET (خزنة الشركة)
+// ─────────────────────────────────────────────
+model CompanyWallet {
+  id        String        @id @default(uuid())
+  balance   Float         @default(0)
+  totalIn   Float         @default(0)
+  totalOut  Float         @default(0)
+  updatedAt DateTime      @updatedAt
+  entries   WalletEntry[]
+}
+
+model WalletEntry {
+  id        String         @id @default(uuid())
+  type      String         // DEPOSIT | WITHDRAW | ALLOCATE_TO_PROJECT | RETURN_FROM_PROJECT
+  amount    Float
+  note      String?
+  walletId  String
+  createdBy String
+  createdAt DateTime       @default(now())
+  wallet    CompanyWallet  @relation(fields: [walletId], references: [id])
+  creator   User           @relation("WalletEntryCreator", fields: [createdBy], references: [id])
+}
+
+// ─────────────────────────────────────────────
+// PROJECT
+// ─────────────────────────────────────────────
+model Project {
+  id               String            @id @default(uuid())
+  name             String
+  description      String?
+  budget           Float?
+  custody          Float?            @default(0)    // Legacy — kept for backward compat
+  budgetAllocated  Float             @default(0)    // V2: مأخوذ من خزنة الشركة
+  custodyIssued    Float             @default(0)    // V2: مجموع العهدات المصروفة
+  custodyReturned  Float             @default(0)    // V2: مجموع الكاش المُرجَع
+  managerSpent     Float             @default(0)    // V3: ما صرفه المدير مباشرة من العهدة الضمنية
+  status           String            @default("PENDING") // PENDING | IN_PROGRESS | CLOSED
+  image            String?           // V3: صورة أو لوجو المشروع
+  startDate        DateTime?
+  endDate          DateTime?
+  closedAt         DateTime?
+  managerId        String?
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+  isDeleted        Boolean           @default(false)
+  deletedAt        DateTime?
+
+  // Relations
+  invoices         Invoice[]
+  messages         Message[]
+  manager          User?             @relation("ProjectManager", fields: [managerId], references: [id])
+  members          ProjectMember[]
+  purchases        Purchase[]
+  custodies        EmployeeCustody[]
+}
+
+// ─────────────────────────────────────────────
+// PROJECT MEMBER
+// ─────────────────────────────────────────────
+model ProjectMember {
+  id              String            @id @default(uuid())
+  projectId       String
+  userId          String
+  role            String            @default("MEMBER")        // Legacy — kept for backward compat
+  // V3: أدوار متعددة مخزنة كـ CSV — مثال: "PROJECT_EMPLOYEE,PROJECT_ACCOUNTANT"
+  // القيم المتاحة: PROJECT_EMPLOYEE | PROJECT_ACCOUNTANT | PROJECT_MANAGER
+  projectRoles    String            @default("PROJECT_EMPLOYEE")
+  custodyBalance  Float             @default(0)               // رصيد عهدة الموظف الإجمالي في هذا المشروع
+  project         Project           @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  user            User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  custodies       EmployeeCustody[]
+
+  @@unique([projectId, userId])
+}
+
+// ─────────────────────────────────────────────
+// EMPLOYEE CUSTODY (عهدة الموظف)
+// ─────────────────────────────────────────────
+model EmployeeCustody {
+  id            String                @id @default(uuid())
+  projectId     String
+  employeeId    String
+  memberId      String?               // FK to ProjectMember
+  amount        Float                 // المبلغ المصروف الأصلي
+  balance       Float                 @default(0) // V3: المتبقي الحالي (يتناقص بكل فاتورة مقبولة)
+  method        String                @default("CASH") // CASH | BANK
+  isConfirmed   Boolean               @default(false)
+  confirmedAt   DateTime?
+  isClosed      Boolean               @default(false) // عند إرجاع كامل المتبقي
+  closedAt      DateTime?
+  note          String?
+  createdAt     DateTime              @default(now())
+  updatedAt     DateTime              @updatedAt
+
+  project       Project               @relation(fields: [projectId], references: [id])
+  employee      User                  @relation(fields: [employeeId], references: [id])
+  member        ProjectMember?        @relation(fields: [memberId], references: [id])
+  invoices      Invoice[]             // الفواتير المرتبطة بهذه العهدة
+  confirmation  CustodyConfirmation?
+  returns       CustodyReturn[]       // سجل عمليات الإرجاع
+}
+
+model CustodyConfirmation {
+  id          String           @id @default(uuid())
+  custodyId   String           @unique
+  confirmedAt DateTime         @default(now())
+  signature   String?          // رقم توقيع/تأكيد مرجعي
+  custody     EmployeeCustody  @relation(fields: [custodyId], references: [id])
+}
+
+// سجل عمليات إرجاع الكاش من الموظف
+model CustodyReturn {
+  id          String          @id @default(uuid())
+  custodyId   String
+  amount      Float           // المبلغ المُرجَع
+  returnedBy  String          // الموظف الذي أرجع
+  recordedBy  String          // المدير/المنسق الذي سجّل
+  note        String?
+  createdAt   DateTime        @default(now())
+  custody     EmployeeCustody @relation(fields: [custodyId], references: [id])
+  returner    User            @relation("CustodyReturner", fields: [returnedBy], references: [id])
+  recorder    User            @relation("CustodyRecorder", fields: [recordedBy], references: [id])
+}
+
+// ─────────────────────────────────────────────
+// CATEGORY (تصنيفات المصاريف)
+// ─────────────────────────────────────────────
+model Category {
+  id        String    @id @default(uuid())
+  name      String    // "طعام" | "نقل" | "مستلزمات" | "أخرى"
+  icon      String?
+  isActive  Boolean   @default(true)
+  createdAt DateTime  @default(now())
+  invoices  Invoice[]
+}
+
+// ─────────────────────────────────────────────
+// INVOICE (الفاتورة)
+// ─────────────────────────────────────────────
+model Invoice {
+  id              String            @id @default(uuid())
+  reference       String            @unique
+  type            String
+  amount          Float
+  status          String            @default("PENDING")  // PENDING | APPROVED | REJECTED
+  date            DateTime          @default(now())
+  notes           String?
+  filePath        String?
+  projectId       String?
+  creatorId       String
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+  isDeleted       Boolean           @default(false)
+  deletedAt       DateTime?
+
+  // V2 additions
+  rejectionReason String?           // إجباري عند الرفض
+  // V3: paymentSource يدعم 3 قيم:
+  // CUSTODY = كل المبلغ من العهدة
+  // PERSONAL = كل المبلغ من الجيب
+  // SPLIT = جزء من العهدة + جزء من الجيب
+  paymentSource   String            @default("CUSTODY")  // CUSTODY | PERSONAL | SPLIT
+  custodyAmount   Float?            // V3: جزء من العهدة (في حالة SPLIT)
+  pocketAmount    Float?            // V3: جزء من الجيب (في حالة SPLIT)
+  custodyId       String?           // مرتبطة بعهدة الموظف
+  categoryId      String?           // تصنيف المصروف
+  approvedBy      String?           // V3: من اعتمد الفاتورة (للتتبع)
+  approvedAt      DateTime?         // I10: وقت الاعتماد
+  rejectedBy      String?           // V3: من رفض الفاتورة
+  rejectedAt      DateTime?         // I10: وقت الرفض
+
+  // Relations
+  creator         User              @relation("InvoiceCreator", fields: [creatorId], references: [id])
+  project         Project?          @relation(fields: [projectId], references: [id])
+  custody         EmployeeCustody?  @relation(fields: [custodyId], references: [id])
+  category        Category?         @relation(fields: [categoryId], references: [id])
+  items           InvoiceItem[]     // بنود التنسيق
+  outOfPocketDebt OutOfPocketDebt?  // إذا كان PERSONAL أو SPLIT
+}
+
+// ─────────────────────────────────────────────
+// INVOICE ITEM (بنود التنسيق)
+// ─────────────────────────────────────────────
+model InvoiceItem {
+  id          String   @id @default(uuid())
+  invoiceId   String
+  name        String   // اسم المشترى
+  itemNumber  String?  // رقم المشترى
+  description String?  // وصف المشترى
+  quantity    Float    @default(1)
+  unitPrice   Float?   // سعر الوحدة
+  totalPrice  Float    // إجمالي البند
+  createdAt   DateTime @default(now())
+  invoice     Invoice  @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+}
+
+// ─────────────────────────────────────────────
+// OUT-OF-POCKET DEBT (ديون الموظف الشخصية)
+// ─────────────────────────────────────────────
+model OutOfPocketDebt {
+  id          String    @id @default(uuid())
+  invoiceId   String    @unique
+  employeeId  String
+  amount      Float
+  isSettled   Boolean   @default(false)
+  settledAt   DateTime?
+  settledBy   String?
+  createdAt   DateTime  @default(now())
+
+  invoice     Invoice   @relation(fields: [invoiceId], references: [id])
+  employee    User      @relation(fields: [employeeId], references: [id])
+  settler     User?     @relation("DebtSettler", fields: [settledBy], references: [id])
+}
+
+// ─────────────────────────────────────────────
+// AUTO APPROVAL RULE (قواعد الاعتماد التلقائي)
+// ─────────────────────────────────────────────
+model AutoApprovalRule {
+  id              String   @id @default(uuid())
+  maxAmount       Float    // الحد الأقصى للاعتماد التلقائي
+  requiresManager Boolean  @default(false) // يحتاج موافقة المدير إذا تجاوز الحد
+  isActive        Boolean  @default(true)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+// ─────────────────────────────────────────────
+// SYSTEM SETTINGS (إعدادات النظام)
+// ─────────────────────────────────────────────
+model Setting {
+  id        String   @id @default("global") // We will only have one global setting row
+  currency  String   @default("QAR")       // ر.ق as default
+  updatedAt DateTime @updatedAt
+}
+
+
+// ─────────────────────────────────────────────
+// FINANCE REQUEST (طلبات المالية — المحاسب يطلب، المدير يوافق)
+// ─────────────────────────────────────────────
+model FinanceRequest {
+  id          String    @id @default(uuid())
+  // SETTLE_DEBT | ALLOCATE_BUDGET | RETURN_CUSTODY | OTHER
+  type        String
+  requestedBy String
+  approvedBy  String?
+  // PENDING | APPROVED | REJECTED
+  status      String    @default("PENDING")
+  amount      Float?
+  targetId    String?   // ID الكيان المستهدف (debtId, projectId, custodyId)
+  note        String?
+  rejectReason String?
+  createdAt   DateTime  @default(now())
+  resolvedAt  DateTime?
+
+  requester   User      @relation("FinanceRequester", fields: [requestedBy], references: [id])
+  approver    User?     @relation("FinanceApprover", fields: [approvedBy], references: [id])
+}
+
+// ─────────────────────────────────────────────
+// PURCHASE (V3: قائمة مشتريات يضيفها المنسق)
+// ─────────────────────────────────────────────
+model Purchase {
+  id           String    @id @default(uuid())
+  orderNumber  String    @unique
+  description  String
+  amount       Float     @default(0)
+  // V3: REQUESTED (المنسق طلب) | IN_PROGRESS (الموظف بالطريق) | PURCHASED (اشتُري) | CANCELLED
+  status       String    @default("REQUESTED")
+  // V4: NORMAL | HIGH | URGENT — مشتريات المدير العام تُعيَّن تلقائياً URGENT وتظهر أولاً
+  priority     String    @default("NORMAL")
+  date         DateTime  @default(now())
+  projectId    String?
+  creatorId    String    // المنسق الذي طلب الشراء
+  purchasedBy  String?   // الموظف الذي اشترى
+  invoiceId    String?   // الفاتورة المرتبطة بعد الشراء
+  notes        String?   // ملاحظات للموظف
+  imageUrl     String?   // V3: صورة مرفقة للشراء (اختياري)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  isDeleted    Boolean   @default(false)
+  deletedAt    DateTime?
+  creator      User      @relation(fields: [creatorId], references: [id])
+  project      Project?  @relation(fields: [projectId], references: [id])
+}
+
+// ─────────────────────────────────────────────
+// DEPOSIT (Legacy)
+// ─────────────────────────────────────────────
+model Deposit {
+  id          String   @id @default(uuid())
+  type        String
+  description String
+  amount      Float
+  date        DateTime @default(now())
+  creatorId   String
+  createdAt   DateTime @default(now())
+  creator     User     @relation(fields: [creatorId], references: [id])
+}
+
+// ─────────────────────────────────────────────
+// MESSAGE
+// ─────────────────────────────────────────────
+model Message {
+  id            String   @id @default(uuid())
+  content       String
+  filePath      String?
+  isProjectChat Boolean  @default(false)
+  senderId      String
+  receiverId    String?
+  projectId     String?
+  createdAt     DateTime @default(now())
+  project       Project? @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  receiver      User?    @relation("MessageReceiver", fields: [receiverId], references: [id])
+  sender        User     @relation("MessageSender", fields: [senderId], references: [id])
+}
+
+// ─────────────────────────────────────────────
+// NOTIFICATION
+// ─────────────────────────────────────────────
+model Notification {
+  id              String   @id @default(uuid())
+  title           String
+  content         String
+  targetRole      String?
+  targetProjectId String?
+  targetUserId    String?  // V2: إشعار موجه لموظف بعينه
+  isRead          Boolean  @default(false)
+  createdAt       DateTime @default(now())
+}

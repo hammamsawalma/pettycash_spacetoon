@@ -1,0 +1,14 @@
+All users count: 5
+Employees count: 2
+[
+  {
+    id: '588c4e4c-19fd-406d-9da8-0f7217c96880',
+    name: 'Mohamed Tariq',
+    role: 'EMPLOYEE'
+  },
+  {
+    id: 'da399d44-5adb-4145-a559-79a3d26acc2d',
+    name: 'Sara Ahmad',
+    role: 'EMPLOYEE'
+  }
+]

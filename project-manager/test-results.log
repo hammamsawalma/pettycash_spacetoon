@@ -1,0 +1,128 @@
+
+Running 4 tests using 4 workers
+
+[1A[2K[1/4] [chromium] › tests/full-system-test.spec.ts:95:13 › Comprehensive Role and Edge Case Testing › Test full system access and edge cases for ACCOUNTANT
+[1A[2K[2/4] [chromium] › tests/full-system-test.spec.ts:95:13 › Comprehensive Role and Edge Case Testing › Test full system access and edge cases for COORDINATOR
+[1A[2K[3/4] [chromium] › tests/full-system-test.spec.ts:95:13 › Comprehensive Role and Edge Case Testing › Test full system access and edge cases for EMPLOYEE
+[1A[2K[4/4] [chromium] › tests/full-system-test.spec.ts:95:13 › Comprehensive Role and Edge Case Testing › Test full system access and edge cases for ADMIN
+[1A[2K[chromium] › tests/full-system-test.spec.ts:95:13 › Comprehensive Role and Edge Case Testing › Test full system access and edge cases for ADMIN
+
+--- Testing Route Access for ADMIN ---
+
+[1A[2K[chromium] › tests/full-system-test.spec.ts:95:13 › Comprehensive Role and Edge Case Testing › Test full system access and edge cases for COORDINATOR
+
+--- Testing Route Access for COORDINATOR ---
+
+[1A[2K[chromium] › tests/full-system-test.spec.ts:95:13 › Comprehensive Role and Edge Case Testing › Test full system access and edge cases for ACCOUNTANT
+
+--- Testing Route Access for ACCOUNTANT ---
+
+[1A[2K[chromium] › tests/full-system-test.spec.ts:95:13 › Comprehensive Role and Edge Case Testing › Test full system access and edge cases for EMPLOYEE
+
+--- Testing Route Access for EMPLOYEE ---
+
+[1A[2K[chromium] › tests/full-system-test.spec.ts:95:13 › Comprehensive Role and Edge Case Testing › Test full system access and edge cases for ADMIN
+[SUCCESS] ADMIN access to / handled correctly (URL: http://localhost:3000/).
+
+[1A[2K[chromium] › tests/full-system-test.spec.ts:95:13 › Comprehensive Role and Edge Case Testing › Test full system access and edge cases for ACCOUNTANT
+[SUCCESS] ACCOUNTANT access to / handled correctly (URL: http://localhost:3000/).
+
+[1A[2K[chromium] › tests/full-system-test.spec.ts:95:13 › Comprehensive Role and Edge Case Testing › Test full system access and edge cases for COORDINATOR
+[SUCCESS] COORDINATOR access to / handled correctly (URL: http://localhost:3000/).
+
+[1A[2K[chromium] › tests/full-system-test.spec.ts:95:13 › Comprehensive Role and Edge Case Testing › Test full system access and edge cases for EMPLOYEE
+[SUCCESS] EMPLOYEE access to / handled correctly (URL: http://localhost:3000/).
+
+[1A[2K[SUCCESS] EMPLOYEE access to /projects handled correctly (URL: http://localhost:3000/projects).
+
+[1A[2K[chromium] › tests/full-system-test.spec.ts:95:13 › Comprehensive Role and Edge Case Testing › Test full system access and edge cases for ADMIN
+[SUCCESS] ADMIN access to /projects handled correctly (URL: http://localhost:3000/projects).
+
+[1A[2K[chromium] › tests/full-system-test.spec.ts:95:13 › Comprehensive Role and Edge Case Testing › Test full system access and edge cases for COORDINATOR
+[SUCCESS] COORDINATOR access to /projects handled correctly (URL: http://localhost:3000/projects).
+
+[1A[2K  1) [chromium] › tests/full-system-test.spec.ts:95:13 › Comprehensive Role and Edge Case Testing › Test full system access and edge cases for ACCOUNTANT 
+
+    [31mTest timeout of 30000ms exceeded.[39m
+
+    Error: page.waitForTimeout: Target page, context or browser has been closed
+
+      34 |         await page.goto(route.path);
+      35 |         // Wait for the page to settle
+    > 36 |         await page.waitForTimeout(1000);
+         |                    ^
+      37 |         const url = page.url();
+      38 |
+      39 |         // Check if the role is allowed
+        at verifyRouteAccess (/Users/hammamsawalma/spacetoon pocket/project-manager/tests/full-system-test.spec.ts:36:20)
+        at /Users/hammamsawalma/spacetoon pocket/project-manager/tests/full-system-test.spec.ts:108:13
+
+    Error Context: test-results/full-system-test-Comprehen-c0e9b-d-edge-cases-for-ACCOUNTANT-chromium/error-context.md
+
+
+[1A[2K  2) [chromium] › tests/full-system-test.spec.ts:95:13 › Comprehensive Role and Edge Case Testing › Test full system access and edge cases for EMPLOYEE 
+
+    [31mTest timeout of 30000ms exceeded.[39m
+
+    Error: page.goto: net::ERR_ABORTED; maybe frame was detached?
+    Call log:
+    [2m  - navigating to "http://localhost:3000/employees", waiting until "load"[22m
+
+
+      32 |     console.log(`\n--- Testing Route Access for ${role} ---`);
+      33 |     for (const route of routes) {
+    > 34 |         await page.goto(route.path);
+         |                    ^
+      35 |         // Wait for the page to settle
+      36 |         await page.waitForTimeout(1000);
+      37 |         const url = page.url();
+        at verifyRouteAccess (/Users/hammamsawalma/spacetoon pocket/project-manager/tests/full-system-test.spec.ts:34:20)
+        at /Users/hammamsawalma/spacetoon pocket/project-manager/tests/full-system-test.spec.ts:108:13
+
+
+[1A[2K  3) [chromium] › tests/full-system-test.spec.ts:95:13 › Comprehensive Role and Edge Case Testing › Test full system access and edge cases for ADMIN 
+
+    [31mTest timeout of 30000ms exceeded.[39m
+
+    Error: page.goto: net::ERR_ABORTED; maybe frame was detached?
+    Call log:
+    [2m  - navigating to "http://localhost:3000/employees", waiting until "load"[22m
+
+
+      32 |     console.log(`\n--- Testing Route Access for ${role} ---`);
+      33 |     for (const route of routes) {
+    > 34 |         await page.goto(route.path);
+         |                    ^
+      35 |         // Wait for the page to settle
+      36 |         await page.waitForTimeout(1000);
+      37 |         const url = page.url();
+        at verifyRouteAccess (/Users/hammamsawalma/spacetoon pocket/project-manager/tests/full-system-test.spec.ts:34:20)
+        at /Users/hammamsawalma/spacetoon pocket/project-manager/tests/full-system-test.spec.ts:108:13
+
+
+[1A[2K  4) [chromium] › tests/full-system-test.spec.ts:95:13 › Comprehensive Role and Edge Case Testing › Test full system access and edge cases for COORDINATOR 
+
+    [31mTest timeout of 30000ms exceeded.[39m
+
+    Error: page.waitForTimeout: Test timeout of 30000ms exceeded.
+
+      34 |         await page.goto(route.path);
+      35 |         // Wait for the page to settle
+    > 36 |         await page.waitForTimeout(1000);
+         |                    ^
+      37 |         const url = page.url();
+      38 |
+      39 |         // Check if the role is allowed
+        at verifyRouteAccess (/Users/hammamsawalma/spacetoon pocket/project-manager/tests/full-system-test.spec.ts:36:20)
+        at /Users/hammamsawalma/spacetoon pocket/project-manager/tests/full-system-test.spec.ts:108:13
+
+    Error Context: test-results/full-system-test-Comprehen-678a6--edge-cases-for-COORDINATOR-chromium/error-context.md
+
+
+[1A[2K  4 failed
+    [chromium] › tests/full-system-test.spec.ts:95:13 › Comprehensive Role and Edge Case Testing › Test full system access and edge cases for ADMIN 
+    [chromium] › tests/full-system-test.spec.ts:95:13 › Comprehensive Role and Edge Case Testing › Test full system access and edge cases for COORDINATOR 
+    [chromium] › tests/full-system-test.spec.ts:95:13 › Comprehensive Role and Edge Case Testing › Test full system access and edge cases for ACCOUNTANT 
+    [chromium] › tests/full-system-test.spec.ts:95:13 › Comprehensive Role and Edge Case Testing › Test full system access and edge cases for EMPLOYEE 
+
+[36m  Serving HTML report at http://localhost:64908. Press Ctrl+C to quit.[39m

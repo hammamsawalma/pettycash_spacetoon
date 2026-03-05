@@ -1,0 +1,158 @@
+"use client";
+
+import { useActionState } from "react";
+import { EyeOff, Fingerprint, GripHorizontal } from "lucide-react";
+import { Button } from "@/components/ui/Button";
+import { login } from "@/actions/auth";
+import toast from "react-hot-toast";
+
+export default function LoginPage() {
+    const [state, formAction, isPending] = useActionState(login, null);
+
+    return (
+        <div className="min-h-screen flex flex-col md:flex-row bg-white">
+            {/* Brand Section */}
+            <div className="md:w-1/2 bg-[#7F56D9] flex flex-col justify-center items-center p-8 text-white min-h-[30vh] md:min-h-screen">
+                <img src="/spacetoon-logo.png" alt="Spacetoon Logo" className="w-48 h-auto object-contain mb-4" />
+                <p className="text-purple-200 text-center max-w-sm hidden md:block">
+                    النظام الأذكى لإدارة مشاريعك وفريق عملك بكفاءة عالية
+                </p>
+            </div>
+
+            {/* Form Section */}
+            <div className="md:w-1/2 flex justify-center items-center p-6 md:p-12">
+                <div className="w-full max-w-md space-y-8">
+                    <div className="text-center">
+                        <h2 className="text-3xl font-bold text-gray-900 mb-2">مرحبًا بعودتك!</h2>
+                        <p className="text-gray-500">تسجيل الدخول إلى حسابك</p>
+                    </div>
+
+                    {state?.error && (
+                        <div className="p-4 text-sm text-red-800 rounded-lg bg-red-50 dark:text-red-400" role="alert">
+                            {state.error}
+                        </div>
+                    )}
+
+                    <form className="space-y-6" action={(formData) => {
+                        const email = formData.get("email");
+                        const password = formData.get("password");
+                        if (!email || !password) {
+                            toast.error("الرجاء إدخال البريد الإلكتروني وكلمة المرور");
+                            return;
+                        }
+                        if (typeof email === "string" && !email.includes("@")) {
+                            toast.error("صيغة البريد الإلكتروني غير صحيحة");
+                            return;
+                        }
+                        // Then proceed with the server action
+                        formAction(formData);
+                    }}>
+                        {/* Quick Login for testing */}
+                        <div className="space-y-2 pb-4 border-b border-gray-100">
+                            <p className="text-[10px] text-center font-bold text-gray-400 uppercase tracking-widest mb-2">دخول سريع للاختبار</p>
+                            <div className="grid grid-cols-2 gap-2">
+                                {[
+                                    { label: "🌟 مدير عام", email: "gm@pocket.com", color: "bg-yellow-50 hover:bg-yellow-100 border-yellow-300 text-yellow-700" },
+                                    { label: "👑 مدير النظام", email: "admin@pocket.com", color: "bg-purple-50 hover:bg-purple-100 border-purple-200 text-purple-700" },
+                                    { label: "🧾 محاسب", email: "accountant@pocket.com", color: "bg-blue-50 hover:bg-blue-100 border-blue-200 text-blue-700" },
+                                    { label: "🗂️ منسق مشاريع", email: "coordinator@pocket.com", color: "bg-green-50 hover:bg-green-100 border-green-200 text-green-700" },
+                                    { label: "👤 موظف — محمد", email: "emp1@pocket.com", color: "bg-orange-50 hover:bg-orange-100 border-orange-200 text-orange-700" },
+                                    { label: "👤 موظف — سارة", email: "emp2@pocket.com", color: "bg-rose-50 hover:bg-rose-100 border-rose-200 text-rose-700" },
+                                    { label: "👤 موظف — فيصل", email: "emp3@pocket.com", color: "bg-amber-50 hover:bg-amber-100 border-amber-200 text-amber-700" },
+                                ].map(({ label, email, color }) => (
+                                    <Button
+                                        key={email}
+                                        type="button"
+                                        variant="outline"
+                                        size="sm"
+                                        className={`text-xs ${color} font-bold`}
+                                        onClick={() => {
+                                            const emailInput = document.querySelector('input[name="email"]') as HTMLInputElement;
+                                            const passwordInput = document.querySelector('input[name="password"]') as HTMLInputElement;
+                                            if (emailInput && passwordInput) {
+                                                emailInput.value = email;
+                                                passwordInput.value = '123456';
+                                                // trigger React's onChange
+                                                emailInput.dispatchEvent(new Event('input', { bubbles: true }));
+                                                passwordInput.dispatchEvent(new Event('input', { bubbles: true }));
+                                            }
+                                        }}
+                                    >
+                                        {label}
+                                    </Button>
+                                ))}
+                            </div>
+                        </div>
+
+                        <div>
+                            <div className="relative mt-2 rounded-xl shadow-sm">
+                                <input
+                                    id="email"
+                                    type="email"
+                                    name="email"
+                                    placeholder="البريد الالكتروني"
+                                    className="block w-full rounded-xl border-0 py-3.5 pl-4 pr-4 text-gray-900 ring-1 ring-inset ring-gray-200 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-[#7F56D9] sm:text-sm sm:leading-6 bg-gray-50"
+                                />
+                            </div>
+                        </div>
+
+                        <div>
+                            <div className="relative mt-2 rounded-xl shadow-sm">
+                                <input
+                                    id="password"
+                                    type="password"
+                                    name="password"
+                                    placeholder="كلمة المرور"
+                                    className="block w-full rounded-xl border-0 py-3.5 pl-12 pr-4 text-gray-900 ring-1 ring-inset ring-gray-200 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-[#7F56D9] sm:text-sm sm:leading-6 bg-gray-50"
+                                />
+                                <button type="button" className="absolute inset-y-0 left-0 flex items-center pl-4 text-gray-400 hover:text-gray-600">
+                                    <EyeOff className="h-5 w-5" />
+                                </button>
+                            </div>
+                        </div>
+
+                        <div className="flex items-center justify-between">
+                            <div className="flex items-center">
+                                <input
+                                    id="remember-me"
+                                    name="remember-me"
+                                    type="checkbox"
+                                    className="h-4 w-4 rounded border-gray-300 text-[#7F56D9] focus:ring-[#7F56D9]"
+                                />
+                                <label htmlFor="remember-me" className="mr-2 block text-sm text-gray-500">
+                                    تذكرني
+                                </label>
+                            </div>
+                        </div>
+
+                        <Button type="submit" disabled={isPending} isLoading={isPending} className="w-full text-base py-6 rounded-xl" variant="primary">
+                            تسجيل الدخول
+                        </Button>
+                    </form>
+
+                    <div className="grid grid-cols-2 gap-4 pt-4">
+                        <Button type="button" onClick={() => toast("هذه الميزة قريباً", { icon: "⏳" })} variant="outline" className="w-full rounded-xl py-6 flex gap-2">
+                            <Fingerprint className="w-5 h-5" />
+                            بصمة الوجه
+                        </Button>
+                        <Button type="button" onClick={() => toast("هذه الميزة قريباً", { icon: "⏳" })} variant="outline" className="w-full rounded-xl py-6 flex gap-2">
+                            <GripHorizontal className="w-5 h-5" />
+                            النمط
+                        </Button>
+                    </div>
+
+                    <a
+                        href="/manual"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center justify-center gap-2 w-full py-3 rounded-xl border border-[#7F56D9]/30 text-[#7F56D9] hover:bg-[#F9F5FF] transition-colors text-sm font-semibold"
+                    >
+                        <span className="text-base">📖</span>
+                        دليل الاستخدام
+                    </a>
+
+                </div>
+            </div>
+        </div>
+    );
+}

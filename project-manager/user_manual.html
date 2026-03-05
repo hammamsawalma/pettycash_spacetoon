@@ -1,0 +1,2307 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="ar">
+
+<head>
+    <meta charset="UTF-8">
+    <title>دليل استخدام نظام إدارة المشاريع</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box
+        }
+
+        body {
+            font-family: 'Cairo', Arial, sans-serif;
+            direction: rtl;
+            background: #fff;
+            color: #1a1a2e;
+            font-size: 13.5px;
+            line-height: 1.85
+        }
+
+        .cover {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #0f3460 0%, #16213e 50%, #1a1a2e 100%);
+            color: #fff;
+            text-align: center;
+            padding: 60px 40px;
+            page-break-after: always
+        }
+
+        .cover-logo {
+            width: 90px;
+            height: 90px;
+            background: linear-gradient(135deg, #e94560, #f5a623);
+            border-radius: 22px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 44px;
+            margin-bottom: 30px;
+            box-shadow: 0 12px 40px rgba(233, 69, 96, 0.5)
+        }
+
+        .cover h1 {
+            font-size: 38px;
+            font-weight: 800;
+            margin-bottom: 10px;
+            line-height: 1.3
+        }
+
+        .cover h2 {
+            font-size: 18px;
+            font-weight: 300;
+            opacity: .8;
+            margin-bottom: 30px
+        }
+
+        .divider {
+            width: 80px;
+            height: 4px;
+            background: linear-gradient(90deg, #e94560, #f5a623);
+            border-radius: 2px;
+            margin: 15px auto
+        }
+
+        .cover-meta {
+            font-size: 12px;
+            opacity: .55;
+            margin-top: 35px;
+            line-height: 2
+        }
+
+        .badges {
+            display: flex;
+            gap: 14px;
+            justify-content: center;
+            margin-top: 22px;
+            flex-wrap: wrap
+        }
+
+        .badge {
+            background: rgba(255, 255, 255, .1);
+            border: 1px solid rgba(255, 255, 255, .25);
+            padding: 7px 16px;
+            border-radius: 50px;
+            font-size: 12px
+        }
+
+        .toc-page {
+            padding: 55px 50px;
+            page-break-after: always
+        }
+
+        .toc-title {
+            font-size: 28px;
+            font-weight: 800;
+            color: #0f3460;
+            margin-bottom: 28px;
+            border-bottom: 3px solid #e94560;
+            padding-bottom: 14px
+        }
+
+        .toc-ch {
+            font-size: 15px;
+            font-weight: 700;
+            color: #0f3460;
+            margin: 16px 0 6px;
+            display: flex;
+            align-items: center;
+            gap: 10px
+        }
+
+        .toc-ch::before {
+            content: '';
+            display: block;
+            width: 5px;
+            height: 20px;
+            background: linear-gradient(180deg, #e94560, #f5a623);
+            border-radius: 3px
+        }
+
+        .toc-sub {
+            padding-right: 22px;
+            font-size: 13px;
+            color: #444;
+            margin-bottom: 4px;
+            display: flex;
+            align-items: center;
+            gap: 8px
+        }
+
+        .toc-sub::before {
+            content: '◆';
+            font-size: 7px;
+            color: #e94560
+        }
+
+        .chapter {
+            padding: 48px 50px 36px;
+            page-break-before: always
+        }
+
+        .ch-header {
+            background: linear-gradient(135deg, #0f3460, #16213e);
+            color: #fff;
+            padding: 28px 32px;
+            border-radius: 15px;
+            margin-bottom: 32px;
+            display: flex;
+            align-items: center;
+            gap: 18px
+        }
+
+        .ch-icon {
+            font-size: 36px
+        }
+
+        .ch-num {
+            font-size: 11px;
+            opacity: .6;
+            letter-spacing: 2px
+        }
+
+        .ch-title {
+            font-size: 24px;
+            font-weight: 800;
+            margin-top: 4px
+        }
+
+        .ch-desc {
+            font-size: 13px;
+            opacity: .8;
+            margin-top: 5px
+        }
+
+        h2.st {
+            font-size: 18px;
+            font-weight: 700;
+            color: #0f3460;
+            margin: 26px 0 13px;
+            display: flex;
+            align-items: center;
+            gap: 9px
+        }
+
+        h2.st::before {
+            content: '';
+            display: block;
+            width: 4px;
+            height: 22px;
+            background: linear-gradient(180deg, #e94560, #f5a623);
+            border-radius: 2px
+        }
+
+        h3.subt {
+            font-size: 15px;
+            font-weight: 700;
+            color: #333;
+            margin: 16px 0 8px
+        }
+
+        p {
+            margin-bottom: 11px;
+            color: #333;
+            line-height: 1.9
+        }
+
+        .roles-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 18px;
+            margin: 18px 0
+        }
+
+        .rc {
+            border-radius: 13px;
+            padding: 20px;
+            border: 2px solid transparent
+        }
+
+        .rc.admin {
+            background: #fff8f8;
+            border-color: #e94560
+        }
+
+        .rc.acc {
+            background: #f8f8ff;
+            border-color: #667eea
+        }
+
+        .rc.coord {
+            background: #f4fff9;
+            border-color: #11998e
+        }
+
+        .rc.emp {
+            background: #f0f8ff;
+            border-color: #4facfe
+        }
+
+        .rc .ri {
+            font-size: 30px;
+            margin-bottom: 8px
+        }
+
+        .rc .rn {
+            font-size: 16px;
+            font-weight: 800;
+            margin-bottom: 5px
+        }
+
+        .rc .rd {
+            font-size: 12.5px;
+            color: #555;
+            line-height: 1.7
+        }
+
+        table.pt {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 13px 0;
+            border-radius: 11px;
+            overflow: hidden;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, .08)
+        }
+
+        table.pt thead {
+            background: #0f3460;
+            color: #fff
+        }
+
+        table.pt th {
+            padding: 11px 14px;
+            text-align: right;
+            font-size: 13px;
+            white-space: nowrap
+        }
+
+        table.pt td {
+            padding: 9px 14px;
+            font-size: 13px;
+            border-bottom: 1px solid #f0f0f0
+        }
+
+        table.pt tr:last-child td {
+            border-bottom: none
+        }
+
+        table.pt tr:nth-child(even) td {
+            background: #fafbff
+        }
+
+        .ck {
+            color: #11998e;
+            font-weight: 700
+        }
+
+        .cx {
+            color: #e94560;
+            font-weight: 700
+        }
+
+        ol.steps {
+            margin: 13px 0;
+            padding: 0;
+            list-style: none
+        }
+
+        ol.steps li {
+            display: flex;
+            gap: 13px;
+            align-items: flex-start;
+            margin-bottom: 10px;
+            padding: 12px 15px;
+            background: #f8f9ff;
+            border-radius: 10px;
+            border-right: 4px solid #e94560
+        }
+
+        .sn {
+            min-width: 25px;
+            height: 25px;
+            background: linear-gradient(135deg, #e94560, #f5a623);
+            color: #fff;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            font-weight: 700;
+            flex-shrink: 0;
+            margin-top: 1px
+        }
+
+        .st2 {
+            color: #333;
+            font-size: 13px;
+            line-height: 1.75
+        }
+
+        .ib {
+            border-radius: 11px;
+            padding: 14px 18px;
+            margin: 13px 0;
+            display: flex;
+            gap: 13px;
+            align-items: flex-start
+        }
+
+        .ib.tip {
+            background: #e8f8f0;
+            border-right: 4px solid #11998e
+        }
+
+        .ib.warn {
+            background: #fff8e6;
+            border-right: 4px solid #f5a623
+        }
+
+        .ib.danger {
+            background: #fff0f3;
+            border-right: 4px solid #e94560
+        }
+
+        .ib.info {
+            background: #e8f0ff;
+            border-right: 4px solid #667eea
+        }
+
+        .ib .ico {
+            font-size: 20px;
+            min-width: 26px
+        }
+
+        .ib .txt {
+            font-size: 13px;
+            color: #333;
+            line-height: 1.75
+        }
+
+        .ib strong {
+            display: block;
+            margin-bottom: 3px
+        }
+
+        ul.fl {
+            list-style: none;
+            margin: 10px 0
+        }
+
+        ul.fl li {
+            display: flex;
+            gap: 9px;
+            margin-bottom: 8px;
+            font-size: 13px;
+            color: #333
+        }
+
+        ul.fl li::before {
+            content: '←';
+            color: #e94560;
+            font-weight: 700;
+            min-width: 18px
+        }
+
+        .footer {
+            text-align: center;
+            font-size: 11px;
+            color: #aaa;
+            margin-top: 45px;
+            padding-top: 13px;
+            border-top: 1px solid #eee
+        }
+
+        @media print {
+            body {
+                font-size: 12px
+            }
+
+            .chapter {
+                padding: 38px 42px 28px
+            }
+
+            .cover {
+                page-break-after: always;
+                min-height: 100vh
+            }
+
+            .toc-page {
+                page-break-after: always
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- ═══════════════════════════════════════════ COVER ═══ -->
+    <div class="cover">
+        <div class="cover-logo">📋</div>
+        <h1>نظام إدارة المشاريع</h1>
+        <h2>دليل الاستخدام الشامل للموظفين</h2>
+        <div class="divider"></div>
+        <div class="badges">
+            <span class="badge">👑 المدير</span>
+            <span class="badge">📊 المحاسب</span>
+            <span class="badge">🧭 المنسق</span>
+            <span class="badge">👷 الموظف</span>
+        </div>
+        <div class="cover-meta">
+            إصدار 3.0 — مارس 2026<br>
+            جميع الحقوق محفوظة — وثيقة داخلية للموظفين
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════ TOC ═══ -->
+    <div class="toc-page">
+        <div class="toc-title">📖 فهرس المحتويات</div>
+
+        <div class="toc-ch">1. نظرة عامة على النظام</div>
+        <div class="toc-sub">ما هو النظام وما هدفه</div>
+        <div class="toc-sub">كيف يعمل النظام</div>
+        <div class="toc-sub">تسجيل الدخول</div>
+
+        <div class="toc-ch">2. الأدوار والصلاحيات</div>
+        <div class="toc-sub">دور المدير (Admin)</div>
+        <div class="toc-sub">دور المحاسب (Accountant)</div>
+        <div class="toc-sub">دور المنسق (Coordinator)</div>
+        <div class="toc-sub">دور الموظف (Employee)</div>
+        <div class="toc-sub">جدول مقارنة الصلاحيات</div>
+
+        <div class="toc-ch">3. الصفحة الرئيسية (لوحة التحكم)</div>
+        <div class="toc-sub">مؤشرات الأداء حسب الدور</div>
+        <div class="toc-sub">المشاريع الأخيرة والإشعارات</div>
+
+        <div class="toc-ch">4. إدارة المشاريع</div>
+        <div class="toc-sub">إنشاء مشروع جديد</div>
+        <div class="toc-sub">تعديل المشروع</div>
+        <div class="toc-sub">إغلاق المشروع وأرشفته</div>
+        <div class="toc-sub">إعادة تفعيل مشروع</div>
+
+        <div class="toc-ch">5. الموظفون</div>
+        <div class="toc-sub">إضافة موظف جديد</div>
+        <div class="toc-sub">تعديل بيانات الموظف</div>
+
+        <div class="toc-ch">6. العهدات المالية</div>
+        <div class="toc-sub">صرف عهدة للموظف</div>
+        <div class="toc-sub">تأكيد استلام العهدة</div>
+        <div class="toc-sub">تحويل عهدة الطوارئ</div>
+        <div class="toc-sub">إرجاع رصيد العهدة</div>
+
+        <div class="toc-ch">7. الفواتير والمصروفات</div>
+        <div class="toc-sub">رفع فاتورة جديدة</div>
+        <div class="toc-sub">أنواع الدفع (عهدة / شخصي / مختلط)</div>
+        <div class="toc-sub">اعتماد أو رفض الفاتورة</div>
+        <div class="toc-sub">الاعتماد التلقائي</div>
+
+        <div class="toc-ch">8. قائمة المشتريات</div>
+        <div class="toc-sub">إنشاء طلب شراء</div>
+        <div class="toc-sub">تنفيذ الشراء وتحديث الحالة</div>
+
+        <div class="toc-ch">9. الديون الشخصية</div>
+        <div class="toc-sub">كيف تنشأ الديون</div>
+        <div class="toc-sub">تسوية الديون</div>
+
+        <div class="toc-ch">10. خزنة الشركة</div>
+        <div class="toc-sub">إيداع في الخزنة</div>
+        <div class="toc-sub">تخصيص ميزانية للمشاريع</div>
+
+        <div class="toc-ch">11. الطلبات المالية</div>
+        <div class="toc-sub">إنشاء طلب مالي</div>
+        <div class="toc-sub">الموافقة على الطلبات</div>
+
+        <div class="toc-ch">12. التقارير والتحليلات</div>
+        <div class="toc-ch">13. المحادثات والرسائل</div>
+        <div class="toc-ch">14. الإشعارات</div>
+        <div class="toc-ch">15. الأرشيف</div>
+        <div class="toc-ch">16. سلة المهملات</div>
+        <div class="toc-ch">17. الإعدادات والدعم الفني</div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════ CHAPTER 1 ═══ -->
+    <div class="chapter">
+        <div class="ch-header">
+            <div class="ch-icon">🏢</div>
+            <div>
+                <div class="ch-num">الفصل الأول</div>
+                <div class="ch-title">نظرة عامة على النظام</div>
+                <div class="ch-desc">ما هو النظام؟ ولماذا استخدامه؟</div>
+            </div>
+        </div>
+
+        <h2 class="st">ما هو النظام؟</h2>
+        <p>
+            نظام إدارة المشاريع هو منصة رقمية متكاملة تتيح للشركة متابعة مشاريعها ومصروفاتها وموظفيها في مكان واحد.
+            يساعد النظام على تنظيم العمل، تتبع المبالغ المالية، والتأكد من أن كل ريال يُصرف في مكانه الصحيح ومدروس بشكل
+            كامل.
+        </p>
+        <p>
+            يعمل النظام عبر الإنترنت، ويمكن الوصول إليه من أي متصفح في أي جهاز كمبيوتر أو جهاز لوحي، دون الحاجة لتنزيل
+            أي برنامج.
+        </p>
+
+        <h2 class="st">الفكرة الأساسية للنظام</h2>
+        <p>يعتمد النظام على مسار مالي واضح يتدفق على ثلاثة مستويات:</p>
+        <ol class="steps">
+            <li>
+                <div class="sn">1</div>
+                <div class="st2"><strong>خزنة الشركة ← المشاريع:</strong> يوافق المدير على تخصيص ميزانية من خزنة الشركة
+                    لكل مشروع.</div>
+            </li>
+            <li>
+                <div class="sn">2</div>
+                <div class="st2"><strong>المشاريع ← الموظفون (عهدة):</strong> يصرف المنسق أو المدير مبالغ نقدية للموظفين
+                    تُسمى "العهدة" لتغطية مصروفات الميدان.</div>
+            </li>
+            <li>
+                <div class="sn">3</div>
+                <div class="st2"><strong>الموظفون ← فواتير:</strong> يرفع الموظف فواتير مصروفاته، يراجعها المحاسب
+                    ويعتمدها أو يرفضها.</div>
+            </li>
+        </ol>
+
+        <div class="ib info">
+            <div class="ico">💡</div>
+            <div class="txt"><strong>ملاحظة مهمة</strong>
+                كل عملية في النظام مسجلة ومتتبعة. لا يمكن حذف أي سجل نهائياً دون مرور بمرحلة سلة المهملات، مما يضمن
+                الشفافية الكاملة.
+            </div>
+        </div>
+
+        <h2 class="st">كيف تسجّل الدخول؟</h2>
+        <ol class="steps">
+            <li>
+                <div class="sn">1</div>
+                <div class="st2">افتح متصفح الإنترنت وادخل على رابط النظام الذي زوّدك به مدير النظام.</div>
+            </li>
+            <li>
+                <div class="sn">2</div>
+                <div class="st2">ستظهر لك صفحة تسجيل الدخول. أدخل <strong>البريد الإلكتروني</strong> وكلمة المرور التي
+                    أعطاك إياها المدير.</div>
+            </li>
+            <li>
+                <div class="sn">3</div>
+                <div class="st2">اضغط على زر <strong>"تسجيل الدخول"</strong>. ستنتقل تلقائياً إلى لوحة التحكم الرئيسية
+                    المناسبة لدورك.</div>
+            </li>
+            <li>
+                <div class="sn">4</div>
+                <div class="st2">تبقى جلستك نشطة لمدة <strong>7 أيام</strong> دون الحاجة لإعادة تسجيل الدخول.</div>
+            </li>
+        </ol>
+
+        <div class="ib warn">
+            <div class="ico">⚠️</div>
+            <div class="txt"><strong>أمان حسابك</strong>
+                لا تشارك كلمة مرورك مع أي شخص. إذا نسيت كلمة مرورك أو تعرض حسابك للاختراق، تواصل مع مدير النظام فوراً.
+            </div>
+        </div>
+
+        <h2 class="st">وظائف النظام الرئيسية</h2>
+        <ul class="fl">
+            <li>إدارة وتتبع المشاريع من البداية حتى الإغلاق</li>
+            <li>إدارة بيانات الموظفين ورواتبهم</li>
+            <li>متابعة العهدات المالية (المبالغ الممنوحة للموظفين)</li>
+            <li>رفع واعتماد الفواتير والمصروفات</li>
+            <li>إنشاء وتتبع قوائم المشتريات</li>
+            <li>إدارة ديون الموظفين الشخصية</li>
+            <li>متابعة خزنة الشركة وميزانيات المشاريع</li>
+            <li>الطلبات المالية بين الأقسام</li>
+            <li>التقارير والإحصائيات</li>
+            <li>المحادثات والتواصل بين الفريق</li>
+            <li>الإشعارات الفورية</li>
+        </ul>
+
+        <div class="footer">نظام إدارة المشاريع — دليل الاستخدام الشامل — الفصل الأول</div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════ CHAPTER 2 ═══ -->
+    <div class="chapter">
+        <div class="ch-header">
+            <div class="ch-icon">👥</div>
+            <div>
+                <div class="ch-num">الفصل الثاني</div>
+                <div class="ch-title">الأدوار والصلاحيات</div>
+                <div class="ch-desc">من يستطيع فعل ماذا في النظام؟</div>
+            </div>
+        </div>
+
+        <p>يعمل النظام بنظام الأدوار، وهو ما يعني أن كل موظف له حسابه الخاص بصلاحيات محددة. هناك <strong>أربعة
+                أدوار</strong> رئيسية:</p>
+
+        <div class="roles-grid">
+            <div class="rc admin">
+                <div class="ri">👑</div>
+                <div class="rn">المدير (Admin)</div>
+                <div class="rd">يملك كامل الصلاحيات على النظام. يدير الموظفين، يوافق على الإجراءات المالية الكبرى، يفتح
+                    ويغلق المشاريع، ويمكنه رؤية وتعديل كل شيء.</div>
+            </div>
+            <div class="rc acc">
+                <div class="ri">📊</div>
+                <div class="rn">المحاسب (Accountant)</div>
+                <div class="rd">مسؤول عن مراجعة الفواتير واعتمادها أو رفضها، ومتابعة خزنة الشركة، وتسوية الديون. يرى كل
+                    الأرقام المالية بالتفصيل.</div>
+            </div>
+            <div class="rc coord">
+                <div class="ri">🧭</div>
+                <div class="rn">المنسق (Coordinator)</div>
+                <div class="rd">يدير المشاريع المسندة إليه، يضيف قوائم المشتريات، يصرف العهدات للموظفين، ويتابع سير
+                    العمل الميداني في مشاريعه فقط.</div>
+            </div>
+            <div class="rc emp">
+                <div class="ri">👷</div>
+                <div class="rn">الموظف (Employee)</div>
+                <div class="rd">يعمل داخل المشاريع المسجل فيها. يتسلم العهدة، يؤكد استلامها، يرفع فواتير مصروفاته، ويتبع
+                    التعليمات الواردة من المنسق.</div>
+            </div>
+        </div>
+
+        <div class="ib info">
+            <div class="ico">📌</div>
+            <div class="txt"><strong>ملاحظة حول المنسق داخل المشاريع</strong>
+                قد يكون الموظف مسجلاً في مشروع بدور "منسق" وفي مشروع آخر بدور "موظف". الأدوار داخل المشاريع مستقلة عن
+                الدور العام في النظام.
+            </div>
+        </div>
+
+        <h2 class="st">جدول مقارنة الصلاحيات التفصيلي</h2>
+
+        <h3 class="subt">إدارة الموظفين والحسابات</h3>
+        <table class="pt">
+            <thead>
+                <tr>
+                    <th>الإجراء</th>
+                    <th>المدير</th>
+                    <th>المحاسب</th>
+                    <th>المنسق</th>
+                    <th>الموظف</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>إضافة موظف جديد</td>
+                    <td class="ck">✔</td>
+                    <td class="cx">✘</td>
+                    <td class="cx">✘</td>
+                    <td class="cx">✘</td>
+                </tr>
+                <tr>
+                    <td>تعديل بيانات الموظف</td>
+                    <td class="ck">✔</td>
+                    <td class="cx">✘</td>
+                    <td class="cx">✘</td>
+                    <td class="cx">✘</td>
+                </tr>
+                <tr>
+                    <td>حذف موظف (إلى سلة المهملات)</td>
+                    <td class="ck">✔</td>
+                    <td class="cx">✘</td>
+                    <td class="cx">✘</td>
+                    <td class="cx">✘</td>
+                </tr>
+                <tr>
+                    <td>عرض قائمة الموظفين</td>
+                    <td class="ck">✔</td>
+                    <td class="ck">✔</td>
+                    <td class="ck">✔</td>
+                    <td class="ck">✔</td>
+                </tr>
+                <tr>
+                    <td>رؤية رواتب الموظفين</td>
+                    <td class="ck">✔</td>
+                    <td class="ck">✔</td>
+                    <td class="cx">✘</td>
+                    <td class="cx">✘</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h3 class="subt">إدارة المشاريع</h3>
+        <table class="pt">
+            <thead>
+                <tr>
+                    <th>الإجراء</th>
+                    <th>المدير</th>
+                    <th>المحاسب</th>
+                    <th>المنسق</th>
+                    <th>الموظف</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>إنشاء مشروع جديد</td>
+                    <td class="ck">✔</td>
+                    <td class="cx">✘</td>
+                    <td class="ck">✔</td>
+                    <td class="cx">✘</td>
+                </tr>
+                <tr>
+                    <td>تعديل مشروع</td>
+                    <td class="ck">✔</td>
+                    <td class="cx">✘</td>
+                    <td>✔ (مشاريعه فقط)</td>
+                    <td class="cx">✘</td>
+                </tr>
+                <tr>
+                    <td>إغلاق مشروع نهائياً</td>
+                    <td class="ck">✔</td>
+                    <td class="cx">✘</td>
+                    <td class="cx">✘</td>
+                    <td class="cx">✘</td>
+                </tr>
+                <tr>
+                    <td>إعادة تفعيل مشروع مغلق</td>
+                    <td class="ck">✔</td>
+                    <td class="cx">✘</td>
+                    <td class="cx">✘</td>
+                    <td class="cx">✘</td>
+                </tr>
+                <tr>
+                    <td>عرض جميع المشاريع</td>
+                    <td class="ck">✔</td>
+                    <td class="ck">✔</td>
+                    <td>مشاريعه فقط</td>
+                    <td>مشاريعه فقط</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h3 class="subt">العهدات المالية</h3>
+        <table class="pt">
+            <thead>
+                <tr>
+                    <th>الإجراء</th>
+                    <th>المدير</th>
+                    <th>المحاسب</th>
+                    <th>المنسق</th>
+                    <th>الموظف</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>صرف عهدة لموظف</td>
+                    <td class="ck">✔</td>
+                    <td class="cx">✘</td>
+                    <td class="ck">✔</td>
+                    <td class="cx">✘</td>
+                </tr>
+                <tr>
+                    <td>تأكيد استلام العهدة</td>
+                    <td class="cx">✘</td>
+                    <td class="cx">✘</td>
+                    <td class="cx">✘</td>
+                    <td>✔ (عهدته فقط)</td>
+                </tr>
+                <tr>
+                    <td>تحويل عهدة طارئ</td>
+                    <td class="ck">✔</td>
+                    <td class="cx">✘</td>
+                    <td class="ck">✔</td>
+                    <td class="cx">✘</td>
+                </tr>
+                <tr>
+                    <td>تسجيل إرجاع العهدة</td>
+                    <td class="ck">✔</td>
+                    <td class="cx">✘</td>
+                    <td class="cx">✘</td>
+                    <td class="cx">✘</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h3 class="subt">الفواتير</h3>
+        <table class="pt">
+            <thead>
+                <tr>
+                    <th>الإجراء</th>
+                    <th>المدير</th>
+                    <th>المحاسب</th>
+                    <th>المنسق</th>
+                    <th>الموظف</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>رفع فاتورة جديدة</td>
+                    <td class="ck">✔</td>
+                    <td class="ck">✔</td>
+                    <td class="ck">✔</td>
+                    <td>✔ (في مشاريعه)</td>
+                </tr>
+                <tr>
+                    <td>اعتماد/رفض فاتورة</td>
+                    <td class="ck">✔</td>
+                    <td class="ck">✔</td>
+                    <td class="cx">✘</td>
+                    <td class="cx">✘</td>
+                </tr>
+                <tr>
+                    <td>حذف فاتورة</td>
+                    <td class="ck">✔</td>
+                    <td class="cx">✘</td>
+                    <td class="cx">✘</td>
+                    <td class="cx">✘</td>
+                </tr>
+                <tr>
+                    <td>عرض كل الفواتير</td>
+                    <td class="ck">✔</td>
+                    <td class="ck">✔</td>
+                    <td>مشاريعه فقط</td>
+                    <td>مشاريعه فقط</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h3 class="subt">المشتريات والديون والخزنة</h3>
+        <table class="pt">
+            <thead>
+                <tr>
+                    <th>الإجراء</th>
+                    <th>المدير</th>
+                    <th>المحاسب</th>
+                    <th>المنسق</th>
+                    <th>الموظف</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>إنشاء قائمة مشتريات</td>
+                    <td class="ck">✔</td>
+                    <td class="cx">✘</td>
+                    <td class="ck">✔</td>
+                    <td class="cx">✘</td>
+                </tr>
+                <tr>
+                    <td>تحديث حالة المشتريات (تم الشراء)</td>
+                    <td class="ck">✔</td>
+                    <td class="ck">✔</td>
+                    <td class="ck">✔</td>
+                    <td class="ck">✔</td>
+                </tr>
+                <tr>
+                    <td>تسوية ديون الموظفين</td>
+                    <td class="ck">✔</td>
+                    <td class="ck">✔</td>
+                    <td class="cx">✘</td>
+                    <td class="cx">✘</td>
+                </tr>
+                <tr>
+                    <td>الإيداع في خزنة الشركة</td>
+                    <td class="ck">✔</td>
+                    <td class="cx">✘</td>
+                    <td class="cx">✘</td>
+                    <td class="cx">✘</td>
+                </tr>
+                <tr>
+                    <td>رؤية خزنة الشركة</td>
+                    <td class="ck">✔</td>
+                    <td class="ck">✔</td>
+                    <td class="cx">✘</td>
+                    <td class="cx">✘</td>
+                </tr>
+                <tr>
+                    <td>تخصيص ميزانية لمشروع</td>
+                    <td class="ck">✔</td>
+                    <td class="cx">✘</td>
+                    <td class="cx">✘</td>
+                    <td class="cx">✘</td>
+                </tr>
+                <tr>
+                    <td>إنشاء طلب مالي</td>
+                    <td class="ck">✔</td>
+                    <td class="ck">✔</td>
+                    <td class="cx">✘</td>
+                    <td class="cx">✘</td>
+                </tr>
+                <tr>
+                    <td>الموافقة على الطلبات المالية</td>
+                    <td class="ck">✔</td>
+                    <td class="cx">✘</td>
+                    <td class="cx">✘</td>
+                    <td class="cx">✘</td>
+                </tr>
+                <tr>
+                    <td>عرض التقارير والإحصائيات</td>
+                    <td class="ck">✔</td>
+                    <td class="ck">✔</td>
+                    <td>مشاريعه فقط</td>
+                    <td class="cx">✘</td>
+                </tr>
+                <tr>
+                    <td>سلة المهملات (استعادة/حذف نهائي)</td>
+                    <td class="ck">✔</td>
+                    <td class="cx">✘</td>
+                    <td class="cx">✘</td>
+                    <td class="cx">✘</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="footer">نظام إدارة المشاريع — دليل الاستخدام الشامل — الفصل الثاني</div>
+    </div>
+
+
+    <!-- ═══════════════════════════════════════════ CHAPTER 3 ═══ -->
+    <div class="chapter">
+        <div class="ch-header">
+            <div class="ch-icon">🏠</div>
+            <div>
+                <div class="ch-num">الفصل الثالث</div>
+                <div class="ch-title">الصفحة الرئيسية — لوحة التحكم</div>
+                <div class="ch-desc">نظرة سريعة على أهم المعلومات عند الدخول</div>
+            </div>
+        </div>
+
+        <p>عند تسجيل دخولك، ستفتح لوحة التحكم الرئيسية تلقائياً. تُعرض فيها معلومات مختلفة حسب دورك في النظام.</p>
+
+        <h2 class="st">ما يراه كل دور في لوحة التحكم</h2>
+
+        <h3 class="subt">👑 المدير والمحاسب يريان:</h3>
+        <ul class="fl">
+            <li>إجمالي عدد المشاريع (الجارية والمكتملة)</li>
+            <li>عدد الموظفين المسجلين في النظام</li>
+            <li>إجمالي الإيرادات والمصروفات المعتمدة</li>
+            <li>إيرادات ومصروفات اليوم الحالي</li>
+            <li>آخر 4 فواتير معلقة تنتظر المراجعة</li>
+            <li>رسم بياني للمشاريع شهرياً وسنوياً</li>
+            <li>آخر الإشعارات</li>
+        </ul>
+
+        <h3 class="subt">🧭 المنسق يرى:</h3>
+        <ul class="fl">
+            <li>المشاريع التي يديرها أو يشارك فيها فقط</li>
+            <li>المبالغ الواردة لمشاريعه والمصروفة</li>
+            <li>رسم بياني لمشاريعه</li>
+            <li>إشعاراته الخاصة</li>
+        </ul>
+
+        <h3 class="subt">👷 الموظف يرى:</h3>
+        <ul class="fl">
+            <li>مشاريعه الحالية التي هو عضو فيها</li>
+            <li>إجمالي ما استلمه من عهدات وما أنفقه والمتبقي لديه</li>
+            <li>إشعاراته الشخصية</li>
+        </ul>
+
+        <div class="ib tip">
+            <div class="ico">✅</div>
+            <div class="txt"><strong>نصيحة</strong>
+                ابدأ دائماً من لوحة التحكم الرئيسية. من خلالها يمكنك رؤية المهام العاجلة (مثل الفواتير المعلقة أو إشعار
+                استلام عهدة) فور دخولك للنظام.
+            </div>
+        </div>
+
+        <div class="footer">نظام إدارة المشاريع — دليل الاستخدام الشامل — الفصل الثالث</div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════ CHAPTER 4 ═══ -->
+    <div class="chapter">
+        <div class="ch-header">
+            <div class="ch-icon">📁</div>
+            <div>
+                <div class="ch-num">الفصل الرابع</div>
+                <div class="ch-title">إدارة المشاريع</div>
+                <div class="ch-desc">إنشاء المشاريع وإدارتها وإغلاقها</div>
+            </div>
+        </div>
+
+        <p>المشروع هو الوحدة الأساسية في النظام. كل مصروف، فاتورة، وعهدة مالية مرتبطة بمشروع محدد. يمر المشروع بثلاث
+            حالات: <strong>قيد التنفيذ — مكتمل — محذوف</strong>.</p>
+
+        <h2 class="st">إنشاء مشروع جديد (المدير أو المنسق)</h2>
+        <ol class="steps">
+            <li>
+                <div class="sn">1</div>
+                <div class="st2">من القائمة الجانبية، اضغط على <strong>"المشاريع"</strong>.</div>
+            </li>
+            <li>
+                <div class="sn">2</div>
+                <div class="st2">اضغط على زر <strong>"مشروع جديد"</strong> في أعلى الصفحة.</div>
+            </li>
+            <li>
+                <div class="sn">3</div>
+                <div class="st2">أدخل <strong>اسم المشروع</strong> (إلزامي)، ثم الوصف، وتاريخَي البداية والنهاية
+                    المتوقعَين، والميزانية الإجمالية المخططة.</div>
+            </li>
+            <li>
+                <div class="sn">4</div>
+                <div class="st2">اختر <strong>أعضاء الفريق</strong> من قائمة الموظفين المتاحة.</div>
+            </li>
+            <li>
+                <div class="sn">5</div>
+                <div class="st2">اضغط <strong>"حفظ"</strong>. سيظهر المشروع فوراً في قائمة المشاريع.</div>
+            </li>
+        </ol>
+
+        <div class="ib warn">
+            <div class="ico">⚠️</div>
+            <div class="txt"><strong>ملاحظة</strong>
+                إنشاء المشروع لا يعني تخصيص ميزانية له تلقائياً. الميزانية الفعلية تُخصَّص من خزنة الشركة بشكل منفصل
+                (انظر الفصل العاشر).
+            </div>
+        </div>
+
+        <h2 class="st">تعديل مشروع قائم</h2>
+        <p>يستطيع <strong>المدير</strong> تعديل أي مشروع. أما <strong>المنسق</strong> فيستطيع تعديل المشاريع التي يديرها
+            فقط.</p>
+        <ol class="steps">
+            <li>
+                <div class="sn">1</div>
+                <div class="st2">افتح المشروع المطلوب من قائمة المشاريع.</div>
+            </li>
+            <li>
+                <div class="sn">2</div>
+                <div class="st2">اضغط على زر <strong>"تعديل"</strong>.</div>
+            </li>
+            <li>
+                <div class="sn">3</div>
+                <div class="st2">يمكنك تغيير الاسم، الوصف، الحالة، التواريخ، الميزانية المخططة، وإضافة أعضاء جدد أو حذف
+                    أعضاء ليس لديهم عهدة نشطة.</div>
+            </li>
+            <li>
+                <div class="sn">4</div>
+                <div class="st2">اضغط <strong>"حفظ التعديلات"</strong>.</div>
+            </li>
+        </ol>
+
+        <h2 class="st">إغلاق مشروع نهائياً (المدير فقط)</h2>
+        <p>يُغلق المشروع عند اكتمال العمل وتصفية كافة الحسابات. يشترط النظام قبل الإغلاق:</p>
+        <ul class="fl">
+            <li>ألا تكون هناك <strong>عهدات مفتوحة</strong> برصيد غير مُرجَع</li>
+            <li>ألا تكون هناك <strong>فواتير معلقة</strong> تنتظر المراجعة</li>
+            <li>ألا تكون هناك <strong>ديون شخصية</strong> غير مسوَّاة للموظفين</li>
+        </ul>
+        <p>إذا تحققت هذه الشروط، يُغلق المشروع تلقائياً ويُعاد الرصيد المتبقي من ميزانيته إلى خزنة الشركة.</p>
+
+        <div class="ib danger">
+            <div class="ico">🔴</div>
+            <div class="txt"><strong>تنبيه</strong>
+                عملية الإغلاق نهائية ولا يمكن التراجع عنها إلا عبر "إعادة التفعيل" التي يملكها المدير وحده من صفحة
+                الأرشيف.
+            </div>
+        </div>
+
+        <h2 class="st">الأرشيف — المشاريع المكتملة</h2>
+        <p>جميع المشاريع المغلقة تنتقل تلقائياً إلى صفحة الأرشيف. من هذه الصفحة يستطيع المدير فقط <strong>إعادة
+                تفعيل</strong> أي مشروع مغلق وإعادته للحالة النشطة إذا دعت الحاجة.</p>
+
+        <div class="footer">نظام إدارة المشاريع — دليل الاستخدام الشامل — الفصل الرابع</div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════ CHAPTER 5 ═══ -->
+    <div class="chapter">
+        <div class="ch-header">
+            <div class="ch-icon">👩‍💼</div>
+            <div>
+                <div class="ch-num">الفصل الخامس</div>
+                <div class="ch-title">إدارة الموظفين</div>
+                <div class="ch-desc">إضافة الموظفين وتحديث بياناتهم</div>
+            </div>
+        </div>
+
+        <p>صفحة الموظفين تتيح للمدير إدارة حسابات جميع العاملين في النظام. كل الأدوار يستطيعون <em>عرض</em> قائمة
+            الموظفين، لكن الإضافة والتعديل والحذف للمدير حصراً.</p>
+
+        <h2 class="st">إضافة موظف جديد (المدير فقط)</h2>
+        <ol class="steps">
+            <li>
+                <div class="sn">1</div>
+                <div class="st2">من القائمة الجانبية، اضغط على <strong>"الموظفون"</strong>.</div>
+            </li>
+            <li>
+                <div class="sn">2</div>
+                <div class="st2">اضغط <strong>"إضافة موظف"</strong>.</div>
+            </li>
+            <li>
+                <div class="sn">3</div>
+                <div class="st2">أدخل: <strong>الاسم الكامل، رقم الهاتف</strong> (إلزاميان)، البريد الإلكتروني
+                    (اختياري)، المسمى الوظيفي، الراتب، وكلمة المرور.</div>
+            </li>
+            <li>
+                <div class="sn">4</div>
+                <div class="st2">حدد <strong>الدور</strong>: موظف عادي، محاسب، أو منسق.</div>
+            </li>
+            <li>
+                <div class="sn">5</div>
+                <div class="st2">يمكنك رفع <strong>صورة شخصية</strong> للموظف (اختياري).</div>
+            </li>
+            <li>
+                <div class="sn">6</div>
+                <div class="st2">اضغط <strong>"حفظ"</strong>. يمكن للموظف الآن تسجيل الدخول فوراً.</div>
+            </li>
+        </ol>
+
+        <div class="ib info">
+            <div class="ico">📌</div>
+            <div class="txt"><strong>رقم الهاتف فريد</strong>
+                لا يمكن تسجيل رقم هاتف أو بريد إلكتروني مكرر في النظام. إذا حاول المدير إدخال بيانات مكررة، سيظهر تنبيه
+                بالخطأ.
+            </div>
+        </div>
+
+        <h2 class="st">ما يراه كل دور في صفحة الموظف</h2>
+        <table class="pt">
+            <thead>
+                <tr>
+                    <th>المعلومة</th>
+                    <th>المدير</th>
+                    <th>المحاسب</th>
+                    <th>المنسق</th>
+                    <th>الموظف</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>الاسم وبيانات التواصل</td>
+                    <td class="ck">✔</td>
+                    <td class="ck">✔</td>
+                    <td class="ck">✔</td>
+                    <td class="ck">✔</td>
+                </tr>
+                <tr>
+                    <td>المسمى الوظيفي</td>
+                    <td class="ck">✔</td>
+                    <td class="ck">✔</td>
+                    <td class="ck">✔</td>
+                    <td class="ck">✔</td>
+                </tr>
+                <tr>
+                    <td>الراتب</td>
+                    <td class="ck">✔</td>
+                    <td class="ck">✔</td>
+                    <td class="cx">✘</td>
+                    <td>راتبه فقط</td>
+                </tr>
+                <tr>
+                    <td>المشاريع المرتبطة</td>
+                    <td class="ck">✔</td>
+                    <td class="ck">✔</td>
+                    <td class="ck">✔</td>
+                    <td class="ck">✔</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h2 class="st">تعديل بيانات موظف (المدير فقط)</h2>
+        <ol class="steps">
+            <li>
+                <div class="sn">1</div>
+                <div class="st2">افتح ملف الموظف من قائمة الموظفين.</div>
+            </li>
+            <li>
+                <div class="sn">2</div>
+                <div class="st2">اضغط <strong>"تعديل"</strong>.</div>
+            </li>
+            <li>
+                <div class="sn">3</div>
+                <div class="st2">عدّل ما تريد: الاسم، الهاتف، الدور، الراتب، الصورة. لتغيير كلمة المرور، أدخل كلمة
+                    المرور الجديدة في الحقل المخصص.</div>
+            </li>
+            <li>
+                <div class="sn">4</div>
+                <div class="st2">اضغط <strong>"حفظ التعديلات"</strong>.</div>
+            </li>
+        </ol>
+
+        <div class="footer">نظام إدارة المشاريع — دليل الاستخدام الشامل — الفصل الخامس</div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════ CHAPTER 6 ═══ -->
+    <div class="chapter">
+        <div class="ch-header">
+            <div class="ch-icon">💰</div>
+            <div>
+                <div class="ch-num">الفصل السادس</div>
+                <div class="ch-title">العهدات المالية</div>
+                <div class="ch-desc">صرف المبالغ للموظفين ومتابعتها</div>
+            </div>
+        </div>
+
+        <p>
+            "العهدة" هي مبلغ مالي يُسلَّم للموظف نقداً أو بنكياً ليغطي مصروفات العمل الميداني. يتتبع النظام كل ريال من
+            لحظة صرفه حتى لحظة إرجاعه أو إنفاقه عبر فاتورة معتمدة.
+        </p>
+
+        <h2 class="st">كيف تعمل العهدة؟</h2>
+        <ol class="steps">
+            <li>
+                <div class="sn">1</div>
+                <div class="st2"><strong>الصرف:</strong> يصرف المدير أو المنسق مبلغاً للموظف من ميزانية المشروع. يُسجَّل
+                    الرصيد فوراً.</div>
+            </li>
+            <li>
+                <div class="sn">2</div>
+                <div class="st2"><strong>التأكيد:</strong> يتلقى الموظف إشعاراً بالعهدة، ويجب عليه الضغط على
+                    <strong>"تأكيد الاستلام"</strong> قبل أن يتمكن من رفع أي فاتورة.
+                </div>
+            </li>
+            <li>
+                <div class="sn">3</div>
+                <div class="st2"><strong>الإنفاق:</strong> كلما اعتُمدت فاتورة مرتبطة بالعهدة، يُخصم مبلغها من رصيد
+                    العهدة تلقائياً.</div>
+            </li>
+            <li>
+                <div class="sn">4</div>
+                <div class="st2"><strong>الإرجاع:</strong> عند نهاية المشروع أو عند فائض، يُرجع الموظف الباقي لدى المدير
+                    الذي يسجله في النظام.</div>
+            </li>
+        </ol>
+
+        <h2 class="st">صرف عهدة للموظف (المدير أو المنسق)</h2>
+        <ol class="steps">
+            <li>
+                <div class="sn">1</div>
+                <div class="st2">افتح المشروع المطلوب، ثم اذهب إلى تبويب <strong>"العهدات"</strong>.</div>
+            </li>
+            <li>
+                <div class="sn">2</div>
+                <div class="st2">اضغط <strong>"صرف عهدة جديدة"</strong>.</div>
+            </li>
+            <li>
+                <div class="sn">3</div>
+                <div class="st2">اختر <strong>الموظف</strong> من أعضاء المشروع.</div>
+            </li>
+            <li>
+                <div class="sn">4</div>
+                <div class="st2">أدخل <strong>المبلغ</strong> وطريقة الصرف (نقدي أو بنكي)، وأي ملاحظات.</div>
+            </li>
+            <li>
+                <div class="sn">5</div>
+                <div class="st2">اضغط <strong>"صرف"</strong>. سيتلقى الموظف إشعاراً فورياً.</div>
+            </li>
+        </ol>
+
+        <div class="ib warn">
+            <div class="ico">⚠️</div>
+            <div class="txt"><strong>شرط الميزانية</strong>
+                يجب أن يكون المبلغ المطلوب أقل من أو مساوياً للميزانية المتاحة في المشروع. إذا كانت الميزانية غير كافية،
+                يجب على المدير تخصيص مبلغ إضافي من خزنة الشركة أولاً.
+            </div>
+        </div>
+
+        <h2 class="st">تأكيد استلام العهدة (الموظف)</h2>
+        <ol class="steps">
+            <li>
+                <div class="sn">1</div>
+                <div class="st2">ستصلك رسالة إشعار: <strong>"تم صرف عهدة لك"</strong>.</div>
+            </li>
+            <li>
+                <div class="sn">2</div>
+                <div class="st2">اذهب إلى الصفحة الرئيسية أو لوحة التحكم وابحث عن بطاقة العهدة غير المؤكدة.</div>
+            </li>
+            <li>
+                <div class="sn">3</div>
+                <div class="st2">اضغط <strong>"تأكيد الاستلام"</strong>. بعد التأكيد يمكنك فوراً البدء برفع الفواتير من
+                    هذه العهدة.</div>
+            </li>
+        </ol>
+
+        <div class="ib danger">
+            <div class="ico">🔴</div>
+            <div class="txt"><strong>مهم جداً</strong>
+                لا يمكن رفع أي فاتورة من عهدة لم تُؤكد استلامها. إذا لم تُأكّد، ستظهر رسالة خطأ عند محاولة رفع الفاتورة.
+            </div>
+        </div>
+
+        <h2 class="st">تحويل عهدة طارئ (المدير أو المنسق)</h2>
+        <p>في حالات الطوارئ (مثل غياب موظف)، يمكن تحويل جزء من رصيد عهدة موظف إلى موظف آخر في نفس المشروع:</p>
+        <ol class="steps">
+            <li>
+                <div class="sn">1</div>
+                <div class="st2">افتح تفاصيل العهدة المراد التحويل منها.</div>
+            </li>
+            <li>
+                <div class="sn">2</div>
+                <div class="st2">اضغط <strong>"تحويل طارئ"</strong>.</div>
+            </li>
+            <li>
+                <div class="sn">3</div>
+                <div class="st2">اختر الموظف المستلم (يجب أن يكون في نفس المشروع)، وحدد المبلغ، وأضف ملاحظة توضيحية.
+                </div>
+            </li>
+            <li>
+                <div class="sn">4</div>
+                <div class="st2">اضغط <strong>"تحويل"</strong>. ستُنشأ عهدة جديدة للموظف المستلم.</div>
+            </li>
+        </ol>
+
+        <h2 class="st">تسجيل إرجاع رصيد العهدة (المدير فقط)</h2>
+        <p>عندما يُرجع الموظف المبلغ المتبقي لديه:</p>
+        <ol class="steps">
+            <li>
+                <div class="sn">1</div>
+                <div class="st2">افتح تفاصيل العهدة.</div>
+            </li>
+            <li>
+                <div class="sn">2</div>
+                <div class="st2">اضغط <strong>"تسجيل إرجاع"</strong>.</div>
+            </li>
+            <li>
+                <div class="sn">3</div>
+                <div class="st2">أدخل المبلغ المُرجَع وأضف ملاحظة إذا لزم.</div>
+            </li>
+            <li>
+                <div class="sn">4</div>
+                <div class="st2">إذا وصل الرصيد إلى صفر، تُغلق العهدة تلقائياً.</div>
+            </li>
+        </ol>
+
+        <div class="footer">نظام إدارة المشاريع — دليل الاستخدام الشامل — الفصل السادس</div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════ CHAPTER 7 ═══ -->
+    <div class="chapter">
+        <div class="ch-header">
+            <div class="ch-icon">🧾</div>
+            <div>
+                <div class="ch-num">الفصل السابع</div>
+                <div class="ch-title">الفواتير والمصروفات</div>
+                <div class="ch-desc">رفع الفواتير ومراجعتها واعتمادها</div>
+            </div>
+        </div>
+
+        <p>الفاتورة هي وثيقة رسمية تُثبت صرف مبلغ معين في إطار أحد المشاريع. يرفعها الموظف بعد الشراء ويراجعها المحاسب
+            أو المدير.</p>
+
+        <h2 class="st">رفع فاتورة جديدة</h2>
+        <p>يستطيع رفع الفاتورة: <strong>الموظف</strong> (في مشاريعه)، <strong>المنسق</strong> (في مشاريعه)،
+            <strong>المحاسب</strong>، <strong>المدير</strong>.
+        </p>
+        <ol class="steps">
+            <li>
+                <div class="sn">1</div>
+                <div class="st2">من القائمة الجانبية، اضغط <strong>"الفواتير"</strong> ثم <strong>"فاتورة
+                        جديدة"</strong>.</div>
+            </li>
+            <li>
+                <div class="sn">2</div>
+                <div class="st2">اختر <strong>المشروع</strong> المرتبط بالفاتورة.</div>
+            </li>
+            <li>
+                <div class="sn">3</div>
+                <div class="st2">أدخل <strong>رقم مرجع الفاتورة</strong> (يجب أن يكون فريداً)، التاريخ، والمبلغ
+                    الإجمالي.</div>
+            </li>
+            <li>
+                <div class="sn">4</div>
+                <div class="st2">حدد <strong>تصنيف المصروف</strong> (طعام، نقل، مستلزمات... إلخ).</div>
+            </li>
+            <li>
+                <div class="sn">5</div>
+                <div class="st2">اختر <strong>طريقة الدفع</strong> (انظر الشرح بالأسفل).</div>
+            </li>
+            <li>
+                <div class="sn">6</div>
+                <div class="st2">ارفع <strong>صورة أو ملف PDF</strong> للفاتورة (اختياري، الحد الأقصى 5 ميجابايت).</div>
+            </li>
+            <li>
+                <div class="sn">7</div>
+                <div class="st2">أضف بنوداً تفصيلية (اسم المشترى، الكمية، سعر الوحدة) إذا أردت.</div>
+            </li>
+            <li>
+                <div class="sn">8</div>
+                <div class="st2">اضغط <strong>"رفع الفاتورة"</strong>.</div>
+            </li>
+        </ol>
+
+        <h2 class="st">أنواع طريقة الدفع</h2>
+
+        <h3 class="subt">1. من العهدة (CUSTODY)</h3>
+        <p>الأكثر شيوعاً. الموظف يختار عهدته النشطة ويصرف منها. يُخصم المبلغ تلقائياً من رصيد العهدة عند الاعتماد.</p>
+
+        <h3 class="subt">2. من الجيب الشخصي (PERSONAL)</h3>
+        <p>الموظف دفع من ماله الخاص. يُسجَّل المبلغ كـ"دين" على الشركة تجاه الموظف تلقائياً، ويُسوَّى لاحقاً.</p>
+
+        <h3 class="subt">3. مختلط — جزء من العهدة وجزء شخصي (SPLIT)</h3>
+        <p>عندما لا يكفي رصيد العهدة لتغطية الفاتورة كلها. يحدد الموظف كم يخصم من العهدة وكم يدفع من جيبه. يجب أن يكون
+            مجموعهما مساوياً للمبلغ الإجمالي.</p>
+
+        <div class="ib info">
+            <div class="ico">💡</div>
+            <div class="txt"><strong>الاعتماد التلقائي</strong>
+                قد يضبط المدير حداً أقصى للاعتماد التلقائي. إذا كان مبلغ الفاتورة أقل من هذا الحد، تُعتمد الفاتورة فوراً
+                بدون انتظار مراجعة المحاسب.
+            </div>
+        </div>
+
+        <h2 class="st">اعتماد أو رفض فاتورة (المحاسب أو المدير)</h2>
+        <p>عند رفع أي فاتورة، يتلقى المحاسب/المدير إشعاراً. ثم:</p>
+        <ol class="steps">
+            <li>
+                <div class="sn">1</div>
+                <div class="st2">افتح صفحة <strong>"الفواتير"</strong> وابحث عن الفواتير ذات الحالة
+                    <strong>"معلقة"</strong>.
+                </div>
+            </li>
+            <li>
+                <div class="sn">2</div>
+                <div class="st2">افتح الفاتورة وراجع تفاصيلها والملف المرفق.</div>
+            </li>
+            <li>
+                <div class="sn">3</div>
+                <div class="st2">اضغط <strong>"اعتماد"</strong> إذا كانت صحيحة — أو <strong>"رفض"</strong> مع كتابة سبب
+                    الرفض (إلزامي عند الرفض).</div>
+            </li>
+        </ol>
+
+        <div class="ib warn">
+            <div class="ico">⚠️</div>
+            <div class="txt"><strong>فصل المهام</strong>
+                لا يمكن للموظف اعتماد فاتورة قام هو بإنشائها. هذا القيد مطبّق في النظام تلقائياً لضمان النزاهة (باستثناء
+                المدير الذي له صلاحية استثنائية).
+            </div>
+        </div>
+
+        <h2 class="st">ما يحدث عند الاعتماد والرفض</h2>
+        <table class="pt">
+            <thead>
+                <tr>
+                    <th>الحالة</th>
+                    <th>أثرها على رصيد العهدة</th>
+                    <th>أثرها على الديون الشخصية</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>الاعتماد (من عهدة)</td>
+                    <td>يُخصم المبلغ من رصيد العهدة</td>
+                    <td>لا أثر</td>
+                </tr>
+                <tr>
+                    <td>الاعتماد (شخصي/مختلط)</td>
+                    <td>يُخصم الجزء من العهدة إن وجد</td>
+                    <td>يبقى الدين مسجلاً حتى التسوية</td>
+                </tr>
+                <tr>
+                    <td>الرفض</td>
+                    <td>لا خصم من العهدة</td>
+                    <td>يُلغى الدين تلقائياً</td>
+                </tr>
+                <tr>
+                    <td>التراجع عن الاعتماد</td>
+                    <td>يُستعاد المبلغ لرصيد العهدة</td>
+                    <td>يُعاد تفعيل الدين</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="footer">نظام إدارة المشاريع — دليل الاستخدام الشامل — الفصل السابع</div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════ CHAPTER 8 ═══ -->
+    <div class="chapter">
+        <div class="ch-header">
+            <div class="ch-icon">🛒</div>
+            <div>
+                <div class="ch-num">الفصل الثامن</div>
+                <div class="ch-title">قائمة المشتريات</div>
+                <div class="ch-desc">تنظيم طلبات الشراء ومتابعة تنفيذها</div>
+            </div>
+        </div>
+
+        <p>تتيح قائمة المشتريات للمنسق إنشاء قوائم بالأشياء المطلوب شراؤها، ويقوم الموظفون بتنفيذ هذه الطلبات وتحديث
+            حالتها.</p>
+
+        <h2 class="st">حالات طلب الشراء</h2>
+        <table class="pt">
+            <thead>
+                <tr>
+                    <th>الحالة</th>
+                    <th>المعنى</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>🟡 مطلوب (REQUESTED)</td>
+                    <td>طلب الشراء أُنشئ من المنسق وينتظر التنفيذ</td>
+                </tr>
+                <tr>
+                    <td>🔵 قيد التنفيذ (IN_PROGRESS)</td>
+                    <td>موظف بدأ بالتوجه لشراء هذا الصنف</td>
+                </tr>
+                <tr>
+                    <td>🟢 تم الشراء (PURCHASED)</td>
+                    <td>اشترى الموظف الصنف وربطه بفاتورة</td>
+                </tr>
+                <tr>
+                    <td>🔴 ملغى (CANCELLED)</td>
+                    <td>أُلغي الطلب من المنسق أو المدير</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h2 class="st">إنشاء طلب شراء (المنسق أو المدير)</h2>
+        <ol class="steps">
+            <li>
+                <div class="sn">1</div>
+                <div class="st2">من القائمة، اضغط <strong>"المشتريات"</strong> ثم <strong>"طلب شراء جديد"</strong>.
+                </div>
+            </li>
+            <li>
+                <div class="sn">2</div>
+                <div class="st2">اختر <strong>المشروع</strong>، ثم أضف التفاصيل: وصف المشترى، الكمية المطلوبة، المبلغ
+                    التقديري، وأي ملاحظات للموظف.</div>
+            </li>
+            <li>
+                <div class="sn">3</div>
+                <div class="st2">اضغط <strong>"إضافة"</strong>. سيُرسَل إشعار لأعضاء المشروع بوجود مشتريات مطلوبة.</div>
+            </li>
+        </ol>
+
+        <h2 class="st">تنفيذ الشراء وتحديث الحالة (الموظف)</h2>
+        <ol class="steps">
+            <li>
+                <div class="sn">1</div>
+                <div class="st2">افتح صفحة <strong>"المشتريات"</strong> وستجد قائمة بكل الطلبات المرتبطة بمشاريعك.</div>
+            </li>
+            <li>
+                <div class="sn">2</div>
+                <div class="st2">عندما تبدأ بالتوجه للشراء، اضغط <strong>"بدأت الشراء"</strong> لتغيير الحالة إلى "قيد
+                    التنفيذ".</div>
+            </li>
+            <li>
+                <div class="sn">3</div>
+                <div class="st2">بعد الشراء، ارفع الفاتورة المرتبطة أولاً، ثم اضغط <strong>"تم الشراء"</strong> وربطه
+                    بالفاتورة.</div>
+            </li>
+        </ol>
+
+        <h2 class="st">إلغاء طلب شراء</h2>
+        <p>يستطيع المنسق الذي أنشأ الطلب (أو المدير) إلغاءه في أي وقت ما لم يكن قد اشتُري بالفعل. اضغط على الطلب ثم
+            <strong>"إلغاء الطلب"</strong>.
+        </p>
+
+        <div class="footer">نظام إدارة المشاريع — دليل الاستخدام الشامل — الفصل الثامن</div>
+    </div>
+
+
+    <!-- ═══════════════════════════════════════════ CHAPTER 9 ═══ -->
+    <div class="chapter">
+        <div class="ch-header">
+            <div class="ch-icon">💳</div>
+            <div>
+                <div class="ch-num">الفصل التاسع</div>
+                <div class="ch-title">الديون الشخصية للموظفين</div>
+                <div class="ch-desc">متابعة مستحقات الموظفين وتسويتها</div>
+            </div>
+        </div>
+
+        <p>عندما يدفع موظف من ماله الخاص لأغراض العمل (عبر الفواتير الشخصية أو المختلطة)، يُسجَّل النظام ذلك تلقائياً
+            كـ<strong>"دين"</strong> على الشركة تجاه الموظف. هذه الصفحة تتيح متابعة وتسوية هذه الديون.</p>
+
+        <h2 class="st">كيف تنشأ الديون؟</h2>
+        <ul class="fl">
+            <li>عند رفع فاتورة بطريقة دفع <strong>"شخصي" (PERSONAL)</strong> — ينشأ دين بالمبلغ الكامل</li>
+            <li>عند رفع فاتورة بطريقة دفع <strong>"مختلط" (SPLIT)</strong> — ينشأ دين بالجزء الشخصي فقط</li>
+            <li>عند <strong>رفض الفاتورة</strong> — يُلغى الدين تلقائياً</li>
+        </ul>
+
+        <h2 class="st">ما يراه كل دور في صفحة الديون</h2>
+        <table class="pt">
+            <thead>
+                <tr>
+                    <th>الدور</th>
+                    <th>ما يراه</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>المدير / المحاسب</td>
+                    <td>جميع الديون غير المسوَّاة لكل الموظفين</td>
+                </tr>
+                <tr>
+                    <td>الموظف</td>
+                    <td>ديونه الشخصية فقط</td>
+                </tr>
+                <tr>
+                    <td>المنسق</td>
+                    <td>ديونه الشخصية فقط</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h2 class="st">تسوية دين موظف (المدير أو المحاسب)</h2>
+        <ol class="steps">
+            <li>
+                <div class="sn">1</div>
+                <div class="st2">افتح صفحة <strong>"الديون"</strong> من القائمة الجانبية.</div>
+            </li>
+            <li>
+                <div class="sn">2</div>
+                <div class="st2">ابحث عن الموظف المطلوب تسويته.</div>
+            </li>
+            <li>
+                <div class="sn">3</div>
+                <div class="st2">اضغط <strong>"تسوية"</strong> أمام الدين المحدد، أو <strong>"تسوية الكل"</strong>
+                    لتسوية جميع ديون الموظف دفعة واحدة.</div>
+            </li>
+            <li>
+                <div class="sn">4</div>
+                <div class="st2">يُسجَّل الدين كـ"مسوَّى" مع الوقت والتاريخ ومن قام بالتسوية.</div>
+            </li>
+        </ol>
+
+        <div class="ib tip">
+            <div class="ico">💡</div>
+            <div class="txt"><strong>سير العمل الموصى به</strong>
+                يُفضَّل تسوية ديون الموظفين بشكل دوري (أسبوعياً أو شهرياً) لضمان دقة السجلات المالية وعدم تراكم
+                المستحقات.
+            </div>
+        </div>
+
+        <div class="footer">نظام إدارة المشاريع — دليل الاستخدام الشامل — الفصل التاسع</div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════ CHAPTER 10 ═══ -->
+    <div class="chapter">
+        <div class="ch-header">
+            <div class="ch-icon">🏦</div>
+            <div>
+                <div class="ch-num">الفصل العاشر</div>
+                <div class="ch-title">خزنة الشركة</div>
+                <div class="ch-desc">الإيداع وتخصيص الميزانيات للمشاريع</div>
+            </div>
+        </div>
+
+        <p>خزنة الشركة هي المستودع المالي المركزي الذي تنبثق منه جميع الأموال في النظام. تظهر الخزنة للمدير والمحاسب
+            فقط.</p>
+
+        <h2 class="st">مؤشرات الخزنة</h2>
+        <table class="pt">
+            <thead>
+                <tr>
+                    <th>المؤشر</th>
+                    <th>المعنى</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>الرصيد الحالي</td>
+                    <td>المبلغ المتاح حالياً في الخزنة</td>
+                </tr>
+                <tr>
+                    <td>إجمالي الوارد</td>
+                    <td>مجموع كل الإيداعات منذ البداية</td>
+                </tr>
+                <tr>
+                    <td>إجمالي الصادر</td>
+                    <td>مجموع ما خرج من الخزنة لتمويل المشاريع</td>
+                </tr>
+                <tr>
+                    <td>سجل الحركات</td>
+                    <td>تاريخ وتفاصيل كل عملية إيداع أو تخصيص</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h2 class="st">الإيداع في الخزنة (المدير فقط)</h2>
+        <ol class="steps">
+            <li>
+                <div class="sn">1</div>
+                <div class="st2">من القائمة الجانبية، اضغط <strong>"الخزنة"</strong>.</div>
+            </li>
+            <li>
+                <div class="sn">2</div>
+                <div class="st2">اضغط <strong>"إيداع جديد"</strong>.</div>
+            </li>
+            <li>
+                <div class="sn">3</div>
+                <div class="st2">أدخل <strong>المبلغ</strong> وأضف ملاحظة توضيحية (مثل: مصدر التمويل).</div>
+            </li>
+            <li>
+                <div class="sn">4</div>
+                <div class="st2">اضغط <strong>"تأكيد الإيداع"</strong>. يُضاف المبلغ فوراً للرصيد ويُسجَّل في سجل
+                    الحركات.</div>
+            </li>
+        </ol>
+
+        <h2 class="st">تخصيص ميزانية لمشروع (المدير فقط)</h2>
+        <ol class="steps">
+            <li>
+                <div class="sn">1</div>
+                <div class="st2">من صفحة الخزنة، اضغط <strong>"تخصيص لمشروع"</strong>.</div>
+            </li>
+            <li>
+                <div class="sn">2</div>
+                <div class="st2">اختر <strong>المشروع</strong> المراد تمويله من القائمة.</div>
+            </li>
+            <li>
+                <div class="sn">3</div>
+                <div class="st2">أدخل <strong>المبلغ المراد تخصيصه</strong> (يجب ألا يتجاوز رصيد الخزنة الحالي).</div>
+            </li>
+            <li>
+                <div class="sn">4</div>
+                <div class="st2">اضغط <strong>"تخصيص"</strong>. يُخصم المبلغ من الخزنة ويُضاف لميزانية المشروع.</div>
+            </li>
+        </ol>
+
+        <div class="ib info">
+            <div class="ico">🔄</div>
+            <div class="txt"><strong>إرجاع الميزانية عند إغلاق المشروع</strong>
+                عند إغلاق مشروع، أي ميزانية لم تُصرف كعهدات تُعاد تلقائياً إلى خزنة الشركة وتُسجَّل في سجل الحركات.
+            </div>
+        </div>
+
+        <div class="footer">نظام إدارة المشاريع — دليل الاستخدام الشامل — الفصل العاشر</div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════ CHAPTER 11 ═══ -->
+    <div class="chapter">
+        <div class="ch-header">
+            <div class="ch-icon">📋</div>
+            <div>
+                <div class="ch-num">الفصل الحادي عشر</div>
+                <div class="ch-title">الطلبات المالية</div>
+                <div class="ch-desc">قناة رسمية لطلب الموافقة على الإجراءات المالية</div>
+            </div>
+        </div>
+
+        <p>تُتيح صفحة الطلبات المالية للمحاسب تقديم طلبات رسمية للمدير للموافقة عليها قبل تنفيذها. هذا يوفر مسار تدقيق
+            واضح لكل الإجراءات المالية.</p>
+
+        <h2 class="st">أنواع الطلبات المالية</h2>
+        <table class="pt">
+            <thead>
+                <tr>
+                    <th>نوع الطلب</th>
+                    <th>الوصف</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>تسوية دين موظف</td>
+                    <td>طلب الموافقة لدفع مستحقات موظف دفع من جيبه</td>
+                </tr>
+                <tr>
+                    <td>تخصيص ميزانية</td>
+                    <td>طلب تحويل مبلغ من الخزنة لتمويل مشروع</td>
+                </tr>
+                <tr>
+                    <td>إرجاع عهدة</td>
+                    <td>طلب إغلاق عهدة موظف رسمياً</td>
+                </tr>
+                <tr>
+                    <td>أخرى</td>
+                    <td>أي طلب مالي آخر يحتاج موافقة يدوية</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h2 class="st">إنشاء طلب مالي (المحاسب)</h2>
+        <ol class="steps">
+            <li>
+                <div class="sn">1</div>
+                <div class="st2">من القائمة الجانبية، اضغط <strong>"الطلبات المالية"</strong>.</div>
+            </li>
+            <li>
+                <div class="sn">2</div>
+                <div class="st2">اضغط <strong>"طلب جديد"</strong>.</div>
+            </li>
+            <li>
+                <div class="sn">3</div>
+                <div class="st2">اختر <strong>نوع الطلب</strong>، أدخل المبلغ والكيان المستهدف، وأضف ملاحظة توضيحية.
+                </div>
+            </li>
+            <li>
+                <div class="sn">4</div>
+                <div class="st2">اضغط <strong>"إرسال الطلب"</strong>. سيصل إشعار للمدير فوراً.</div>
+            </li>
+        </ol>
+
+        <h2 class="st">الموافقة على طلب مالي (المدير)</h2>
+        <ol class="steps">
+            <li>
+                <div class="sn">1</div>
+                <div class="st2">افتح إشعار الطلب أو اذهب لصفحة <strong>"الطلبات المالية"</strong>.</div>
+            </li>
+            <li>
+                <div class="sn">2</div>
+                <div class="st2">راجع تفاصيل الطلب.</div>
+            </li>
+            <li>
+                <div class="sn">3</div>
+                <div class="st2">اضغط <strong>"موافقة"</strong> لتنفيذ الطلب فوراً، أو <strong>"رفض"</strong> مع كتابة
+                    سبب الرفض.</div>
+            </li>
+            <li>
+                <div class="sn">4</div>
+                <div class="st2">يتلقى مُقدِّم الطلب إشعاراً بنتيجة الطلب.</div>
+            </li>
+        </ol>
+
+        <div class="ib info">
+            <div class="ico">⚡</div>
+            <div class="txt"><strong>ملاحظة للمدير</strong>
+                إذا قام المدير بإنشاء الطلب بنفسه، يُنفَّذ تلقائياً دون الحاجة للموافقة.
+            </div>
+        </div>
+
+        <div class="footer">نظام إدارة المشاريع — دليل الاستخدام الشامل — الفصل الحادي عشر</div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════ CHAPTER 12 ═══ -->
+    <div class="chapter">
+        <div class="ch-header">
+            <div class="ch-icon">📊</div>
+            <div>
+                <div class="ch-num">الفصل الثاني عشر</div>
+                <div class="ch-title">التقارير والتحليلات</div>
+                <div class="ch-desc">ملخص شامل للأداء المالي والتشغيلي</div>
+            </div>
+        </div>
+
+        <p>صفحة التقارير تجمع أبرز المؤشرات في مكان واحد. الوصول إليها محدود حسب الدور.</p>
+
+        <h2 class="st">من يرى التقارير؟</h2>
+        <table class="pt">
+            <thead>
+                <tr>
+                    <th>الدور</th>
+                    <th>ما يراه في التقارير</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>المدير / المحاسب</td>
+                    <td>كامل التقارير المالية لجميع المشاريع</td>
+                </tr>
+                <tr>
+                    <td>المنسق</td>
+                    <td>تقارير مشاريعه فقط (بدون أرقام الخزنة)</td>
+                </tr>
+                <tr>
+                    <td>الموظف</td>
+                    <td>لا يرى التقارير</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h2 class="st">ما تتضمنه التقارير</h2>
+        <ul class="fl">
+            <li>صافي الربح/الخسارة خلال الفترة المختارة</li>
+            <li>إجمالي عدد المشاريع والمكتملة منها</li>
+            <li>عدد الفواتير المعلقة</li>
+            <li>أعلى 5 مشاريع من حيث الميزانية المخصصة</li>
+            <li>رسم بياني للإيرادات والمصروفات شهرياً</li>
+            <li>توزيع المصروفات حسب التصنيف (طعام، نقل، إلخ)</li>
+        </ul>
+
+        <h2 class="st">كيف تستخدم التقارير؟</h2>
+        <ol class="steps">
+            <li>
+                <div class="sn">1</div>
+                <div class="st2">من القائمة الجانبية، اضغط <strong>"التقارير"</strong>.</div>
+            </li>
+            <li>
+                <div class="sn">2</div>
+                <div class="st2">اختر <strong>الفترة الزمنية</strong>: آخر 30 يوم، هذا العام، العام الماضي، أو الكل.
+                </div>
+            </li>
+            <li>
+                <div class="sn">3</div>
+                <div class="st2">تُحدَّث جميع الأرقام والرسوم البيانية تلقائياً.</div>
+            </li>
+        </ol>
+
+        <div class="footer">نظام إدارة المشاريع — دليل الاستخدام الشامل — الفصل الثاني عشر</div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════ CHAPTER 13 ═══ -->
+    <div class="chapter">
+        <div class="ch-header">
+            <div class="ch-icon">💬</div>
+            <div>
+                <div class="ch-num">الفصل الثالث عشر</div>
+                <div class="ch-title">المحادثات والرسائل</div>
+                <div class="ch-desc">التواصل الداخلي بين أعضاء الفريق</div>
+            </div>
+        </div>
+
+        <p>يتيح النظام إرسال رسائل داخلية بين الموظفين، سواء رسائل خاصة أو محادثات جماعية مرتبطة بمشاريع.</p>
+
+        <h2 class="st">نوعا الرسائل</h2>
+        <h3 class="subt">1. رسالة خاصة</h3>
+        <p>رسالة بين موظفَيْن محددَيْن. يراها المرسل والمستلم فقط.</p>
+
+        <h3 class="subt">2. محادثة مشروع</h3>
+        <p>رسالة مرتبطة بمشروع معين. يراها جميع أعضاء المشروع ومديره. مفيدة للتنسيق الجماعي.</p>
+
+        <h2 class="st">إرسال رسالة</h2>
+        <ol class="steps">
+            <li>
+                <div class="sn">1</div>
+                <div class="st2">من القائمة الجانبية، اضغط <strong>"المحادثات"</strong>.</div>
+            </li>
+            <li>
+                <div class="sn">2</div>
+                <div class="st2">اضغط <strong>"رسالة جديدة"</strong>.</div>
+            </li>
+            <li>
+                <div class="sn">3</div>
+                <div class="st2">اختر إرسال الرسالة لـ<strong>موظف محدد</strong> أو ربطها بـ<strong>مشروع</strong>.
+                </div>
+            </li>
+            <li>
+                <div class="sn">4</div>
+                <div class="st2">اكتب نص رسالتك وأرفق ملفاً إذا لزم، ثم اضغط <strong>"إرسال"</strong>.</div>
+            </li>
+        </ol>
+
+        <div class="ib warn">
+            <div class="ico">⚠️</div>
+            <div class="txt"><strong>صلاحية العرض</strong>
+                الموظف والمنسق يريان فقط الرسائل التي أرسلوها أو استقبلوها أو رسائل مشاريعهم. المدير والمحاسب يريان كل
+                الرسائل.
+            </div>
+        </div>
+
+        <div class="footer">نظام إدارة المشاريع — دليل الاستخدام الشامل — الفصل الثالث عشر</div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════ CHAPTER 14 ═══ -->
+    <div class="chapter">
+        <div class="ch-header">
+            <div class="ch-icon">🔔</div>
+            <div>
+                <div class="ch-num">الفصل الرابع عشر</div>
+                <div class="ch-title">الإشعارات</div>
+                <div class="ch-desc">تنبيهات فورية للأحداث المهمة</div>
+            </div>
+        </div>
+
+        <p>يُرسل النظام إشعارات تلقائية عبر صفحة الإشعارات لإبقاء كل موظف على علم بما يخصه.</p>
+
+        <h2 class="st">متى تصلك إشعارات؟</h2>
+        <table class="pt">
+            <thead>
+                <tr>
+                    <th>الحدث</th>
+                    <th>من يتلقى الإشعار</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>صرف عهدة جديدة</td>
+                    <td>الموظف الذي صُرفت له العهدة</td>
+                </tr>
+                <tr>
+                    <td>رفع فاتورة جديدة (معلقة)</td>
+                    <td>المحاسب المسؤول عن المشروع</td>
+                </tr>
+                <tr>
+                    <td>الموافقة على طلب مالي</td>
+                    <td>مُقدِّم الطلب</td>
+                </tr>
+                <tr>
+                    <td>رفض طلب مالي</td>
+                    <td>مُقدِّم الطلب مع سبب الرفض</td>
+                </tr>
+                <tr>
+                    <td>إنشاء قائمة مشتريات</td>
+                    <td>أعضاء مشروع المشتريات</td>
+                </tr>
+                <tr>
+                    <td>تذكرة دعم فني جديدة</td>
+                    <td>المدير</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h2 class="st">عرض الإشعارات</h2>
+        <ol class="steps">
+            <li>
+                <div class="sn">1</div>
+                <div class="st2">اضغط على أيقونة <strong>الجرس 🔔</strong> في أعلى الشاشة، أو اذهب لصفحة "الإشعارات" من
+                    القائمة.</div>
+            </li>
+            <li>
+                <div class="sn">2</div>
+                <div class="st2">تظهر الإشعارات مرتبة من الأحدث للأقدم.</div>
+            </li>
+            <li>
+                <div class="sn">3</div>
+                <div class="st2">اضغط على الإشعار للانتقال مباشرة للعنصر المرتبط به.</div>
+            </li>
+        </ol>
+
+        <div class="footer">نظام إدارة المشاريع — دليل الاستخدام الشامل — الفصل الرابع عشر</div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════ CHAPTER 15+16+17 ═══ -->
+    <div class="chapter">
+        <div class="ch-header">
+            <div class="ch-icon">🗃️</div>
+            <div>
+                <div class="ch-num">الفصول 15 — 16 — 17</div>
+                <div class="ch-title">الأرشيف • سلة المهملات • الإعدادات والدعم</div>
+                <div class="ch-desc">أدوات إدارة البيانات والنظام</div>
+            </div>
+        </div>
+
+        <h2 class="st">الأرشيف — المشاريع المكتملة (الفصل الخامس عشر)</h2>
+        <p>صفحة الأرشيف تعرض جميع المشاريع التي أُغلقت وأكملت دورتها. من أبرز ما تتيحه:</p>
+        <ul class="fl">
+            <li>تصفح سجل المشاريع المنجزة مع تفاصيلها الكاملة</li>
+            <li><strong>المدير فقط:</strong> إعادة تفعيل مشروع مكتمل وإعادته للحالة النشطة</li>
+            <li>المحاسب والمنسق يريان فقط المشاريع المشمولة في نطاق عملهم</li>
+        </ul>
+
+        <h2 class="st">سلة المهملات (الفصل السادس عشر) — المدير فقط</h2>
+        <p>أي عنصر يُحذف في النظام لا يُحذف نهائياً، بل ينتقل إلى سلة المهملات. لا يرى سلة المهملات ولا يتحكم بها إلا
+            <strong>المدير</strong>.</p>
+
+        <h3 class="subt">محتويات سلة المهملات</h3>
+        <ul class="fl">
+            <li>المشاريع المحذوفة</li>
+            <li>الفواتير المحذوفة</li>
+            <li>المشتريات المحذوفة</li>
+            <li>حسابات الموظفين المحذوفة</li>
+        </ul>
+
+        <h3 class="subt">إجراءات سلة المهملات</h3>
+        <table class="pt">
+            <thead>
+                <tr>
+                    <th>الإجراء</th>
+                    <th>النتيجة</th>
+                    <th>الشرط</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>استعادة عنصر</td>
+                    <td>يعود العنصر للقائمة الأصلية</td>
+                    <td>المدير فقط</td>
+                </tr>
+                <tr>
+                    <td>حذف نهائي</td>
+                    <td>حذف دائم لا رجعة فيه</td>
+                    <td>المدير فقط</td>
+                </tr>
+                <tr>
+                    <td>تنظيف تلقائي</td>
+                    <td>أي عنصر في السلة >30 يوماً يُحذف تلقائياً</td>
+                    <td>تلقائي</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="ib danger">
+            <div class="ico">🔴</div>
+            <div class="txt"><strong>تحذير هام</strong>
+                الحذف النهائي من سلة المهملات لا يمكن التراجع عنه بأي وسيلة. تأكد من مراجعة العنصر قبل اتخاذ قرار الحذف
+                النهائي.
+            </div>
+        </div>
+
+        <div class="ib warn">
+            <div class="ico">⚠️</div>
+            <div class="txt"><strong>قيود الحذف</strong>
+                لا يمكن حذف مشروع له فواتير أو مشتريات أو أعضاء نشطون، ولا يمكن حذف موظف له مشاريع أو فواتير مرتبطة.
+                يُظهر النظام رسالة خطأ توضيحية في هذه الحالات.
+            </div>
+        </div>
+
+        <h2 class="st">الإعدادات والدعم الفني (الفصل السابع عشر)</h2>
+
+        <h3 class="subt">صفحة الإعدادات</h3>
+        <p>تتيح صفحة الإعدادات للمدير ضبط إعدادات النظام العامة، من أبرزها:</p>
+        <ul class="fl">
+            <li>تفعيل/تعطيل <strong>الاعتماد التلقائي للفواتير</strong> وضبط الحد الأقصى</li>
+            <li>إدارة <strong>تصنيفات المصروفات</strong> (طعام، نقل، مستلزمات...) وإضافة تصنيفات جديدة</li>
+        </ul>
+
+        <h3 class="subt">الدعم الفني</h3>
+        <p>إذا واجهت مشكلة في النظام أو كان لديك اقتراح، يمكنك إرسال تذكرة دعم فني:</p>
+        <ol class="steps">
+            <li>
+                <div class="sn">1</div>
+                <div class="st2">من القائمة الجانبية، اضغط <strong>"الدعم الفني"</strong>.</div>
+            </li>
+            <li>
+                <div class="sn">2</div>
+                <div class="st2">اختر <strong>نوع التذكرة</strong>: مشكلة تقنية، اقتراح، أو استفسار.</div>
+            </li>
+            <li>
+                <div class="sn">3</div>
+                <div class="st2">اختر مستوى <strong>الأولوية</strong>: منخفضة، متوسطة، عالية.</div>
+            </li>
+            <li>
+                <div class="sn">4</div>
+                <div class="st2">أدخل <strong>عنوان ووصف</strong> المشكلة بوضوح.</div>
+            </li>
+            <li>
+                <div class="sn">5</div>
+                <div class="st2">اضغط <strong>"إرسال"</strong>. تصل التذكرة للمدير مباشرة.</div>
+            </li>
+        </ol>
+
+        <div class="ib tip">
+            <div class="ico">✅</div>
+            <div class="txt"><strong>لمزيد من المساعدة</strong>
+                كلما كانت التذكرة أكثر وضوحاً وتفصيلاً، كلما أسرع المدير في الرد والمساعدة. أذكر دائماً: ما الذي فعلته،
+                وما الذي حدث، وما الذي كنت تتوقعه.
+            </div>
+        </div>
+
+        <!-- ──── FINAL SUMMARY ──── -->
+        <h2 class="st" style="margin-top:40px">ملخص عام للنظام</h2>
+        <p>فيما يلي جدول مرجعي سريع يوضح الصلاحيات الرئيسية لكل دور:</p>
+        <table class="pt">
+            <thead>
+                <tr>
+                    <th>الصفحة / الوظيفة</th>
+                    <th>👑 مدير</th>
+                    <th>📊 محاسب</th>
+                    <th>🧭 منسق</th>
+                    <th>👷 موظف</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>تسجيل الدخول</td>
+                    <td class="ck">✔</td>
+                    <td class="ck">✔</td>
+                    <td class="ck">✔</td>
+                    <td class="ck">✔</td>
+                </tr>
+                <tr>
+                    <td>لوحة التحكم الرئيسية</td>
+                    <td class="ck">✔ كاملة</td>
+                    <td class="ck">✔ مالية</td>
+                    <td class="ck">✔ مشاريعه</td>
+                    <td class="ck">✔ عهدته</td>
+                </tr>
+                <tr>
+                    <td>إنشاء مشروع</td>
+                    <td class="ck">✔</td>
+                    <td class="cx">✘</td>
+                    <td class="ck">✔</td>
+                    <td class="cx">✘</td>
+                </tr>
+                <tr>
+                    <td>إغلاق مشروع نهائياً</td>
+                    <td class="ck">✔</td>
+                    <td class="cx">✘</td>
+                    <td class="cx">✘</td>
+                    <td class="cx">✘</td>
+                </tr>
+                <tr>
+                    <td>إضافة / تعديل موظف</td>
+                    <td class="ck">✔</td>
+                    <td class="cx">✘</td>
+                    <td class="cx">✘</td>
+                    <td class="cx">✘</td>
+                </tr>
+                <tr>
+                    <td>صرف عهدة</td>
+                    <td class="ck">✔</td>
+                    <td class="cx">✘</td>
+                    <td class="ck">✔</td>
+                    <td class="cx">✘</td>
+                </tr>
+                <tr>
+                    <td>تأكيد استلام عهدة</td>
+                    <td class="cx">✘</td>
+                    <td class="cx">✘</td>
+                    <td class="cx">✘</td>
+                    <td class="ck">✔</td>
+                </tr>
+                <tr>
+                    <td>رفع فاتورة</td>
+                    <td class="ck">✔</td>
+                    <td class="ck">✔</td>
+                    <td class="ck">✔</td>
+                    <td class="ck">✔</td>
+                </tr>
+                <tr>
+                    <td>اعتماد / رفض فاتورة</td>
+                    <td class="ck">✔</td>
+                    <td class="ck">✔</td>
+                    <td class="cx">✘</td>
+                    <td class="cx">✘</td>
+                </tr>
+                <tr>
+                    <td>إنشاء قائمة مشتريات</td>
+                    <td class="ck">✔</td>
+                    <td class="cx">✘</td>
+                    <td class="ck">✔</td>
+                    <td class="cx">✘</td>
+                </tr>
+                <tr>
+                    <td>تسوية ديون</td>
+                    <td class="ck">✔</td>
+                    <td class="ck">✔</td>
+                    <td class="cx">✘</td>
+                    <td class="cx">✘</td>
+                </tr>
+                <tr>
+                    <td>إيداع في الخزنة</td>
+                    <td class="ck">✔</td>
+                    <td class="cx">✘</td>
+                    <td class="cx">✘</td>
+                    <td class="cx">✘</td>
+                </tr>
+                <tr>
+                    <td>تخصيص ميزانية لمشروع</td>
+                    <td class="ck">✔</td>
+                    <td class="cx">✘</td>
+                    <td class="cx">✘</td>
+                    <td class="cx">✘</td>
+                </tr>
+                <tr>
+                    <td>التقارير والإحصائيات</td>
+                    <td class="ck">✔ كاملة</td>
+                    <td class="ck">✔ كاملة</td>
+                    <td class="ck">✔ مشاريعه</td>
+                    <td class="cx">✘</td>
+                </tr>
+                <tr>
+                    <td>سلة المهملات</td>
+                    <td class="ck">✔</td>
+                    <td class="cx">✘</td>
+                    <td class="cx">✘</td>
+                    <td class="cx">✘</td>
+                </tr>
+                <tr>
+                    <td>الإعدادات العامة</td>
+                    <td class="ck">✔</td>
+                    <td class="cx">✘</td>
+                    <td class="cx">✘</td>
+                    <td class="cx">✘</td>
+                </tr>
+                <tr>
+                    <td>الدعم الفني (إرسال تذكرة)</td>
+                    <td class="ck">✔</td>
+                    <td class="ck">✔</td>
+                    <td class="ck">✔</td>
+                    <td class="ck">✔</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="ib tip" style="margin-top:30px">
+            <div class="ico">🎯</div>
+            <div class="txt"><strong>نصيحة ختامية</strong>
+                النظام مصمم لتسهيل عملك لا لتعقيده. إذا واجهتك أي مشكلة أو استفسار لم تجد إجابته في هذا الدليل، لا تتردد
+                في إرسال تذكرة دعم فني أو التواصل مع مديرك المباشر.
+            </div>
+        </div>
+
+        <div class="footer"
+            style="margin-top:50px; padding-top:20px; border-top:2px solid #e94560; color:#666; font-size:12px">
+            <strong>نظام إدارة المشاريع — دليل الاستخدام الشامل</strong><br>
+            إصدار 3.0 — مارس 2026 — وثيقة داخلية للموظفين
+        </div>
+    </div>
+
+</body>
+
+</html>
