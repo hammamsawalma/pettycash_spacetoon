@@ -1,6 +1,6 @@
 {
-    "buildCommand": "cd project-manager && npm install && npm run build",
+    "installCommand": "npm --prefix project-manager install",
+    "buildCommand": "npm --prefix project-manager run build",
     "outputDirectory": "project-manager/.next",
-    "installCommand": "cd project-manager && npm install",
     "framework": "nextjs"
 }
