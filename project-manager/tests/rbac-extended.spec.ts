@@ -268,20 +268,21 @@ test.describe('Suite 8 — Purchases RBAC', () => {
         expect(body).toContain('اضافة طلب شراء');
     });
 
-    test('[PURCH-B2] USER (Coordinator) sees "اضافة طلب شراء" button', async ({ page }) => {
+    test('[PURCH-B2] USER (Coordinator) does NOT see "اضافة طلب شراء" button (Dashboard level)', async ({ page }) => {
         await login(page, USERS.COORD);
         await page.goto('/purchases');
         await page.waitForTimeout(1500);
         const body = await page.evaluate(() => document.body.innerText);
-        expect(body).toContain('اضافة طلب شراء');
+        expect(body).not.toContain('اضافة طلب شراء');
     });
 
-    test('[PURCH-B3] USER (Employee) sees "اضافة طلب شراء" button', async ({ page }) => {
+    test('[PURCH-B3] USER (Employee) does NOT see "اضافة طلب شراء" button', async ({ page }) => {
         await login(page, USERS.EMP1);
         await page.goto('/purchases');
         await page.waitForTimeout(1500);
         const body = await page.evaluate(() => document.body.innerText);
-        expect(body).toContain('اضافة طلب شراء');
+        // Employee should ONLY see the list, no add button anywhere
+        expect(body).not.toContain('اضافة طلب شراء');
     });
 
     test('[PURCH-B4] ADMIN can click add button to navigate to purchase form', async ({ page }) => {
@@ -297,16 +298,15 @@ test.describe('Suite 8 — Purchases RBAC', () => {
         expect(page.url()).not.toContain('/login');
     });
 
-    test('[PURCH-B5] USER (Employee) can click add button to navigate to purchase form', async ({ page }) => {
+    test('[PURCH-B5] USER (Employee) is blocked from accessing /purchases/new directly', async ({ page }) => {
         await login(page, USERS.EMP1);
-        await page.goto('/purchases');
-        await page.waitForTimeout(1500);
-        const addBtn = page.locator('button').filter({ hasText: 'اضافة طلب شراء' });
-        await expect(addBtn).toBeVisible();
-        await addBtn.click();
-        await page.waitForTimeout(1500);
-        expect(page.url()).toContain('/purchases');
-        expect(page.url()).not.toContain('/login');
+        // Direct URL access test — should be redirected by proxy.ts
+        await page.goto('/purchases/new');
+        await page.waitForTimeout(2000);
+        const url = page.url();
+        // Redirected to / or /login 
+        const blocked = url === 'http://localhost:3001/' || url.includes('/login');
+        expect(blocked).toBeTruthy();
     });
 });
 

@@ -325,7 +325,7 @@ export default function Sidebar({ isOpen, setIsOpen }: { isOpen?: boolean, setIs
                                             { name: 'فاتورة جديدة', icon: FileText, href: '/invoices/new', desc: 'إصدار فاتورة لعميل', color: 'bg-green-50 text-green-600 border-green-100', roles: ['ADMIN', 'GLOBAL_ACCOUNTANT', 'USER'] },
                                             { name: 'موظف جديد', icon: Users, href: '/employees/new', desc: 'إضافة موظف للنظام', color: 'bg-purple-50 text-purple-600 border-purple-100', roles: ['ADMIN'] },
                                             { name: 'تسجيل عهدة', icon: Wallet, href: '/deposits/new', desc: 'تسجيل معاملة مالية', color: 'bg-orange-50 text-orange-600 border-orange-100', roles: ['ADMIN', 'GLOBAL_ACCOUNTANT'] },
-                                            { name: 'طلب شراء', icon: ShoppingCart, href: '/purchases/new', desc: 'إنشاء طلب مشتريات', color: 'bg-teal-50 text-teal-600 border-teal-100', roles: ['ADMIN', 'GLOBAL_ACCOUNTANT', 'USER', 'GENERAL_MANAGER'] },
+                                            { name: 'طلب شراء', icon: ShoppingCart, href: '/purchases/new', desc: 'إنشاء طلب مشتريات', color: 'bg-teal-50 text-teal-600 border-teal-100', roles: ['ADMIN', 'GLOBAL_ACCOUNTANT', 'GENERAL_MANAGER'] },
                                         ].filter(item => item.roles.includes(role)).map((item, idx) => (
                                             <Link
                                                 key={idx}

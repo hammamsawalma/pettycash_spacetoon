@@ -36,6 +36,10 @@ const ROUTE_RULES: Array<{ prefix: string; exact?: boolean; allowed: string[] }>
 
     // Invoices + purchases — all authenticated users (filtered server-side)
     { prefix: '/invoices', allowed: ['ADMIN', 'GLOBAL_ACCOUNTANT', 'USER', 'GENERAL_MANAGER'] },
+
+    // Purchases create — restricted
+    { prefix: '/purchases/new', allowed: ['ADMIN', 'GLOBAL_ACCOUNTANT', 'GENERAL_MANAGER'] },
+    // Purchases list
     { prefix: '/purchases', allowed: ['ADMIN', 'GLOBAL_ACCOUNTANT', 'USER', 'GENERAL_MANAGER'] },
 ];
 

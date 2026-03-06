@@ -63,7 +63,7 @@ export default function PurchasesPage() {
                             <Filter className="w-3.5 h-3.5 md:w-4 md:h-4" />
                             تصفية
                         </Button>
-                        {user && (
+                        {user && ['ADMIN', 'GLOBAL_ACCOUNTANT', 'GENERAL_MANAGER'].includes(user.role) && (
                             <Button onClick={() => router.push('/purchases/new')} variant="primary" className="gap-2 flex-1 sm:flex-none py-2.5 md:py-2 text-xs md:text-sm h-auto justify-center">
                                 <Plus className="w-3.5 h-3.5 md:w-4 md:h-4" />
                                 اضافة طلب شراء
