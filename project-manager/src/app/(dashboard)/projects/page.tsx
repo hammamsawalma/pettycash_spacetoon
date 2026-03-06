@@ -30,6 +30,9 @@ export default function ProjectsPage() {
     const { user } = useAuth();
     const router = useRouter();
     const canCreateProject = useCanDo('projects', 'create');
+    // Management roles see financial details (budget, custody) — USER role sees only project info
+    const canViewFinancials = useCanDo('projects', 'viewAll');
+
     const [filter, setFilter] = useState("الكل");
     const [viewMode, setViewMode] = useState<"grid" | "board">("grid");
     const [searchQuery, setSearchQuery] = useState("");
@@ -242,7 +245,7 @@ export default function ProjectsPage() {
                                     </div>
 
                                     {/* Financial Details Grid */}
-                                    {user?.role !== "USER" && (
+                                    {canViewFinancials && (
                                         <div className="grid grid-cols-2 gap-2 mt-4 pt-4 border-t border-gray-100 relative z-10 w-full">
                                             <div className="bg-purple-50/70 rounded-xl p-2.5 flex flex-col justify-center items-start border border-purple-100/50">
                                                 <span className="text-[9px] md:text-[10px] text-[#7F56D9] font-bold mb-0.5" title="إجمالي الميزانية المخصصة للمشروع">الميزانية المخصصة</span>

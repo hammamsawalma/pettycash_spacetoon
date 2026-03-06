@@ -10,6 +10,7 @@ import { getReportStats } from "@/actions/reports";
 import { Project } from "@prisma/client";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import { useAuth } from "@/context/AuthContext";
+import { useCanDo } from "@/components/auth/Protect";
 import { useRouter } from "next/navigation";
 import { CurrencyDisplay } from "@/components/ui/CurrencyDisplay";
 
@@ -18,6 +19,8 @@ const COLORS = ['#7F56D9', '#0ea5e9', '#10b981', '#f59e0b', '#f43f5e'];
 export default function ReportsPage() {
     const { user } = useAuth();
     const router = useRouter();
+    // Derived from permissions.ts — central source of truth for role access
+    const canViewReports = useCanDo('reports', 'viewAll');
     const [dateFilter, setDateFilter] = useState("آخر 30 يوم");
     const [stats, setStats] = useState<{
         netProfit: number;
@@ -30,22 +33,22 @@ export default function ReportsPage() {
         categoryExpenses: { name: string, icon: string, value: number }[];
     } | null>(null);
 
-    // Only ADMIN, GENERAL_MANAGER and GLOBAL_ACCOUNTANT can view reports
+    // Redirect if not authorized — guard derived from permissions.ts
     useEffect(() => {
-        if (user && user.role !== "ADMIN" && user.role !== "GLOBAL_ACCOUNTANT" && user.role !== "GENERAL_MANAGER") {
+        if (user && !canViewReports) {
             router.push("/");
         }
-    }, [user, router]);
+    }, [user, canViewReports, router]);
 
     useEffect(() => {
-        if (user?.role === "ADMIN" || user?.role === "GLOBAL_ACCOUNTANT" || user?.role === "GENERAL_MANAGER") {
+        if (canViewReports) {
             getReportStats(dateFilter).then(data => {
                 setStats(data);
             });
         }
-    }, [dateFilter, user]);
+    }, [dateFilter, canViewReports]);
 
-    if (!user || (user.role !== "ADMIN" && user.role !== "GLOBAL_ACCOUNTANT" && user.role !== "GENERAL_MANAGER")) return null;
+    if (!user || !canViewReports) return null;
 
     return (
         <DashboardLayout title="التقارير والإحصائيات">

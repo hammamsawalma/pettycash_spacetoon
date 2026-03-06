@@ -30,7 +30,9 @@ export const PERMISSIONS = {
         edit: ["ADMIN"] as UserRole[],
         /** Can soft-delete an employee (move to trash) */
         delete: ["ADMIN"] as UserRole[],
-        /** Can view the list of employees */
+        /** Can view the employees LIST page (management only) */
+        viewAll: ["ADMIN", "GENERAL_MANAGER", "GLOBAL_ACCOUNTANT"] as UserRole[],
+        /** Can view a single employee profile (all authenticated roles) */
         view: ["ADMIN", "GENERAL_MANAGER", "GLOBAL_ACCOUNTANT", "USER"] as UserRole[],
         /** Can see salary figures for all employees */
         viewSalaries: ["ADMIN", "GENERAL_MANAGER", "GLOBAL_ACCOUNTANT"] as UserRole[],

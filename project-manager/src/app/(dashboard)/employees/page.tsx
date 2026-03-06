@@ -28,8 +28,8 @@ export default function EmployeesPage() {
     const { user } = useAuth();
     const router = useRouter();
     const canCreateEmployee = useCanDo('employees', 'create');
-
-    const canAccess = user?.role === "ADMIN" || user?.role === "GLOBAL_ACCOUNTANT" || user?.role === "GENERAL_MANAGER";
+    // Derived from permissions.ts — replaces hardcoded role array
+    const canAccess = useCanDo('employees', 'viewAll');
 
     useEffect(() => {
         if (user && !canAccess) {

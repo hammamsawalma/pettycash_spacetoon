@@ -50,9 +50,9 @@ export default function SettingsPage() {
         if (passwordState?.success) { toast.success(passwordState.message || "تم تحديث كلمة المرور"); passwordFormRef.current?.reset(); }
     }, [passwordState]);
 
-    // Load auto-approval rule for ADMIN
+    // Load auto-approval rule (ADMIN only — via canManageSystem)
     useEffect(() => {
-        if (user?.role === "ADMIN") {
+        if (canManageSystem) {
             getAutoApprovalRule().then(rule => {
                 if (rule) {
                     setAutoRule(rule);
@@ -61,7 +61,7 @@ export default function SettingsPage() {
                 }
             });
         }
-    }, [user?.role]);
+    }, [canManageSystem]);
 
     const handleSaveAutoRule = async () => {
         const amount = parseFloat(autoAmount);
