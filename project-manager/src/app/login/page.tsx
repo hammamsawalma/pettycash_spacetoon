@@ -49,16 +49,17 @@ export default function LoginPage() {
                     }}>
                         {/* Quick Login for testing */}
                         <div className="space-y-2 pb-4 border-b border-gray-100">
-                            <p className="text-[10px] text-center font-bold text-gray-400 uppercase tracking-widest mb-2">دخول سريع للاختبار</p>
+                            <p className="text-[10px] text-center font-bold text-gray-400 uppercase tracking-widest mb-2">دخول سريع للاختبار — كلمة المرور: 123456</p>
                             <div className="grid grid-cols-2 gap-2">
                                 {[
-                                    { label: "🌟 مدير عام", email: "gm@pocket.com", color: "bg-yellow-50 hover:bg-yellow-100 border-yellow-300 text-yellow-700" },
                                     { label: "👑 مدير النظام", email: "admin@pocket.com", color: "bg-purple-50 hover:bg-purple-100 border-purple-200 text-purple-700" },
-                                    { label: "🧾 محاسب", email: "accountant@pocket.com", color: "bg-blue-50 hover:bg-blue-100 border-blue-200 text-blue-700" },
-                                    { label: "🗂️ منسق مشاريع", email: "coordinator@pocket.com", color: "bg-green-50 hover:bg-green-100 border-green-200 text-green-700" },
+                                    { label: "🌟 مدير عام", email: "gm@pocket.com", color: "bg-yellow-50 hover:bg-yellow-100 border-yellow-300 text-yellow-700" },
+                                    { label: "🧾 محاسب عام", email: "accountant@pocket.com", color: "bg-blue-50 hover:bg-blue-100 border-blue-200 text-blue-700" },
+                                    { label: "🗂️ منسق — خالد", email: "coordinator@pocket.com", color: "bg-green-50 hover:bg-green-100 border-green-200 text-green-700" },
                                     { label: "👤 موظف — محمد", email: "emp1@pocket.com", color: "bg-orange-50 hover:bg-orange-100 border-orange-200 text-orange-700" },
-                                    { label: "👤 موظف — سارة", email: "emp2@pocket.com", color: "bg-rose-50 hover:bg-rose-100 border-rose-200 text-rose-700" },
-                                    { label: "👤 موظف — فيصل", email: "emp3@pocket.com", color: "bg-amber-50 hover:bg-amber-100 border-amber-200 text-amber-700" },
+                                    { label: "👤 موظف — سارة 💸", email: "emp2@pocket.com", color: "bg-rose-50 hover:bg-rose-100 border-rose-200 text-rose-700" },
+                                    { label: "👤 موظف — فيصل 🚨", email: "emp3@pocket.com", color: "bg-amber-50 hover:bg-amber-100 border-amber-200 text-amber-700" },
+                                    { label: "📊 محاسبة مشروع", email: "proj-acc@pocket.com", color: "bg-teal-50 hover:bg-teal-100 border-teal-200 text-teal-700" },
                                 ].map(({ label, email, color }) => (
                                     <Button
                                         key={email}
@@ -72,7 +73,6 @@ export default function LoginPage() {
                                             if (emailInput && passwordInput) {
                                                 emailInput.value = email;
                                                 passwordInput.value = '123456';
-                                                // trigger React's onChange
                                                 emailInput.dispatchEvent(new Event('input', { bubbles: true }));
                                                 passwordInput.dispatchEvent(new Event('input', { bubbles: true }));
                                             }
@@ -82,6 +82,7 @@ export default function LoginPage() {
                                     </Button>
                                 ))}
                             </div>
+                            <p className="text-[9px] text-center text-gray-300 mt-1">💸 سارة: لديها دين شخصي معلق &nbsp;|&nbsp; 🚨 فيصل: طلب شراء URGENT</p>
                         </div>
 
                         <div>
