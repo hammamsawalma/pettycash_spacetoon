@@ -1,37 +1,16 @@
 "use client";
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { Home, FolderKanban, FileText, User, Wallet, Camera, Plus, X, ShoppingCart, BarChart3 } from 'lucide-react';
+import { Home, FolderKanban, FileText, User, Wallet, Camera, Plus, X, ShoppingCart } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
+import { UserRole } from '@/context/AuthContext';
+import { canDo } from '@/lib/permissions';
 import { useState, useEffect, Fragment } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { getUnreadCount } from '@/actions/notifications';
 
-// Nav items for non-employee roles
-const allNavItems = [
-    { name: 'حسابي', href: '/settings', icon: User, roles: ['ADMIN', 'GLOBAL_ACCOUNTANT', 'GENERAL_MANAGER'] },
-    { name: 'الفواتير', href: '/invoices', icon: FileText, roles: ['ADMIN', 'GLOBAL_ACCOUNTANT', 'GENERAL_MANAGER'] },
-    { name: 'المشاريع', href: '/projects', icon: FolderKanban, roles: ['ADMIN', 'GLOBAL_ACCOUNTANT', 'GENERAL_MANAGER'] },
-    { name: 'الرئيسية', href: '/', icon: Home, roles: ['ADMIN', 'GLOBAL_ACCOUNTANT', 'GENERAL_MANAGER'] },
-];
-
-// Quick add actions per role
-const quickAddItems: Record<string, { name: string; href: string; icon: React.ElementType; color: string }[]> = {
-    ADMIN: [
-        { name: 'فاتورة جديدة', href: '/invoices/new', icon: FileText, color: 'bg-green-100 text-green-700' },
-        { name: 'مشروع جديد', href: '/projects/new', icon: FolderKanban, color: 'bg-blue-100 text-blue-700' },
-        { name: 'طلب شراء', href: '/purchases/new', icon: ShoppingCart, color: 'bg-teal-100 text-teal-700' },
-        { name: 'تسجيل عهدة', href: '/deposits/new', icon: Wallet, color: 'bg-orange-100 text-orange-700' },
-    ],
-    GLOBAL_ACCOUNTANT: [
-        { name: 'فاتورة جديدة', href: '/invoices/new', icon: FileText, color: 'bg-green-100 text-green-700' },
-        { name: 'طلب شراء', href: '/purchases/new', icon: ShoppingCart, color: 'bg-teal-100 text-teal-700' },
-        { name: 'تسجيل عهدة', href: '/deposits/new', icon: Wallet, color: 'bg-orange-100 text-orange-700' },
-    ],
-    GENERAL_MANAGER: [],
-};
-
-// Employee-specific nav with prominent "Upload Invoice" CTA
+// ─── Employee (USER role) nav — simple, mobile-first ─────────────────────────
+// Edge case: USER role has a completely separate UX from management roles.
 const employeeNavItems = [
     { name: 'الرئيسية', href: '/', icon: Home },
     { name: 'المشاريع', href: '/projects', icon: FolderKanban },
@@ -39,11 +18,94 @@ const employeeNavItems = [
     { name: 'حسابي', href: '/settings', icon: User },
 ];
 
+// ─── Management nav items (non-USER roles) ───────────────────────────────────
+// check() is evaluated at render time against the current user role
+type NavItemDef = {
+    name: string;
+    href: string;
+    icon: React.ElementType;
+    check: (role: UserRole) => boolean;
+};
+
+const allNavItems: NavItemDef[] = [
+    {
+        name: 'حسابي',
+        href: '/settings',
+        icon: User,
+        check: () => true,
+    },
+    {
+        name: 'الفواتير',
+        href: '/invoices',
+        icon: FileText,
+        check: (r) => canDo(r, 'invoices', 'viewAll') || canDo(r, 'invoices', 'create'),
+    },
+    {
+        name: 'المشاريع',
+        href: '/projects',
+        icon: FolderKanban,
+        check: (r) => canDo(r, 'projects', 'viewAll'),
+    },
+    {
+        name: 'الرئيسية',
+        href: '/',
+        icon: Home,
+        check: () => true,
+    },
+];
+
+// ─── Quick Add actions — derived from PERMISSIONS ───────────────────────────
+// Each item has a check() function instead of a hardcoded role array.
+// Edge cases:
+//  - USER role gets NO quick add because they use the employee-specific nav below
+//  - GENERAL_MANAGER has no actions (view-only role)
+//  - USER/Coordinator creates purchases through the project page not via global nav
+type QuickAddDef = {
+    name: string;
+    href: string;
+    icon: React.ElementType;
+    color: string;
+    check: (role: UserRole) => boolean;
+};
+
+const quickAddDefs: QuickAddDef[] = [
+    {
+        name: 'فاتورة جديدة',
+        href: '/invoices/new',
+        icon: FileText,
+        color: 'bg-green-100 text-green-700',
+        // GENERAL_MANAGER is excluded: they cannot create invoices
+        check: (r) => canDo(r, 'invoices', 'create') && r !== 'GENERAL_MANAGER',
+    },
+    {
+        name: 'مشروع جديد',
+        href: '/projects/new',
+        icon: FolderKanban,
+        color: 'bg-blue-100 text-blue-700',
+        check: (r) => canDo(r, 'employees', 'create'), // same as ADMIN only
+    },
+    {
+        name: 'طلب شراء',
+        href: '/purchases/new',
+        icon: ShoppingCart,
+        color: 'bg-teal-100 text-teal-700',
+        // Only management roles — coordinators use the project page
+        check: (r) => canDo(r, 'purchases', 'createGlobal'),
+    },
+    {
+        name: 'تسجيل عهدة',
+        href: '/deposits/new',
+        icon: Wallet,
+        color: 'bg-orange-100 text-orange-700',
+        check: (r) => canDo(r, 'custodies', 'recordReturn'),
+    },
+];
+
 export default function MobileBottomNav() {
     const pathname = usePathname();
     const router = useRouter();
     const { user } = useAuth();
-    const role = user?.role ?? 'USER';
+    const role = (user?.role ?? 'USER') as UserRole;
     const [fabOpen, setFabOpen] = useState(false);
     const [unreadCount, setUnreadCount] = useState(0);
 
@@ -51,16 +113,15 @@ export default function MobileBottomNav() {
         getUnreadCount().then(count => setUnreadCount(count ?? 0)).catch(() => { });
     }, [pathname]);
 
-    // Close FAB when navigating
     useEffect(() => {
         setFabOpen(false);
     }, [pathname]);
 
+    // ── Employee (USER) view — dedicated nav with prominent "رفع فاتورة" CTA ──
     if (role === 'USER') {
         return (
             <div className="fixed bottom-0 inset-x-0 z-50 w-full bg-white/90 backdrop-blur-xl border-t border-gray-200/50 shadow-[0_-4px_30px_rgba(0,0,0,0.08)] md:hidden pb-[env(safe-area-inset-bottom)]">
                 <div className="flex items-center h-20 max-w-lg mx-auto px-2 gap-1 font-medium pt-1">
-                    {/* Regular nav items */}
                     {employeeNavItems.map((item) => {
                         const isActive = pathname === item.href || (pathname.startsWith(item.href) && item.href !== '/');
                         return (
@@ -79,7 +140,7 @@ export default function MobileBottomNav() {
                         );
                     })}
 
-                    {/* Prominent "رفع فاتورة" button */}
+                    {/* Prominent "رفع فاتورة" CTA for employees */}
                     <button
                         onClick={() => router.push('/invoices/new')}
                         className="flex flex-col items-center justify-center gap-1 bg-[#7F56D9] text-white rounded-2xl px-4 py-3 shadow-lg shadow-purple-300 active:scale-95 transition-transform mx-1 min-h-[52px]"
@@ -93,8 +154,9 @@ export default function MobileBottomNav() {
         );
     }
 
-    const navItems = allNavItems.filter(item => item.roles.includes(role));
-    const roleQuickAdd = quickAddItems[role] ?? [];
+    // ── Management nav (ADMIN, GLOBAL_ACCOUNTANT, GENERAL_MANAGER) ─────────────
+    const navItems = allNavItems.filter(item => item.check(role));
+    const roleQuickAdd = quickAddDefs.filter(item => item.check(role));
 
     return (
         <>
@@ -102,7 +164,6 @@ export default function MobileBottomNav() {
             <AnimatePresence>
                 {fabOpen && (
                     <>
-                        {/* Backdrop */}
                         <motion.div
                             key="fab-backdrop"
                             initial={{ opacity: 0 }}
@@ -111,7 +172,6 @@ export default function MobileBottomNav() {
                             className="fixed inset-0 z-40 bg-gray-900/30 backdrop-blur-sm md:hidden"
                             onClick={() => setFabOpen(false)}
                         />
-                        {/* Quick Actions */}
                         <motion.div
                             key="fab-menu"
                             initial={{ opacity: 0, y: 20 }}
@@ -151,13 +211,12 @@ export default function MobileBottomNav() {
             {/* Bottom Nav Bar */}
             <div className="fixed bottom-0 inset-x-0 z-50 w-full bg-white/80 backdrop-blur-xl border-t border-gray-200/50 shadow-[0_-4px_30px_rgba(0,0,0,0.05)] md:hidden pb-[env(safe-area-inset-bottom)]">
                 <div className="flex items-center h-20 max-w-lg mx-auto font-medium pt-1 px-1">
-                    {/* Nav items — split around FAB */}
                     {navItems.map((item, idx) => {
                         const isActive = pathname === item.href || (pathname.startsWith(item.href) && item.href !== '/');
-                        // Insert FAB in the middle position
                         const midIndex = Math.floor(navItems.length / 2);
                         return (
                             <Fragment key={item.href}>
+                                {/* Insert FAB button in the middle */}
                                 {idx === midIndex && roleQuickAdd.length > 0 && (
                                     <div className="flex items-center justify-center px-2">
                                         <button
@@ -200,7 +259,7 @@ export default function MobileBottomNav() {
                         );
                     })}
 
-                    {/* If no quick add items, just show regular nav in a grid */}
+                    {/* Edge case: GENERAL_MANAGER has no quick add actions — don't show FAB at all */}
                     {roleQuickAdd.length === 0 && navItems.length === 0 && (
                         <p className="text-gray-300 text-xs text-center w-full">لا توجد عناصر</p>
                     )}

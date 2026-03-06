@@ -82,9 +82,19 @@ export const PERMISSIONS = {
 
     // ── Purchases (المشتريات) ────────────────────────────────────────────────────
     purchases: {
-        /** Can create a new purchase order */
-        create: ["ADMIN", "USER"] as UserRole[],  // USER + COORDINATOR role
-        /** Can update purchase status (IN_PROGRESS / PURCHASED) — any member */
+        /** Can view the purchases list */
+        view: ["ADMIN", "GENERAL_MANAGER", "GLOBAL_ACCOUNTANT", "USER"] as UserRole[],
+        /**
+         * Can navigate to /purchases/new from global navigation.
+         * Only management roles have this nav link. USER/Coordinator access
+         * purchase creation through the project page, not the global sidebar.
+         * Edge case: we split "can show nav link" from "can create (server action)"
+         * so that removing a role from nav doesn't block their project-scoped ability.
+         */
+        createGlobal: ["ADMIN", "GLOBAL_ACCOUNTANT", "GENERAL_MANAGER"] as UserRole[],
+        /** Can create a new purchase order (includes USER/Coordinator — validated server-side) */
+        create: ["ADMIN", "USER"] as UserRole[],
+        /** Can update purchase status (IN_PROGRESS / PURCHASED) */
         updateStatus: ["ADMIN", "GENERAL_MANAGER", "GLOBAL_ACCOUNTANT", "USER"] as UserRole[],
         /** Can cancel a purchase order */
         cancel: ["ADMIN", "USER"] as UserRole[],  // USER + COORDINATOR role

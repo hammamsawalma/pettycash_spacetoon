@@ -12,110 +12,319 @@ import {
 
 import { useAuth } from '@/context/AuthContext';
 import { logout } from '@/actions/auth';
+import { canDo } from '@/lib/permissions';
+import { UserRole } from '@/context/AuthContext';
 
-const navigationGroups = [
+// ─── Navigation Structure ─────────────────────────────────────────────────────
+// Each item specifies a `check` function that receives the role and returns
+// whether this item should be visible. This is the SINGLE SOURCE OF TRUTH for
+// UI visibility — derived from permissions.ts via canDo().
+//
+// Edge cases handled:
+//  - USER can VIEW purchases list but cannot create via global nav
+//  - Archives visible only to finance/management roles (matches proxy.ts guard)
+//  - Custody: split between 'my-custodies' (USER only) and 'deposits' (ADMIN/ACC)
+//  - Finance Requests: hidden from USER
+//  - Notifications/Send: only ADMIN can broadcast
+// ─────────────────────────────────────────────────────────────────────────────
+
+type NavItem = {
+    name: string;
+    icon: React.ElementType;
+    href?: string;
+    // Returns true if this item should be visible for the given role
+    check: (role: UserRole) => boolean;
+    subItems?: {
+        name: string;
+        href: string;
+        check: (role: UserRole) => boolean;
+    }[];
+};
+
+type NavGroup = {
+    section: string;
+    items: NavItem[];
+};
+
+const navigationGroups: NavGroup[] = [
     {
         section: 'الأساسيات',
         items: [
-            { name: 'لوحة التحكم', href: '/', icon: Home, roles: ['ADMIN', 'USER', 'GLOBAL_ACCOUNTANT', 'GENERAL_MANAGER'] },
             {
-                name: 'المشاريع', icon: FolderKanban, roles: ['ADMIN', 'USER', 'GLOBAL_ACCOUNTANT', 'GENERAL_MANAGER'],
-                subItems: [
-                    { name: 'قائمة المشاريع', href: '/projects', roles: ['ADMIN', 'USER', 'GLOBAL_ACCOUNTANT', 'GENERAL_MANAGER'] },
-                    { name: 'إضافة مشروع جديد', href: '/projects/new', roles: ['ADMIN'] },
-                ]
+                name: 'لوحة التحكم',
+                href: '/',
+                icon: Home,
+                // All authenticated roles see the dashboard
+                check: () => true,
             },
-            { name: 'المحادثات', href: '/chat', icon: MessageSquare, roles: ['ADMIN', 'USER', 'GLOBAL_ACCOUNTANT', 'GENERAL_MANAGER'] },
-        ]
+            {
+                name: 'المشاريع',
+                icon: FolderKanban,
+                // Visible if the user can either view all projects OR is a USER (sees own projects)
+                check: (r) => canDo(r, 'projects', 'viewAll') || r === 'USER',
+                subItems: [
+                    {
+                        name: 'قائمة المشاريع',
+                        href: '/projects',
+                        check: (r) => canDo(r, 'projects', 'viewAll') || r === 'USER',
+                    },
+                    {
+                        name: 'إضافة مشروع جديد',
+                        href: '/projects/new',
+                        // Only ADMIN can create from global nav; USER/Coordinator creates inside project
+                        check: (r) => canDo(r, 'employees', 'create'), // same as ADMIN-only
+                    },
+                ],
+            },
+            {
+                name: 'المحادثات',
+                href: '/chat',
+                icon: MessageSquare,
+                check: () => true,
+            },
+        ],
     },
     {
         section: 'المالية والمشتريات',
         items: [
             {
-                name: 'الفواتير', icon: FileText, roles: ['ADMIN', 'GLOBAL_ACCOUNTANT', 'USER', 'GENERAL_MANAGER'],
+                name: 'الفواتير',
+                icon: FileText,
+                // All roles that can create OR approve invoices see this section
+                check: (r) => canDo(r, 'invoices', 'create') || canDo(r, 'invoices', 'viewAll'),
                 subItems: [
-                    { name: 'جميع الفواتير', href: '/invoices', roles: ['ADMIN', 'GLOBAL_ACCOUNTANT', 'USER', 'GENERAL_MANAGER'] },
-                    { name: 'إضافة فاتورة', href: '/invoices/new', roles: ['ADMIN', 'GLOBAL_ACCOUNTANT', 'USER'] },
-                ]
+                    {
+                        name: 'جميع الفواتير',
+                        href: '/invoices',
+                        check: (r) => canDo(r, 'invoices', 'create') || canDo(r, 'invoices', 'viewAll'),
+                    },
+                    {
+                        name: 'إضافة فاتورة',
+                        href: '/invoices/new',
+                        // GENERAL_MANAGER cannot create invoices (view-only) — handled in permissions.ts
+                        check: (r) => canDo(r, 'invoices', 'create') && r !== 'GENERAL_MANAGER',
+                    },
+                ],
             },
             {
-                // U1: Removed USER — plain employees cannot create purchases (they need PROJECT_MANAGER role)
-                name: 'المشتريات', icon: ShoppingCart, roles: ['ADMIN', 'GLOBAL_ACCOUNTANT', 'USER', 'GENERAL_MANAGER'],
+                name: 'المشتريات',
+                icon: ShoppingCart,
+                // All roles that can view purchases list see the parent item
+                check: (r) => canDo(r, 'purchases', 'view'),
                 subItems: [
-                    { name: 'جميع المشتريات', href: '/purchases', roles: ['ADMIN', 'GLOBAL_ACCOUNTANT', 'USER', 'GENERAL_MANAGER'] },
-                    { name: 'إضافة طلب شراء', href: '/purchases/new', roles: ['ADMIN', 'GLOBAL_ACCOUNTANT', 'GENERAL_MANAGER'] },
-                ]
+                    {
+                        name: 'جميع المشتريات',
+                        href: '/purchases',
+                        check: (r) => canDo(r, 'purchases', 'view'),
+                    },
+                    {
+                        name: 'إضافة طلب شراء',
+                        href: '/purchases/new',
+                        // Only management roles see this nav link (edge case: USER creates via project page)
+                        check: (r) => canDo(r, 'purchases', 'createGlobal'),
+                    },
+                ],
             },
             {
-                // W2: Added GENERAL_MANAGER so they can navigate to Finance Requests
-                name: 'الطلبات المالية', icon: Wallet, roles: ['ADMIN', 'GLOBAL_ACCOUNTANT', 'GENERAL_MANAGER'],
+                name: 'الطلبات المالية',
+                icon: Wallet,
+                check: (r) => canDo(r, 'financialRequests', 'view'),
                 subItems: [
-                    { name: 'طلبات المحاسبين', href: '/finance-requests', roles: ['ADMIN', 'GLOBAL_ACCOUNTANT', 'GENERAL_MANAGER'] },
-                ]
+                    {
+                        name: 'طلبات المحاسبين',
+                        href: '/finance-requests',
+                        check: (r) => canDo(r, 'financialRequests', 'view'),
+                    },
+                ],
             },
             {
-                name: 'العهدة', icon: Wallet, roles: ['ADMIN', 'GLOBAL_ACCOUNTANT', 'USER'],
+                name: 'العهدة',
+                icon: Wallet,
+                // Visible to all who can view custodies (management) or specific USER custodies
+                check: (r) => canDo(r, 'custodies', 'view'),
                 subItems: [
-                    { name: 'سجل العهدة', href: '/deposits', roles: ['ADMIN', 'GLOBAL_ACCOUNTANT'] },
-                    { name: 'تسجيل معاملة', href: '/deposits/new', roles: ['ADMIN', 'GLOBAL_ACCOUNTANT'] },
-                    { name: 'إدارة عهدي', href: '/my-custodies', roles: ['USER'] },
-                ]
+                    {
+                        name: 'سجل العهدة',
+                        href: '/deposits',
+                        check: (r) => r === 'ADMIN' || r === 'GLOBAL_ACCOUNTANT',
+                    },
+                    {
+                        name: 'تسجيل معاملة',
+                        href: '/deposits/new',
+                        check: (r) => canDo(r, 'custodies', 'recordReturn'),
+                    },
+                    {
+                        name: 'إدارة عهدي',
+                        href: '/my-custodies',
+                        // Only USER role has their own custody page — edge case: ADMIN/ACC do not
+                        check: (r) => r === 'USER',
+                    },
+                ],
             },
             {
-                name: 'خزنة الشركة', icon: Wallet, roles: ['ADMIN', 'GLOBAL_ACCOUNTANT', 'GENERAL_MANAGER'],
+                name: 'خزنة الشركة',
+                icon: Wallet,
+                check: (r) => canDo(r, 'wallet', 'view'),
                 subItems: [
-                    { name: 'لوحة الخزنة', href: '/wallet', roles: ['ADMIN', 'GLOBAL_ACCOUNTANT', 'GENERAL_MANAGER'] },
-                    { name: 'إيداع جديد', href: '/wallet/deposit', roles: ['ADMIN'] },
-                ]
-            }
-        ]
+                    {
+                        name: 'لوحة الخزنة',
+                        href: '/wallet',
+                        check: (r) => canDo(r, 'wallet', 'view'),
+                    },
+                    {
+                        name: 'إيداع جديد',
+                        href: '/wallet/deposit',
+                        check: (r) => canDo(r, 'wallet', 'deposit'),
+                    },
+                ],
+            },
+        ],
     },
     {
         section: 'الإدارة',
         items: [
             {
-                // C3: Removed USER from Employees group — they saw an empty menu
-                name: 'الموظفين', icon: Users, roles: ['ADMIN', 'GLOBAL_ACCOUNTANT', 'GENERAL_MANAGER'],
+                name: 'الموظفين',
+                icon: Users,
+                // Users with view access see the parent item
+                check: (r) => canDo(r, 'employees', 'viewSalaries'), // ADMIN, GM, ACC — not plain USER
                 subItems: [
-                    { name: 'قائمة الموظفين', href: '/employees', roles: ['ADMIN', 'GLOBAL_ACCOUNTANT', 'GENERAL_MANAGER'] },
-                    { name: 'إضافة موظف جديد', href: '/employees/new', roles: ['ADMIN'] },
-                    { name: 'ديون الموظفين', href: '/debts', roles: ['ADMIN', 'GLOBAL_ACCOUNTANT'] },
-                ]
+                    {
+                        name: 'قائمة الموظفين',
+                        href: '/employees',
+                        check: (r) => canDo(r, 'employees', 'viewSalaries'),
+                    },
+                    {
+                        name: 'إضافة موظف جديد',
+                        href: '/employees/new',
+                        check: (r) => canDo(r, 'employees', 'create'),
+                    },
+                    {
+                        name: 'ديون الموظفين',
+                        href: '/debts',
+                        check: (r) => canDo(r, 'debts', 'view'),
+                    },
+                ],
             },
-            { name: 'التقارير', href: '/reports', icon: BarChart3, roles: ['ADMIN', 'GLOBAL_ACCOUNTANT', 'GENERAL_MANAGER'] },
-            // M3: Removed USER from notifications sender — only ADMIN should broadcast
-            { name: 'إرسال إشعارات', href: '/notifications/send', icon: BellRing, roles: ['ADMIN'] },
-        ]
+            {
+                name: 'التقارير',
+                href: '/reports',
+                icon: BarChart3,
+                check: (r) => canDo(r, 'reports', 'viewAll'),
+            },
+            {
+                name: 'إرسال إشعارات',
+                href: '/notifications/send',
+                icon: BellRing,
+                check: (r) => canDo(r, 'notifications', 'send'),
+            },
+        ],
     },
     {
         section: 'النظام',
         items: [
-            { name: 'الدعم الفني', href: '/support', icon: HeadphonesIcon, roles: ['ADMIN', 'USER', 'GLOBAL_ACCOUNTANT'] },
-            { name: 'المؤرشفات', href: '/archives', icon: Archive, roles: ['ADMIN'] },
-            { name: 'السلة', href: '/trash', icon: Trash2, roles: ['ADMIN'] },
-        ]
-    }
+            {
+                name: 'الدعم الفني',
+                href: '/support',
+                icon: HeadphonesIcon,
+                // All roles get support access — edge case: GENERAL_MANAGER excluded in original, keep consistent
+                check: (r) => r !== 'GENERAL_MANAGER',
+            },
+            {
+                name: 'المؤرشفات',
+                href: '/archives',
+                icon: Archive,
+                // Must match proxy.ts guard: ADMIN, GLOBAL_ACCOUNTANT, GENERAL_MANAGER
+                check: (r) => canDo(r, 'archive', 'view'),
+            },
+            {
+                name: 'السلة',
+                href: '/trash',
+                icon: Trash2,
+                check: (r) => canDo(r, 'trash', 'manage'),
+            },
+        ],
+    },
+];
+
+// ─── Quick Add items — derived from PERMISSIONS ───────────────────────────────
+// Edge case: Quick Add items are a subset of "create" nav items.
+// We do NOT include items where permission requires project-level context
+// (USER/Coordinator purchases — they use the project page for that).
+type QuickAddItem = {
+    name: string;
+    icon: React.ElementType;
+    href: string;
+    desc: string;
+    color: string;
+    check: (role: UserRole) => boolean;
+};
+
+const QUICK_ADD_ITEMS: QuickAddItem[] = [
+    {
+        name: 'مشروع جديد',
+        icon: FolderKanban,
+        href: '/projects/new',
+        desc: 'إنشاء مشروع وإسناد المهام',
+        color: 'bg-blue-50 text-blue-600 border-blue-100',
+        check: (r) => canDo(r, 'employees', 'create'), // ADMIN only
+    },
+    {
+        name: 'فاتورة جديدة',
+        icon: FileText,
+        href: '/invoices/new',
+        desc: 'إصدار فاتورة لمشروع',
+        color: 'bg-green-50 text-green-600 border-green-100',
+        // USER and ACC can create; GM cannot (view only)
+        check: (r) => canDo(r, 'invoices', 'create') && r !== 'GENERAL_MANAGER',
+    },
+    {
+        name: 'موظف جديد',
+        icon: Users,
+        href: '/employees/new',
+        desc: 'إضافة موظف للنظام',
+        color: 'bg-purple-50 text-purple-600 border-purple-100',
+        check: (r) => canDo(r, 'employees', 'create'), // ADMIN only
+    },
+    {
+        name: 'تسجيل عهدة',
+        icon: Wallet,
+        href: '/deposits/new',
+        desc: 'تسجيل معاملة مالية',
+        color: 'bg-orange-50 text-orange-600 border-orange-100',
+        check: (r) => canDo(r, 'custodies', 'recordReturn'), // ADMIN only
+    },
+    {
+        name: 'طلب شراء',
+        icon: ShoppingCart,
+        href: '/purchases/new',
+        desc: 'إنشاء طلب مشتريات',
+        color: 'bg-teal-50 text-teal-600 border-teal-100',
+        // Only management roles (not USER — they use project page)
+        check: (r) => canDo(r, 'purchases', 'createGlobal'),
+    },
 ];
 
 export default function Sidebar({ isOpen, setIsOpen }: { isOpen?: boolean, setIsOpen?: (val: boolean) => void }) {
     const pathname = usePathname();
-    const { role } = useAuth();
+    const { user } = useAuth();
+    const role = user?.role as UserRole | undefined;
 
-    // State to keep track of expanded menus
     const [expandedMenus, setExpandedMenus] = useState<Record<string, boolean>>({});
-
-    // Quick Add Modal state
     const [isQuickAddOpen, setIsQuickAddOpen] = useState(false);
 
     // Auto-expand menu if active item is inside
     useEffect(() => {
+        if (!role) return;
         const newExpanded = { ...expandedMenus };
         let hasChanges = false;
 
         navigationGroups.forEach(group => {
             group.items.forEach(item => {
                 if (item.subItems) {
-                    const isAnySubActive = item.subItems.some(sub => pathname === sub.href || (pathname.startsWith(sub.href + '/') && !pathname.endsWith('/new') && sub.href !== '/'));
+                    const isAnySubActive = item.subItems.some(sub =>
+                        sub.check(role) && (pathname === sub.href || (pathname.startsWith(sub.href + '/') && !pathname.endsWith('/new') && sub.href !== '/'))
+                    );
                     if (isAnySubActive && !expandedMenus[item.name]) {
                         newExpanded[item.name] = true;
                         hasChanges = true;
@@ -129,7 +338,7 @@ export default function Sidebar({ isOpen, setIsOpen }: { isOpen?: boolean, setIs
             setExpandedMenus(newExpanded);
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [pathname]);
+    }, [pathname, role]);
 
     const toggleMenu = (name: string) => {
         setExpandedMenus(prev => ({
@@ -137,6 +346,11 @@ export default function Sidebar({ isOpen, setIsOpen }: { isOpen?: boolean, setIs
             [name]: !prev[name]
         }));
     };
+
+    // Nothing to render if role is not yet loaded — prevents flash of wrong nav
+    if (!role) return null;
+
+    const availableQuickAddItems = QUICK_ADD_ITEMS.filter(item => item.check(role));
 
     return (
         <>
@@ -154,25 +368,23 @@ export default function Sidebar({ isOpen, setIsOpen }: { isOpen?: boolean, setIs
                     </div>
                 </div>
 
-                {/* Quick Add Button */}
-                <div className="px-5 pt-3 pb-2">
-                    <button
-                        onClick={() => setIsQuickAddOpen(true)}
-                        className="w-full flex items-center justify-center gap-2 bg-[#7F56D9] hover:bg-[#6941C6] text-white py-2.5 rounded-xl font-semibold shadow-sm shadow-[#7F56D9]/30 transition-all duration-200 hover:-translate-y-0.5"
-                    >
-                        <PlusCircle className="w-5 h-5" />
-                        إضافة سريعة
-                    </button>
-                </div>
+                {/* Quick Add Button — only render if user has any quick add actions */}
+                {availableQuickAddItems.length > 0 && (
+                    <div className="px-5 pt-3 pb-2">
+                        <button
+                            onClick={() => setIsQuickAddOpen(true)}
+                            className="w-full flex items-center justify-center gap-2 bg-[#7F56D9] hover:bg-[#6941C6] text-white py-2.5 rounded-xl font-semibold shadow-sm shadow-[#7F56D9]/30 transition-all duration-200 hover:-translate-y-0.5"
+                        >
+                            <PlusCircle className="w-5 h-5" />
+                            إضافة سريعة
+                        </button>
+                    </div>
+                )}
 
                 <nav className="flex-1 px-4 py-4 space-y-6 overflow-y-auto overflow-x-hidden custom-scrollbar">
                     {navigationGroups.map((group, groupIdx) => {
-                        // Filter items where user has role access
-                        const visibleItems = group.items.filter(item =>
-                            (role && item.roles.includes(role)) ||
-                            (item.subItems && item.subItems.some(sub => role && sub.roles.includes(role)))
-                        );
-
+                        // Filter items visible to this role
+                        const visibleItems = group.items.filter(item => item.check(role));
                         if (visibleItems.length === 0) return null;
 
                         return (
@@ -180,7 +392,7 @@ export default function Sidebar({ isOpen, setIsOpen }: { isOpen?: boolean, setIs
                                 <h3 className="text-[11px] font-black text-gray-500 mb-3 uppercase tracking-widest px-2">{group.section}</h3>
                                 <ul className="space-y-1.5 relative">
                                     {visibleItems.map((item) => {
-                                        const visibleSubItems = item.subItems?.filter(sub => role && sub.roles.includes(role)) || [];
+                                        const visibleSubItems = item.subItems?.filter(sub => sub.check(role)) || [];
                                         const hasSubItems = visibleSubItems.length > 0;
 
                                         const isActiveParent = item.href ? (pathname === item.href || (pathname.startsWith(item.href + '/') && !pathname.endsWith('/new') && item.href !== '/')) : false;
@@ -279,7 +491,7 @@ export default function Sidebar({ isOpen, setIsOpen }: { isOpen?: boolean, setIs
                         }}
                         className="group flex w-full items-center gap-x-3.5 rounded-xl px-3 py-2.5 text-sm font-semibold text-red-500 hover:bg-red-50 hover:text-red-600 transition-all duration-200"
                     >
-                        <LogOut className="h-5 w-5 shrink-0 transition-transform group-hover:-translate-x-1" aria-hidden="true" />
+                        <LogOut className="h-5 w-5 shrink-0 transition-transform group-hover:-translate-x-1" />
                         تسجيل الخروج
                     </button>
                 </div>
@@ -287,7 +499,7 @@ export default function Sidebar({ isOpen, setIsOpen }: { isOpen?: boolean, setIs
 
             {/* Quick Add Modal */}
             <AnimatePresence>
-                {isQuickAddOpen && role && (
+                {isQuickAddOpen && (
                     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
                         <motion.div
                             initial={{ opacity: 0 }}
@@ -319,41 +531,30 @@ export default function Sidebar({ isOpen, setIsOpen }: { isOpen?: boolean, setIs
                                 </div>
 
                                 <div className="p-5">
-                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                                        {[
-                                            { name: 'مشروع جديد', icon: FolderKanban, href: '/projects/new', desc: 'إنشاء مشروع وإسناد المهام', color: 'bg-blue-50 text-blue-600 border-blue-100', roles: ['ADMIN'] },
-                                            { name: 'فاتورة جديدة', icon: FileText, href: '/invoices/new', desc: 'إصدار فاتورة لعميل', color: 'bg-green-50 text-green-600 border-green-100', roles: ['ADMIN', 'GLOBAL_ACCOUNTANT', 'USER'] },
-                                            { name: 'موظف جديد', icon: Users, href: '/employees/new', desc: 'إضافة موظف للنظام', color: 'bg-purple-50 text-purple-600 border-purple-100', roles: ['ADMIN'] },
-                                            { name: 'تسجيل عهدة', icon: Wallet, href: '/deposits/new', desc: 'تسجيل معاملة مالية', color: 'bg-orange-50 text-orange-600 border-orange-100', roles: ['ADMIN', 'GLOBAL_ACCOUNTANT'] },
-                                            { name: 'طلب شراء', icon: ShoppingCart, href: '/purchases/new', desc: 'إنشاء طلب مشتريات', color: 'bg-teal-50 text-teal-600 border-teal-100', roles: ['ADMIN', 'GLOBAL_ACCOUNTANT', 'GENERAL_MANAGER'] },
-                                        ].filter(item => item.roles.includes(role)).map((item, idx) => (
-                                            <Link
-                                                key={idx}
-                                                href={item.href}
-                                                onClick={(e) => { e.stopPropagation(); setIsQuickAddOpen(false); }}
-                                                className="group flex items-start gap-4 p-4 rounded-xl border border-gray-100 hover:border-[#7F56D9]/30 hover:shadow-md hover:bg-[#7F56D9]/5 transition-all duration-200"
-                                            >
-                                                <div className={`w-10 h-10 rounded-lg flex items-center justify-center shrink-0 border ${item.color}`}>
-                                                    <item.icon className="w-5 h-5" />
-                                                </div>
-                                                <div>
-                                                    <h4 className="font-semibold text-gray-900 group-hover:text-[#7F56D9] transition-colors">{item.name}</h4>
-                                                    <p className="text-xs text-gray-500 mt-1 line-clamp-2">{item.desc}</p>
-                                                </div>
-                                            </Link>
-                                        ))}
-                                    </div>
-                                    {[
-                                        { name: 'مشروع جديد', icon: FolderKanban, href: '/projects/new', desc: 'إنشاء مشروع وإسناد المهام', color: 'bg-blue-50 text-blue-600 border-blue-100', roles: ['ADMIN'] },
-                                        { name: 'فاتورة جديدة', icon: FileText, href: '/invoices/new', desc: 'إصدار فاتورة لعميل', color: 'bg-green-50 text-green-600 border-green-100', roles: ['ADMIN', 'GLOBAL_ACCOUNTANT', 'USER'] },
-                                        { name: 'موظف جديد', icon: Users, href: '/employees/new', desc: 'إضافة موظف للنظام', color: 'bg-purple-50 text-purple-600 border-purple-100', roles: ['ADMIN'] },
-                                        { name: 'تسجيل عهدة', icon: Wallet, href: '/deposits/new', desc: 'تسجيل معاملة مالية', color: 'bg-orange-50 text-orange-600 border-orange-100', roles: ['ADMIN', 'GLOBAL_ACCOUNTANT'] },
-                                        { name: 'طلب شراء', icon: ShoppingCart, href: '/purchases/new', desc: 'إنشاء طلب مشتريات', color: 'bg-teal-50 text-teal-600 border-teal-100', roles: ['ADMIN', 'GLOBAL_ACCOUNTANT', 'USER', 'GENERAL_MANAGER'] },
-                                    ].filter(item => item.roles.includes(role)).length === 0 && (
-                                            <div className="text-center py-8">
-                                                <p className="text-gray-500">لا توجد لديك صلاحيات للإضافة السريعة.</p>
-                                            </div>
-                                        )}
+                                    {availableQuickAddItems.length > 0 ? (
+                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                            {availableQuickAddItems.map((item, idx) => (
+                                                <Link
+                                                    key={idx}
+                                                    href={item.href}
+                                                    onClick={(e) => { e.stopPropagation(); setIsQuickAddOpen(false); }}
+                                                    className="group flex items-start gap-4 p-4 rounded-xl border border-gray-100 hover:border-[#7F56D9]/30 hover:shadow-md hover:bg-[#7F56D9]/5 transition-all duration-200"
+                                                >
+                                                    <div className={`w-10 h-10 rounded-lg flex items-center justify-center shrink-0 border ${item.color}`}>
+                                                        <item.icon className="w-5 h-5" />
+                                                    </div>
+                                                    <div>
+                                                        <h4 className="font-semibold text-gray-900 group-hover:text-[#7F56D9] transition-colors">{item.name}</h4>
+                                                        <p className="text-xs text-gray-500 mt-1 line-clamp-2">{item.desc}</p>
+                                                    </div>
+                                                </Link>
+                                            ))}
+                                        </div>
+                                    ) : (
+                                        <div className="text-center py-8">
+                                            <p className="text-gray-500">لا توجد لديك صلاحيات للإضافة السريعة.</p>
+                                        </div>
+                                    )}
                                 </div>
                             </motion.div>
                         </div>

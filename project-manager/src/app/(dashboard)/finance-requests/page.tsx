@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/Button";
 import { CheckCircle, XCircle, Clock, BadgeDollarSign, ArrowUpRight } from "lucide-react";
 import { getPendingFinanceRequests, approveFinanceRequest, rejectFinanceRequest } from "@/actions/financeRequests";
 import { useAuth } from "@/context/AuthContext";
+import { useCanDo } from "@/components/auth/Protect";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 
@@ -27,8 +28,9 @@ const STATUS_CONFIG: Record<string, { label: string; color: string; Icon: any }>
 export default function FinanceRequestsPage() {
     const { user } = useAuth();
     const router = useRouter();
-    const isAdmin = user?.role === "ADMIN";
-    const isFinanceRole = user?.role === "ADMIN" || user?.role === "GLOBAL_ACCOUNTANT" || user?.role === "GENERAL_MANAGER";
+    // Derived from central permissions matrix — no hardcoded role strings in UI
+    const isAdmin = useCanDo('financialRequests', 'approve');
+    const isFinanceRole = useCanDo('financialRequests', 'view');
 
     const [requests, setRequests] = useState<Request[]>([]);
     const [loading, setLoading] = useState(true);

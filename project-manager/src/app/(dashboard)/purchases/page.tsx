@@ -6,15 +6,17 @@ import { EmptyState } from "@/components/ui/EmptyState";
 import { TableRowSkeleton } from "@/components/ui/Skeleton";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { Plus, Search, Filter, ShoppingCart, Paperclip } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { getPurchases } from "@/actions/purchases";
 import { Purchase, Project, User } from "@prisma/client";
 import { useAuth } from "@/context/AuthContext";
+import { useCanDo } from "@/components/auth/Protect";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import { useCachedFetch } from "@/hooks/useCachedFetch";
 import { useDebounce } from "@/hooks/useDebounce";
 import { matchArabicText } from "@/utils/arabic";
+
 
 type PurchaseWithRelations = Purchase & {
     project: Project | null;
@@ -23,6 +25,7 @@ type PurchaseWithRelations = Purchase & {
 
 export default function PurchasesPage() {
     const { user } = useAuth();
+    const canCreatePurchase = useCanDo('purchases', 'createGlobal');
     const router = useRouter();
     const [searchQuery, setSearchQuery] = useState("");
     const debouncedSearchQuery = useDebounce(searchQuery, 300);
@@ -63,7 +66,7 @@ export default function PurchasesPage() {
                             <Filter className="w-3.5 h-3.5 md:w-4 md:h-4" />
                             تصفية
                         </Button>
-                        {user && ['ADMIN', 'GLOBAL_ACCOUNTANT', 'GENERAL_MANAGER'].includes(user.role) && (
+                        {canCreatePurchase && (
                             <Button onClick={() => router.push('/purchases/new')} variant="primary" className="gap-2 flex-1 sm:flex-none py-2.5 md:py-2 text-xs md:text-sm h-auto justify-center">
                                 <Plus className="w-3.5 h-3.5 md:w-4 md:h-4" />
                                 اضافة طلب شراء

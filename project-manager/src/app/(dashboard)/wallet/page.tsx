@@ -1,17 +1,20 @@
 import { getCompanyWallet } from "@/actions/wallet";
 import { getSession } from "@/lib/auth";
+import { canDo } from "@/lib/permissions";
 import { redirect } from "next/navigation";
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import { Card } from "@/components/ui/Card";
 import { ArrowDownCircle, ArrowUpCircle, Wallet, Plus, RefreshCw, FolderKanban } from "lucide-react";
 import Link from "next/link";
 import { CurrencyDisplay } from "@/components/ui/CurrencyDisplay";
+import { UserRole } from "@/context/AuthContext";
 
 export default async function WalletPage() {
     const session = await getSession();
-    if (!session || (session.role !== "ADMIN" && session.role !== "GLOBAL_ACCOUNTANT" && session.role !== "GENERAL_MANAGER")) {
+    if (!session || !canDo(session.role as UserRole, 'wallet', 'view')) {
         redirect("/");
     }
+
 
     const walletData = await getCompanyWallet();
 
@@ -35,7 +38,7 @@ export default async function WalletPage() {
                         <h2 className="text-xl md:text-2xl font-bold text-gray-900">خزنة الشركة الرئيسية (Company Wallet)</h2>
                         <p className="text-sm text-gray-500 mt-1">الرصيد المركزي للشركة وتخصيص الميزانيات للمشاريع</p>
                     </div>
-                    {session.role === "ADMIN" && (
+                    {canDo(session.role as UserRole, 'wallet', 'deposit') && (
                         <Link
                             href="/wallet/deposit"
                             className="inline-flex items-center justify-center gap-2 h-10 md:h-11 px-4 md:px-6 rounded-xl shadow-sm text-sm font-bold bg-green-600 text-white hover:bg-green-700 transition"

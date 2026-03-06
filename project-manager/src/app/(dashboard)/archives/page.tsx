@@ -6,6 +6,7 @@ import { Search, Archive, FolderKanban, Users, FileText, RotateCcw } from "lucid
 import { useState, useEffect } from "react";
 import { getCompletedProjects, reopenProject } from "@/actions/projects";
 import { useAuth } from "@/context/AuthContext";
+import { useCanDo } from "@/components/auth/Protect";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import { CurrencyDisplay } from "@/components/ui/CurrencyDisplay";
@@ -24,6 +25,7 @@ type CompletedProject = {
 
 export default function ArchivesPage() {
     const { user } = useAuth();
+    const canReopenProject = useCanDo('archive', 'reopen');
     const router = useRouter();
     const [searchQuery, setSearchQuery] = useState("");
     const [projects, setProjects] = useState<CompletedProject[]>([]);
@@ -165,7 +167,7 @@ export default function ArchivesPage() {
                                         <FolderKanban className="w-3.5 h-3.5" />
                                         عرض التفاصيل
                                     </Button>
-                                    {user?.role === "ADMIN" && (
+                                    {canReopenProject && (
                                         <Button
                                             variant="outline"
                                             className="flex-1 gap-1.5 text-[11px] h-9 font-bold text-emerald-600 border-emerald-100 hover:bg-emerald-50"
