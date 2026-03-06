@@ -10,6 +10,7 @@ import { KanbanBoard } from "@/components/ui/KanbanBoard";
 import { getProjects } from "@/actions/projects";
 import { Project, User } from "@prisma/client";
 import { useAuth } from "@/context/AuthContext";
+import { useCanDo } from "@/components/auth/Protect";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import { useDebounce } from "@/hooks/useDebounce";
@@ -28,6 +29,7 @@ type ProjectWithRelations = Project & {
 export default function ProjectsPage() {
     const { user } = useAuth();
     const router = useRouter();
+    const canCreateProject = useCanDo('projects', 'create');
     const [filter, setFilter] = useState("الكل");
     const [viewMode, setViewMode] = useState<"grid" | "board">("grid");
     const [searchQuery, setSearchQuery] = useState("");
@@ -159,7 +161,7 @@ export default function ProjectsPage() {
                     </div>
 
                     {/* Add Project Button - Only visible for ADMIN */}
-                    {user?.role === "ADMIN" && (
+                    {canCreateProject && (
                         <Button onClick={() => router.push('/projects/new')} className="w-full py-6 md:py-7 text-sm md:text-lg font-bold rounded-2xl bg-[#7F56D9] hover:bg-[#7F56D9]-hover text-white border-none flex items-center justify-center gap-2 shadow-sm mt-2">
                             <span>أضف مشروع جديد</span>
                         </Button>
@@ -176,7 +178,7 @@ export default function ProjectsPage() {
                             title="لا توجد مشاريع"
                             description={searchQuery ? "لم يتم العثور على مشاريع مطابقة لبحثك، جرب بكلمات أخرى." : "لم يتم إضافة أي مشروع حتى الآن. ابدأ بإضافة مشروعك الأول."}
                             action={
-                                user?.role === "ADMIN" && !searchQuery ? (
+                                canCreateProject && !searchQuery ? (
                                     <Button onClick={() => router.push('/projects/new')} variant="primary" className="mt-2 text-sm">
                                         إضافة مشروع جديد
                                     </Button>

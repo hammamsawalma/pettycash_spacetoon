@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { Home, FolderKanban, FileText, User, Wallet, Camera, Plus, X, ShoppingCart, BarChart3 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Fragment } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { getUnreadCount } from '@/actions/notifications';
 
@@ -157,9 +157,9 @@ export default function MobileBottomNav() {
                         // Insert FAB in the middle position
                         const midIndex = Math.floor(navItems.length / 2);
                         return (
-                            <>
+                            <Fragment key={item.href}>
                                 {idx === midIndex && roleQuickAdd.length > 0 && (
-                                    <div key="fab-slot" className="flex items-center justify-center px-2">
+                                    <div className="flex items-center justify-center px-2">
                                         <button
                                             onClick={() => setFabOpen(v => !v)}
                                             className={`w-12 h-12 rounded-2xl flex items-center justify-center shadow-lg transition-all duration-300 active:scale-90 ${fabOpen
@@ -177,7 +177,6 @@ export default function MobileBottomNav() {
                                 )}
                                 <Link
                                     href={item.href}
-                                    key={item.href}
                                     className="flex-1 inline-flex flex-col items-center justify-center min-h-[44px] py-2 hover:bg-gray-50 group transition-all duration-200 rounded-xl"
                                 >
                                     <div className="relative">
@@ -197,7 +196,7 @@ export default function MobileBottomNav() {
                                         {item.name}
                                     </span>
                                 </Link>
-                            </>
+                            </Fragment>
                         );
                     })}
 

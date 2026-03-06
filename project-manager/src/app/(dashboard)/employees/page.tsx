@@ -8,6 +8,7 @@ import Image from "next/image";
 import { getEmployees } from "@/actions/employees";
 import { User } from "@prisma/client";
 import { useAuth } from "@/context/AuthContext";
+import { useCanDo } from "@/components/auth/Protect";
 import { useRouter } from "next/navigation";
 import { useDebounce } from "@/hooks/useDebounce";
 import { matchArabicText } from "@/utils/arabic";
@@ -26,6 +27,7 @@ export default function EmployeesPage() {
 
     const { user } = useAuth();
     const router = useRouter();
+    const canCreateEmployee = useCanDo('employees', 'create');
 
     const canAccess = user?.role === "ADMIN" || user?.role === "GLOBAL_ACCOUNTANT" || user?.role === "GENERAL_MANAGER";
 
@@ -103,7 +105,7 @@ export default function EmployeesPage() {
                             />
                             <Search className="absolute left-3 top-3 md:top-2.5 h-4 w-4 md:h-5 md:w-5 text-gray-400" />
                         </div>
-                        {user?.role === "ADMIN" && <Button onClick={() => router.push('/employees/new')} variant="primary" className="gap-2 shrink-0 py-2.5 md:py-2 h-auto text-xs md:text-sm">
+                        {canCreateEmployee && <Button onClick={() => router.push('/employees/new')} variant="primary" className="gap-2 shrink-0 py-2.5 md:py-2 h-auto text-xs md:text-sm">
                             <PlusSquare className="h-4 w-4 md:h-5 md:w-5" />
                             <span className="inline">اضافة موظف</span>
                         </Button>}

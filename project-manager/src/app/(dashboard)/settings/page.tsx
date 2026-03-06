@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/Button";
 import { User, Image as ImageIcon, Phone, Lock, LogOut, Settings2, ShieldCheck } from "lucide-react";
 import { useState, useTransition, useActionState, useEffect, useRef } from "react";
 import { useAuth } from "@/context/AuthContext";
+import { useCanDo } from "@/components/auth/Protect";
 import { logout } from "@/actions/auth";
 import { updateProfile, updatePhone, updatePassword } from "@/actions/users";
 import { FileUpload } from "@/components/ui/FileUpload";
@@ -18,6 +19,7 @@ export default function SettingsPage() {
     const { currency, setCurrency } = useCurrency();
     const [activeTab, setActiveTab] = useState("profile");
     const [isPending, startTransition] = useTransition();
+    const canManageSystem = useCanDo('settings', 'manage');
 
     const [profileState, profileAction, profilePending] = useActionState(updateProfile, null);
     const [phoneState, phoneAction, phonePending] = useActionState(updatePhone, null);
@@ -113,7 +115,7 @@ export default function SettingsPage() {
                         كلمة المرور
                     </button>
                     {/* Admin-only: advanced settings */}
-                    {user?.role === "ADMIN" && (
+                    {canManageSystem && (
                         <button
                             onClick={() => setActiveTab("advanced")}
                             className={`min-w-max md:w-full flex items-center gap-2 md:gap-3 px-4 py-3 font-bold text-xs md:text-sm rounded-xl transition-colors ${activeTab === 'advanced' ? 'bg-amber-50 text-amber-700' : 'text-gray-500 hover:bg-gray-50 hover:text-gray-900'}`}
@@ -282,7 +284,7 @@ export default function SettingsPage() {
                         </>
                     )}
 
-                    {activeTab === 'advanced' && user?.role === 'ADMIN' && (
+                    {activeTab === 'advanced' && canManageSystem && (
                         <>
                             <div className="flex items-center gap-3 mb-6 border-b border-gray-100 pb-4">
                                 <ShieldCheck className="w-6 h-6 text-amber-600" />
