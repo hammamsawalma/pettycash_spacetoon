@@ -28,6 +28,9 @@ const ROUTE_RULES: Array<{ prefix: string; exact?: boolean; allowed: string[] }>
     // Reports — finance + management
     { prefix: '/reports', allowed: ['ADMIN', 'GLOBAL_ACCOUNTANT', 'GENERAL_MANAGER'] },
 
+    // Archives — completed projects, management roles only
+    { prefix: '/archives', allowed: ['ADMIN', 'GLOBAL_ACCOUNTANT', 'GENERAL_MANAGER'] },
+
     // Notifications send — ADMIN only
     { prefix: '/notifications/send', allowed: ['ADMIN'] },
 
