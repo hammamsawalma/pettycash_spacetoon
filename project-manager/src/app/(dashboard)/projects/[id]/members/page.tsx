@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/Button";
 import { Users, Shield, Plus, Trash2, ChevronDown } from "lucide-react";
 import { getProjectMembers, addMemberToProject, updateMemberRoles, removeMemberFromProject } from "@/actions/projectMembers";
 import { useAuth } from "@/context/AuthContext";
+import { useCanDo } from "@/components/auth/Protect";
 import { useParams, useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 
@@ -22,13 +23,13 @@ export default function ProjectMembersPage() {
     const { id: projectId } = useParams<{ id: string }>();
     const { user } = useAuth();
     const router = useRouter();
+    // Only ADMIN can manage/remove members — derived from central permissions.ts
+    const canManageMembers = useCanDo('employees', 'create');
 
     const [members, setMembers] = useState<Member[]>([]);
     const [loading, setLoading] = useState(true);
     const [expandedId, setExpandedId] = useState<string | null>(null);
     const [savingId, setSavingId] = useState<string | null>(null);
-
-    const isAdmin = user?.role === "ADMIN";
 
     useEffect(() => {
         getProjectMembers(projectId).then(data => {
@@ -155,7 +156,7 @@ export default function ProjectMembersPage() {
                                     </div>
 
                                     {/* Expanded Role Editor */}
-                                    {isExpanded && isAdmin && (
+                                    {isExpanded && canManageMembers && (
                                         <div className="border-t border-gray-100 bg-gray-50 p-4">
                                             <p className="text-xs font-bold text-gray-500 mb-3">تعديل الأدوار</p>
                                             <div className="flex flex-wrap gap-2 mb-4">

@@ -4,6 +4,7 @@ import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { useAuth } from "@/context/AuthContext";
+import { useCanDo } from "@/components/auth/Protect";
 import { Download, FileText, CheckCircle, Printer, XCircle, AlertTriangle } from "lucide-react";
 import { useEffect, useState, use } from "react";
 import { getInvoiceById, updateInvoiceStatus } from "@/actions/invoices";
@@ -47,6 +48,9 @@ export default function InvoiceDetailsPage({ params }: { params: Promise<{ id: s
     const { id } = use(params);
     const { role, user } = useAuth();
     const router = useRouter();
+    // Admins who can settle debts are the ones who need to see the personal-expense warning
+    const canViewDebtWarning = useCanDo('debts', 'settle');
+
 
     const [invoice, setInvoice] = useState<FullInvoice | null>(null);
     const [isLoading, setIsLoading] = useState(true);
@@ -194,7 +198,7 @@ export default function InvoiceDetailsPage({ params }: { params: Promise<{ id: s
                     </div>
 
                     {/* Financial Warning for Admins */}
-                    {role === "ADMIN" && invoice.status === "APPROVED" && invoice.paymentSource === "PERSONAL" && (
+                    {canViewDebtWarning && invoice.status === "APPROVED" && invoice.paymentSource === "PERSONAL" && (
                         <div className="bg-orange-50 border border-orange-200 rounded-xl p-3 text-orange-800 text-sm font-medium">
                             ⚠️ تم اعتماد الفاتورة كمصروف شخصي. يجب تسوية الدين للموظف عبر قسم الديون.
                         </div>

@@ -7,6 +7,7 @@ import { useState, useEffect, use } from "react";
 import { getEmployeeById } from "@/actions/employees";
 import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
+import { useCanDo } from "@/components/auth/Protect";
 
 type EmployeeData = {
     name: string;
@@ -29,6 +30,7 @@ type EmployeeData = {
 export default function EmployeeDetailsPage({ params }: { params: Promise<{ id: string }> }) {
     const { id: employeeId } = use(params);
     const { role } = useAuth();
+    const canEditEmployee = useCanDo('employees', 'edit');
     const [employee, setEmployee] = useState<EmployeeData | null>(null);
 
     useEffect(() => {
@@ -58,7 +60,7 @@ export default function EmployeeDetailsPage({ params }: { params: Promise<{ id: 
                             <span className="absolute bottom-2 right-2 w-5 h-5 rounded-full bg-green-500 border-2 border-white"></span>
                         </div>
 
-                        {role === "ADMIN" && (
+                        {canEditEmployee && (
                             <Button variant="outline" size="sm" onClick={() => window.location.href = `/employees/${employeeId}/edit`} className="mb-4 gap-2 h-8 text-xs font-bold w-full rounded-xl">
                                 <Edit className="w-3.5 h-3.5" />
                                 تعديل بيانات الموظف

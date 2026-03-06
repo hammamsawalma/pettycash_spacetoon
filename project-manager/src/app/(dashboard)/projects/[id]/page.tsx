@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/Button";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { FolderKanban, FileText, Wallet, Landmark, Plus, Edit, Users, ArrowDownLeft, UserCheck, Send } from 'lucide-react';
 import { useAuth } from "@/context/AuthContext";
+import { useCanDo } from "@/components/auth/Protect";
 import { getProjectById, closeProject } from "@/actions/projects";
 import { allocateBudgetToProject } from "@/actions/wallet";
 import { getProjectCustodies, emergencyTransferCustody, issueCustody } from "@/actions/custody";
@@ -26,6 +27,12 @@ export default function ProjectDetailsPage({ params }: { params: Promise<{ id: s
     const router = useRouter();
     const searchParams = useNextSearchParams();
     const { role, user } = useAuth();
+    // Centralized permission checks derived from permissions.ts
+    const canEditProject = useCanDo('projects', 'edit');
+    const canCloseProject = useCanDo('projects', 'close');
+    const canIssueCustody = useCanDo('custodies', 'issue');
+    const canAddPurchase = useCanDo('purchases', 'create');   // project-scoped (ADMIN + USER/Coordinator)
+    const canManageMembers = useCanDo('employees', 'create'); // Only ADMIN can manage members
     const [activeTab, setActiveTab] = useState("تفاصيل المشروع");
     const [project, setProject] = useState<any>(null);
     const [isClosing, setIsClosing] = useState(false);
@@ -232,13 +239,13 @@ export default function ProjectDetailsPage({ params }: { params: Promise<{ id: s
                                     </div>
                                 </div>
                                 <div className="flex items-center gap-2 shrink-0">
-                                    {(role === "ADMIN" || role === "GENERAL_MANAGER" || isProjectCoordinator) && (
+                                    {(canEditProject || isProjectCoordinator) && (
                                         <Button variant="outline" onClick={() => window.location.href = `/projects/${project.id}/edit`} className="gap-2 h-7 md:h-8 px-2 md:px-3 text-[10px] md:text-xs">
                                             <Edit className="w-3 h-3 md:w-3.5 md:h-3.5" />
                                             تعديل
                                         </Button>
                                     )}
-                                    {role === "ADMIN" && (
+                                    {canManageMembers && (
                                         <Button variant="outline" onClick={() => window.location.href = `/projects/${project.id}/members`} className="gap-2 h-7 md:h-8 px-2 md:px-3 text-[10px] md:text-xs text-purple-600 border-purple-200 hover:bg-purple-50">
                                             <Users className="w-3 h-3 md:w-3.5 md:h-3.5" />
                                             الأعضاء
@@ -277,7 +284,7 @@ export default function ProjectDetailsPage({ params }: { params: Promise<{ id: s
                                 </div>
                             )}
 
-                            {role === "ADMIN" && project.status !== "COMPLETED" && (
+                            {canCloseProject && project.status !== "COMPLETED" && (
                                 <div className="flex gap-4 border-t border-gray-100 pt-6 mt-6">
                                     <Button variant="primary" onClick={() => setShowAllocateModal(true)} className="flex-1 font-bold rounded-xl h-12">
                                         تخصيص ميزانية إضافية
@@ -386,7 +393,7 @@ export default function ProjectDetailsPage({ params }: { params: Promise<{ id: s
                         </Card>
 
                         {/* صرف عهدة */}
-                        {role === "ADMIN" && (
+                        {canIssueCustody && (
                             <Card className="p-5 md:p-6 shadow-sm border-gray-100 space-y-5">
                                 <h3 className="font-bold text-base md:text-lg text-gray-900 flex items-center gap-2">
                                     <Send className="w-5 h-5 text-emerald-600" />
@@ -565,7 +572,7 @@ export default function ProjectDetailsPage({ params }: { params: Promise<{ id: s
                     <Card className="p-5 md:p-6 shadow-sm border-gray-100">
                         <div className="flex justify-between items-center mb-6">
                             <h3 className="text-base md:text-lg font-bold text-gray-900">مشتريات المشروع</h3>
-                            {(role === "ADMIN" || role === "GLOBAL_ACCOUNTANT" || role === "GENERAL_MANAGER" || isProjectCoordinator) && (
+                            {(canAddPurchase || isProjectCoordinator) && (
                                 <Button
                                     variant="primary"
                                     className="gap-2 text-xs md:text-sm h-9 md:h-10 px-3 md:px-4"
