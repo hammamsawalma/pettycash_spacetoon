@@ -26,7 +26,7 @@ type InvoiceItemInput = {
     totalPrice: number;
 };
 
-// ─── Employee Simplified View ──────────────────────────────────────────────────
+// ─── Employee Simplified View — 4 خطوات ─────────────────────────────────────
 function EmployeeInvoiceFlow({ projects, categories, defaultProjectId, defaultAmount, defaultDescription, purchaseId }: {
     projects: any[];
     categories: any[];
@@ -36,7 +36,8 @@ function EmployeeInvoiceFlow({ projects, categories, defaultProjectId, defaultAm
     purchaseId: string;
 }) {
     const router = useRouter();
-    const [currentStep, setCurrentStep] = useState<1 | 2>(1);
+    // الخطوات: 1=صورة, 2=المبلغ, 3=المشروع, 4=ملاحظات+إرسال
+    const [currentStep, setCurrentStep] = useState<1 | 2 | 3 | 4>(1);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [file, setFile] = useState<File | null>(null);
     const [preview, setPreview] = useState<string | null>(null);
@@ -61,25 +62,18 @@ function EmployeeInvoiceFlow({ projects, categories, defaultProjectId, defaultAm
 
     const handleCameraCapture = (e: React.ChangeEvent<HTMLInputElement>) => {
         const f = e.target.files?.[0];
-        if (f) handleFileSelect(f);
-        setCurrentStep(2);
+        if (f) { handleFileSelect(f); setCurrentStep(2); }
     };
 
     const handleGallerySelect = (e: React.ChangeEvent<HTMLInputElement>) => {
         const f = e.target.files?.[0];
-        if (f) handleFileSelect(f);
-        setCurrentStep(2);
+        if (f) { handleFileSelect(f); setCurrentStep(2); }
     };
 
     const handleSubmit = async () => {
-        if (!selectedProjectId) {
-            toast.error("يرجى اختيار المشروع");
-            return;
-        }
-        if (!amount || parseFloat(amount) <= 0) {
-            toast.error("يرجى إدخال مبلغ صحيح");
-            return;
-        }
+        if (!selectedProjectId) { toast.error("يرجى اختيار المشروع"); return; }
+        if (!amount || parseFloat(amount) <= 0) { toast.error("يرجى إدخال مبلغ صحيح"); return; }
+        if (!file) { toast.error("صورة الفاتورة إلزامية"); return; }
 
         setIsSubmitting(true);
         const fd = new FormData();
@@ -89,9 +83,9 @@ function EmployeeInvoiceFlow({ projects, categories, defaultProjectId, defaultAm
         fd.append("date", new Date().toISOString().split("T")[0]);
         if (notes) fd.append("notes", notes);
         if (categoryId) fd.append("categoryId", categoryId);
-        if (file) fd.append("file", file);
+        fd.append("file", file);
         if (purchaseId) fd.append("purchaseId", purchaseId);
-        // NOTE: No paymentSource → triggers auto-detect in backend
+        // No paymentSource → auto-detect in backend
 
         const res = await createInvoice(null, fd);
         setIsSubmitting(false);
@@ -107,41 +101,35 @@ function EmployeeInvoiceFlow({ projects, categories, defaultProjectId, defaultAm
 
     return (
         <DashboardLayout title="رفع فاتورة">
-            <div className="pb-24 px-4 max-w-lg mx-auto" dir="rtl">
+            <div className="pb-32 px-4 max-w-lg mx-auto" dir="rtl">
+
+                {/* Progress dots */}
+                <div className="flex items-center justify-center gap-2 pt-4 pb-6">
+                    {([1, 2, 3, 4] as const).map(s => (
+                        <div key={s} className={`transition-all rounded-full ${s === currentStep ? "w-6 h-2.5 bg-purple-600" :
+                            s < currentStep ? "w-2.5 h-2.5 bg-purple-300" :
+                                "w-2.5 h-2.5 bg-gray-200"
+                            }`} />
+                    ))}
+                </div>
 
                 {/* Hidden file inputs */}
-                <input
-                    ref={cameraInputRef}
-                    type="file"
-                    accept="image/*"
-                    capture="environment"
-                    className="hidden"
-                    onChange={handleCameraCapture}
-                />
-                <input
-                    ref={fileInputRef}
-                    type="file"
-                    accept="image/*, application/pdf"
-                    className="hidden"
-                    onChange={handleGallerySelect}
-                />
+                <input ref={cameraInputRef} type="file" accept="image/*" capture="environment" className="hidden" onChange={handleCameraCapture} />
+                <input ref={fileInputRef} type="file" accept="image/*, application/pdf" className="hidden" onChange={handleGallerySelect} />
 
-                {/* Step 1: Capture */}
+                {/* ── Step 1: صورة الفاتورة (إجباري) ─────────────── */}
                 {currentStep === 1 && (
-                    <div className="space-y-5 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                        <div className="text-center pt-4 pb-2">
+                    <div className="space-y-5 animate-in fade-in slide-in-from-bottom-4 duration-300">
+                        <div className="text-center pb-2">
                             <div className="w-16 h-16 bg-purple-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
                                 <Camera className="w-8 h-8 text-purple-600" />
                             </div>
-                            <h1 className="text-2xl font-black text-gray-900">رفع فاتورة</h1>
-                            <p className="text-gray-500 text-sm mt-2">ابدأ بتصوير الفاتورة أو اختيارها من معرض صورك</p>
+                            <h1 className="text-2xl font-black text-gray-900">صوّر الفاتورة</h1>
+                            <p className="text-gray-500 text-sm mt-1">الخطوة 1 من 4 — صورة واضحة للإيصال أو الفاتورة</p>
                         </div>
 
-                        {/* Camera CTA */}
-                        <button
-                            onClick={() => cameraInputRef.current?.click()}
-                            className="w-full flex flex-col items-center gap-3 bg-gradient-to-br from-purple-600 to-purple-700 text-white py-8 rounded-3xl shadow-lg shadow-purple-200 active:scale-95 transition-transform"
-                        >
+                        <button onClick={() => cameraInputRef.current?.click()}
+                            className="w-full flex flex-col items-center gap-3 bg-gradient-to-br from-purple-600 to-purple-700 text-white py-8 rounded-3xl shadow-lg shadow-purple-200 active:scale-95 transition-transform">
                             <div className="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center">
                                 <Camera className="w-9 h-9" />
                             </div>
@@ -151,11 +139,8 @@ function EmployeeInvoiceFlow({ projects, categories, defaultProjectId, defaultAm
                             </div>
                         </button>
 
-                        {/* Gallery CTA */}
-                        <button
-                            onClick={() => fileInputRef.current?.click()}
-                            className="w-full flex items-center gap-4 bg-white border border-gray-200 text-gray-700 py-5 px-6 rounded-2xl shadow-sm active:scale-95 transition-transform"
-                        >
+                        <button onClick={() => fileInputRef.current?.click()}
+                            className="w-full flex items-center gap-4 bg-white border border-gray-200 text-gray-700 py-5 px-6 rounded-2xl shadow-sm active:scale-95 transition-transform">
                             <div className="w-12 h-12 bg-gray-100 rounded-xl flex items-center justify-center shrink-0">
                                 <ImageIcon className="w-6 h-6 text-gray-500" />
                             </div>
@@ -165,42 +150,26 @@ function EmployeeInvoiceFlow({ projects, categories, defaultProjectId, defaultAm
                             </div>
                         </button>
 
-                        {/* Skip option */}
-                        <button
-                            onClick={() => setCurrentStep(2)}
-                            className="w-full text-center text-gray-400 font-medium py-3 text-sm"
-                        >
-                            تخطي — إضافة بياناٍت فقط ←
-                        </button>
+                        <p className="text-center text-xs text-gray-400">⚠️ صورة الفاتورة إلزامية للمتابعة</p>
                     </div>
                 )}
 
-                {/* Step 2: Details */}
+                {/* ── Step 2: المبلغ ─────────────────────────────── */}
                 {currentStep === 2 && (
-                    <div className="space-y-5 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                        {/* File preview thumbnail */}
+                    <div className="space-y-5 animate-in fade-in slide-in-from-bottom-4 duration-300">
+                        {/* thumbnail */}
                         {preview ? (
                             <div className="relative w-full h-44 rounded-2xl overflow-hidden shadow-sm border border-gray-100">
                                 <Image src={preview} alt="فاتورة" fill className="object-cover" />
-                                <button
-                                    onClick={() => { setFile(null); setPreview(null); setCurrentStep(1); }}
-                                    className="absolute top-2 left-2 bg-red-500 text-white rounded-full p-1.5 shadow-md"
-                                >
+                                <button onClick={() => { setFile(null); setPreview(null); setCurrentStep(1); }}
+                                    className="absolute top-2 left-2 bg-red-500 text-white rounded-full p-1.5 shadow-md">
                                     <Trash2 className="w-4 h-4" />
                                 </button>
                                 <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/50 to-transparent p-3">
                                     <p className="text-white text-xs font-bold">✓ تم رفع الفاتورة</p>
                                 </div>
                             </div>
-                        ) : !file ? (
-                            <button
-                                onClick={() => setCurrentStep(1)}
-                                className="w-full flex items-center gap-3 px-4 py-4 bg-amber-50 border border-amber-200 rounded-2xl text-amber-700"
-                            >
-                                <Camera className="w-5 h-5 shrink-0" />
-                                <span className="text-sm font-semibold">⚠️ لم تُرفق صورة — اضغط لإضافة صورة</span>
-                            </button>
-                        ) : (
+                        ) : file ? (
                             <div className="flex items-center gap-3 px-4 py-4 bg-green-50 border border-green-200 rounded-2xl">
                                 <FileText className="w-5 h-5 text-green-600 shrink-0" />
                                 <div className="flex-1 min-w-0">
@@ -211,126 +180,152 @@ function EmployeeInvoiceFlow({ projects, categories, defaultProjectId, defaultAm
                                     <Trash2 className="w-4 h-4" />
                                 </button>
                             </div>
-                        )}
+                        ) : null}
 
-                        {/* Amount Field - Big and prominent */}
+                        <div className="text-center pb-2">
+                            <h1 className="text-2xl font-black text-gray-900">كم المبلغ؟</h1>
+                            <p className="text-gray-500 text-sm mt-1">الخطوة 2 من 4</p>
+                        </div>
+
                         <Card className="p-5 border-gray-100 shadow-sm rounded-2xl">
                             <label className="text-xs font-black text-gray-500 uppercase tracking-wider block mb-3">المبلغ الإجمالي *</label>
                             <div className="flex items-baseline gap-2">
                                 <input
-                                    type="number"
-                                    inputMode="decimal"
-                                    required
-                                    step="0.01"
-                                    min="0.01"
+                                    autoFocus
+                                    type="number" inputMode="decimal" required step="0.01" min="0.01"
                                     value={amount}
                                     onChange={e => setAmount(e.target.value)}
                                     placeholder="0.00"
-                                    className="flex-1 text-4xl font-black text-purple-700 bg-transparent outline-none border-b-2 border-purple-200 focus:border-purple-500 pb-1 transition-colors placeholder-gray-200"
+                                    className="flex-1 text-5xl font-black text-purple-700 bg-transparent outline-none border-b-2 border-purple-200 focus:border-purple-500 pb-1 transition-colors placeholder-gray-200"
                                 />
                                 <span className="text-xl font-bold text-gray-400">ريال</span>
                             </div>
                         </Card>
+                    </div>
+                )}
 
-                        {/* Project Selection — visual cards */}
-                        <div>
-                            <label className="text-xs font-black text-gray-500 uppercase tracking-wider block mb-3">اختر المشروع *</label>
-                            {projects.length === 0 ? (
-                                <div className="bg-gray-50 rounded-2xl p-6 text-center">
-                                    <FolderOpen className="w-8 h-8 text-gray-300 mx-auto mb-2" />
-                                    <p className="text-gray-500 text-sm">لا توجد مشاريع مسندة إليك</p>
-                                </div>
-                            ) : (
-                                <div className="grid grid-cols-2 gap-3">
-                                    {projects.map((p: any) => (
-                                        <button
-                                            key={p.id}
-                                            type="button"
-                                            onClick={() => setSelectedProjectId(p.id)}
-                                            className={`relative flex flex-col items-center gap-2 p-4 rounded-2xl border-2 transition-all active:scale-95 ${selectedProjectId === p.id
-                                                ? "border-purple-500 bg-purple-50 shadow-md shadow-purple-100"
-                                                : "border-gray-100 bg-white shadow-sm"
-                                                }`}
-                                        >
-                                            {selectedProjectId === p.id && (
-                                                <div className="absolute top-2 left-2 w-5 h-5 bg-purple-600 rounded-full flex items-center justify-center">
-                                                    <CheckCircle className="w-3 h-3 text-white" />
-                                                </div>
-                                            )}
-                                            {/* Project image or letter avatar */}
-                                            {p.image ? (
-                                                <div className="w-14 h-14 rounded-xl overflow-hidden">
-                                                    <Image src={p.image} alt={p.name} width={56} height={56} className="object-cover w-full h-full" />
-                                                </div>
-                                            ) : (
-                                                <div className={`w-14 h-14 rounded-xl flex items-center justify-center text-2xl font-black ${selectedProjectId === p.id ? "bg-purple-100 text-purple-700" : "bg-gray-100 text-gray-600"
-                                                    }`}>
-                                                    {p.name.charAt(0)}
-                                                </div>
-                                            )}
-                                            <p className={`text-xs font-bold text-center leading-tight line-clamp-2 ${selectedProjectId === p.id ? "text-purple-800" : "text-gray-700"
-                                                }`}>
-                                                {p.name}
-                                            </p>
-                                        </button>
-                                    ))}
-                                </div>
-                            )}
+                {currentStep === 2 && (
+                    <div className="fixed bottom-0 inset-x-0 bg-white/90 backdrop-blur-xl border-t border-gray-100 p-4 pb-[calc(1rem+env(safe-area-inset-bottom))] shadow-2xl flex gap-3">
+                        <Button type="button" onClick={() => setCurrentStep(1)} variant="secondary" className="flex-none px-5 py-4 rounded-2xl font-bold">←</Button>
+                        <Button type="button" onClick={() => {
+                            if (!amount || parseFloat(amount) <= 0) { toast.error("يرجى إدخال مبلغ صحيح"); return; }
+                            setCurrentStep(3);
+                        }} variant="primary" className="flex-1 py-4 text-base font-black rounded-2xl shadow-lg shadow-purple-200">
+                            التالي ←
+                        </Button>
+                    </div>
+                )}
+
+                {/* ── Step 3: اختيار المشروع ─────────────────────── */}
+                {currentStep === 3 && (
+                    <div className="space-y-5 animate-in fade-in slide-in-from-bottom-4 duration-300">
+                        <div className="text-center pb-2">
+                            <div className="w-16 h-16 bg-purple-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                                <FolderOpen className="w-8 h-8 text-purple-600" />
+                            </div>
+                            <h1 className="text-2xl font-black text-gray-900">اختر المشروع</h1>
+                            <p className="text-gray-500 text-sm mt-1">الخطوة 3 من 4</p>
                         </div>
 
-                        {/* Category (optional) */}
+                        {projects.length === 0 ? (
+                            <div className="bg-gray-50 rounded-2xl p-6 text-center">
+                                <FolderOpen className="w-8 h-8 text-gray-300 mx-auto mb-2" />
+                                <p className="text-gray-500 text-sm">لا توجد مشاريع مسندة إليك</p>
+                            </div>
+                        ) : (
+                            <div className="grid grid-cols-2 gap-3">
+                                {projects.map((p: any) => (
+                                    <button key={p.id} type="button"
+                                        onClick={() => { setSelectedProjectId(p.id); setCurrentStep(4); }}
+                                        className={`relative flex flex-col items-center gap-2 p-4 rounded-2xl border-2 transition-all active:scale-95 ${selectedProjectId === p.id
+                                            ? "border-purple-500 bg-purple-50 shadow-md shadow-purple-100"
+                                            : "border-gray-100 bg-white shadow-sm"
+                                            }`}>
+                                        {selectedProjectId === p.id && (
+                                            <div className="absolute top-2 left-2 w-5 h-5 bg-purple-600 rounded-full flex items-center justify-center">
+                                                <CheckCircle className="w-3 h-3 text-white" />
+                                            </div>
+                                        )}
+                                        {p.image ? (
+                                            <div className="w-14 h-14 rounded-xl overflow-hidden">
+                                                <Image src={p.image} alt={p.name} width={56} height={56} className="object-cover w-full h-full" />
+                                            </div>
+                                        ) : (
+                                            <div className={`w-14 h-14 rounded-xl flex items-center justify-center text-2xl font-black ${selectedProjectId === p.id ? "bg-purple-100 text-purple-700" : "bg-gray-100 text-gray-600"
+                                                }`}>{p.name.charAt(0)}</div>
+                                        )}
+                                        <p className={`text-xs font-bold text-center leading-tight line-clamp-2 ${selectedProjectId === p.id ? "text-purple-800" : "text-gray-700"
+                                            }`}>{p.name}</p>
+                                    </button>
+                                ))}
+                            </div>
+                        )}
+                        <div className="fixed bottom-0 inset-x-0 bg-white/90 backdrop-blur-xl border-t border-gray-100 p-4 pb-[calc(1rem+env(safe-area-inset-bottom))] shadow-2xl">
+                            <Button type="button" onClick={() => setCurrentStep(2)} variant="secondary" className="w-full py-4 rounded-2xl font-bold">← رجوع</Button>
+                        </div>
+                    </div>
+                )}
+
+                {/* ── Step 4: ملاحظات + تقديم ────────────────────── */}
+                {currentStep === 4 && (
+                    <div className="space-y-5 animate-in fade-in slide-in-from-bottom-4 duration-300">
+                        <div className="text-center pb-2">
+                            <div className="w-16 h-16 bg-green-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                                <CheckCircle className="w-8 h-8 text-green-600" />
+                            </div>
+                            <h1 className="text-2xl font-black text-gray-900">تفاصيل إضافية</h1>
+                            <p className="text-gray-500 text-sm mt-1">الخطوة 4 من 4 — يمكن تخطي كل الحقول</p>
+                        </div>
+
+                        {/* Summary chip */}
+                        {selectedProjectId && (() => {
+                            const proj = projects.find((p: any) => p.id === selectedProjectId);
+                            return proj ? (
+                                <div className="flex items-center gap-3 bg-purple-50 rounded-2xl p-3 border border-purple-100">
+                                    {proj.image
+                                        ? <Image src={proj.image} alt={proj.name} width={36} height={36} className="w-9 h-9 rounded-lg object-cover" />
+                                        : <div className="w-9 h-9 rounded-lg bg-purple-100 flex items-center justify-center text-base font-black text-purple-700">{proj.name.charAt(0)}</div>
+                                    }
+                                    <div className="flex-1 min-w-0">
+                                        <p className="text-[10px] text-purple-400 font-bold">المشروع</p>
+                                        <p className="text-sm font-black text-purple-900 truncate">{proj.name}</p>
+                                    </div>
+                                    <button onClick={() => setCurrentStep(3)} className="text-xs text-purple-400 underline shrink-0">تغيير</button>
+                                </div>
+                            ) : null;
+                        })()}
+
+                        {/* Category chips */}
                         {categories.length > 0 && (
                             <div>
-                                <label className="text-xs font-black text-gray-500 uppercase tracking-wider block mb-3">التصنيف (اختياري)</label>
+                                <label className="text-xs font-black text-gray-500 uppercase tracking-wider block mb-2">التصنيف (اختياري)</label>
                                 <div className="flex flex-wrap gap-2">
-                                    <button
-                                        type="button"
-                                        onClick={() => setCategoryId("")}
+                                    <button type="button" onClick={() => setCategoryId("")}
                                         className={`px-3 py-2 rounded-xl text-xs font-bold border transition-colors ${categoryId === "" ? "bg-gray-800 text-white border-gray-800" : "bg-white text-gray-600 border-gray-200"
-                                            }`}
-                                    >
-                                        غير مصنف
-                                    </button>
+                                            }`}>غير مصنف</button>
                                     {categories.map((c: any) => (
-                                        <button
-                                            key={c.id}
-                                            type="button"
-                                            onClick={() => setCategoryId(c.id)}
+                                        <button key={c.id} type="button" onClick={() => setCategoryId(c.id)}
                                             className={`px-3 py-2 rounded-xl text-xs font-bold border transition-colors ${categoryId === c.id ? "bg-purple-600 text-white border-purple-600" : "bg-white text-gray-600 border-gray-200"
-                                                }`}
-                                        >
-                                            {c.icon} {c.name}
-                                        </button>
+                                                }`}>{c.icon} {c.name}</button>
                                     ))}
                                 </div>
                             </div>
                         )}
 
-                        {/* Notes */}
                         <div>
-                            <label className="text-xs font-black text-gray-500 uppercase tracking-wider block mb-3">ملاحظة (اختياري)</label>
-                            <textarea
-                                value={notes}
-                                onChange={e => setNotes(e.target.value)}
-                                rows={2}
+                            <label className="text-xs font-black text-gray-500 uppercase tracking-wider block mb-2">ملاحظة (اختياري)</label>
+                            <textarea value={notes} onChange={e => setNotes(e.target.value)} rows={3}
                                 placeholder="أي تفاصيل إضافية عن الفاتورة..."
-                                className="w-full rounded-2xl border border-gray-200 p-4 outline-none focus:ring-2 focus:ring-purple-400 resize-none text-sm shadow-sm bg-white"
-                            />
+                                className="w-full rounded-2xl border border-gray-200 p-4 outline-none focus:ring-2 focus:ring-purple-400 resize-none text-sm shadow-sm bg-white" />
                         </div>
                     </div>
                 )}
 
-                {/* Fixed bottom submit bar */}
-                {currentStep === 2 && (
-                    <div className="fixed bottom-0 inset-x-0 bg-white/90 backdrop-blur-xl border-t border-gray-100 p-4 pb-[calc(1rem+env(safe-area-inset-bottom))] shadow-2xl">
-                        <Button
-                            type="button"
-                            onClick={handleSubmit}
-                            disabled={isSubmitting || !selectedProjectId || !amount}
-                            isLoading={isSubmitting}
-                            variant="primary"
-                            className="w-full py-4 text-base font-black rounded-2xl shadow-lg shadow-purple-200"
-                        >
+                {currentStep === 4 && (
+                    <div className="fixed bottom-0 inset-x-0 bg-white/90 backdrop-blur-xl border-t border-gray-100 p-4 pb-[calc(1rem+env(safe-area-inset-bottom))] shadow-2xl flex gap-3">
+                        <Button type="button" onClick={() => setCurrentStep(3)} variant="secondary" className="flex-none px-5 py-4 rounded-2xl font-bold">←</Button>
+                        <Button type="button" onClick={handleSubmit} disabled={isSubmitting} isLoading={isSubmitting}
+                            variant="primary" className="flex-1 py-4 text-base font-black rounded-2xl shadow-lg shadow-purple-200">
                             {isSubmitting ? "جاري الرفع..." : "تقديم الفاتورة ✓"}
                         </Button>
                     </div>
@@ -339,6 +334,8 @@ function EmployeeInvoiceFlow({ projects, categories, defaultProjectId, defaultAm
         </DashboardLayout>
     );
 }
+
+
 
 // ─── Full Invoice Form (Admin / Accountant / Coordinator) ────────────────────────
 function FullInvoiceForm() {
@@ -354,8 +351,6 @@ function FullInvoiceForm() {
 
     const [projects, setProjects] = useState<any[]>([]);
     const [categories, setCategories] = useState<any[]>([]);
-    const [custodies, setCustodies] = useState<any[]>([]);
-    const [managerAvailable, setManagerAvailable] = useState<number | null>(null);
 
     // Form State
     const [file, setFile] = useState<File | null>(null);
@@ -367,28 +362,14 @@ function FullInvoiceForm() {
         type: "SALES",
         amount: defaultAmount,
         notes: defaultDescription,
-        paymentSource: "CUSTODY" as "CUSTODY" | "PERSONAL" | "SPLIT",
-        custodyId: ""
     });
-    // V3 SPLIT payment fields
-    const [custodyAmount, setCustodyAmount] = useState("");
-    const [pocketAmount, setPocketAmount] = useState("");
 
     const [items, setItems] = useState<InvoiceItemInput[]>([]);
 
     useEffect(() => {
         getProjects().then(data => setProjects(data as unknown as Project[]));
         getCategories().then(setCategories);
-        getMyCustodies().then(data => setCustodies(data as unknown as any[]));
     }, []);
-
-    // Fetch manager implicit custody balance whenever project changes
-    useEffect(() => {
-        if (!formData.projectId) { setManagerAvailable(null); return; }
-        getManagerAvailableCustody(formData.projectId).then(res => {
-            setManagerAvailable(res ? res.available : null);
-        });
-    }, [formData.projectId]);
 
     const handleNextStep = () => {
         if (currentStep === 1) {
@@ -399,35 +380,13 @@ function FullInvoiceForm() {
                 toast.error("يرجى تعبئة جميع الحقول الإلزامية (المشروع، المبلغ)");
                 return;
             }
-            // Generate reference automatically if empty
             if (!formData.reference.trim()) {
                 setFormData(prev => ({ ...prev, reference: `INV-${Date.now()}` }));
-            }
-            if (formData.paymentSource === "CUSTODY" && !formData.custodyId) {
-                toast.error("يرجى اختيار العهدة أو الدفع من الجيب (شخصي)");
-                return;
-            }
-            // V3: validate SPLIT amounts
-            if (formData.paymentSource === "SPLIT") {
-                if (!formData.custodyId) {
-                    toast.error("يرجى اختيار العهدة");
-                    return;
-                }
-                const ca = parseFloat(custodyAmount) || 0;
-                const pa = parseFloat(pocketAmount) || 0;
-                const total = parseFloat(formData.amount) || 0;
-                if (ca <= 0 || pa <= 0) {
-                    toast.error("يجب أن يكون كلا الجزءين أكبر من صفر");
-                    return;
-                }
-                if (Math.abs(ca + pa - total) > 0.01) {
-                    toast.error(`مجموع الجزءين (${(ca + pa).toFixed(2)}) لا يساوي إجمالي الفاتورة (${total})`);
-                    return;
-                }
             }
             setCurrentStep(3);
         }
     };
+
 
     const addItem = () => {
         setItems([...items, {
@@ -467,18 +426,11 @@ function FullInvoiceForm() {
         setIsSubmitting(true);
         const submitData = new FormData();
         Object.entries(formData).forEach(([key, value]) => submitData.append(key, value));
-        // If using manager's implicit custody, tell backend via sentinel custodyId
-        if (formData.custodyId === "MANAGER_IMPLICIT") {
-            submitData.set("custodyId", "MANAGER_IMPLICIT");
-        }
         if (!formData.reference.trim()) submitData.set("reference", `INV-${Date.now()}`);
         if (file) submitData.append("file", file);
         if (items.length > 0) submitData.append("items", JSON.stringify(items));
-        if (formData.paymentSource === "SPLIT") {
-            submitData.append("custodyAmount", custodyAmount);
-            submitData.append("pocketAmount", pocketAmount);
-        }
         if (purchaseId) submitData.append("purchaseId", purchaseId);
+        // No paymentSource → backend auto-detects
 
         const res = await createInvoice(null, submitData);
         setIsSubmitting(false);
@@ -491,10 +443,6 @@ function FullInvoiceForm() {
             router.push("/invoices");
         }
     };
-
-    const availableCustodies = custodies.filter(c =>
-        c.projectId === formData.projectId && c.isConfirmed && !c.isClosed && c.balance > 0
-    );
 
     return (
         <DashboardLayout title="إضافة فاتورة جديدة">
@@ -574,7 +522,7 @@ function FullInvoiceForm() {
                                                     <button
                                                         key={p.id}
                                                         type="button"
-                                                        onClick={() => setFormData({ ...formData, projectId: p.id, custodyId: '' })}
+                                                        onClick={() => setFormData({ ...formData, projectId: p.id })}
                                                         className={`relative flex flex-col items-center gap-2 p-3 rounded-xl border-2 transition-all active:scale-95 text-center ${formData.projectId === p.id
                                                             ? 'border-purple-500 bg-purple-50 shadow-md shadow-purple-100'
                                                             : 'border-gray-100 bg-white shadow-sm hover:border-gray-200'
@@ -600,7 +548,7 @@ function FullInvoiceForm() {
                                             // Fallback to select for large project lists
                                             <select
                                                 value={formData.projectId}
-                                                onChange={e => setFormData({ ...formData, projectId: e.target.value, custodyId: '' })}
+                                                onChange={e => setFormData({ ...formData, projectId: e.target.value })}
                                                 required
                                                 className="w-full rounded-xl border border-gray-200 p-3.5 min-h-[52px] outline-none focus:ring-2 focus:ring-purple-400 bg-white shadow-sm font-medium"
                                             >
@@ -653,148 +601,6 @@ function FullInvoiceForm() {
                                         />
                                     </div>
 
-                                    {/* Payment Source Area — V3: CUSTODY | PERSONAL | SPLIT */}
-                                    <div className="space-y-3 col-span-1 md:col-span-2 bg-purple-50 p-4 rounded-xl border border-purple-100">
-                                        <label className="text-sm font-bold text-purple-900 block border-b border-purple-200 pb-2">
-                                            طريقة الدفع للمصروف
-                                        </label>
-
-                                        <div className="flex flex-wrap gap-4 mt-2">
-                                            {/* Manager Implicit Custody option — only visible when user is project manager */}
-                                            {managerAvailable !== null && (
-                                                <label className="flex items-center gap-2 cursor-pointer w-full">
-                                                    <input
-                                                        type="radio" name="paymentSource" value="CUSTODY"
-                                                        checked={formData.paymentSource === "CUSTODY" && formData.custodyId === "MANAGER_IMPLICIT"}
-                                                        onChange={() => setFormData({ ...formData, paymentSource: "CUSTODY", custodyId: "MANAGER_IMPLICIT" })}
-                                                        className="accent-purple-600 w-4 h-4"
-                                                    />
-                                                    <span className="font-semibold text-purple-800">
-                                                        🏛️ عهدة المدير — المتاح:{" "}
-                                                        <span className={`font-black ${managerAvailable <= 0 ? "text-red-600" : "text-green-700"}`}>
-                                                            {managerAvailable.toLocaleString("en-GB")} ريال
-                                                        </span>
-                                                    </span>
-                                                </label>
-                                            )}
-                                            <label className="flex items-center gap-2 cursor-pointer">
-                                                <input
-                                                    type="radio" name="paymentSource" value="CUSTODY"
-                                                    checked={formData.paymentSource === "CUSTODY" && formData.custodyId !== "MANAGER_IMPLICIT"}
-                                                    onChange={() => setFormData({ ...formData, paymentSource: "CUSTODY", custodyId: "" })}
-                                                    className="accent-purple-600 w-4 h-4"
-                                                />
-                                                <span className="font-semibold text-purple-800">💼 كل المبلغ من العهدة</span>
-                                            </label>
-                                            <label className="flex items-center gap-2 cursor-pointer">
-                                                <input
-                                                    type="radio" name="paymentSource" value="PERSONAL"
-                                                    checked={formData.paymentSource === "PERSONAL"}
-                                                    onChange={() => setFormData({ ...formData, paymentSource: "PERSONAL", custodyId: "" })}
-                                                    className="accent-purple-600 w-4 h-4"
-                                                />
-                                                <span className="font-semibold text-purple-800">👜 كل المبلغ من جيبي (دين للشركة)</span>
-                                            </label>
-                                            <label className="flex items-center gap-2 cursor-pointer">
-                                                <input
-                                                    type="radio" name="paymentSource" value="SPLIT"
-                                                    checked={formData.paymentSource === "SPLIT"}
-                                                    onChange={() => setFormData({ ...formData, paymentSource: "SPLIT" })}
-                                                    className="accent-purple-600 w-4 h-4"
-                                                />
-                                                <span className="font-semibold text-amber-700">⚡ مختلط — جزء من العهدة وجزء من جيبي</span>
-                                            </label>
-                                        </div>
-
-                                        {/* SPLIT amount fields */}
-                                        {formData.paymentSource === "SPLIT" && formData.amount && (
-                                            <div className="mt-3 grid grid-cols-2 gap-3 p-3 bg-amber-50 rounded-xl border border-amber-200">
-                                                <div className="space-y-1">
-                                                    <label className="text-xs font-bold text-amber-800">💼 الجزء من العهدة (ريال)</label>
-                                                    <input
-                                                        type="number" step="0.01" min="0"
-                                                        value={custodyAmount}
-                                                        onChange={e => {
-                                                            setCustodyAmount(e.target.value);
-                                                            const ca = parseFloat(e.target.value) || 0;
-                                                            const total = parseFloat(formData.amount) || 0;
-                                                            const pa = Math.max(0, total - ca);
-                                                            setPocketAmount(pa.toFixed(2));
-                                                        }}
-                                                        placeholder="0.00"
-                                                        className="w-full rounded-lg border border-amber-300 p-2.5 text-sm outline-none focus:ring-2 focus:ring-amber-400 font-bold text-amber-800"
-                                                    />
-                                                </div>
-                                                <div className="space-y-1">
-                                                    <label className="text-xs font-bold text-red-700">👜 الجزء من جيبي (دَيْن) (ريال)</label>
-                                                    <input
-                                                        type="number" step="0.01" min="0"
-                                                        value={pocketAmount}
-                                                        onChange={e => {
-                                                            setPocketAmount(e.target.value);
-                                                            const pa = parseFloat(e.target.value) || 0;
-                                                            const total = parseFloat(formData.amount) || 0;
-                                                            const ca = Math.max(0, total - pa);
-                                                            setCustodyAmount(ca.toFixed(2));
-                                                        }}
-                                                        placeholder="0.00"
-                                                        className="w-full rounded-lg border border-red-200 p-2.5 text-sm outline-none focus:ring-2 focus:ring-red-400 font-bold text-red-700"
-                                                    />
-                                                </div>
-                                                <div className="col-span-2 text-xs text-amber-700 flex items-center justify-between">
-                                                    <span>الإجمالي: <strong>{formData.amount} ريال</strong></span>
-                                                    <span className={`font-bold ${Math.abs((parseFloat(custodyAmount) || 0) + (parseFloat(pocketAmount) || 0) - parseFloat(formData.amount)) < 0.01
-                                                        ? "text-green-600" : "text-red-600"
-                                                        }`}>
-                                                        {Math.abs((parseFloat(custodyAmount) || 0) + (parseFloat(pocketAmount) || 0) - parseFloat(formData.amount)) < 0.01
-                                                            ? "✓ مجموع صحيح" : "⚠ مجموع خاطئ"}
-                                                    </span>
-                                                </div>
-                                            </div>
-                                        )}
-
-                                        {formData.paymentSource === "CUSTODY" && formData.projectId && (
-                                            <div className="mt-3 animate-in fade-in duration-300">
-                                                {availableCustodies.length === 0 ? (
-                                                    <p className="text-sm text-red-600 bg-red-50 p-2 rounded block">لا تملك عهدة تم تأكيد استلامها في هذا المشروع!</p>
-                                                ) : (
-                                                    <select
-                                                        value={formData.custodyId}
-                                                        onChange={e => setFormData({ ...formData, custodyId: e.target.value })}
-                                                        className="w-full rounded-lg border border-purple-200 p-3 bg-white text-sm"
-                                                    >
-                                                        <option value="">اختر العهدة للخصم منها...</option>
-                                                        {availableCustodies.map(c => (
-                                                            <option key={c.id} value={c.id}>
-                                                                عهدة بقيمة {c.amount} ﷼ ({new Date(c.createdAt).toLocaleDateString("en-GB")})
-                                                            </option>
-                                                        ))}
-                                                    </select>
-                                                )}
-                                            </div>
-                                        )}
-
-                                        {formData.paymentSource === "SPLIT" && formData.projectId && (
-                                            <div className="mt-3 animate-in fade-in duration-300">
-                                                {availableCustodies.length === 0 ? (
-                                                    <p className="text-sm text-red-600 bg-red-50 p-2 rounded block">لا تملك عهدة تم تأكيد استلامها في هذا المشروع!</p>
-                                                ) : (
-                                                    <select
-                                                        value={formData.custodyId}
-                                                        onChange={e => setFormData({ ...formData, custodyId: e.target.value })}
-                                                        className="w-full rounded-lg border border-amber-200 p-3 bg-white text-sm"
-                                                    >
-                                                        <option value="">اختر العهدة...</option>
-                                                        {availableCustodies.map(c => (
-                                                            <option key={c.id} value={c.id}>
-                                                                عهدة — متبقي {c.balance} ﷼
-                                                            </option>
-                                                        ))}
-                                                    </select>
-                                                )}
-                                            </div>
-                                        )}
-                                    </div>
 
                                 </div>
 
