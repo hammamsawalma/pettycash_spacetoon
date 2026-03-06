@@ -44,7 +44,7 @@ export default function TrashPage() {
 
     const handleRestore = async (id: string, type: "PROJECT" | "INVOICE" | "PURCHASE" | "USER") => {
         const res = await restoreItem(type, id);
-        if (res.error) {
+        if ('error' in res) {
             toast.error(res.error);
         } else {
             toast.success("تمت استعادة العنصر بنجاح");
@@ -56,7 +56,7 @@ export default function TrashPage() {
         if (!confirm("هل أنت متأكد من الحذف النهائي؟ لا يمكن التراجع عن هذا الإجراء.")) return;
 
         const res = await permanentlyDelete(type, id);
-        if (res.error) {
+        if ('error' in res) {
             toast.error(res.error);
         } else {
             toast.success("تم حذف العنصر نهائياً");
@@ -79,10 +79,10 @@ export default function TrashPage() {
         setIsPurging(true);
         const res = await purgeOldTrash();
         setIsPurging(false);
-        if (res.error) {
+        if ('error' in res) {
             toast.error(res.error);
         } else {
-            toast.success(res.message || "تم تنظيف المهملات القديمة بنجاح");
+            toast.success('message' in res ? res.message : "تم تنظيف المهملات القديمة بنجاح");
             fetchTrash();
         }
     };
