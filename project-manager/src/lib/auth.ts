@@ -1,6 +1,7 @@
 import jwt from "jsonwebtoken";
 import { cookies } from "next/headers";
 import { UserRole } from "@/context/AuthContext";
+import { PERMISSIONS, canDo } from "@/lib/permissions";
 
 export type SessionData = {
     id: string;
@@ -59,4 +60,29 @@ export async function getSession(): Promise<SessionData | null> {
     } catch {
         return null;
     }
+}
+
+// ─── Server-side Permission Guard ────────────────────────────────────────────
+
+type Resource = keyof typeof PERMISSIONS;
+type Action<R extends Resource> = keyof typeof PERMISSIONS[R];
+
+/**
+ * Use at the top of any Server Action to enforce a permission.
+ * Returns { error: string } if unauthorized, or null if access is granted.
+ *
+ * @example
+ *   const denied = await requirePermission("trash", "manage");
+ *   if (denied) return denied;
+ */
+export async function requirePermission<R extends Resource>(
+    resource: R,
+    action: Action<R>
+): Promise<{ error: string } | null> {
+    const session = await getSession();
+    if (!session) return { error: "يجب تسجيل الدخول أولاً" };
+    if (!canDo(session.role, resource, action)) {
+        return { error: "غير مصرح لك بتنفيذ هذه العملية" };
+    }
+    return null;
 }

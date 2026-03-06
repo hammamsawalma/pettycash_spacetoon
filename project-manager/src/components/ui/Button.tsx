@@ -2,7 +2,8 @@
 import * as React from "react";
 import { motion, HTMLMotionProps } from "framer-motion";
 
-export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+
+interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
     variant?: "primary" | "secondary" | "outline" | "danger";
     size?: "default" | "sm" | "lg";
     isLoading?: boolean;

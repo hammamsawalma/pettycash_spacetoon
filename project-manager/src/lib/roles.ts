@@ -35,32 +35,3 @@ export async function getUserRolesInProject(projectId: string, userId: string): 
     if (!member) return [];
     return parseRoles(member.projectRoles);
 }
-
-/**
- * Check if a user has a specific role in a project
- */
-export async function hasProjectRole(projectId: string, userId: string, role: ProjectRole): Promise<boolean> {
-    const roles = await getUserRolesInProject(projectId, userId);
-    return roles.includes(role);
-}
-
-/**
- * Get all members of a project that have a specific role
- */
-export async function getProjectMembersWithRole(projectId: string, role: ProjectRole) {
-    const members = await prisma.projectMember.findMany({
-        where: { projectId },
-        include: { user: { select: { id: true, name: true, email: true } } }
-    });
-    return members.filter(m => parseRoles(m.projectRoles).includes(role));
-}
-
-/**
- * Check if a user is a member of a project (any role)
- */
-export async function isProjectMember(projectId: string, userId: string): Promise<boolean> {
-    const member = await prisma.projectMember.findUnique({
-        where: { projectId_userId: { projectId, userId } }
-    });
-    return !!member;
-}

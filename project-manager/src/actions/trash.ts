@@ -1,19 +1,12 @@
 "use server"
 import prisma from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
-import { getSession } from "@/lib/auth";
+import { requirePermission } from "@/lib/auth";
 
 export async function getTrashItems() {
     try {
-        const session = await getSession();
-        if (!session || session.role !== "ADMIN") {
-            return {
-                projects: [],
-                invoices: [],
-                purchases: [],
-                users: [],
-            };
-        }
+        const denied = await requirePermission("trash", "manage");
+        if (denied) return { projects: [], invoices: [], purchases: [], users: [] };
 
         const projects = await prisma.project.findMany({ where: { isDeleted: true } });
         const invoices = await prisma.invoice.findMany({ where: { isDeleted: true } });
@@ -34,8 +27,8 @@ export async function getTrashItems() {
 
 export async function restoreItem(type: "PROJECT" | "INVOICE" | "PURCHASE" | "USER", id: string) {
     try {
-        const session = await getSession();
-        if (!session || session.role !== "ADMIN") throw new Error("Unauthorized");
+        const denied = await requirePermission("trash", "manage");
+        if (denied) return denied;
 
         switch (type) {
             case "PROJECT":
@@ -60,89 +53,11 @@ export async function restoreItem(type: "PROJECT" | "INVOICE" | "PURCHASE" | "US
     }
 }
 
-export async function moveToTrash(type: "PROJECT" | "INVOICE" | "PURCHASE" | "USER", id: string) {
-    try {
-        const session = await getSession();
-        if (!session || session.role !== "ADMIN") throw new Error("Unauthorized");
-
-        switch (type) {
-            case "PROJECT": {
-                // Dependency check
-                const project = await prisma.project.findUnique({
-                    where: { id },
-                    include: {
-                        _count: {
-                            select: {
-                                invoices: { where: { isDeleted: false } },
-                                purchases: { where: { isDeleted: false } },
-                                members: true
-                            }
-                        }
-                    }
-                });
-
-                if (project) {
-                    const activeDependencies = [];
-                    if (project._count.invoices > 0) activeDependencies.push(`${project._count.invoices} فواتير`);
-                    if (project._count.purchases > 0) activeDependencies.push(`${project._count.purchases} مشتريات`);
-                    if (project._count.members > 0) activeDependencies.push(`${project._count.members} أعضاء`);
-
-                    if (activeDependencies.length > 0) {
-                        throw new Error(`لا يمكن حذف المشروع لوجود ارتباطات نشطة: ${activeDependencies.join('، ')}`);
-                    }
-                }
-
-                await prisma.project.update({ where: { id }, data: { isDeleted: true, deletedAt: new Date() } });
-                break;
-            }
-            case "INVOICE":
-                await prisma.invoice.update({ where: { id }, data: { isDeleted: true, deletedAt: new Date() } });
-                break;
-            case "PURCHASE":
-                await prisma.purchase.update({ where: { id }, data: { isDeleted: true, deletedAt: new Date() } });
-                break;
-            case "USER": {
-                const userDependencies = await prisma.user.findUnique({
-                    where: { id },
-                    include: {
-                        _count: {
-                            select: {
-                                managedProjects: { where: { isDeleted: false } },
-                                invoicesCreated: { where: { isDeleted: false } },
-                                purchases: { where: { isDeleted: false } }
-                            }
-                        }
-                    }
-                });
-
-                if (userDependencies) {
-                    const activeDeps = [];
-                    if (userDependencies._count.managedProjects > 0) activeDeps.push(`${userDependencies._count.managedProjects} مشاريع يديرها`);
-                    if (userDependencies._count.invoicesCreated > 0) activeDeps.push(`${userDependencies._count.invoicesCreated} فواتير أنشأها`);
-                    if (userDependencies._count.purchases > 0) activeDeps.push(`${userDependencies._count.purchases} مشتريات`);
-
-                    if (activeDeps.length > 0) {
-                        throw new Error(`لا يمكن حذف المستخدم لوجود ارتباطات نشطة: ${activeDeps.join('، ')}`);
-                    }
-                }
-
-                await prisma.user.update({ where: { id }, data: { isDeleted: true, deletedAt: new Date() } });
-                break;
-            }
-        }
-
-        revalidatePath("/trash");
-        revalidatePath(`/${type.toLowerCase()}s`);
-        return { success: true };
-    } catch (error) {
-        return { error: error instanceof Error ? error.message : "Error moving item to trash" };
-    }
-}
 
 export async function permanentlyDelete(type: "PROJECT" | "INVOICE" | "PURCHASE" | "USER", id: string) {
     try {
-        const session = await getSession();
-        if (!session || session.role !== "ADMIN") throw new Error("Unauthorized");
+        const denied = await requirePermission("trash", "manage");
+        if (denied) return denied;
 
         switch (type) {
             case "PROJECT":
@@ -168,8 +83,8 @@ export async function permanentlyDelete(type: "PROJECT" | "INVOICE" | "PURCHASE"
 
 export async function purgeOldTrash() {
     try {
-        const session = await getSession();
-        if (!session || session.role !== "ADMIN") throw new Error("Unauthorized");
+        const denied = await requirePermission("trash", "manage");
+        if (denied) return denied;
 
         const thirtyDaysAgo = new Date();
         thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);

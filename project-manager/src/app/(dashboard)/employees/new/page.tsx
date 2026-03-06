@@ -5,18 +5,27 @@ import { Button } from "@/components/ui/Button";
 import { useActionState, useEffect } from "react";
 import { createEmployee } from "@/actions/employees";
 import { useRouter } from "next/navigation";
+import { useAuth } from "@/context/AuthContext";
 import { FileUpload } from "@/components/ui/FileUpload";
 import toast from "react-hot-toast";
 
 export default function NewEmployeePage() {
     const router = useRouter();
+    const { user } = useAuth();
     const [state, formAction, isPending] = useActionState(createEmployee, null);
 
     useEffect(() => {
+        // RBAC: Only ADMIN can create employees
+        if (user && user.role !== "ADMIN") {
+            router.push("/");
+            return;
+        }
         if (state?.success) {
             router.push("/employees");
         }
-    }, [state, router]);
+    }, [state, router, user]);
+
+    if (!user || user.role !== "ADMIN") return null;
 
     return (
         <DashboardLayout title="اضافة موظف جديد">

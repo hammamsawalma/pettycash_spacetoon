@@ -135,47 +135,5 @@ export async function allocateBudgetToProject(prevState: unknown, formData: Form
     }
 }
 
-// ─── Return Remaining Budget from Closed Project ──────────
-export async function returnProjectBudget(projectId: string, returnedAmount: number) {
-    try {
-        const session = await getSession();
-        if (!session || session.role !== "ADMIN") {
-            return { error: "فقط المدير يمكنه إرجاع الميزانية" };
-        }
 
-        const project = await prisma.project.findUnique({ where: { id: projectId } });
-        if (!project) return { error: "المشروع غير موجود" };
 
-        const wallet = await getOrCreateWallet();
-
-        await prisma.$transaction([
-            prisma.companyWallet.update({
-                where: { id: wallet.id },
-                data: {
-                    balance: { increment: returnedAmount },
-                    totalIn: { increment: returnedAmount }
-                }
-            }),
-            prisma.walletEntry.create({
-                data: {
-                    walletId: wallet.id,
-                    type: "RETURN_FROM_PROJECT",
-                    amount: returnedAmount,
-                    note: `عودة رصيد من المشروع: ${project.name}`,
-                    createdBy: session.id
-                }
-            }),
-            prisma.project.update({
-                where: { id: projectId },
-                data: { custodyReturned: { increment: returnedAmount } }
-            })
-        ]);
-
-        revalidatePath("/wallet");
-        revalidatePath(`/projects/${projectId}`);
-        return { success: true };
-    } catch (error) {
-        console.error("Return Budget Error:", error);
-        return { error: "حدث خطأ أثناء إرجاع الميزانية" };
-    }
-}

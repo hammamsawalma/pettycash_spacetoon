@@ -10,4 +10,3 @@ export const createEmployeeSchema = z.object({
     salary: z.coerce.number().min(0, "الراتب يجب أن يكون رقماً موجباً").optional(),
 });
 
-export type CreateEmployeeFormData = z.infer<typeof createEmployeeSchema>;

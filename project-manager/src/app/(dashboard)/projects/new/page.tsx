@@ -9,10 +9,12 @@ import { createProject } from "@/actions/projects";
 import { User } from "@prisma/client";
 import { useActionState } from "react";
 import { useRouter } from "next/navigation";
+import { useAuth } from "@/context/AuthContext";
 import toast from "react-hot-toast";
 
 export default function NewProjectPage() {
     const router = useRouter();
+    const { user } = useAuth();
     const [employees, setEmployees] = useState<User[]>([]);
     const [selectedEmployees, setSelectedEmployees] = useState<string[]>([]);
     const [employeeRoles, setEmployeeRoles] = useState<Record<string, string[]>>({});
@@ -20,11 +22,18 @@ export default function NewProjectPage() {
     const [state, formAction, isPending] = useActionState(createProject, null);
 
     useEffect(() => {
-        getEmployees(true).then(data => {
-            setEmployees(data as unknown as User[]);
-            setIsLoading(false);
-        }).catch(() => setIsLoading(false));
-    }, []);
+        // RBAC: Only ADMIN can create new projects via this page
+        if (user && user.role !== "ADMIN") {
+            router.push("/");
+            return;
+        }
+        if (user && user.role === "ADMIN") {
+            getEmployees(true).then(data => {
+                setEmployees(data as unknown as User[]);
+                setIsLoading(false);
+            }).catch(() => setIsLoading(false));
+        }
+    }, [user, router]);
 
     useEffect(() => {
         if (state?.success) {
@@ -32,6 +41,8 @@ export default function NewProjectPage() {
             router.push(`/projects/${(state as any).projectId}?tab=team`);
         }
     }, [state, router]);
+
+    if (!user || user.role !== "ADMIN") return null;
 
     const toggleEmployee = (id: string) => {
         if (id === 'CLEAR_ALL') {

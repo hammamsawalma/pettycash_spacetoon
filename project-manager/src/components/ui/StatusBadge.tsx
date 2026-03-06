@@ -1,6 +1,6 @@
 import * as React from "react";
 
-export type StatusVariant = "COMPLETED" | "APPROVED" | "IN_PROGRESS" | "PENDING" | "REJECTED" | "CANCELLED";
+type StatusVariant = "COMPLETED" | "APPROVED" | "IN_PROGRESS" | "PENDING" | "REJECTED" | "CANCELLED";
 
 interface StatusBadgeProps {
     status: StatusVariant | string;

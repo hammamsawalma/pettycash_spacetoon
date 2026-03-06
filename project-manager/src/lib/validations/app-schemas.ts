@@ -23,12 +23,4 @@ export const createProjectSchema = z.object({
     memberIds: z.string().optional().nullable(),
 });
 
-// Financial / Custody
-export const createDepositSchema = z.object({
-    amount: z.coerce.number().min(0.01, "المبلغ يجب أن يكون أكبر من صفر"),
-    type: z.enum(["DEPOSIT", "WITHDRAWAL"], {
-        error: "نوع العملية مطلوب"
-    }),
-    date: z.string().optional().nullable(),
-    description: z.string().min(5, "الرجاء توضيح سبب العملية بشكل مفصل"),
-});
+

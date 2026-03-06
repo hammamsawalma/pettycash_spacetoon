@@ -95,23 +95,6 @@ export async function getProjectMembers(projectId: string) {
     }
 }
 
-// ─── جلب أدوار المستخدم في مشروع معين ───────────────────
-export async function getMyRolesInProject(projectId: string) {
-    try {
-        const session = await getSession();
-        if (!session) return [];
-
-        const member = await prisma.projectMember.findUnique({
-            where: { projectId_userId: { projectId, userId: session.id } }
-        });
-        if (!member) return [];
-
-        return parseRoles(member.projectRoles);
-    } catch (error) {
-        console.error("Get My Roles Error:", error);
-        return [];
-    }
-}
 
 // ─── حذف عضو من المشروع ──────────────────────────────────
 export async function removeMemberFromProject(memberId: string) {

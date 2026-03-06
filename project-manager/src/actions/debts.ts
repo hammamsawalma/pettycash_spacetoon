@@ -35,28 +35,6 @@ export async function getPendingDebts() {
     }
 }
 
-// ─── Get total unsettled amount for one employee ───────────
-export async function getMyDebtSummary() {
-    try {
-        const session = await getSession();
-        if (!session) return { total: 0, count: 0 };
-
-        const result = await prisma.outOfPocketDebt.aggregate({
-            where: { employeeId: session.id, isSettled: false },
-            _sum: { amount: true },
-            _count: true
-        });
-
-        return {
-            total: result._sum.amount ?? 0,
-            count: result._count
-        };
-    } catch (error) {
-        console.error("Get Debt Summary Error:", error);
-        return { total: 0, count: 0 };
-    }
-}
-
 // ─── Settle a debt (admin pays the employee back) ─────────
 export async function settleDebt(debtId: string) {
     try {
@@ -86,27 +64,3 @@ export async function settleDebt(debtId: string) {
     }
 }
 
-// ─── Settle all debts for one employee ────────────────────
-export async function settleAllEmployeeDebts(employeeId: string) {
-    try {
-        const session = await getSession();
-        if (!session || !isGlobalFinance(session.role)) {
-            return { error: "غير مصرح" };
-        }
-
-        await prisma.outOfPocketDebt.updateMany({
-            where: { employeeId, isSettled: false },
-            data: {
-                isSettled: true,
-                settledAt: new Date(),
-                settledBy: session.id
-            }
-        });
-
-        revalidatePath("/debts");
-        return { success: true };
-    } catch (error) {
-        console.error("Settle All Debts Error:", error);
-        return { error: "حدث خطأ أثناء تسوية الديون" };
-    }
-}

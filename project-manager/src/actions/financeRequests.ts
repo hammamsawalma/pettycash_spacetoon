@@ -3,59 +3,8 @@ import prisma from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { getSession } from "@/lib/auth";
 
-// ─── المحاسب يُنشئ طلباً مالياً ──────────────────────────
-export async function createFinanceRequest(
-    type: "SETTLE_DEBT" | "ALLOCATE_BUDGET" | "RETURN_CUSTODY" | "OTHER",
-    data: {
-        amount?: number;
-        targetId?: string; // debtId | projectId | custodyId
-        note?: string;
-    }
-) {
-    try {
-        const session = await getSession();
-        if (!session) return { error: "غير مسجل الدخول" };
 
-        // المحاسب العام والمدير العام والمدير يمكنهم إنشاء طلبات
-        const allowedCreators = ["ADMIN", "GENERAL_MANAGER", "GLOBAL_ACCOUNTANT"];
-        if (!allowedCreators.includes(session.role)) {
-            return { error: "فقط المحاسب العام أو المدير يمكنهم إنشاء طلبات مالية" };
-        }
 
-        // المدير والمدير العام لا يحتاجان موافقة — يُنفَّذ الطلب مباشرة
-        const isSelfApproving = session.role === "ADMIN" || session.role === "GENERAL_MANAGER";
-
-        const request = await prisma.financeRequest.create({
-            data: {
-                type,
-                requestedBy: session.id,
-                status: isSelfApproving ? "APPROVED" : "PENDING",
-                approvedBy: isSelfApproving ? session.id : null,
-                resolvedAt: isSelfApproving ? new Date() : null,
-                amount: data.amount,
-                targetId: data.targetId,
-                note: data.note
-            }
-        });
-
-        // إذا كان المدير أو المدير العام، ننفذ العملية فوراً
-        if (isSelfApproving) {
-            await executeFinanceRequest(request.id, type, data);
-        } else {
-            // أرسل إشعاراً للمدير
-            await sendAdminNotification(
-                `طلب مالي جديد: ${getRequestTypeLabel(type)}`,
-                `طُلب بواسطة ${session.name || session.id} — المبلغ: ${data.amount?.toLocaleString() || '-'} ريال`
-            );
-        }
-
-        revalidatePath("/finance-requests");
-        return { success: true, request, autoApproved: isSelfApproving };
-    } catch (error) {
-        console.error("Create Finance Request Error:", error);
-        return { error: "حدث خطأ أثناء إنشاء الطلب" };
-    }
-}
 
 // ─── المدير يوافق على طلب مالي ────────────────────────────
 export async function approveFinanceRequest(requestId: string) {

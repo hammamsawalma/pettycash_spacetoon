@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/Button";
 import { CheckCircle, XCircle, Clock, BadgeDollarSign, ArrowUpRight } from "lucide-react";
 import { getPendingFinanceRequests, approveFinanceRequest, rejectFinanceRequest } from "@/actions/financeRequests";
 import { useAuth } from "@/context/AuthContext";
+import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 
 type Request = Awaited<ReturnType<typeof getPendingFinanceRequests>>[0];
@@ -25,7 +26,9 @@ const STATUS_CONFIG: Record<string, { label: string; color: string; Icon: any }>
 
 export default function FinanceRequestsPage() {
     const { user } = useAuth();
+    const router = useRouter();
     const isAdmin = user?.role === "ADMIN";
+    const isFinanceRole = user?.role === "ADMIN" || user?.role === "GLOBAL_ACCOUNTANT" || user?.role === "GENERAL_MANAGER";
 
     const [requests, setRequests] = useState<Request[]>([]);
     const [loading, setLoading] = useState(true);
@@ -34,11 +37,18 @@ export default function FinanceRequestsPage() {
     const [processingId, setProcessingId] = useState<string | null>(null);
 
     useEffect(() => {
-        getPendingFinanceRequests().then(data => {
-            setRequests(data as Request[]);
-            setLoading(false);
-        });
-    }, []);
+        if (user && !isFinanceRole) {
+            router.push("/");
+        } else if (user) {
+            getPendingFinanceRequests().then(data => {
+                setRequests(data as Request[]);
+                setLoading(false);
+            });
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [user]);
+
+    if (!user || !isFinanceRole) return null;
 
     const handleApprove = async (id: string) => {
         setProcessingId(id);

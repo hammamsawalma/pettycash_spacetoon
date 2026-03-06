@@ -12,10 +12,6 @@ export interface SearchResult {
     url: string;
 }
 
-export interface SearchResponse {
-    error?: string;
-    data?: SearchResult[];
-}
 
 // Helper to generate common Arabic spelling variations for Prisma
 function getArabicVariations(text: string): string[] {
@@ -44,7 +40,7 @@ function getArabicVariations(text: string): string[] {
     return Array.from(variations).filter(v => v.trim() !== '');
 }
 
-export async function globalSearch(query: string): Promise<SearchResponse> {
+export async function globalSearch(query: string): Promise<{ error?: string; data?: SearchResult[] }> {
     try {
         if (!query || query.trim().length < 2) return { data: [] };
 
