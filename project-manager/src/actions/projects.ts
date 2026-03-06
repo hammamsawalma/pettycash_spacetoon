@@ -13,8 +13,8 @@ export async function getProjects() {
         const session = await getSession();
         if (!session) return [];
 
-        // GENERAL_MANAGER is a global watcher — sees all projects
-        const canSeeAll = isGlobalFinance(session.role) || session.role === "GENERAL_MANAGER";
+        // Global finance roles (incl. GENERAL_MANAGER) see all projects
+        const canSeeAll = isGlobalFinance(session.role);
 
         const projectWhereClause: Prisma.ProjectWhereInput = (!canSeeAll)
             ? {

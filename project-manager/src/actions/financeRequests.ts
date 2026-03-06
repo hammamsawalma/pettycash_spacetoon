@@ -2,7 +2,7 @@
 import prisma from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { getSession } from "@/lib/auth";
-
+import { isGlobalFinance } from "@/lib/rbac";
 
 
 
@@ -98,8 +98,8 @@ export async function getPendingFinanceRequests() {
         const session = await getSession();
         if (!session) return [];
 
-        // W1: ADMIN and GENERAL_MANAGER see all pending requests; GLOBAL_ACCOUNTANT sees own
-        const canSeeAll = session.role === "ADMIN" || session.role === "GENERAL_MANAGER";
+        // ADMIN and GENERAL_MANAGER see all pending requests; GLOBAL_ACCOUNTANT sees own
+        const canSeeAll = isGlobalFinance(session.role);
         const where = canSeeAll
             ? { status: "PENDING" }
             : { requestedBy: session.id }; // المحاسب يرى طلباته فقط
