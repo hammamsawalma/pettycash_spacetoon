@@ -235,7 +235,7 @@ export default function EmployeeDashboard() {
                         {/* ── Personal KPIs ─────────────────────────────────────────── */}
                         <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
                             {kpis.map((kpi, i) => (
-                                <Card key={i} className="flex flex-col md:flex-row items-start md:items-center gap-3 md:gap-4 p-4 md:p-6 group cursor-default shadow-sm border-gray-100">
+                                <Card key={i} className="flex flex-col md:flex-row items-start md:items-center gap-3 md:gap-4 p-4 md:p-6 min-h-[88px] group cursor-default shadow-sm border-gray-100">
                                     <div className={`flex h-10 w-10 md:h-12 md:w-12 items-center justify-center rounded-xl transition-transform duration-300 md:group-hover:scale-110 shrink-0 ${kpi.bg}`}>
                                         <kpi.icon className={`h-5 w-5 md:h-6 md:w-6 ${kpi.color}`} aria-hidden="true" />
                                     </div>

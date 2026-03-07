@@ -113,48 +113,46 @@ export default function MobileBottomNav() {
     // ── Employee (USER) view ──────────────────────────────────────────────────
     if (role === 'USER') {
         const canAddInvoice = !flags.loaded || flags.canAddInvoice;
+        const ctaHref = canAddInvoice ? '/invoices/new' : '/purchases/new';
+        const CtaIcon = canAddInvoice ? Camera : ShoppingCart;
+        const ctaLabel = canAddInvoice ? 'رفع فاتورة' : 'طلب شراء';
 
         return (
-            <div className="fixed bottom-0 inset-x-0 z-50 w-full bg-white/90 backdrop-blur-xl border-t border-gray-200/50 shadow-[0_-4px_30px_rgba(0,0,0,0.08)] md:hidden pb-[env(safe-area-inset-bottom)]">
-                <div className="flex items-center h-20 max-w-lg mx-auto px-2 gap-1 font-medium pt-1">
-                    {employeeNavItems.map((item) => {
-                        const isActive = pathname === item.href || (pathname.startsWith(item.href) && item.href !== '/');
-                        return (
-                            <Link
-                                href={item.href}
-                                key={item.href}
-                                className="flex-1 inline-flex flex-col items-center justify-center py-2 hover:bg-gray-50 group transition-all duration-200 rounded-xl min-h-[48px] min-w-[48px] active:scale-95"
-                            >
-                                <item.icon
-                                    className={`w-5 h-5 mb-1 transition-all duration-200 ${isActive ? 'text-[#102550] scale-110 drop-shadow-[0_2px_4px_rgba(127,86,217,0.4)]' : 'text-gray-400 group-hover:text-gray-600'}`}
-                                />
-                                <span className={`text-[10px] transition-colors duration-200 ${isActive ? 'text-[#102550] font-bold' : 'text-gray-400 group-hover:text-gray-600'}`}>
-                                    {item.name}
-                                </span>
-                            </Link>
-                        );
-                    })}
+            /* Outer wrapper — position:relative so the floating CTA can anchor to it */
+            <div className="fixed bottom-0 inset-x-0 z-50 w-full md:hidden">
+                {/* ── Floating CTA — floats above the bar, centered ─────────────── */}
+                <div className="absolute -top-6 left-1/2 -translate-x-1/2 z-10">
+                    <button
+                        onClick={() => router.push(ctaHref)}
+                        aria-label={ctaLabel}
+                        className="flex flex-col items-center justify-center gap-0.5 bg-[#102550] text-white w-[72px] h-[72px] rounded-full shadow-xl shadow-[#102550]/40 active:scale-95 transition-transform border-4 border-white"
+                    >
+                        <CtaIcon className="w-6 h-6" />
+                        <span className="text-[9px] font-black leading-none">{ctaLabel}</span>
+                    </button>
+                </div>
 
-                    {/* CTA: رفع فاتورة أو طلب شراء */}
-                    {canAddInvoice ? (
-                        <button
-                            onClick={() => router.push('/invoices/new')}
-                            className="flex flex-col items-center justify-center gap-1 bg-[#102550] text-white rounded-2xl px-4 py-3 shadow-lg shadow-blue-300 active:scale-95 transition-transform mx-1 min-h-[52px] min-w-[52px]"
-                            aria-label="رفع فاتورة"
-                        >
-                            <Camera className="w-6 h-6" />
-                            <span className="text-[10px] font-black whitespace-nowrap">رفع فاتورة</span>
-                        </button>
-                    ) : (
-                        <button
-                            onClick={() => router.push('/purchases/new')}
-                            className="flex flex-col items-center justify-center gap-1 bg-blue-600 text-white rounded-2xl px-4 py-3 shadow-lg shadow-blue-300 active:scale-95 transition-transform mx-1 min-h-[52px] min-w-[52px]"
-                            aria-label="طلب شراء"
-                        >
-                            <ShoppingCart className="w-6 h-6" />
-                            <span className="text-[10px] font-black whitespace-nowrap">طلب شراء</span>
-                        </button>
-                    )}
+                {/* ── Bar ─────────────────────────────────────────────────────── */}
+                <div className="bg-white/90 backdrop-blur-xl border-t border-gray-200/50 shadow-[0_-4px_30px_rgba(0,0,0,0.08)] pb-[env(safe-area-inset-bottom)]">
+                    <div className="flex items-center h-16 max-w-lg mx-auto px-2 font-medium">
+                        {employeeNavItems.map((item) => {
+                            const isActive = pathname === item.href || (pathname.startsWith(item.href) && item.href !== '/');
+                            return (
+                                <Link
+                                    href={item.href}
+                                    key={item.href}
+                                    className="flex-1 inline-flex flex-col items-center justify-center py-2 hover:bg-gray-50 group transition-all duration-200 rounded-xl min-h-[48px] active:scale-95"
+                                >
+                                    <item.icon
+                                        className={`w-5 h-5 mb-0.5 transition-all duration-200 ${isActive ? 'text-[#102550] scale-110' : 'text-gray-400 group-hover:text-gray-600'}`}
+                                    />
+                                    <span className={`text-[10px] transition-colors duration-200 ${isActive ? 'text-[#102550] font-bold' : 'text-gray-400 group-hover:text-gray-600'}`}>
+                                        {item.name}
+                                    </span>
+                                </Link>
+                            );
+                        })}
+                    </div>
                 </div>
             </div>
         );

@@ -47,8 +47,18 @@ export default function NotificationsPage() {
 
                     <div className="divide-y divide-gray-100">
                         {isLoading ? (
-                            <div className="p-8 text-center text-gray-500 font-medium text-sm">
-                                جاري تحميل الإشعارات...
+                            /* Skeleton loading rows */
+                            <div className="divide-y divide-gray-100 animate-pulse">
+                                {[...Array(4)].map((_, i) => (
+                                    <div key={i} className="p-5 md:p-6 flex items-start gap-4">
+                                        <div className="w-10 h-10 rounded-full bg-gray-100 shrink-0" />
+                                        <div className="flex-1 space-y-2 pt-1">
+                                            <div className="h-3.5 bg-gray-100 rounded-lg w-3/4" />
+                                            <div className="h-3 bg-gray-100 rounded-lg w-full" />
+                                            <div className="h-3 bg-gray-100 rounded-lg w-1/2" />
+                                        </div>
+                                    </div>
+                                ))}
                             </div>
                         ) : notifications.length === 0 ? (
                             <div className="p-12 pl-12 text-center text-gray-500 flex flex-col items-center justify-center gap-4">

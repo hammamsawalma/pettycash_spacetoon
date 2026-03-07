@@ -78,9 +78,9 @@ export default function InvoicesClient({ initialInvoices }: Props) {
                         ))}
                     </div>
 
-                    {/* Add Invoice Button — hidden for GENERAL_MANAGER (view-only) */}
+                    {/* Add Invoice Button — hidden on mobile (FAB handles it) + hidden for GENERAL_MANAGER */}
                     {!!user && user.role !== 'GENERAL_MANAGER' && (
-                        <button onClick={() => router.push('/invoices/new')} className="w-full py-4 md:py-5 text-sm md:text-base font-bold rounded-2xl bg-[#102550] hover:bg-[#102550]/90 active:scale-[0.98] text-white border-none flex items-center justify-center gap-2 shadow-sm transition-all duration-150">
+                        <button onClick={() => router.push('/invoices/new')} className="hidden md:flex w-full py-4 md:py-5 text-sm md:text-base font-bold rounded-2xl bg-[#102550] hover:bg-[#102550]/90 active:scale-[0.98] text-white border-none items-center justify-center gap-2 shadow-sm transition-all duration-150">
                             <span>+ إضافة فاتورة جديدة</span>
                         </button>
                     )}
@@ -106,15 +106,16 @@ export default function InvoicesClient({ initialInvoices }: Props) {
                                     {/* Top Section */}
                                     <div className="flex justify-between items-start mb-3 md:mb-4">
                                         <div className="flex items-center gap-2 md:gap-3">
-                                            <div className="w-8 h-8 md:w-12 md:h-12 bg-blue-50 rounded-lg flex items-center justify-center text-[#102550] font-bold shrink-0 text-xs md:text-base">
+                                            <div className="w-9 h-9 md:w-12 md:h-12 bg-blue-50 rounded-lg flex items-center justify-center text-[#102550] font-bold shrink-0 text-sm md:text-base">
                                                 {clientName.charAt(0)}
                                             </div>
                                             <div>
                                                 <h4 className="font-bold text-xs md:text-lg text-gray-900 line-clamp-1" title={clientName}>{clientName}</h4>
-                                                <p className="text-gray-400 text-[9px] md:text-xs font-semibold">{invoice.reference}</p>
+                                                <p className="text-gray-400 text-[10px] md:text-xs font-semibold">{invoice.reference}</p>
                                             </div>
                                         </div>
-                                        <QrCode className="w-6 h-6 md:w-12 md:h-12 text-gray-100 shrink-0" />
+                                        {/* QrCode icon — decorative, hidden on mobile to save space */}
+                                        <QrCode className="hidden md:block w-12 h-12 text-gray-100 shrink-0" />
                                     </div>
 
                                     {/* Center Section */}
@@ -124,26 +125,27 @@ export default function InvoicesClient({ initialInvoices }: Props) {
 
                                     {/* Bottom Section */}
                                     <div className="grid grid-cols-2 gap-2 md:gap-4 pt-3 md:pt-4 border-t border-gray-50 mb-3 md:mb-4 text-center">
-                                        <div className="bg-gray-50 rounded-xl p-1.5 md:p-2">
-                                            <p className="text-[9px] md:text-xs text-gray-400 font-bold mb-0.5 md:mb-1">التاريخ</p>
-                                            <p className="font-bold text-gray-900 text-[10px] md:text-sm">{new Date(invoice.date).toLocaleDateString('en-GB')}</p>
+                                        <div className="bg-gray-50 rounded-xl p-2 md:p-2">
+                                            <p className="text-[10px] md:text-xs text-gray-400 font-bold mb-0.5 md:mb-1">التاريخ</p>
+                                            <p className="font-bold text-gray-900 text-xs md:text-sm">{new Date(invoice.date).toLocaleDateString('en-GB')}</p>
                                         </div>
-                                        <div className="bg-[#102550]/5 rounded-xl p-1.5 md:p-2">
-                                            <p className="text-[9px] md:text-xs text-gray-400 font-bold mb-0.5 md:mb-1">الإجمالي</p>
-                                            <p className="font-bold text-[#102550] text-[10px] md:text-sm">{invoice.amount.toLocaleString()} <span className="text-[8px] md:text-[10px]"><CurrencyDisplay /></span></p>
+                                        <div className="bg-[#102550]/5 rounded-xl p-2 md:p-2">
+                                            <p className="text-[10px] md:text-xs text-gray-400 font-bold mb-0.5 md:mb-1">الإجمالي</p>
+                                            <p className="font-bold text-[#102550] text-xs md:text-sm">{invoice.amount.toLocaleString()} <span className="text-[9px] md:text-[10px]"><CurrencyDisplay /></span></p>
                                         </div>
-                                        <div className="bg-gray-50 rounded-xl p-1.5 md:p-2 col-span-2 flex justify-between items-center px-3">
-                                            <div className="flex items-center gap-1.5 text-[10px] md:text-xs font-bold text-gray-600">
+                                        {/* Bug #4 fix: flex-wrap so 3 items never overflow the card width */}
+                                        <div className="bg-gray-50 rounded-xl p-2 col-span-2 flex flex-wrap items-center gap-1.5 px-3">
+                                            <div className="flex items-center gap-1 text-xs font-bold text-gray-600">
                                                 {invoice.paymentSource === 'PERSONAL' ? '💰 من الجيب' : '🏢 من العهدة'}
                                             </div>
                                             {invoice.category && (
-                                                <div className="flex items-center gap-1 text-[10px] md:text-xs font-bold text-gray-600 bg-white px-2 py-0.5 rounded shadow-sm">
+                                                <div className="flex items-center gap-1 text-xs font-bold text-gray-600 bg-white px-2 py-0.5 rounded shadow-sm">
                                                     {invoice.category.icon} {invoice.category.name}
                                                 </div>
                                             )}
                                             {invoice._count?.items > 0 && (
-                                                <div className="text-[9px] md:text-xs text-blue-600 font-bold bg-blue-50 px-2 py-0.5 rounded">
-                                                    {invoice._count.items} بنود تدرجية
+                                                <div className="text-xs text-blue-600 font-bold bg-blue-50 px-2 py-0.5 rounded">
+                                                    {invoice._count.items} بنود
                                                 </div>
                                             )}
                                         </div>

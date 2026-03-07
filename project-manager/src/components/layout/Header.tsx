@@ -62,17 +62,22 @@ export default function Header({ title, onMenuClick }: { title: string, onMenuCl
 
                 {/* Mobile Header (Other Pages) */}
                 {!isHome && (
-                    <div className="flex md:hidden items-center justify-center w-full relative h-12">
-                        <div className="absolute start-0 flex items-center gap-0 z-10">
-                            <button onClick={onMenuClick} className="h-10 w-10 flex items-center justify-center text-gray-600 hover:bg-gray-100 rounded-full transition-colors active:scale-95">
-                                <Menu className="h-6 w-6" />
+                    <div className="flex md:hidden items-center justify-between w-full relative h-12 gap-2">
+                        {/* Left: back + menu */}
+                        <div className="flex items-center shrink-0">
+                            <button onClick={() => router.back()} className="h-10 w-10 flex items-center justify-center text-gray-600 hover:bg-gray-100 rounded-full transition-colors active:scale-95">
+                                <ChevronRight className="h-6 w-6 rtl:rotate-180" />
                             </button>
-                            <Link href="/" className="h-10 w-10 flex items-center justify-center text-gray-500 hover:text-[#102550] hover:bg-blue-50 rounded-full transition-all active:scale-95 hidden sm:flex">
-                                <span className="sr-only">الرئيسية</span>
-                                <Home className="h-5 w-5" />
-                            </Link>
+                            <button onClick={onMenuClick} className="h-10 w-10 flex items-center justify-center text-gray-500 hover:bg-gray-100 rounded-full transition-colors active:scale-95">
+                                <Menu className="h-5 w-5" />
+                            </button>
                         </div>
-                        <div className="absolute end-0 flex items-center gap-0 z-10">
+
+                        {/* Center: page title — truncated, never crops buttons */}
+                        <h1 className="flex-1 text-center text-sm font-black text-gray-900 truncate px-1">{title}</h1>
+
+                        {/* Right: search */}
+                        <div className="flex items-center shrink-0">
                             <button
                                 onClick={() => setIsSearchOpen(true)}
                                 className="h-10 w-10 flex items-center justify-center text-gray-500 hover:text-[#102550] hover:bg-blue-50 rounded-full transition-all active:scale-95"
@@ -80,12 +85,6 @@ export default function Header({ title, onMenuClick }: { title: string, onMenuCl
                             >
                                 <Search className="h-5 w-5" />
                             </button>
-                            <button onClick={() => router.back()} className="h-10 w-10 flex items-center justify-center text-gray-500 hover:text-gray-900 hover:bg-gray-100 rounded-full transition-all active:scale-95">
-                                <ChevronRight className="h-6 w-6 rtl:rotate-180" />
-                            </button>
-                        </div>
-                        <div className="px-20 w-full flex justify-center">
-                            <Breadcrumbs fallbackTitle={title} />
                         </div>
                     </div>
                 )}
