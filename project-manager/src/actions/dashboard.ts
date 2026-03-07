@@ -235,32 +235,64 @@ export async function getFlowStats() {
         };
     }
 
-    // ─── USER: Unified Project & Custody Stats ────────────────────────────────────────
+    // ─── USER: Unified Project & Custody Stats + Combined Project Role Flags ──────
     if (role === "USER") {
-        // Project stats
-        const myProjects = await prisma.project.findMany({
-            where: {
-                isDeleted: false,
-                members: { some: { userId: session.id } }
-            },
-            select: { id: true, budgetAllocated: true, custodyIssued: true, custodyReturned: true }
-        });
-        const projectIds = myProjects.map(p => p.id);
+        // Step A: all project memberships & managerId — only in non-deleted projects
+        const [managedProjects, memberMemberships] = await Promise.all([
+            prisma.project.findMany({
+                where: { managerId: session.id, isDeleted: false },
+                select: { id: true, budgetAllocated: true, custodyIssued: true, custodyReturned: true }
+            }),
+            prisma.projectMember.findMany({
+                where: {
+                    userId: session.id,
+                    project: { isDeleted: false }
+                },
+                select: { projectId: true, projectRoles: true, project: { select: { budgetAllocated: true, custodyIssued: true, custodyReturned: true } } }
+            })
+        ]);
 
-        const projectReceived = myProjects.reduce((s, p) => s + (p.budgetAllocated ?? 0), 0);
-        const projectIssued = myProjects.reduce((s, p) => s + (p.custodyIssued ?? 0), 0);
-        const projectReturned = myProjects.reduce((s, p) => s + (p.custodyReturned ?? 0), 0);
+        // Step B: Combine project IDs (manager + member)
+        const managedProjectIds = managedProjects.map(p => p.id);
+        const memberProjectIds = memberMemberships.map(m => m.projectId);
+        const allProjectIds = [...new Set([...managedProjectIds, ...memberProjectIds])];
 
-        const approvedInvoicesAgg = projectIds.length > 0
+        // Step C: Project-level role flags
+        const isProjectManager = managedProjectIds.length > 0
+            || memberMemberships.some(m => m.projectRoles?.includes("PROJECT_MANAGER"));
+        const isProjectAccountant = memberMemberships.some(m => m.projectRoles?.includes("PROJECT_ACCOUNTANT"));
+        const isProjectEmployee = memberMemberships.some(m => m.projectRoles?.includes("PROJECT_EMPLOYEE"));
+        // canAddInvoice: PROJECT_EMPLOYEE OR PROJECT_ACCOUNTANT OR direct project manager
+        const canAddInvoice = isProjectEmployee || isProjectAccountant || managedProjectIds.length > 0;
+
+        // Step D: Financial aggregations
+        const managedBudget = managedProjects.reduce((s, p) => s + (p.budgetAllocated ?? 0), 0);
+        const memberBudget = memberMemberships.reduce((s, m) => s + (m.project?.budgetAllocated ?? 0), 0);
+        const managedIssued = managedProjects.reduce((s, p) => s + (p.custodyIssued ?? 0), 0);
+        const memberIssued = memberMemberships.reduce((s, m) => s + (m.project?.custodyIssued ?? 0), 0);
+        const managedReturned = managedProjects.reduce((s, p) => s + (p.custodyReturned ?? 0), 0);
+        const memberReturned = memberMemberships.reduce((s, m) => s + (m.project?.custodyReturned ?? 0), 0);
+        // Deduplicate: avoid double-counting if manager is also in members list
+        const projectReceived = managedBudget + memberMemberships
+            .filter(m => !managedProjectIds.includes(m.projectId))
+            .reduce((s, m) => s + (m.project?.budgetAllocated ?? 0), 0);
+        const projectIssued = managedIssued + memberMemberships
+            .filter(m => !managedProjectIds.includes(m.projectId))
+            .reduce((s, m) => s + (m.project?.custodyIssued ?? 0), 0);
+        const projectReturned = managedReturned + memberMemberships
+            .filter(m => !managedProjectIds.includes(m.projectId))
+            .reduce((s, m) => s + (m.project?.custodyReturned ?? 0), 0);
+
+        const approvedInvoicesAgg = allProjectIds.length > 0
             ? await prisma.invoice.aggregate({
                 _sum: { amount: true },
-                where: { projectId: { in: projectIds }, status: "APPROVED", isDeleted: false }
+                where: { projectId: { in: allProjectIds }, status: "APPROVED", isDeleted: false }
             })
             : { _sum: { amount: 0 } };
         const projectSpent = approvedInvoicesAgg._sum.amount ?? 0;
         const projectRemaining = projectReceived - projectIssued + projectReturned;
 
-        // Personal Custody stats
+        // Step E: Personal Custody stats (own custody regardless of project)
         const custodies = await prisma.employeeCustody.findMany({
             where: { employeeId: session.id },
             select: { amount: true, balance: true }
@@ -271,6 +303,12 @@ export async function getFlowStats() {
 
         return {
             role,
+            // Project role flags (used by EmployeeDashboard to render widgets)
+            isProjectManager,
+            isProjectAccountant,
+            isProjectEmployee,
+            canAddInvoice,
+            hasAnyProject: allProjectIds.length > 0,
             // Project View keys
             projectReceived,
             projectIssued,
@@ -283,6 +321,7 @@ export async function getFlowStats() {
             personalRemaining
         };
     }
+
 
     return null;
 }

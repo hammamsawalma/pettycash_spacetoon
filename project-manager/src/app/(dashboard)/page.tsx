@@ -3,7 +3,6 @@ import { useAuth } from "@/context/AuthContext";
 import AdminDashboard from "@/components/dashboard/AdminDashboard";
 import EmployeeDashboard from "@/components/dashboard/EmployeeDashboard";
 import AccountantDashboard from "@/components/dashboard/AccountantDashboard";
-import CoordinatorDashboard from "@/components/dashboard/CoordinatorDashboard";
 import GeneralManagerDashboard from "@/components/dashboard/GeneralManagerDashboard";
 
 export default function Home() {
@@ -22,4 +21,5 @@ export default function Home() {
       return <AdminDashboard />;
   }
 }
+
 
