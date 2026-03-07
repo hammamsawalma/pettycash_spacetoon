@@ -397,7 +397,7 @@ export default function Sidebar({ isOpen, setIsOpen }: { isOpen?: boolean, setIs
         <>
             {isOpen && (
                 <div
-                    className="fixed inset-0 z-40 bg-gray-900/60 backdrop-blur-sm md:hidden transition-all duration-300"
+                    className="fixed inset-x-0 top-16 bottom-0 z-40 bg-gray-900/60 backdrop-blur-sm md:hidden"
                     onClick={() => setIsOpen && setIsOpen(false)}
                 />
             )}
@@ -409,8 +409,20 @@ export default function Sidebar({ isOpen, setIsOpen }: { isOpen?: boolean, setIs
                 aria-label="القائمة الجانبية"
                 onTouchStart={handleTouchStart}
                 onTouchEnd={handleTouchEnd}
-                className={`fixed inset-y-0 start-0 z-50 flex w-[280px] flex-col bg-white/70 backdrop-blur-3xl border-e border-white/60 shadow-[0_0_40px_rgba(0,0,0,0.03)] transform transition-transform duration-300 ease-in-out md:translate-x-0 md:rtl:translate-x-0 md:ltr:translate-x-0 ${isOpen ? 'translate-x-0 rtl:translate-x-0' : '-translate-x-full rtl:translate-x-full'}`}>
-                <div className="flex h-20 shrink-0 items-center justify-center border-b border-gray-100/50 mt-2 mb-2 px-6">
+                className={`
+                    fixed z-50 flex flex-col
+                    bg-white/80 backdrop-blur-3xl
+                    border-e border-white/60
+                    shadow-[4px_0_40px_rgba(0,0,0,0.08)]
+                    transform transition-transform duration-300 ease-in-out
+                    start-0
+                    top-16 bottom-[calc(4rem+env(safe-area-inset-bottom))]
+                    w-[min(280px,85vw)]
+                    md:inset-y-0 md:top-0 md:bottom-0 md:w-[280px]
+                    ${isOpen ? 'translate-x-0 rtl:translate-x-0' : '-translate-x-full rtl:translate-x-full'}
+                    md:translate-x-0 md:rtl:translate-x-0
+                `}>
+                <div className="flex h-16 shrink-0 items-center justify-center border-b border-gray-100/50 px-6 md:h-20">
                     <div className="flex items-center justify-center gap-3 w-full">
                         <img src="/spacetoon-logo.png" alt="Spacetoon Logo" className="h-12 w-auto object-contain drop-shadow-md" />
                     </div>
@@ -527,7 +539,7 @@ export default function Sidebar({ isOpen, setIsOpen }: { isOpen?: boolean, setIs
                         );
                     })}
                 </nav>
-                <div className="border-t border-gray-100/50 p-4 space-y-2 mb-4 shrink-0">
+                <div className="border-t border-gray-100/50 p-4 space-y-2 shrink-0">
                     <Link href="/settings" onClick={() => setIsOpen && setIsOpen(false)} className="group flex items-center gap-x-3.5 rounded-xl px-3 py-2.5 text-sm font-semibold text-gray-500 hover:bg-gray-50/80 hover:text-gray-900 transition-all duration-200">
                         <Settings className="h-5 w-5 shrink-0 transition-transform group-hover:rotate-45" aria-hidden="true" />
                         الإعدادات
