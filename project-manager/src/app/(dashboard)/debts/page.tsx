@@ -146,7 +146,7 @@ export default function DebtsPage() {
                                                 {new Date(debt.createdAt).toLocaleDateString('en-GB')}
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap">
-                                                {(role === "ADMIN" || role === "GLOBAL_ACCOUNTANT" || role === "GENERAL_MANAGER") ? (
+                                                {(role === "ADMIN" || role === "GLOBAL_ACCOUNTANT") ? (
                                                     <Button
                                                         variant="primary"
                                                         size="sm"
@@ -160,7 +160,7 @@ export default function DebtsPage() {
                                                     </Button>
                                                 ) : (
                                                     <span className="text-xs font-bold text-orange-500 bg-orange-50 px-3 py-1.5 rounded-lg border border-orange-100">
-                                                        بانتظار التعويض
+                                                        {role === "GENERAL_MANAGER" ? "بانتظار الإدارة المالية" : "بانتظار التعويض"}
                                                     </span>
                                                 )}
                                             </td>

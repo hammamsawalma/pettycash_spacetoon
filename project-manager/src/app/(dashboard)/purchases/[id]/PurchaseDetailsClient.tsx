@@ -139,17 +139,23 @@ export default function PurchaseDetailsClient({ initialPurchase }: { initialPurc
                                         <p className="text-sm font-bold text-primary">{purchase.project?.name || "مشروع عام"}</p>
                                     </div>
                                     <div>
-                                        <p className="text-xs text-gray-500 font-bold mb-1 flex items-center gap-1.5"><User className="w-3.5 h-3.5" />طالب الشراء</p>
-                                        <p className="text-sm font-bold text-gray-900">{purchase.creator?.name}</p>
+                                        <p className="text-xs text-gray-500 font-bold mb-1 flex items-center gap-1.5"><User className="w-3.5 h-3.5" />الموعد المرجو المتوقع</p>
+                                        <p className="text-sm font-bold text-gray-900">{purchase.deadline ? new Date(purchase.deadline).toLocaleDateString('en-GB') : "غير محدد"}</p>
                                     </div>
                                 </div>
 
                                 {/* Financial */}
                                 <div className="bg-gray-50 p-4 rounded-xl flex justify-between items-center border border-gray-100">
                                     <div>
-                                        <p className="text-xs font-bold text-gray-500 mb-1">المبلغ التقديري</p>
-                                        <p className="text-2xl font-black text-gray-900 drop-shadow-sm" dir="ltr">
-                                            {purchase.amount.toLocaleString()} <span className="text-sm text-gray-400">QAR</span>
+                                        <p className="text-xs font-bold text-gray-500 mb-1">الكمية المطلوبة / العدد</p>
+                                        <p className="text-2xl font-black text-gray-900 drop-shadow-sm">
+                                            {purchase.quantity || 1}
+                                        </p>
+                                    </div>
+                                    <div className="text-left">
+                                        <p className="text-xs font-bold text-gray-500 mb-1">طالب الشراء</p>
+                                        <p className="text-sm font-bold text-gray-900">
+                                            {purchase.creator?.name}
                                         </p>
                                     </div>
                                 </div>
@@ -168,7 +174,7 @@ export default function PurchaseDetailsClient({ initialPurchase }: { initialPurc
                                 <div className="flex flex-col sm:flex-row gap-3 pt-4 border-t border-gray-100">
                                     {(purchase.status === 'REQUESTED' || purchase.status === 'IN_PROGRESS') && (
                                         <Button
-                                            onClick={() => router.push(`/invoices/new?purchaseId=${purchase.id}&projectId=${purchase.projectId || ''}&amount=${purchase.amount}&description=${encodeURIComponent(purchase.description)}`)}
+                                            onClick={() => router.push(`/invoices/new?purchaseId=${purchase.id}&projectId=${purchase.projectId || ''}&description=${encodeURIComponent(purchase.description)}`)}
                                             className="flex-1 py-6 text-base font-black"
                                         >
                                             <ShoppingCart className="w-5 h-5 mr-[-2px] ml-2" /> إتمام عملية الشراء (رفع فاتورة)

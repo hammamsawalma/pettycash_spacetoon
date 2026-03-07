@@ -310,7 +310,9 @@ model Purchase {
   id           String    @id @default(uuid())
   orderNumber  String    @unique
   description  String
-  amount       Float     @default(0)
+  amount       Float     @default(0) // Legacy
+  quantity     String    @default("1")
+  deadline     DateTime?
   // V3: REQUESTED (المنسق طلب) | IN_PROGRESS (الموظف بالطريق) | PURCHASED (اشتُري) | CANCELLED
   status       String    @default("REQUESTED")
   // V4: NORMAL | HIGH | URGENT — مشتريات المدير العام تُعيَّن تلقائياً URGENT وتظهر أولاً

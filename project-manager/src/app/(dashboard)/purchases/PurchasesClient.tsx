@@ -100,9 +100,9 @@ export default function PurchasesClient({ initialPurchases }: Props) {
                                 <tr>
                                     <th className="px-4 md:px-6 py-3 md:py-4 font-bold">رقم الطلب</th>
                                     <th className="px-4 md:px-6 py-3 md:py-4 font-bold">المشروع المرتبط</th>
-                                    <th className="px-4 md:px-6 py-3 md:py-4 font-bold">تاريخ الطلب</th>
+                                    <th className="px-4 md:px-6 py-3 md:py-4 font-bold">الموعد النهائي</th>
                                     <th className="px-4 md:px-6 py-3 md:py-4 font-bold">الوصف</th>
-                                    <th className="px-4 md:px-6 py-3 md:py-4 font-bold">المبلغ (QAR)</th>
+                                    <th className="px-4 md:px-6 py-3 md:py-4 font-bold">الكمية</th>
                                     <th className="px-4 md:px-6 py-3 md:py-4 font-bold">الحالة</th>
                                 </tr>
                             </thead>
@@ -133,7 +133,7 @@ export default function PurchasesClient({ initialPurchases }: Props) {
                                                     {purchase.project?.name || "عام"}
                                                 </td>
                                                 <td className="px-4 md:px-6 py-4 text-gray-500 font-medium text-[11px] md:text-sm">
-                                                    {new Date(purchase.date).toLocaleDateString('en-GB')}
+                                                    {purchase.deadline ? new Date(purchase.deadline).toLocaleDateString('en-GB') : "-"}
                                                 </td>
                                                 <td className="px-4 md:px-6 py-4 text-gray-700 min-w-[200px] whitespace-normal break-words text-[11px] md:text-sm font-medium" title={purchase.description || ""}>
                                                     <div className="flex items-center gap-2">
@@ -144,8 +144,8 @@ export default function PurchasesClient({ initialPurchases }: Props) {
                                                         )}
                                                     </div>
                                                 </td>
-                                                <td className="px-4 md:px-6 py-4 font-bold text-gray-900 text-left" dir="ltr">
-                                                    {purchase.amount.toLocaleString()} <span className="text-[10px] text-gray-400">QAR</span>
+                                                <td className="px-4 md:px-6 py-4 font-bold text-[#102550] text-left" dir="ltr">
+                                                    {purchase.quantity || 1}
                                                 </td>
                                                 <td className="px-4 md:px-6 py-4 flex flex-col items-start gap-2">
                                                     <StatusBadge status={purchase.status} />
@@ -155,7 +155,7 @@ export default function PurchasesClient({ initialPurchases }: Props) {
                                                             className={`h-7 text-[10px] px-2 py-0 ${isFlagged ? 'border-red-500 text-red-600 hover:bg-red-50' : 'border-primary text-primary hover:bg-primary/10'}`}
                                                             onClick={(e) => {
                                                                 e.stopPropagation();
-                                                                window.location.href = `/invoices/new?purchaseId=${purchase.id}&projectId=${purchase.projectId || ''}&amount=${purchase.amount}&description=${encodeURIComponent(purchase.description)}`;
+                                                                window.location.href = `/invoices/new?purchaseId=${purchase.id}&projectId=${purchase.projectId || ''}&description=${encodeURIComponent(purchase.description)}`;
                                                             }}
                                                         >
                                                             إتمام الشراء

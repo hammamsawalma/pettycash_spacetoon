@@ -71,7 +71,9 @@ export async function getPurchases(projectId?: string) {
 export async function createPurchase(prevState: unknown, formData: FormData) {
     const projectId = formData.get("projectId") as string;
     const description = formData.get("description") as string;
-    const amount = parseFloat(formData.get("amount") as string) || 0;
+    const quantity = formData.get("quantity") as string || "1";
+    const deadlineRaw = formData.get("deadline") as string;
+    const deadline = deadlineRaw ? new Date(deadlineRaw) : null;
     const notes = formData.get("notes") as string | null;
     const file = formData.get("image") as File | null;
 
@@ -108,7 +110,9 @@ export async function createPurchase(prevState: unknown, formData: FormData) {
             data: {
                 orderNumber: `PO-${Date.now()}-0`,
                 description,
-                amount,
+                amount: 0,
+                quantity,
+                deadline,
                 notes: notes || null,
                 imageUrl: imageUrlDb || null,
                 status: "REQUESTED",

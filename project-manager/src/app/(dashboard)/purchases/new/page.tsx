@@ -40,7 +40,7 @@ function NewPurchaseForm() {
                     )}
                     <form className="space-y-6 md:space-y-8" encType="multipart/form-data" action={(formData) => {
                         const projectId = formData.get("projectId");
-                        const amount = formData.get("amount");
+                        const quantity = formData.get("quantity");
                         const description = formData.get("description");
 
                         if (!projectId) {
@@ -51,8 +51,8 @@ function NewPurchaseForm() {
                             toast.error("يرجى كتابة وصف تفصيلي للطلب");
                             return;
                         }
-                        if (!amount || Number(amount) <= 0) {
-                            toast.error("المبلغ يجب أن يكون أكبر من الصفر");
+                        if (!quantity) {
+                            toast.error("الكمية مطلوبة للمتابعة");
                             return;
                         }
 
@@ -74,22 +74,21 @@ function NewPurchaseForm() {
                                 </div>
 
                                 <div className="space-y-2">
-                                    <label className="text-xs md:text-sm font-bold text-gray-700">تاريخ الطلب</label>
+                                    <label className="text-xs md:text-sm font-bold text-gray-700">الموعد النهائي لموافقة الطلب (اختياري)</label>
                                     <input
                                         type="date"
-                                        name="date"
+                                        name="deadline"
                                         className="w-full rounded-xl border border-gray-200 p-3.5 md:p-4 outline-none focus:ring-2 focus:ring-[#102550] text-xs md:text-sm shadow-sm font-medium"
                                     />
                                 </div>
 
                                 <div className="space-y-2">
-                                    <label className="text-xs md:text-sm font-bold text-gray-700">المبلغ (QAR)</label>
+                                    <label className="text-xs md:text-sm font-bold text-gray-700">الكمية</label>
                                     <input
-                                        type="number"
-                                        name="amount"
+                                        type="text"
+                                        name="quantity"
                                         required
-                                        step="0.01"
-                                        placeholder="0.00"
+                                        placeholder="مثال: 3 حبات، 2 كرتون..."
                                         className="w-full rounded-xl border border-gray-200 p-3.5 md:p-4 outline-none focus:ring-2 focus:ring-[#102550] text-xs md:text-sm shadow-sm font-medium"
                                     />
                                 </div>
