@@ -31,7 +31,17 @@ export default function Header({ title, onMenuClick, isHidden = false }: { title
 
     return (
         <>
-            <header className={`sticky top-0 z-40 flex h-16 md:h-20 shrink-0 items-center justify-between gap-x-4 border-b border-white/60 bg-white/70 backdrop-blur-3xl px-4 sm:gap-x-6 sm:px-8 shadow-[0_4px_40px_rgba(0,0,0,0.02)] text-gray-900 transition-transform duration-300 ${isHidden ? '-translate-y-full' : 'translate-y-0'} md:translate-y-0`}>
+            <header className={`
+                fixed inset-x-0 top-0 z-40
+                md:sticky md:inset-x-auto md:start-auto md:end-auto
+                flex h-16 md:h-20 shrink-0 items-center justify-between gap-x-4
+                border-b border-white/60 bg-white/70 backdrop-blur-3xl
+                px-4 sm:gap-x-6 sm:px-8
+                shadow-[0_4px_40px_rgba(0,0,0,0.02)] text-gray-900
+                transition-transform duration-300 ease-in-out
+                ${isHidden ? '-translate-y-full' : 'translate-y-0'}
+                md:translate-y-0
+            `}>
 
                 {/* Mobile Header (Home) */}
                 {isHome && (

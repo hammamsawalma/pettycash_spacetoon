@@ -64,7 +64,7 @@ export default function DashboardLayout({
                 <Sidebar isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen} />
             </div>
 
-            <div className="md:ms-[280px] flex flex-col min-h-screen w-full pb-28 md:pb-0 overflow-x-hidden transition-all duration-300">
+            <div className="md:ms-[280px] flex flex-col min-h-screen w-full overflow-x-hidden transition-all duration-300">
                 <Header title={title} onMenuClick={() => setIsSidebarOpen(true)} isHidden={isHeaderHidden} />
                 <AnimatePresence mode="popLayout">
                     <motion.main
@@ -78,7 +78,9 @@ export default function DashboardLayout({
                             duration: 0.12,
                             ease: "easeOut",
                         }}
-                        className="flex-1 p-4 md:p-8 max-w-7xl mx-auto w-full"
+                        className="flex-1 p-4 md:p-8 max-w-7xl mx-auto w-full
+                            pt-[calc(1rem+4rem)] md:pt-8
+                            pb-[calc(5rem+env(safe-area-inset-bottom))] md:pb-8"
                     >
                         {children}
                     </motion.main>
