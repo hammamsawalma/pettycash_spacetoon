@@ -8,10 +8,13 @@ export async function getTrashItems() {
         const denied = await requirePermission("trash", "manage");
         if (denied) return { projects: [], invoices: [], purchases: [], users: [] };
 
-        const projects = await prisma.project.findMany({ where: { isDeleted: true } });
-        const invoices = await prisma.invoice.findMany({ where: { isDeleted: true } });
-        const purchases = await prisma.purchase.findMany({ where: { isDeleted: true } });
-        const users = await prisma.user.findMany({ where: { isDeleted: true } });
+        // P5: Run all 4 trash queries in parallel — reduces load time ~4x
+        const [projects, invoices, purchases, users] = await Promise.all([
+            prisma.project.findMany({ where: { isDeleted: true } }),
+            prisma.invoice.findMany({ where: { isDeleted: true } }),
+            prisma.purchase.findMany({ where: { isDeleted: true } }),
+            prisma.user.findMany({ where: { isDeleted: true } }),
+        ]);
 
         return { projects, invoices, purchases, users };
     } catch (error) {

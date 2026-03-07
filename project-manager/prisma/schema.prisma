@@ -118,6 +118,8 @@ model ProjectMember {
   custodies       EmployeeCustody[]
 
   @@unique([projectId, userId])
+  @@index([userId])               // P1: fast lookup of all projects a user belongs to
+  @@index([projectId])            // P1: fast lookup of all members in a project
 }
 
 // ─────────────────────────────────────────────
@@ -145,6 +147,9 @@ model EmployeeCustody {
   invoices      Invoice[]             // الفواتير المرتبطة بهذه العهدة
   confirmation  CustodyConfirmation?
   returns       CustodyReturn[]       // سجل عمليات الإرجاع
+
+  @@index([employeeId, isClosed])  // P1: employee's open custodies
+  @@index([projectId, isClosed])   // P1: project's open custodies
 }
 
 model CustodyConfirmation {
@@ -223,6 +228,11 @@ model Invoice {
   category        Category?         @relation(fields: [categoryId], references: [id])
   items           InvoiceItem[]     // بنود التنسيق
   outOfPocketDebt OutOfPocketDebt?  // إذا كان PERSONAL أو SPLIT
+
+  @@index([status, isDeleted])    // P1: filter by status + soft-delete flag
+  @@index([creatorId, status])    // P1: user's own invoices filtered by status
+  @@index([projectId, status])    // P1: project invoices filtered by status
+  @@index([createdAt])            // P1: order by createdAt on large tables
 }
 
 // ─────────────────────────────────────────────
@@ -257,6 +267,9 @@ model OutOfPocketDebt {
   invoice     Invoice   @relation(fields: [invoiceId], references: [id])
   employee    User      @relation(fields: [employeeId], references: [id])
   settler     User?     @relation("DebtSettler", fields: [settledBy], references: [id])
+
+  @@index([employeeId, isSettled]) // P1: employee's unsettled debts
+  @@index([isSettled])             // P1: admin view of all unsettled debts
 }
 
 // ─────────────────────────────────────────────
@@ -332,6 +345,10 @@ model Purchase {
   deletedAt    DateTime?
   creator      User      @relation(fields: [creatorId], references: [id])
   project      Project?  @relation(fields: [projectId], references: [id])
+
+  @@index([projectId, status, isDeleted])  // P1: project purchases by status
+  @@index([status, isDeleted])             // P1: global purchases list
+  @@index([priority, isDeleted])           // P1: urgent purchases lookup
 }
 
 // ─────────────────────────────────────────────
@@ -377,4 +394,7 @@ model Notification {
   targetUserId    String?  // V2: إشعار موجه لموظف بعينه
   isRead          Boolean  @default(false)
   createdAt       DateTime @default(now())
+  @@index([targetUserId, createdAt])  // P1: user-specific notifications sorted by date
+  @@index([targetRole, createdAt])    // P1: role-based notifications
+  @@index([isRead])                   // P1: unread count queries
 }

@@ -83,7 +83,7 @@ const quickAddDefs: QuickAddDef[] = [
     },
 ];
 
-export default function MobileBottomNav() {
+export default function MobileBottomNav({ hiddenBySidebar = false }: { hiddenBySidebar?: boolean }) {
     const pathname = usePathname();
     const router = useRouter();
     const { user, isCoordinatorInAny } = useAuth();
@@ -110,7 +110,7 @@ export default function MobileBottomNav() {
 
     // ── Hide nav on form pages to prevent CTA overlap ─────────────────────────
     const isFormPage = HIDE_NAV_PATHS.some(p => pathname.startsWith(p));
-    if (isFormPage) return null;
+    if (isFormPage || hiddenBySidebar) return null;
 
     // ── Employee (USER) view ──────────────────────────────────────────────────
     if (role === 'USER') {

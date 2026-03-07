@@ -49,6 +49,7 @@ export async function getNotifications() {
         const notifications = await prisma.notification.findMany({
             where: whereClause,
             orderBy: { createdAt: 'desc' },
+            take: 50, // P3: Cap at 50 — prevents heavy payload on large notification sets
         });
         return notifications;
     } catch (error) {

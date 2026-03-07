@@ -79,7 +79,7 @@ export default function DashboardLayout({
                     </motion.main>
                 </AnimatePresence>
             </div>
-            <MobileBottomNav />
+            <MobileBottomNav hiddenBySidebar={isSidebarOpen} />
             <PWAInstallBanner />
             <CommandMenu />
             <NetworkStatus />

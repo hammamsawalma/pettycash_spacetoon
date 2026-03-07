@@ -56,7 +56,7 @@ export async function getInvoices() {
                 project: { select: { name: true } },
                 creator: { select: { name: true } },
                 category: { select: { name: true, icon: true } },
-                items: true,
+                // P4: Removed eager items[] — list view only needs count, detail page fetches separately
                 _count: { select: { items: true } }
             }
         });

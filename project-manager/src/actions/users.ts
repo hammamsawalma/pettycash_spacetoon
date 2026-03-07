@@ -5,6 +5,7 @@ import { SessionData, getSession } from "@/lib/auth";
 import path from "path";
 import fs from "fs";
 import bcrypt from "bcryptjs";
+import { validateUploadedFile, sanitizeFileName } from "@/lib/validateUpload";
 
 export async function updateProfile(prevState: unknown, formData: FormData) {
     try {
@@ -16,15 +17,21 @@ export async function updateProfile(prevState: unknown, formData: FormData) {
         const imageFile = formData.get("image") as File | null;
 
         if (!name) return { error: "الاسم مطلوب" };
+        // S4: Enforce name max-length to prevent oversized DB writes
+        if (name.length > 100) return { error: "الاسم طويل جداً (100 حرف كحد أقصى)" };
 
         let imagePath = undefined;
         if (imageFile && imageFile.size > 0) {
+            // S1: Validate file type and size
+            const validation = validateUploadedFile(imageFile, 'image');
+            if (!validation.ok) return { error: validation.error };
+
             const bytes = await imageFile.arrayBuffer();
             const buffer = Buffer.from(bytes);
 
-            // Import path and fs specifically where we need them to avoid top-level issues
-
-            const fileName = `${Date.now()}-${imageFile.name}`;
+            // S2: Sanitize filename to prevent path traversal
+            const safeName = sanitizeFileName(imageFile.name);
+            const fileName = `${Date.now()}-${safeName}`;
             const uploadDir = path.join(process.cwd(), 'public', 'uploads');
 
             if (!fs.existsSync(uploadDir)) {

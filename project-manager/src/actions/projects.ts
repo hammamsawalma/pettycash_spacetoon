@@ -7,6 +7,7 @@ import { isGlobalFinance } from "@/lib/rbac";
 import fs from "fs";
 import path from "path";
 import { Prisma } from "@prisma/client";
+import { validateUploadedFile, sanitizeFileName } from "@/lib/validateUpload";
 
 export async function getProjects() {
     try {
@@ -257,10 +258,16 @@ export async function createProject(prevState: unknown, formData: FormData) {
         let imagePath = undefined;
 
         if (imageFile && imageFile.size > 0) {
+            // S1: Validate file type and size
+            const validation = validateUploadedFile(imageFile, 'image');
+            if (!validation.ok) return { error: validation.error };
+
             const bytes = await imageFile.arrayBuffer();
             const buffer = Buffer.from(bytes);
 
-            const fileName = `${Date.now()}-${imageFile.name}`;
+            // S2: Sanitize filename to prevent path traversal
+            const safeName = sanitizeFileName(imageFile.name);
+            const fileName = `${Date.now()}-${safeName}`;
             const uploadDir = path.join(process.cwd(), 'public', 'uploads', 'projects');
 
             if (!fs.existsSync(uploadDir)) {
@@ -373,10 +380,16 @@ export async function updateProject(projectId: string, prevState: unknown, formD
         let imagePath = undefined;
 
         if (imageFile && imageFile.size > 0) {
+            // S1: Validate file type and size
+            const validation = validateUploadedFile(imageFile, 'image');
+            if (!validation.ok) return { error: validation.error };
+
             const bytes = await imageFile.arrayBuffer();
             const buffer = Buffer.from(bytes);
 
-            const fileName = `${Date.now()}-${imageFile.name}`;
+            // S2: Sanitize filename to prevent path traversal
+            const safeName = sanitizeFileName(imageFile.name);
+            const fileName = `${Date.now()}-${safeName}`;
             const uploadDir = path.join(process.cwd(), 'public', 'uploads', 'projects');
 
             if (!fs.existsSync(uploadDir)) {
@@ -432,14 +445,14 @@ export async function updateProject(projectId: string, prevState: unknown, formD
             }
         }
 
-        // تحديث الأدوار للأعضاء الحاليين وإضافة الجدد
-        for (const member of membersData) {
-            await prisma.projectMember.upsert({
+        // P6: Parallelize member upserts — was sequential N+1, now runs all at once
+        await Promise.all(membersData.map(member =>
+            prisma.projectMember.upsert({
                 where: { projectId_userId: { projectId, userId: member.id } },
                 update: { projectRoles: member.roles.join(",") },
                 create: { projectId, userId: member.id, projectRoles: member.roles.join(",") }
-            });
-        }
+            })
+        ));
 
         revalidatePath("/projects");
         revalidatePath(`/projects/${projectId}`);

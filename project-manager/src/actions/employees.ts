@@ -8,6 +8,7 @@ import path from "path";
 import fs from "fs";
 import { createEmployeeSchema } from "@/lib/validations/employees";
 import bcrypt from "bcryptjs";
+import { validateUploadedFile, sanitizeFileName } from "@/lib/validateUpload";
 
 export async function getEmployees(excludeAdmins: boolean = false) {
     try {
@@ -172,10 +173,16 @@ export async function createEmployee(prevState: unknown, formData: FormData) {
 
         let imagePath = undefined;
         if (imageFile && imageFile.size > 0) {
+            // S1: Validate file type and size
+            const validation = validateUploadedFile(imageFile, 'image');
+            if (!validation.ok) return { error: validation.error };
+
             const bytes = await imageFile.arrayBuffer();
             const buffer = Buffer.from(bytes);
 
-            const fileName = `${Date.now()}-${imageFile.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
+            // S2: Sanitize filename to prevent path traversal
+            const safeName = sanitizeFileName(imageFile.name);
+            const fileName = `${Date.now()}-${safeName}`;
             const uploadDir = path.join(process.cwd(), 'public', 'uploads');
 
             if (!fs.existsSync(uploadDir)) {
@@ -232,6 +239,11 @@ export async function updateEmployee(employeeId: string, prevState: unknown, for
             return { error: "الاسم ورقم الهاتف حقول مطلوبة" };
         }
 
+        // S3: Password min-length check (mirrors createEmployee Zod rule)
+        if (password && password.length < 6) {
+            return { error: "كلمة المرور يجب أن تكون 6 أحرف على الأقل" };
+        }
+
         const existingUser = await prisma.user.findUnique({
             where: { id: employeeId }
         });
@@ -256,10 +268,16 @@ export async function updateEmployee(employeeId: string, prevState: unknown, for
         const imageFile = formData.get("image") as File | null;
         let imagePath = undefined;
         if (imageFile && imageFile.size > 0) {
+            // S1: Validate file type and size
+            const validation = validateUploadedFile(imageFile, 'image');
+            if (!validation.ok) return { error: validation.error };
+
             const bytes = await imageFile.arrayBuffer();
             const buffer = Buffer.from(bytes);
 
-            const fileName = `${Date.now()}-${imageFile.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
+            // S2: Sanitize filename to prevent path traversal
+            const safeName = sanitizeFileName(imageFile.name);
+            const fileName = `${Date.now()}-${safeName}`;
             const uploadDir = path.join(process.cwd(), 'public', 'uploads');
 
             if (!fs.existsSync(uploadDir)) {
