@@ -22,11 +22,11 @@ export default function DashboardLayout({
     return (
         <div className="min-h-screen relative flex bg-[#f8f9fa] overflow-x-hidden">
             {/* Premium Ambient Background — reduced blur on mobile for perf */}
-            <div className="fixed inset-0 -z-10 w-full h-full overflow-hidden pointer-events-none bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-white via-indigo-50/40 to-[#f8f9fa] rtl:bg-[radial-gradient(ellipse_at_top_left,_var(--tw-gradient-stops))]">
+            <div className="fixed inset-0 -z-10 w-full h-full overflow-hidden pointer-events-none bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-white via-blue-50/40 to-[#f8f9fa] rtl:bg-[radial-gradient(ellipse_at_top_left,_var(--tw-gradient-stops))]">
                 <div className="absolute top-[-20%] end-[-10%] w-[500px] h-[500px] rounded-full bg-blue-400/20 md:blur-[120px] blur-[60px] mix-blend-multiply" />
                 <div className="hidden md:block absolute top-[20%] start-[-10%] w-[600px] h-[600px] rounded-full bg-blue-300/20 blur-[140px] mix-blend-multiply" />
-                <div className="hidden md:block absolute bottom-[-10%] start-[20%] w-[500px] h-[500px] rounded-full bg-indigo-300/20 blur-[120px] mix-blend-multiply" />
-                <div className="hidden md:block absolute top-[50%] end-[30%] w-[400px] h-[400px] rounded-full bg-violet-200/30 blur-[150px] mix-blend-multiply" />
+                <div className="hidden md:block absolute bottom-[-10%] start-[20%] w-[500px] h-[500px] rounded-full bg-blue-300/20 blur-[120px] mix-blend-multiply" />
+                <div className="hidden md:block absolute top-[50%] end-[30%] w-[400px] h-[400px] rounded-full bg-blue-200/30 blur-[150px] mix-blend-multiply" />
             </div>
 
             <div className="hidden md:block">

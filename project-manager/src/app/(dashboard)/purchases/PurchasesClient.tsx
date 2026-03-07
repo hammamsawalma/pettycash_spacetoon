@@ -75,7 +75,7 @@ export default function PurchasesClient({ initialPurchases }: Props) {
                                     key={tab}
                                     onClick={() => setFilter(tab)}
                                     className={`px-4 py-2 flex-1 text-[11px] md:text-sm font-medium rounded-md transition-colors ${filter === tab
-                                        ? "bg-[#7F56D9] text-white shadow-sm"
+                                        ? "bg-[#102550] text-white shadow-sm"
                                         : "text-gray-500 hover:text-gray-900"
                                         } ${tab === "غير متوفر" && filter !== tab ? "text-red-500 hover:text-red-700 hover:bg-red-50" : ""}`}
                                 >
@@ -118,47 +118,52 @@ export default function PurchasesClient({ initialPurchases }: Props) {
                                         </td>
                                     </tr>
                                 ) : (
-                                    filteredPurchases.map((purchase) => (
-                                        <tr key={purchase.id} className="hover:bg-gray-50/50 transition-colors group cursor-pointer">
-                                            <td className="px-4 md:px-6 py-4 font-bold text-gray-900 border-r-4 border-transparent group-hover:border-[#102550]">
-                                                {purchase.orderNumber}
-                                            </td>
-                                            <td className="px-4 md:px-6 py-4 text-[#102550] font-bold">
-                                                {purchase.project?.name || "عام"}
-                                            </td>
-                                            <td className="px-4 md:px-6 py-4 text-gray-500 font-medium text-[11px] md:text-sm">
-                                                {new Date(purchase.date).toLocaleDateString('en-GB')}
-                                            </td>
-                                            <td className="px-4 md:px-6 py-4 text-gray-700 min-w-[200px] whitespace-normal break-words text-[11px] md:text-sm font-medium" title={purchase.description || ""}>
-                                                <div className="flex items-center gap-2">
-                                                    <span>{purchase.description || "-"}</span>
-                                                    {purchase.imageUrl && (
-                                                        <a href={purchase.imageUrl} target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-[#102550] transition-colors" title="عرض المرفق" onClick={(e) => e.stopPropagation()}>
-                                                            <Paperclip className="w-4 h-4" />
-                                                        </a>
+                                    filteredPurchases.map((purchase) => {
+                                        const isFlagged = (purchase as any).isRedFlagged;
+                                        return (
+                                            <tr
+                                                key={purchase.id}
+                                                onClick={() => router.push(`/purchases/${purchase.id}`)}
+                                                className={`transition-colors group cursor-pointer ${isFlagged ? 'bg-red-50/50 hover:bg-red-50' : 'hover:bg-gray-50/50'}`}
+                                            >
+                                                <td className={`px-4 md:px-6 py-4 font-bold text-gray-900 border-r-4 ${isFlagged ? 'border-red-400' : 'border-transparent group-hover:border-[#102550]'}`}>
+                                                    {purchase.orderNumber}
+                                                </td>
+                                                <td className="px-4 md:px-6 py-4 text-[#102550] font-bold">
+                                                    {purchase.project?.name || "عام"}
+                                                </td>
+                                                <td className="px-4 md:px-6 py-4 text-gray-500 font-medium text-[11px] md:text-sm">
+                                                    {new Date(purchase.date).toLocaleDateString('en-GB')}
+                                                </td>
+                                                <td className="px-4 md:px-6 py-4 text-gray-700 min-w-[200px] whitespace-normal break-words text-[11px] md:text-sm font-medium" title={purchase.description || ""}>
+                                                    <div className="flex items-center gap-2">
+                                                        <span className={isFlagged ? 'text-red-800 font-bold' : ''}>{purchase.description || "-"}</span>
+                                                        {isFlagged && <Flag className="w-4 h-4 text-red-500 fill-current" />}
+                                                        {purchase.imageUrl && (
+                                                            <Paperclip className="w-4 h-4 text-gray-400" />
+                                                        )}
+                                                    </div>
+                                                </td>
+                                                <td className="px-4 md:px-6 py-4 font-bold text-gray-900 text-left" dir="ltr">
+                                                    {purchase.amount.toLocaleString()} <span className="text-[10px] text-gray-400">QAR</span>
+                                                </td>
+                                                <td className="px-4 md:px-6 py-4 flex flex-col items-start gap-2">
+                                                    <StatusBadge status={purchase.status} />
+                                                    {(purchase.status === 'REQUESTED' || purchase.status === 'IN_PROGRESS') && (
+                                                        <Button
+                                                            variant="outline"
+                                                            className={`h-7 text-[10px] px-2 py-0 ${isFlagged ? 'border-red-500 text-red-600 hover:bg-red-50' : 'border-primary text-primary hover:bg-primary/10'}`}
+                                                            onClick={(e) => {
+                                                                e.stopPropagation();
+                                                                window.location.href = `/invoices/new?purchaseId=${purchase.id}&projectId=${purchase.projectId || ''}&amount=${purchase.amount}&description=${encodeURIComponent(purchase.description)}`;
+                                                            }}
+                                                        >
+                                                            إتمام الشراء
+                                                        </Button>
                                                     )}
-                                                </div>
-                                            </td>
-                                            <td className="px-4 md:px-6 py-4 font-bold text-gray-900 text-left" dir="ltr">
-                                                {purchase.amount.toLocaleString()} <span className="text-[10px] text-gray-400">QAR</span>
-                                            </td>
-                                            <td className="px-4 md:px-6 py-4 flex flex-col items-start gap-2">
-                                                <StatusBadge status={purchase.status} />
-                                                {(purchase.status === 'REQUESTED' || purchase.status === 'IN_PROGRESS') && (
-                                                    <Button
-                                                        variant="outline"
-                                                        className={`h-7 text-[10px] px-2 py-0 ${isFlagged ? 'border-red-500 text-red-600 hover:bg-red-50' : 'border-primary text-primary hover:bg-primary/10'}`}
-                                                        onClick={(e) => {
-                                                            e.stopPropagation();
-                                                            window.location.href = `/invoices/new?purchaseId=${purchase.id}&projectId=${purchase.projectId || ''}&amount=${purchase.amount}&description=${encodeURIComponent(purchase.description)}`;
-                                                        }}
-                                                    >
-                                                        إتمام الشراء
-                                                    </Button>
-                                                )}
-                                            </td>
-                                        </tr>
-                                    );
+                                                </td>
+                                            </tr>
+                                        );
                                     })
                                 )}
                             </tbody>

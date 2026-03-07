@@ -15,7 +15,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         const baseStyles = "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-xl text-sm font-semibold transition-all duration-300 focus-visible:outline-none focus:ring-2 focus:ring-[#102550]/50 focus:ring-offset-2 disabled:pointer-events-none disabled:opacity-50";
 
         let variantStyles = "";
-        if (variant === "primary") variantStyles = "bg-gradient-to-r from-[#102550] to-[#9E77ED] text-white hover:shadow-lg hover:shadow-[#102550]/25 hover:from-[#1a3a7c] hover:to-[#102550] border border-transparent";
+        if (variant === "primary") variantStyles = "bg-gradient-to-r from-[#102550] to-[#6366F1] text-white hover:shadow-lg hover:shadow-[#102550]/25 hover:from-[#1a3a7c] hover:to-[#102550] border border-transparent";
         if (variant === "secondary") variantStyles = "bg-white/80 backdrop-blur-sm text-gray-900 border border-gray-200 hover:bg-gray-50 hover:shadow-md hover:border-gray-300";
         if (variant === "outline") variantStyles = "border-[1.5px] border-[#102550]/50 text-[#102550] hover:bg-[#102550]/5 hover:border-[#102550]";
         if (variant === "danger") variantStyles = "bg-gradient-to-r from-red-500 to-red-600 text-white hover:shadow-lg hover:shadow-red-500/25 border border-transparent";

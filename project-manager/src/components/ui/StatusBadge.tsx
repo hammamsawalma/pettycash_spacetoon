@@ -14,9 +14,9 @@ const statusMap: Record<string, { label: string; color: string }> = {
     "APPROVED": { label: "معتمد", color: "emerald" },
     "PURCHASED": { label: "تم الشراء", color: "emerald" },
 
-    // Blue / Purple
-    "IN_PROGRESS": { label: "قيد التنفيذ", color: "purple" },
-    "REQUESTED": { label: "مطلوب", color: "indigo" },
+    // Blue
+    "IN_PROGRESS": { label: "قيد التنفيذ", color: "blue" },
+    "REQUESTED": { label: "مطلوب", color: "blue" },
 
     // Orange / Amber
     "PENDING": { label: "معلق", color: "amber" },

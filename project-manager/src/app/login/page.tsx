@@ -150,7 +150,7 @@ export default function LoginPage() {
                         href="/manual"
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="flex items-center justify-center gap-2 w-full py-3 rounded-xl border border-[#102550]/30 text-[#102550] hover:bg-[#F9F5FF] transition-colors text-sm font-semibold"
+                        className="flex items-center justify-center gap-2 w-full py-3 rounded-xl border border-[#102550]/30 text-[#102550] hover:bg-[#F0F5FF] transition-colors text-sm font-semibold"
                     >
                         <span className="text-base">📖</span>
                         دليل الاستخدام

@@ -13,7 +13,7 @@ function ManualContent() {
         <div className="max-w-4xl mx-auto space-y-6 pb-12" dir="rtl">
 
             {/* ── Header Banner ── */}
-            <div className="rounded-2xl overflow-hidden bg-gradient-to-br from-[#102550] via-[#1a3a7c] to-[#53389E] text-white p-8 flex items-center gap-6 shadow-xl shadow-blue-200/40">
+            <div className="rounded-2xl overflow-hidden bg-gradient-to-br from-[#102550] via-[#1a3a7c] to-[#122b5e] text-white p-8 flex items-center gap-6 shadow-xl shadow-blue-200/40">
                 <div className="w-16 h-16 rounded-2xl bg-white/10 backdrop-blur-sm border border-white/20 flex items-center justify-center text-4xl shadow-inner flex-shrink-0">
                     📋
                 </div>
@@ -54,7 +54,7 @@ function ManualContent() {
             <Chapter icon="👥" num="الفصل الثاني" title="الأدوار والصلاحيات">
                 <p className="text-gray-600 mb-4">يعمل النظام بنظام الأدوار — كل موظف له حسابه الخاص بصلاحيات محددة. هناك <strong>أربعة أدوار</strong> رئيسية:</p>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
-                    <RoleCard icon="👑" name="المدير (Admin)" color="purple" desc="يملك كامل الصلاحيات على النظام. يرى ويدير المشاريع التي هو عضو فيها أو المعين عليها. يدير الموظفين، ويوافق على الإجراءات الكبرى." />
+                    <RoleCard icon="👑" name="المدير (Admin)" color="blue" desc="يملك كامل الصلاحيات على النظام. يرى ويدير المشاريع التي هو عضو فيها أو المعين عليها. يدير الموظفين، ويوافق على الإجراءات الكبرى." />
                     <RoleCard icon="📊" name="المحاسب (Accountant)" color="blue" desc="مسؤول عن مراجعة الفواتير واعتمادها أو رفضها، ومتابعة خزنة الشركة. يمكنه أيضاً صرف وإدارة العهدات داخل مشاريعه." />
                     <RoleCard icon="🧭" name="المنسق (Coordinator)" color="green" desc="يدير المشاريع المسندة إليه، ولا يمكنه إنشاء مشاريع جديدة أو رفع فواتير. يصرف العهدات للموظفين ويدير المشتريات." />
                     <RoleCard icon="👷" name="الموظف (Employee)" color="orange" desc="يعمل داخل مشاريعه المسجل فيها (ولا يرى تفاصيلها المالية الحساسة). يتسلم العهدات، ويؤكد استلامها، ويرفع فواتير مصروفاته." />
@@ -275,7 +275,7 @@ function ManualContent() {
 
             {/* ── Final summary table ── */}
             <div className="rounded-2xl overflow-hidden shadow-sm border border-gray-100">
-                <div className="bg-gradient-to-r from-[#102550] to-[#53389E] text-white px-6 py-4">
+                <div className="bg-gradient-to-r from-[#102550] to-[#122b5e] text-white px-6 py-4">
                     <h2 className="text-lg font-bold">📌 جدول الصلاحيات المرجعي الشامل</h2>
                 </div>
                 <div className="overflow-x-auto">
@@ -334,7 +334,7 @@ function ManualContent() {
 function Chapter({ icon, num, title, children }: { icon: string; num: string; title: string; children: React.ReactNode }) {
     return (
         <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-            <div className="bg-gradient-to-r from-[#102550] to-[#53389E] text-white px-6 py-5 flex items-center gap-4">
+            <div className="bg-gradient-to-r from-[#102550] to-[#122b5e] text-white px-6 py-5 flex items-center gap-4">
                 <div className="w-12 h-12 rounded-xl bg-white/10 border border-white/20 flex items-center justify-center text-2xl flex-shrink-0">{icon}</div>
                 <div>
                     <div className="text-blue-200 text-xs font-medium tracking-wide">{num}</div>
@@ -350,7 +350,7 @@ function Section({ title, children }: { title: string; children: React.ReactNode
     return (
         <div>
             <h2 className="flex items-center gap-2 text-base font-bold text-gray-800 mb-3">
-                <span className="w-1 h-5 rounded-full bg-gradient-to-b from-[#102550] to-[#D6BBFB] block flex-shrink-0" />
+                <span className="w-1 h-5 rounded-full bg-gradient-to-b from-[#102550] to-[#A5B4FC] block flex-shrink-0" />
                 {title}
             </h2>
             <div className="space-y-2">{children}</div>
@@ -371,8 +371,8 @@ function Steps({ items }: { items: { n: string; text: React.ReactNode }[] }) {
     return (
         <ol className="space-y-2">
             {items.map((item, i) => (
-                <li key={i} className="flex gap-3 items-start bg-[#F9F5FF] border border-[#E9D7FE] rounded-xl p-3">
-                    <span className="min-w-6 h-6 rounded-full bg-gradient-to-br from-[#102550] to-[#9E77ED] text-white text-xs font-bold flex items-center justify-center flex-shrink-0 mt-0.5">{item.n}</span>
+                <li key={i} className="flex gap-3 items-start bg-[#F0F5FF] border border-[#C7D2FE] rounded-xl p-3">
+                    <span className="min-w-6 h-6 rounded-full bg-gradient-to-br from-[#102550] to-[#6366F1] text-white text-xs font-bold flex items-center justify-center flex-shrink-0 mt-0.5">{item.n}</span>
                     <span className="text-sm text-gray-700 leading-relaxed">{item.text}</span>
                 </li>
             ))}
@@ -411,7 +411,6 @@ function FeatureList({ items }: { items: string[] }) {
 
 function RoleCard({ icon, name, color, desc }: { icon: string; name: string; color: string; desc: string }) {
     const colors: Record<string, string> = {
-        purple: "bg-blue-50 border-blue-200",
         blue: "bg-blue-50 border-blue-200",
         green: "bg-emerald-50 border-emerald-200",
         orange: "bg-orange-50 border-orange-200",

@@ -139,7 +139,7 @@ export default function InvoicesClient({ initialInvoices }: Props) {
                                                 </div>
                                             )}
                                             {invoice._count?.items > 0 && (
-                                                <div className="text-[9px] md:text-xs text-indigo-600 font-bold bg-indigo-50 px-2 py-0.5 rounded">
+                                                <div className="text-[9px] md:text-xs text-blue-600 font-bold bg-blue-50 px-2 py-0.5 rounded">
                                                     {invoice._count.items} بنود تدرجية
                                                 </div>
                                             )}

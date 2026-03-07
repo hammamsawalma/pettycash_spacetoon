@@ -148,7 +148,7 @@ export function GlobalSearch({ isOpen, onClose }: GlobalSearchProps) {
 
     const getIconForType = (type: string) => {
         switch (type) {
-            case 'project': return <FolderKanban className="w-5 h-5 text-indigo-500" />;
+            case 'project': return <FolderKanban className="w-5 h-5 text-blue-500" />;
             case 'invoice': return <FileText className="w-5 h-5 text-emerald-500" />;
             case 'purchase': return <ShoppingBag className="w-5 h-5 text-orange-500" />;
             case 'user': return <User className="w-5 h-5 text-blue-500" />;

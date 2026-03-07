@@ -66,7 +66,7 @@ export default function AdminDashboard() {
 
     const kpis = [
         { title: "عدد المشاريع", value: stats.totalProjects, icon: FolderKanban, color: "text-primary", bg: "bg-primary/10" },
-        { title: "إجمالي الموظفين", value: stats.employees, icon: Users, color: "text-indigo-500", bg: "bg-indigo-500/10" },
+        { title: "إجمالي الموظفين", value: stats.employees, icon: Users, color: "text-blue-500", bg: "bg-blue-500/10" },
         { title: "العُهد المصروفة للموظفين", value: flow.custodyIssued, icon: ArrowUpToLine, color: "text-rose-500", bg: "bg-rose-500/10", isCurrency: true },
         { title: "العهد المرجعة", value: flow.custodyReturned, icon: ArrowDownToLine, color: "text-amber-500", bg: "bg-amber-500/10", isCurrency: true },
     ];
@@ -186,7 +186,7 @@ export default function AdminDashboard() {
                                     <Tooltip cursor={{ fill: '#f3f4f6', radius: 8 }} contentStyle={{ borderRadius: '16px', border: 'none', boxShadow: '0 4px 20px rgba(0,0,0,0.08)', fontWeight: 'bold' }} />
                                     <Bar dataKey="value" radius={[6, 6, 6, 6]} barSize={32}>
                                         {chartData.map((_, index) => (
-                                            <Cell key={`cell-${index}`} fill={index % 2 === 0 ? "#102550" : "#9E77ED"} />
+                                            <Cell key={`cell-${index}`} fill={index % 2 === 0 ? "#102550" : "#6366F1"} />
                                         ))}
                                     </Bar>
                                 </BarChart>

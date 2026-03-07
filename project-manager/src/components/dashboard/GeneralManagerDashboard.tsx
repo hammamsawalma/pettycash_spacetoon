@@ -62,7 +62,7 @@ export default function GeneralManagerDashboard() {
             <DashboardLayout title="لوحة المدير العام">
                 <div className="min-h-screen flex items-center justify-center">
                     <div className="flex flex-col items-center gap-4">
-                        <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[#102550] to-[#9E77ED] flex items-center justify-center animate-pulse">
+                        <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[#102550] to-[#6366F1] flex items-center justify-center animate-pulse">
                             <Star className="w-8 h-8 text-white" />
                         </div>
                         <span className="text-gray-500 font-semibold animate-pulse">جاري تحميل البيانات...</span>
@@ -98,7 +98,7 @@ export default function GeneralManagerDashboard() {
             value: stats.employees,
             icon: Users,
             color: "text-blue-600",
-            bg: "from-[#102550] to-[#9E77ED]",
+            bg: "from-[#102550] to-[#6366F1]",
             isCurrency: false,
             sub: "العدد الكلي للموظفين",
         },
@@ -121,7 +121,7 @@ export default function GeneralManagerDashboard() {
                 <motion.div
                     initial={{ opacity: 0, y: -12 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-[#102550] via-[#1a3a7c] to-[#53389E] p-6 md:p-8 text-white shadow-xl shadow-[#102550]/25"
+                    className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-[#102550] via-[#1a3a7c] to-[#122b5e] p-6 md:p-8 text-white shadow-xl shadow-[#102550]/25"
                 >
                     {/* decorative circles */}
                     <div className="absolute -top-10 -right-10 w-40 h-40 rounded-full bg-white/05 blur-2xl pointer-events-none" />
