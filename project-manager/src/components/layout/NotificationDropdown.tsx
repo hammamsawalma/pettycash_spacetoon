@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { Bell, AlertCircle, Info, Bookmark, Ticket, ChevronLeft, X } from 'lucide-react';
 import { getNotifications } from '@/actions/notifications';
 import { Notification } from '@prisma/client';
@@ -174,52 +175,55 @@ export function NotificationDropdown({ isMobile = false }: NotificationDropdownP
                 )}
             </AnimatePresence>
 
-            {/* ── Mobile: Full-width Bottom Sheet ─────────────────────────────── */}
-            <AnimatePresence>
-                {isOpen && (
-                    <>
-                        {/* Backdrop */}
-                        <motion.div
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            exit={{ opacity: 0 }}
-                            transition={{ duration: 0.2 }}
-                            className="md:hidden fixed inset-0 bg-black/40 z-[90]"
-                            onClick={() => setIsOpen(false)}
-                        />
+            {/* ── Mobile: Full-width Bottom Sheet (Portal to body) ──────── */}
+            {typeof document !== 'undefined' && createPortal(
+                <AnimatePresence>
+                    {isOpen && (
+                        <>
+                            {/* Backdrop */}
+                            <motion.div
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                exit={{ opacity: 0 }}
+                                transition={{ duration: 0.2 }}
+                                className="md:hidden fixed inset-0 bg-black/40 z-[90]"
+                                onClick={() => setIsOpen(false)}
+                            />
 
-                        {/* Sheet */}
-                        <motion.div
-                            initial={{ y: '100%' }}
-                            animate={{ y: 0 }}
-                            exit={{ y: '100%' }}
-                            transition={{ type: 'spring', damping: 28, stiffness: 300 }}
-                            className="md:hidden fixed inset-x-0 bottom-0 z-[100] bg-white rounded-t-3xl shadow-[0_-8px_30px_rgb(0,0,0,0.15)] max-h-[85dvh] flex flex-col"
-                        >
-                            {/* Handle + Header */}
-                            <div className="flex flex-col items-center pt-3 pb-2 border-b border-gray-100 shrink-0">
-                                <div className="w-10 h-1 rounded-full bg-gray-300 mb-3" />
-                                <div className="flex items-center justify-between w-full px-4 pb-1">
-                                    <div className="flex items-center gap-2">
-                                        <h3 className="font-bold text-gray-900 text-base">الإشعارات</h3>
-                                        <span className="bg-[#102550]/10 text-[#102550] text-[10px] font-bold px-2 py-0.5 rounded-full">الجديدة</span>
+                            {/* Sheet */}
+                            <motion.div
+                                initial={{ y: '100%' }}
+                                animate={{ y: 0 }}
+                                exit={{ y: '100%' }}
+                                transition={{ type: 'spring', damping: 28, stiffness: 300 }}
+                                className="md:hidden fixed inset-x-0 bottom-0 z-[100] bg-white rounded-t-3xl shadow-[0_-8px_30px_rgb(0,0,0,0.15)] max-h-[85dvh] flex flex-col"
+                            >
+                                {/* Handle + Header */}
+                                <div className="flex flex-col items-center pt-3 pb-2 border-b border-gray-100 shrink-0">
+                                    <div className="w-10 h-1 rounded-full bg-gray-300 mb-3" />
+                                    <div className="flex items-center justify-between w-full px-4 pb-1">
+                                        <div className="flex items-center gap-2">
+                                            <h3 className="font-bold text-gray-900 text-base">الإشعارات</h3>
+                                            <span className="bg-[#102550]/10 text-[#102550] text-[10px] font-bold px-2 py-0.5 rounded-full">الجديدة</span>
+                                        </div>
+                                        <button
+                                            onClick={() => setIsOpen(false)}
+                                            className="h-8 w-8 flex items-center justify-center rounded-full hover:bg-gray-100 text-gray-500 transition-colors"
+                                            aria-label="إغلاق"
+                                        >
+                                            <X className="w-5 h-5" />
+                                        </button>
                                     </div>
-                                    <button
-                                        onClick={() => setIsOpen(false)}
-                                        className="h-8 w-8 flex items-center justify-center rounded-full hover:bg-gray-100 text-gray-500 transition-colors"
-                                        aria-label="إغلاق"
-                                    >
-                                        <X className="w-5 h-5" />
-                                    </button>
                                 </div>
-                            </div>
 
-                            {/* Content */}
-                            {notificationContent}
-                        </motion.div>
-                    </>
-                )}
-            </AnimatePresence>
+                                {/* Content */}
+                                {notificationContent}
+                            </motion.div>
+                        </>
+                    )}
+                </AnimatePresence>,
+                document.body
+            )}
         </div>
     );
 }
