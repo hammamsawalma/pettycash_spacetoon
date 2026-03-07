@@ -62,7 +62,7 @@ export default function GeneralManagerDashboard() {
             <DashboardLayout title="لوحة المدير العام">
                 <div className="min-h-screen flex items-center justify-center">
                     <div className="flex flex-col items-center gap-4">
-                        <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[#102550] to-[#6366F1] flex items-center justify-center animate-pulse">
+                        <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[#102550] to-[#2563eb] flex items-center justify-center animate-pulse">
                             <Star className="w-8 h-8 text-white" />
                         </div>
                         <span className="text-gray-500 font-semibold animate-pulse">جاري تحميل البيانات...</span>
@@ -98,7 +98,7 @@ export default function GeneralManagerDashboard() {
             value: stats.employees,
             icon: Users,
             color: "text-blue-600",
-            bg: "from-[#102550] to-[#6366F1]",
+            bg: "from-[#102550] to-[#2563eb]",
             isCurrency: false,
             sub: "العدد الكلي للموظفين",
         },

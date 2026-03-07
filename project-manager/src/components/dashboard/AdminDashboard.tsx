@@ -186,7 +186,7 @@ export default function AdminDashboard() {
                                     <Tooltip cursor={{ fill: '#f3f4f6', radius: 8 }} contentStyle={{ borderRadius: '16px', border: 'none', boxShadow: '0 4px 20px rgba(0,0,0,0.08)', fontWeight: 'bold' }} />
                                     <Bar dataKey="value" radius={[6, 6, 6, 6]} barSize={32}>
                                         {chartData.map((_, index) => (
-                                            <Cell key={`cell-${index}`} fill={index % 2 === 0 ? "#102550" : "#6366F1"} />
+                                            <Cell key={`cell-${index}`} fill={index % 2 === 0 ? "#102550" : "#2563eb"} />
                                         ))}
                                     </Bar>
                                 </BarChart>

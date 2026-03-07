@@ -350,7 +350,7 @@ function Section({ title, children }: { title: string; children: React.ReactNode
     return (
         <div>
             <h2 className="flex items-center gap-2 text-base font-bold text-gray-800 mb-3">
-                <span className="w-1 h-5 rounded-full bg-gradient-to-b from-[#102550] to-[#A5B4FC] block flex-shrink-0" />
+                <span className="w-1 h-5 rounded-full bg-gradient-to-b from-[#102550] to-[#60a5fa] block flex-shrink-0" />
                 {title}
             </h2>
             <div className="space-y-2">{children}</div>
@@ -371,8 +371,8 @@ function Steps({ items }: { items: { n: string; text: React.ReactNode }[] }) {
     return (
         <ol className="space-y-2">
             {items.map((item, i) => (
-                <li key={i} className="flex gap-3 items-start bg-[#F0F5FF] border border-[#C7D2FE] rounded-xl p-3">
-                    <span className="min-w-6 h-6 rounded-full bg-gradient-to-br from-[#102550] to-[#6366F1] text-white text-xs font-bold flex items-center justify-center flex-shrink-0 mt-0.5">{item.n}</span>
+                <li key={i} className="flex gap-3 items-start bg-[#dbeafe] border border-[#93c5fd] rounded-xl p-3">
+                    <span className="min-w-6 h-6 rounded-full bg-gradient-to-br from-[#102550] to-[#2563eb] text-white text-xs font-bold flex items-center justify-center flex-shrink-0 mt-0.5">{item.n}</span>
                     <span className="text-sm text-gray-700 leading-relaxed">{item.text}</span>
                 </li>
             ))}
