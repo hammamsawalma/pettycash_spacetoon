@@ -12,10 +12,10 @@ import { useProjectRoles } from '@/context/ProjectRolesContext';
 
 // ─── Employee (USER role) nav ─────────────────────────────────────────────────
 const employeeNavItems = [
-    { name: 'الرئيسية', href: '/', icon: Home },
-    { name: 'المشاريع', href: '/projects', icon: FolderKanban },
-    { name: 'عهدي', href: '/my-custodies', icon: Wallet },
     { name: 'حسابي', href: '/settings', icon: User },
+    { name: 'عهدي', href: '/my-custodies', icon: Wallet },
+    { name: 'المشاريع', href: '/projects', icon: FolderKanban },
+    { name: 'الرئيسية', href: '/', icon: Home },
 ];
 
 // ─── Pages where the bottom nav should be hidden ──────────────────────────────
@@ -36,10 +36,10 @@ type NavItemDef = {
 };
 
 const allNavItems: NavItemDef[] = [
-    { name: 'حسابي', href: '/settings', icon: User, check: () => true },
-    { name: 'الفواتير', href: '/invoices', icon: FileText, check: (r) => canDo(r, 'invoices', 'viewAll') || canDo(r, 'invoices', 'create') },
-    { name: 'المشاريع', href: '/projects', icon: FolderKanban, check: (r) => canDo(r, 'projects', 'viewAll') },
     { name: 'الرئيسية', href: '/', icon: Home, check: () => true },
+    { name: 'المشاريع', href: '/projects', icon: FolderKanban, check: (r) => canDo(r, 'projects', 'viewAll') },
+    { name: 'الفواتير', href: '/invoices', icon: FileText, check: (r) => canDo(r, 'invoices', 'viewAll') || canDo(r, 'invoices', 'create') },
+    { name: 'حسابي', href: '/settings', icon: User, check: () => true },
 ];
 
 type QuickAddDef = {
@@ -136,7 +136,7 @@ export default function MobileBottomNav({ hiddenBySidebar = false }: { hiddenByS
 
                 {/* ── Bar ─────────────────────────────────────────────────────── */}
                 <div className="bg-white/90 backdrop-blur-xl border-t border-gray-200/50 shadow-[0_-4px_30px_rgba(0,0,0,0.08)] pb-[env(safe-area-inset-bottom)]">
-                    <div className="flex items-center h-16 max-w-lg mx-auto px-2 font-medium">
+                    <div className="flex items-center h-16 max-w-lg mx-auto px-2 font-medium" dir="rtl">
                         {employeeNavItems.map((item) => {
                             const isActive = pathname === item.href || (pathname.startsWith(item.href) && item.href !== '/');
                             return (
@@ -219,7 +219,7 @@ export default function MobileBottomNav({ hiddenBySidebar = false }: { hiddenByS
 
             {/* Bottom Nav Bar */}
             <nav aria-label="التنقل الرئيسي" className="fixed bottom-0 inset-x-0 z-50 w-full bg-white/80 backdrop-blur-xl border-t border-gray-200/50 shadow-[0_-4px_30px_rgba(0,0,0,0.05)] md:hidden pb-[env(safe-area-inset-bottom)]">
-                <div className="flex items-center h-16 max-w-lg mx-auto font-medium px-2">
+                <div className="flex items-center h-16 max-w-lg mx-auto font-medium px-2" dir="rtl">
                     {navItems.map((item, idx) => {
                         const isActive = pathname === item.href || (pathname.startsWith(item.href) && item.href !== '/');
                         const midIndex = Math.floor(navItems.length / 2);
