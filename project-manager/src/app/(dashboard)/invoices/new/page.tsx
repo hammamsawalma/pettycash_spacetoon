@@ -206,7 +206,7 @@ function EmployeeInvoiceFlow({ projects, categories, defaultProjectId, defaultAm
                 )}
 
                 {currentStep === 2 && (
-                    <div className="fixed bottom-0 inset-x-0 bg-white/90 backdrop-blur-xl border-t border-gray-100 p-4 pb-[calc(1rem+env(safe-area-inset-bottom))] shadow-2xl flex gap-3">
+                    <div className="fixed bottom-0 inset-x-0 z-50 bg-white/90 backdrop-blur-xl border-t border-gray-100 p-4 pb-[calc(1rem+env(safe-area-inset-bottom))] shadow-2xl flex gap-3">
                         <Button type="button" onClick={() => setCurrentStep(1)} variant="secondary" className="flex-none px-5 py-4 rounded-2xl font-bold">←</Button>
                         <Button type="button" onClick={() => {
                             if (!amount || parseFloat(amount) <= 0) { toast.error("يرجى إدخال مبلغ صحيح"); return; }
@@ -261,7 +261,7 @@ function EmployeeInvoiceFlow({ projects, categories, defaultProjectId, defaultAm
                                 ))}
                             </div>
                         )}
-                        <div className="fixed bottom-0 inset-x-0 bg-white/90 backdrop-blur-xl border-t border-gray-100 p-4 pb-[calc(1rem+env(safe-area-inset-bottom))] shadow-2xl">
+                        <div className="fixed bottom-0 inset-x-0 z-50 bg-white/90 backdrop-blur-xl border-t border-gray-100 p-4 pb-[calc(1rem+env(safe-area-inset-bottom))] shadow-2xl">
                             <Button type="button" onClick={() => setCurrentStep(2)} variant="secondary" className="w-full py-4 rounded-2xl font-bold">← رجوع</Button>
                         </div>
                     </div>
@@ -323,7 +323,7 @@ function EmployeeInvoiceFlow({ projects, categories, defaultProjectId, defaultAm
                 )}
 
                 {currentStep === 4 && (
-                    <div className="fixed bottom-0 inset-x-0 bg-white/90 backdrop-blur-xl border-t border-gray-100 p-4 pb-[calc(1rem+env(safe-area-inset-bottom))] shadow-2xl flex gap-3">
+                    <div className="fixed bottom-0 inset-x-0 z-50 bg-white/90 backdrop-blur-xl border-t border-gray-100 p-4 pb-[calc(1rem+env(safe-area-inset-bottom))] shadow-2xl flex gap-3">
                         <Button type="button" onClick={() => setCurrentStep(3)} variant="secondary" className="flex-none px-5 py-4 rounded-2xl font-bold">←</Button>
                         <Button type="button" onClick={handleSubmit} disabled={isSubmitting} isLoading={isSubmitting}
                             variant="primary" className="flex-1 py-4 text-base font-black rounded-2xl shadow-lg shadow-blue-200">
@@ -606,7 +606,7 @@ function FullInvoiceForm() {
                                 </div>
 
                                 {/* Fixed bottom nav bar for mobile step navigation */}
-                                <div className="fixed bottom-0 inset-x-0 md:static bg-white/95 backdrop-blur-xl border-t border-gray-100 p-4 pb-[calc(1rem+env(safe-area-inset-bottom))] md:p-0 md:border-0 md:bg-transparent md:flex md:justify-between md:pt-4 flex gap-3">
+                                <div className="fixed bottom-0 inset-x-0 z-50 md:static bg-white/95 backdrop-blur-xl border-t border-gray-100 p-4 pb-[calc(1rem+env(safe-area-inset-bottom))] md:p-0 md:border-0 md:bg-transparent md:flex md:justify-between md:pt-4 flex gap-3">
                                     <Button type="button" onClick={() => setCurrentStep(1)} variant="secondary" className="flex-1 md:flex-none md:px-6 py-3 rounded-xl font-bold">
                                         ← رجوع
                                     </Button>

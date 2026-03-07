@@ -16,6 +16,11 @@ import { Flag } from "lucide-react";
 type PurchaseWithRelations = Purchase & {
     project: Project | null;
     creator: Pick<User, "id" | "name">;
+    // Explicit fields from Prisma schema that may not be resolved by the IDE
+    deadline?: Date | null;
+    quantity?: string | null;
+    imageUrl?: string | null;
+    isRedFlagged?: boolean;
 };
 
 interface Props {

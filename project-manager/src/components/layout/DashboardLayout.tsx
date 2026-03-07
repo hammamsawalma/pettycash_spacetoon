@@ -43,7 +43,7 @@ export default function DashboardLayout({
                 <Sidebar isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen} />
             </div>
 
-            <div className="md:ms-[280px] flex flex-col min-h-screen w-full pb-24 md:pb-0 transition-all duration-300">
+            <div className="md:ms-[280px] flex flex-col min-h-screen w-full pb-28 md:pb-0 overflow-x-hidden transition-all duration-300">
                 <Header title={title} onMenuClick={() => setIsSidebarOpen(true)} />
                 <AnimatePresence mode="popLayout">
                     <motion.main
