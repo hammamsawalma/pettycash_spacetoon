@@ -10,7 +10,7 @@
  *    USER              – Project-scoped; further differentiated by projectRoles
  *
  *  Project-level Roles (projectRoles field on ProjectMember):
- *    COORDINATOR  – Manages projects they own/coordinate
+ *    PROJECT_MANAGER  – Manages projects they own/coordinate
  *    ACCOUNTANT   – Project-level accountant (can approve invoices in that project)
  *    EMPLOYEE     – Regular project member
  * ════════════════════════════════════════════════════════════════════════
@@ -42,11 +42,11 @@ export const PERMISSIONS = {
     projects: {
         /**
          * Can create a new project.
-         * NOTE: USER who is COORDINATOR in a project can also create — handled in action
+         * NOTE: USER who is PROJECT_MANAGER in a project can also create — handled in action
          * by checking projectRoles; here we expose the minimum system-level roles.
          */
         create: ["ADMIN", "USER"] as UserRole[],   // USER + coordinator role validated server-side
-        /** Can edit ANY project (ADMIN) or only their own managed projects (USER/COORDINATOR) */
+        /** Can edit ANY project (ADMIN) or only their own managed projects (USER/PROJECT_MANAGER) */
         edit: ["ADMIN", "USER"] as UserRole[],
         /** Can permanently close (complete) a project */
         close: ["ADMIN"] as UserRole[],
@@ -63,7 +63,7 @@ export const PERMISSIONS = {
         /** Can confirm receipt of a custody — only the receiving employee */
         confirmReceipt: ["USER"] as UserRole[],
         /** Can do emergency transfer of custody between employees */
-        transfer: ["ADMIN", "USER"] as UserRole[],  // USER + COORDINATOR role
+        transfer: ["ADMIN", "USER"] as UserRole[],  // USER + PROJECT_MANAGER role
         /** Can record a custody return (إرجاع) */
         recordReturn: ["ADMIN"] as UserRole[],
         /** Can view custody records */
@@ -93,13 +93,13 @@ export const PERMISSIONS = {
          * Edge case: we split "can show nav link" from "can create (server action)"
          * so that removing a role from nav doesn't block their project-scoped ability.
          */
-        createGlobal: ["ADMIN", "GLOBAL_ACCOUNTANT", "GENERAL_MANAGER"] as UserRole[],
+        createGlobal: ["ADMIN", "GLOBAL_ACCOUNTANT", "GENERAL_MANAGER", "USER"] as UserRole[],
         /** Can create a new purchase order (includes USER/Coordinator — validated server-side) */
         create: ["ADMIN", "USER"] as UserRole[],
         /** Can update purchase status (IN_PROGRESS / PURCHASED) */
         updateStatus: ["ADMIN", "GENERAL_MANAGER", "GLOBAL_ACCOUNTANT", "USER"] as UserRole[],
         /** Can cancel a purchase order */
-        cancel: ["ADMIN", "USER"] as UserRole[],  // USER + COORDINATOR role
+        cancel: ["ADMIN", "USER"] as UserRole[],  // USER + PROJECT_MANAGER role
     },
 
     // ── Debts (الديون الشخصية) ───────────────────────────────────────────────────
@@ -198,7 +198,7 @@ export function isGlobalFinance(role: UserRole | string): boolean {
  * Check project-level role from the comma-separated `projectRoles` string on ProjectMember.
  *
  * @example
- *   hasProjectRole("COORDINATOR,EMPLOYEE", ["COORDINATOR"]) // => true
+ *   hasProjectRole("PROJECT_MANAGER,PROJECT_EMPLOYEE", ["PROJECT_MANAGER"]) // => true
  */
 export function hasProjectRole(
     projectRoles: string | string[] | null | undefined,
@@ -216,5 +216,5 @@ export function hasProjectRole(
  * Used in server actions that need project-level role validation.
  */
 export function isProjectCoordinator(projectRoles: string | null | undefined): boolean {
-    return hasProjectRole(projectRoles, ["COORDINATOR"]);
+    return hasProjectRole(projectRoles, ["PROJECT_MANAGER"]);
 }

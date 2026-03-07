@@ -106,6 +106,22 @@ export async function createPurchase(prevState: unknown, formData: FormData) {
         const session = await getSession();
         if (!session) return { error: "غير مسجل الدخول" };
 
+        // --- BACKEND SECURITY CHECK ---
+        const isGlobalCreator = isGlobalFinance(session.role) || session.role === "GENERAL_MANAGER";
+        if (!isGlobalCreator) {
+            const membership = await prisma.projectMember.findFirst({
+                where: {
+                    projectId,
+                    userId: session.id,
+                    projectRoles: { contains: "PROJECT_MANAGER" } // STRICT COORDINATOR CHECK
+                }
+            });
+            if (!membership) {
+                return { error: "صلاحية مرفوضة: يجب أن تكون 'منسق' في هذا المشروع لإنشاء طلبات الشراء." };
+            }
+        }
+        // ------------------------------
+
         const order = await prisma.purchase.create({
             data: {
                 orderNumber: `PO-${Date.now()}-0`,
