@@ -33,9 +33,11 @@ type Action<R extends Resource> = keyof typeof PERMISSIONS[R];
 
 // ─── Coordinator-gated actions (need PROJECT_MANAGER in specified/any project) ─
 const COORDINATOR_GATED: Partial<Record<Resource, string[]>> = {
-    purchases: ["create", "createGlobal", "cancel"],
-    projects: ["create", "edit"],
-    custodies: ["transfer"],
+    // Only purchase creation is coordinator-gated
+    // projects.create/edit = ADMIN only (NOT coordinator)
+    // purchases.cancel = ADMIN only
+    // custodies.transfer = ADMIN only
+    purchases: ["create", "createGlobal"],
 };
 
 // ─── Accountant-gated actions (need PROJECT_ACCOUNTANT in specified/any project) ─
