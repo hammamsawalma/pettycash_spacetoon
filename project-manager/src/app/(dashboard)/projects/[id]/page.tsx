@@ -585,35 +585,46 @@ export default function ProjectDetailsPage({ params }: { params: Promise<{ id: s
                         </div>
                         {(project.purchases?.length > 0) ? (
                             <div className="space-y-4">
-                                {project.purchases.map((pur: Purchase) => (
-                                    <div key={pur.id} className="flex justify-between items-center p-4 bg-gray-50 rounded-xl">
-                                        <div className="flex items-center gap-4">
-                                            <div className="w-10 h-10 rounded-xl bg-amber-100 flex items-center justify-center text-amber-600">
-                                                <Wallet className="w-5 h-5" />
+                                {project.purchases.map((pur: Purchase) => {
+                                    const isFlagged = (pur as any).isRedFlagged;
+                                    return (
+                                        <div
+                                            key={pur.id}
+                                            onClick={() => window.location.href = `/purchases/${pur.id}`}
+                                            className={`flex justify-between items-center p-4 rounded-xl cursor-pointer transition-colors border border-transparent hover:border-[#102550]/20 ${isFlagged ? 'bg-red-50/50 hover:bg-red-50' : 'bg-gray-50 hover:bg-gray-100/80'}`}
+                                        >
+                                            <div className="flex items-center gap-4">
+                                                {pur.imageUrl ? (
+                                                    <img src={pur.imageUrl} alt="صورة الطلب" className="w-12 h-12 rounded-xl object-cover border border-gray-200 shrink-0" />
+                                                ) : (
+                                                    <div className="w-12 h-12 rounded-xl bg-amber-100 flex items-center justify-center text-amber-600 shrink-0">
+                                                        <Wallet className="w-6 h-6" />
+                                                    </div>
+                                                )}
+                                                <div>
+                                                    <p className={`font-bold text-sm ${isFlagged ? 'text-red-800' : 'text-gray-900'}`}>{pur.description}</p>
+                                                    <p className="text-xs text-gray-500 mt-0.5">رقم الطلب: {pur.orderNumber} • {pur.deadline ? new Date(pur.deadline).toLocaleDateString('en-GB') : "بدون موعد"}</p>
+                                                </div>
                                             </div>
-                                            <div>
-                                                <p className="font-bold text-gray-900 text-sm">{pur.description}</p>
-                                                <p className="text-xs text-gray-500">رقم الطلب: {pur.orderNumber} • {new Date(pur.date).toLocaleDateString('en-GB')}</p>
+                                            <div className="text-left flex flex-col items-end gap-2 shrink-0">
+                                                <p className="font-black text-[#102550]" dir="ltr">{pur.quantity || 1} <span className="text-[10px] text-gray-500 font-bold">الكمية</span></p>
+                                                <StatusBadge status={pur.status} />
+                                                {(pur.status === 'REQUESTED' || pur.status === 'IN_PROGRESS') && (
+                                                    <Button
+                                                        variant="outline"
+                                                        className="h-7 text-[10px] px-2 py-0 border-primary text-primary hover:bg-primary/10"
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            window.location.href = `/invoices/new?purchaseId=${pur.id}&projectId=${pur.projectId || ''}&description=${encodeURIComponent(pur.description)}`;
+                                                        }}
+                                                    >
+                                                        إتمام الشراء
+                                                    </Button>
+                                                )}
                                             </div>
                                         </div>
-                                        <div className="text-left flex flex-col items-end gap-2">
-                                            <p className="font-black text-gray-900">{pur.amount.toLocaleString()} QAR</p>
-                                            <StatusBadge status={pur.status} />
-                                            {(pur.status === 'REQUESTED' || pur.status === 'IN_PROGRESS') && (
-                                                <Button
-                                                    variant="outline"
-                                                    className="h-7 text-[10px] px-2 py-0 border-primary text-primary hover:bg-primary/10"
-                                                    onClick={(e) => {
-                                                        e.stopPropagation();
-                                                        window.location.href = `/invoices/new?purchaseId=${pur.id}&projectId=${pur.projectId || ''}&amount=${pur.amount}&description=${encodeURIComponent(pur.description)}`;
-                                                    }}
-                                                >
-                                                    إتمام الشراء
-                                                </Button>
-                                            )}
-                                        </div>
-                                    </div>
-                                ))}
+                                    );
+                                })}
                             </div>
                         ) : (
                             <div className="text-center py-10 text-gray-500 text-xs md:text-sm bg-gray-50 rounded-xl">لا توجد مشتريات مرتبطة بهذا المشروع.</div>

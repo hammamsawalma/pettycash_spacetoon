@@ -99,6 +99,7 @@ export default function PurchasesClient({ initialPurchases }: Props) {
                             <thead className="bg-gray-50/50 border-b border-gray-100 text-gray-500">
                                 <tr>
                                     <th className="px-4 md:px-6 py-3 md:py-4 font-bold">رقم الطلب</th>
+                                    <th className="px-4 md:px-6 py-3 md:py-4 font-bold">الصورة</th>
                                     <th className="px-4 md:px-6 py-3 md:py-4 font-bold">المشروع المرتبط</th>
                                     <th className="px-4 md:px-6 py-3 md:py-4 font-bold">الموعد النهائي</th>
                                     <th className="px-4 md:px-6 py-3 md:py-4 font-bold">الوصف</th>
@@ -129,6 +130,15 @@ export default function PurchasesClient({ initialPurchases }: Props) {
                                                 <td className={`px-4 md:px-6 py-4 font-bold text-gray-900 border-r-4 ${isFlagged ? 'border-red-400' : 'border-transparent group-hover:border-[#102550]'}`}>
                                                     {purchase.orderNumber}
                                                 </td>
+                                                <td className="px-4 md:px-6 py-4">
+                                                    {purchase.imageUrl ? (
+                                                        <img src={purchase.imageUrl} alt="صورة الطلب" className="w-10 h-10 md:w-12 md:h-12 rounded-lg object-cover border border-gray-200" />
+                                                    ) : (
+                                                        <div className="w-10 h-10 md:w-12 md:h-12 bg-gray-100 rounded-lg flex items-center justify-center text-gray-400">
+                                                            <ShoppingCart className="w-5 h-5 opacity-50" />
+                                                        </div>
+                                                    )}
+                                                </td>
                                                 <td className="px-4 md:px-6 py-4 text-[#102550] font-bold">
                                                     {purchase.project?.name || "عام"}
                                                 </td>
@@ -139,9 +149,6 @@ export default function PurchasesClient({ initialPurchases }: Props) {
                                                     <div className="flex items-center gap-2">
                                                         <span className={isFlagged ? 'text-red-800 font-bold' : ''}>{purchase.description || "-"}</span>
                                                         {isFlagged && <Flag className="w-4 h-4 text-red-500 fill-current" />}
-                                                        {purchase.imageUrl && (
-                                                            <Paperclip className="w-4 h-4 text-gray-400" />
-                                                        )}
                                                     </div>
                                                 </td>
                                                 <td className="px-4 md:px-6 py-4 font-bold text-[#102550] text-left" dir="ltr">

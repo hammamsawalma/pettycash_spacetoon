@@ -32,7 +32,7 @@ interface ProtectProps<R extends Resource> {
     action: Action<R>;
     /**
      * Optional: comma-separated projectRoles from ProjectMember.projectRoles.
-     * When provided, a USER role user with COORDINATOR in projectRoles will be
+     * When provided, a USER role user with PROJECT_MANAGER in projectRoles will be
      * granted access to coordinator-level actions (issue custody, create purchase, etc.)
      */
     projectRoles?: string | null;
@@ -65,7 +65,7 @@ export function Protect<R extends Resource>({
             };
             const requiresCoordinator = coordinatorActions[resource]?.includes(action as string);
             if (requiresCoordinator) {
-                if (!projectRoles || !hasProjectRole(projectRoles, ["COORDINATOR"])) {
+                if (!projectRoles || !hasProjectRole(projectRoles, ["PROJECT_MANAGER"])) {
                     return <>{fallback}</>;
                 }
             }
@@ -102,7 +102,7 @@ export function useCanDo<R extends Resource>(
         };
         const requiresCoordinator = coordinatorActions[resource]?.includes(action as string);
         if (requiresCoordinator) {
-            return !!projectRoles && hasProjectRole(projectRoles, ["COORDINATOR"]);
+            return !!projectRoles && hasProjectRole(projectRoles, ["PROJECT_MANAGER"]);
         }
     }
 
