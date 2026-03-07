@@ -146,7 +146,7 @@ const navigationGroups: NavGroup[] = [
                     {
                         name: 'سجل العهدة',
                         href: '/deposits',
-                        check: (r) => r === 'ADMIN' || r === 'GLOBAL_ACCOUNTANT',
+                        check: (r) => r === 'ADMIN' || r === 'GLOBAL_ACCOUNTANT' || r === 'GENERAL_MANAGER',
                     },
                     {
                         name: 'تسجيل معاملة',
@@ -227,8 +227,8 @@ const navigationGroups: NavGroup[] = [
                 name: 'الدعم الفني',
                 href: '/support',
                 icon: HeadphonesIcon,
-                // All roles get support access — edge case: GENERAL_MANAGER excluded in original, keep consistent
-                check: (r) => r !== 'GENERAL_MANAGER',
+                // All roles get support access
+                check: (r) => true,
             },
             {
                 name: 'المؤرشفات',
