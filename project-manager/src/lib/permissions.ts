@@ -73,8 +73,6 @@ export const PERMISSIONS = {
         issue: ["ADMIN"] as UserRole[],
         /** Can confirm receipt of a custody — only the receiving employee */
         confirmReceipt: ["USER"] as UserRole[],
-        /** Can do emergency transfer of custody between employees */
-        transfer: ["ADMIN"] as UserRole[],
         /** Can record a custody return (إرجاع) */
         recordReturn: ["ADMIN"] as UserRole[],
         /** Can view custody records */
@@ -129,7 +127,7 @@ export const PERMISSIONS = {
          * Can settle employee personal debts.
          * GLOBAL_ACCOUNTANT only — ADMIN manages the system but does not settle debts.
          */
-        settle: ["GLOBAL_ACCOUNTANT"] as UserRole[],
+        settle: ["GLOBAL_ACCOUNTANT", "ADMIN"] as UserRole[],
         /** Can view the debts list */
         view: ["ADMIN", "GENERAL_MANAGER", "GLOBAL_ACCOUNTANT"] as UserRole[],
     },

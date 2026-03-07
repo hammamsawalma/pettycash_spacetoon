@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#102550">
+    <title>Spacetoon Pocket — غير متصل</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Cairo', 'Segoe UI', Arial, sans-serif;
+            background: #f8f9fa;
+            color: #171717;
+            min-height: 100dvh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem 1.5rem;
+            text-align: center;
+        }
+
+        .logo {
+            width: 80px;
+            height: 80px;
+            object-fit: contain;
+            margin-bottom: 2rem;
+            filter: drop-shadow(0 4px 12px rgba(16, 37, 80, 0.2));
+        }
+
+        .card {
+            background: white;
+            border-radius: 24px;
+            padding: 2rem 1.5rem;
+            max-width: 360px;
+            width: 100%;
+            box-shadow: 0 8px 40px rgba(16, 37, 80, 0.08);
+            border: 1px solid rgba(16, 37, 80, 0.06);
+        }
+
+        .icon {
+            font-size: 3rem;
+            line-height: 1;
+            margin-bottom: 1rem;
+        }
+
+        h1 {
+            font-size: 1.375rem;
+            font-weight: 800;
+            color: #102550;
+            margin-bottom: 0.5rem;
+        }
+
+        p {
+            font-size: 0.9375rem;
+            color: #6b7280;
+            line-height: 1.7;
+            margin-bottom: 1.5rem;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            background: #102550;
+            color: white;
+            font-size: 0.9375rem;
+            font-weight: 700;
+            padding: 0.75rem 1.5rem;
+            border-radius: 14px;
+            border: none;
+            cursor: pointer;
+            width: 100%;
+            transition: opacity 0.2s, transform 0.2s;
+            text-decoration: none;
+        }
+
+        .btn:active {
+            opacity: 0.85;
+            transform: scale(0.98);
+        }
+
+        .status {
+            margin-top: 1.25rem;
+            font-size: 0.8125rem;
+            color: #9ca3af;
+        }
+
+        .status-dot {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #ef4444;
+            margin-left: 0.375rem;
+            vertical-align: middle;
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.3;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .status-dot {
+                animation: none;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <img src="/spacetoon-logo.png" alt="Spacetoon Pocket" class="logo" onerror="this.style.display='none'">
+
+    <div class="card" role="main">
+        <div class="icon" aria-hidden="true">📡</div>
+        <h1>لا يوجد اتصال بالإنترنت</h1>
+        <p>
+            يبدو أنك غير متصل حالياً.<br>
+            تحقق من اتصالك بالإنترنت ثم حاول مجدداً.
+        </p>
+        <button class="btn" onclick="window.location.reload()" aria-label="إعادة المحاولة">
+            ↺ إعادة المحاولة
+        </button>
+
+        <div class="status">
+            <span class="status-dot" aria-hidden="true"></span>
+            غير متصل بالإنترنت
+        </div>
+    </div>
+
+    <script>
+        // Auto-reload when connection is restored
+        window.addEventListener('online', function () {
+            window.location.reload();
+        });
+    </script>
+</body>
+
+</html>

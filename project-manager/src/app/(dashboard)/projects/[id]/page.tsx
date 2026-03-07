@@ -8,7 +8,7 @@ import { useAuth } from "@/context/AuthContext";
 import { useCanDo } from "@/components/auth/Protect";
 import { getProjectById, closeProject } from "@/actions/projects";
 import { allocateBudgetToProject } from "@/actions/wallet";
-import { getProjectCustodies, emergencyTransferCustody, issueCustody } from "@/actions/custody";
+import { getProjectCustodies, issueCustody } from "@/actions/custody";
 import { useEffect, useState, use } from "react";
 import { Project, Invoice, Purchase, User, ProjectMember } from "@prisma/client";
 import { useRouter, useSearchParams as useNextSearchParams } from "next/navigation";
@@ -51,13 +51,7 @@ export default function ProjectDetailsPage({ params }: { params: Promise<{ id: s
     const [isIssuingCustody, setIsIssuingCustody] = useState(false);
     const [projectCustodies, setProjectCustodies] = useState<any[]>([]);
 
-    // Emergency Transfer state
-    const [showTransferModal, setShowTransferModal] = useState(false);
-    const [transferFromCustody, setTransferFromCustody] = useState<any>(null);
-    const [transferToEmployeeId, setTransferToEmployeeId] = useState("");
-    const [transferAmount, setTransferAmount] = useState("");
-    const [transferNote, setTransferNote] = useState("");
-    const [isTransferring, setIsTransferring] = useState(false);
+
 
     const refreshProject = () => getProjectById(projectId).then(setProject);
     const refreshCustodies = () => getProjectCustodies(projectId).then(setProjectCustodies);
@@ -147,33 +141,7 @@ export default function ProjectDetailsPage({ params }: { params: Promise<{ id: s
         }
     };
 
-    const handleEmergencyTransfer = async (e: React.FormEvent) => {
-        e.preventDefault();
-        if (!transferFromCustody || !transferToEmployeeId || !transferAmount || Number(transferAmount) <= 0) {
-            toast.error("يرجى ملء جميع الحقول بشكل صحيح");
-            return;
-        }
-        setIsTransferring(true);
-        const res = await emergencyTransferCustody(
-            transferFromCustody.id,
-            transferToEmployeeId,
-            Number(transferAmount),
-            transferNote || "نقل طارئ"
-        );
-        setIsTransferring(false);
-        if (res?.error) {
-            toast.error(res.error);
-        } else {
-            toast.success("تم نقل العهدة بنجاح ✅");
-            setShowTransferModal(false);
-            setTransferFromCustody(null);
-            setTransferToEmployeeId("");
-            setTransferAmount("");
-            setTransferNote("");
-            refreshCustodies();
-            refreshProject();
-        }
-    };
+
 
     return (
         <DashboardLayout title={`تفاصيل المشروع - ${project.name}`}>
@@ -663,66 +631,7 @@ export default function ProjectDetailsPage({ params }: { params: Promise<{ id: s
                     </div>
                 )}
 
-                {/* ─── Emergency Transfer Modal ───────────────────────── */}
-                {showTransferModal && transferFromCustody && (
-                    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-                        <Card className="w-full max-w-md p-6">
-                            <div className="flex items-center gap-3 mb-5">
-                                <div className="w-10 h-10 bg-orange-100 rounded-xl flex items-center justify-center">
-                                    <Send className="w-5 h-5 text-orange-600" />
-                                </div>
-                                <div>
-                                    <h3 className="text-lg font-bold text-gray-900">نقل عهدة طارئ</h3>
-                                    <p className="text-xs text-gray-400">من: <strong>{transferFromCustody.employee?.name}</strong> — الرصيد: <strong className="text-orange-600">{transferFromCustody.balance?.toLocaleString()} ريال</strong></p>
-                                </div>
-                            </div>
-                            <form onSubmit={handleEmergencyTransfer} className="space-y-4">
-                                <div className="space-y-1">
-                                    <label className="text-sm font-bold text-gray-700">نقل إلى</label>
-                                    <select
-                                        value={transferToEmployeeId}
-                                        onChange={e => setTransferToEmployeeId(e.target.value)}
-                                        required
-                                        className="w-full rounded-xl border border-gray-200 p-3 outline-none focus:ring-2 focus:ring-orange-400 text-sm bg-white"
-                                    >
-                                        <option value="">— اختر موظفاً —</option>
-                                        {project.members?.filter((m: any) => m.userId !== transferFromCustody.employeeId).map((m: any) => (
-                                            <option key={m.userId} value={m.userId}>{m.user?.name}</option>
-                                        ))}
-                                    </select>
-                                </div>
-                                <div className="space-y-1">
-                                    <label className="text-sm font-bold text-gray-700">المبلغ (ريال) *</label>
-                                    <input
-                                        type="number" required step="0.01" min="0.01"
-                                        max={transferFromCustody.balance}
-                                        value={transferAmount}
-                                        onChange={e => setTransferAmount(e.target.value)}
-                                        className="w-full rounded-xl border border-gray-200 p-3 outline-none focus:ring-2 focus:ring-orange-400 font-bold text-orange-700"
-                                        placeholder="0.00"
-                                    />
-                                </div>
-                                <div className="space-y-1">
-                                    <label className="text-sm font-bold text-gray-700">سبب النقل (اختياري)</label>
-                                    <input type="text"
-                                        value={transferNote} onChange={e => setTransferNote(e.target.value)}
-                                        className="w-full rounded-xl border border-gray-200 p-3 outline-none focus:ring-2 focus:ring-orange-400"
-                                        placeholder="مثال: تغيير المسؤول..."
-                                    />
-                                </div>
-                                <div className="flex gap-3 justify-end pt-2">
-                                    <Button type="button" variant="outline" onClick={() => setShowTransferModal(false)}>إلغاء</Button>
-                                    <Button
-                                        type="submit" disabled={isTransferring} isLoading={isTransferring}
-                                        className="bg-orange-500 hover:bg-orange-600 text-white"
-                                    >
-                                        تأكيد النقل
-                                    </Button>
-                                </div>
-                            </form>
-                        </Card>
-                    </div>
-                )}
+
             </div>
         </DashboardLayout>
     );

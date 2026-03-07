@@ -2,6 +2,7 @@
 
 import prisma from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
+import { getSession } from "@/lib/auth";
 
 export async function getGlobalCurrency() {
     try {
@@ -28,10 +29,20 @@ export async function getGlobalCurrency() {
 
 export async function updateGlobalCurrency(newCurrency: string) {
     try {
+        // R1: ADMIN only can change system-wide currency
+        const session = await getSession();
+        if (!session || session.role !== "ADMIN") {
+            return { error: "فقط مدير النظام يمكنه تغيير عملة النظام" };
+        }
+
+        if (!newCurrency || newCurrency.trim().length === 0) {
+            return { error: "رمز العملة لا يمكن أن يكون فارغاً" };
+        }
+
         await prisma.setting.upsert({
             where: { id: "global" },
-            update: { currency: newCurrency },
-            create: { id: "global", currency: newCurrency }
+            update: { currency: newCurrency.trim() },
+            create: { id: "global", currency: newCurrency.trim() }
         });
 
         // Revalidate the caching for the dashboard layout and all paths naturally
@@ -43,3 +54,4 @@ export async function updateGlobalCurrency(newCurrency: string) {
         return { error: "فشل في تحديث العملة" };
     }
 }
+

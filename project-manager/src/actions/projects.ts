@@ -332,7 +332,15 @@ export async function updateProject(projectId: string, prevState: unknown, formD
 
         try {
             const mems = formData.get("memberIds") as string;
-            if (mems) membersData = JSON.parse(mems);
+            if (mems) {
+                const parsed = JSON.parse(mems);
+                // E4: Validate shape — filter out any malformed entries
+                if (Array.isArray(parsed)) {
+                    membersData = parsed.filter(
+                        (m: any) => m && typeof m.id === "string" && Array.isArray(m.roles)
+                    );
+                }
+            }
         } catch (e) {
             console.error("Failed to parse memberIds:", e);
         }

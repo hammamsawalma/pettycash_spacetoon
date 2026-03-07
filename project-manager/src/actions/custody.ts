@@ -49,15 +49,22 @@ export async function issueCustody(prevState: unknown, formData: FormData) {
         });
         if (!membership) return { error: "الموظف المحدد ليس عضواً في هذا المشروع" };
 
-        // C1: Include custodyReturned — returned cash frees up budget for re-issuance
-        const available = (project.budgetAllocated ?? 0) - (project.custodyIssued ?? 0) + (project.custodyReturned ?? 0);
-        if (amount > available) {
-            return { error: `ميزانية المشروع المتاحة (${available.toLocaleString()}) أقل من المبلغ المطلوب (${amount.toLocaleString()})` };
-        }
-
-        // C4: Wrap all DB writes in a single atomic transaction to prevent partial-failure data corruption
+        // E2 + C4: Budget check AND all writes are wrapped in one atomic transaction.
+        // This prevents the race condition where two concurrent custody issuances both pass
+        // the pre-check and collectively exceed the project budget.
         let custody: { id: string };
-        await prisma.$transaction(async (tx) => {
+        await prisma.$transaction(async (tx: any) => {
+            // Re-read project inside tx to get the locked, current budget figures
+            const lockedProject = await tx.project.findUnique({ where: { id: projectId } });
+            if (!lockedProject) throw new Error("المشروع غير موجود");
+            if (lockedProject.status !== "IN_PROGRESS") throw new Error("لا يمكن صرف عهدة لمشروع مكتمل أو متوقف");
+
+            // C1: Include custodyReturned — returned cash frees up budget for re-issuance
+            const available = (lockedProject.budgetAllocated ?? 0) - (lockedProject.custodyIssued ?? 0) + (lockedProject.custodyReturned ?? 0);
+            if (amount > available) {
+                throw new Error(`ميزانية المشروع المتاحة (${available.toLocaleString()}) أقل من المبلغ المطلوب (${amount.toLocaleString()})`);
+            }
+
             // Create custody record — balance starts equal to amount
             custody = await tx.employeeCustody.create({
                 data: {
@@ -65,7 +72,7 @@ export async function issueCustody(prevState: unknown, formData: FormData) {
                     employeeId,
                     memberId: membership.id,
                     amount,
-                    balance: amount, // tracks remaining balance
+                    balance: amount,
                     method,
                     note: note || null,
                 }
@@ -283,90 +290,6 @@ export async function getMyCustodies() {
     }
 }
 
-// ─── Emergency Transfer: move balance between employees ──
-export async function emergencyTransferCustody(
-    fromCustodyId: string,
-    toEmployeeId: string,
-    amount: number,
-    note: string
-) {
-    try {
-        const session = await getSession();
-        if (!session) return { error: "غير مصرح" };
-
-        const fromCustody = await prisma.employeeCustody.findUnique({
-            where: { id: fromCustodyId },
-            include: { invoices: { where: { status: "APPROVED" } } }
-        });
-        if (!fromCustody) return { error: "العهدة الأصلية غير موجودة" };
-
-        const project = await prisma.project.findUnique({ where: { id: fromCustody.projectId } });
-
-        // v3: Only ADMIN (system-level) can do emergency transfers
-        let isAuthorized = session.role === "ADMIN";
-
-        const projectRoles = await getUserRolesInProject(fromCustody.projectId, session.id);
-        if (hasProjectPermission(projectRoles, ["PROJECT_ACCOUNTANT"])) {
-            isAuthorized = true;
-        }
-
-        if (!isAuthorized) {
-            return { error: "ليس لديك صلاحية لنقل العهدة في هذا المشروع" };
-        }
-
-        // Use the live balance field (already decremented per approved invoices)
-        const remaining = fromCustody.balance;
-        if (amount > remaining) {
-            return { error: `الرصيد المتبقي في العهدة (${remaining}) أقل من المبلغ المراد تحويله (${amount})` };
-        }
-
-        // Check target employee
-        const targetMembership = await prisma.projectMember.findUnique({
-            where: { projectId_userId: { projectId: fromCustody.projectId, userId: toEmployeeId } }
-        });
-        if (!targetMembership) return { error: "الموظف المستهدف ليس عضواً في نفس المشروع" };
-
-        // C2+C3: Use a transaction — decrement source balance, create destination with correct balance
-        await prisma.$transaction(async (tx) => {
-            // C3: Decrement source custody balance
-            await tx.employeeCustody.update({
-                where: { id: fromCustodyId },
-                data: { balance: { decrement: amount } }
-            });
-
-            // C2: Create new custody with balance = amount (not 0)
-            await tx.employeeCustody.create({
-                data: {
-                    projectId: fromCustody.projectId,
-                    employeeId: toEmployeeId,
-                    memberId: targetMembership.id,
-                    amount,
-                    balance: amount, // C2 fix: balance must equal amount
-                    method: fromCustody.method,
-                    note: note || `تحويل طوارئ من عهدة ${fromCustodyId}`,
-                    isConfirmed: false,
-                }
-            });
-
-            // Update ProjectMember balance counters
-            await tx.projectMember.update({
-                where: { projectId_userId: { projectId: fromCustody.projectId, userId: fromCustody.employeeId } },
-                data: { custodyBalance: { decrement: amount } }
-            });
-            await tx.projectMember.update({
-                where: { id: targetMembership.id },
-                data: { custodyBalance: { increment: amount } }
-            });
-        });
-
-        revalidatePath(`/projects/${fromCustody.projectId}`);
-        return { success: true };
-    } catch (error) {
-        console.error("Emergency Transfer Error:", error);
-        return { error: "حدث خطأ أثناء تحويل العهدة" };
-    }
-}
-
 // ─── Return Remaining Cash at Project Close ────────────────
 export async function returnCustodyBalance(
     custodyId: string,
@@ -402,12 +325,17 @@ export async function returnCustodyBalance(
             return { error: "ليس لديك صلاحية لتسجيل إرجاع العهدة" };
         }
         if (custody.isClosed) return { error: "هذه العهدة مغلقة مسبقاً" };
+        // H3: Guard against zero or negative return amounts
+        if (!returnedAmount || returnedAmount <= 0) {
+            return { error: "المبلغ يجب أن يكون أكبر من صفر" };
+        }
         if (returnedAmount > custody.balance) {
             return { error: `المبلغ المُرجَع (${returnedAmount}) أكبر من رصيد العهدة (${custody.balance})` };
         }
 
         const newBalance = custody.balance - returnedAmount;
-        const willClose = newBalance === 0;
+        // M1: Use tolerance instead of === 0 to handle float precision issues
+        const willClose = Math.abs(newBalance) < 0.01;
 
         await prisma.$transaction([
             // تسجيل عملية الإرجاع

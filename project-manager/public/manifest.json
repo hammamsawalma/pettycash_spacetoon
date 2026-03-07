@@ -1,4 +1,5 @@
 {
+    "id": "/",
     "name": "Spacetoon Pocket",
     "short_name": "SpacePocket",
     "description": "نظام إدارة المشاريع والمالية - سبيستون",
@@ -17,9 +18,39 @@
     "icons": [
         {
             "src": "/spacetoon-logo.png",
+            "sizes": "72x72",
+            "type": "image/png",
+            "purpose": "any"
+        },
+        {
+            "src": "/spacetoon-logo.png",
+            "sizes": "96x96",
+            "type": "image/png",
+            "purpose": "any"
+        },
+        {
+            "src": "/spacetoon-logo.png",
+            "sizes": "128x128",
+            "type": "image/png",
+            "purpose": "any"
+        },
+        {
+            "src": "/spacetoon-logo.png",
+            "sizes": "144x144",
+            "type": "image/png",
+            "purpose": "any"
+        },
+        {
+            "src": "/spacetoon-logo.png",
             "sizes": "192x192",
             "type": "image/png",
             "purpose": "any maskable"
+        },
+        {
+            "src": "/spacetoon-logo.png",
+            "sizes": "256x256",
+            "type": "image/png",
+            "purpose": "any"
         },
         {
             "src": "/spacetoon-logo.png",
@@ -52,6 +83,27 @@
                     "sizes": "192x192"
                 }
             ]
+        },
+        {
+            "name": "المشاريع",
+            "short_name": "مشاريع",
+            "description": "عرض قائمة المشاريع",
+            "url": "/projects",
+            "icons": [
+                {
+                    "src": "/spacetoon-logo.png",
+                    "sizes": "192x192"
+                }
+            ]
         }
-    ]
+    ],
+    "share_target": {
+        "action": "/invoices/new",
+        "method": "GET",
+        "params": {
+            "title": "title",
+            "text": "text",
+            "url": "url"
+        }
+    }
 }

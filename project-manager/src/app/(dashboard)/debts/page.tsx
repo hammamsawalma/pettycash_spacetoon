@@ -146,7 +146,7 @@ export default function DebtsPage() {
                                                 {new Date(debt.createdAt).toLocaleDateString('en-GB')}
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap">
-                                                {role === "GLOBAL_ACCOUNTANT" ? (
+                                                {(role === "GLOBAL_ACCOUNTANT" || role === "ADMIN") ? (
                                                     <Button
                                                         variant="primary"
                                                         size="sm"

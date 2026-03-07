@@ -35,29 +35,61 @@ export async function getPendingDebts() {
     }
 }
 
-// ─── Settle a debt (admin pays the employee back) ─────────
+// ─── Settle a debt (company pays the employee back from wallet) ─────────
 export async function settleDebt(debtId: string) {
     try {
         const session = await getSession();
-        // v3: Only GLOBAL_ACCOUNTANT can settle debts — not ADMIN, not GM
-        if (!session || session.role !== "GLOBAL_ACCOUNTANT") {
-            return { error: "غير مصرح لك بتسوية الديون، هذه الصلاحية للمحاسب العام فقط." };
+        // M2: GLOBAL_ACCOUNTANT or ADMIN can settle debts
+        if (!session || (session.role !== "GLOBAL_ACCOUNTANT" && session.role !== "ADMIN")) {
+            return { error: "غير مصرح لك بتسوية الديون، هذه الصلاحية للمحاسب العام أو مدير النظام فقط." };
         }
 
-        const debt = await prisma.outOfPocketDebt.findUnique({ where: { id: debtId } });
+        const debt = await prisma.outOfPocketDebt.findUnique({
+            where: { id: debtId },
+            include: { employee: { select: { name: true } } }
+        });
         if (!debt) return { error: "الدين غير موجود" };
         if (debt.isSettled) return { error: "هذا الدين تم تسويته مسبقاً" };
 
-        await prisma.outOfPocketDebt.update({
-            where: { id: debtId },
-            data: {
-                isSettled: true,
-                settledAt: new Date(),
-                settledBy: session.id
-            }
-        });
+        // M2: Deduct from company wallet atomically
+        const wallet = await prisma.companyWallet.findFirst();
+        if (!wallet) return { error: "خزنة الشركة غير موجودة" };
+        if (wallet.balance < debt.amount) {
+            return { error: `رصيد الخزنة (${wallet.balance.toLocaleString()}) غير كافٍ لتسوية هذا الدين (${debt.amount.toLocaleString()})` };
+        }
+
+        await prisma.$transaction([
+            // Mark debt as settled
+            prisma.outOfPocketDebt.update({
+                where: { id: debtId },
+                data: {
+                    isSettled: true,
+                    settledAt: new Date(),
+                    settledBy: session.id
+                }
+            }),
+            // Deduct from company wallet
+            prisma.companyWallet.update({
+                where: { id: wallet.id },
+                data: {
+                    balance: { decrement: debt.amount },
+                    totalOut: { increment: debt.amount }
+                }
+            }),
+            // Audit trail entry
+            prisma.walletEntry.create({
+                data: {
+                    walletId: wallet.id,
+                    type: "SETTLE_DEBT",
+                    amount: debt.amount,
+                    note: `تسوية دين موظف: ${debt.employee?.name || debt.employeeId}`,
+                    createdBy: session.id
+                }
+            })
+        ]);
 
         revalidatePath("/debts");
+        revalidatePath("/wallet");
         return { success: true };
     } catch (error) {
         console.error("Settle Debt Error:", error);

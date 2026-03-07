@@ -13,6 +13,10 @@ interface FileUploadProps {
     previewUrl?: string | null;
     onChange?: (file: File | null) => void;
     variant?: 'avatar' | 'document';
+    /** If true, directly opens the device camera on mobile (#54) */
+    capture?: boolean | 'user' | 'environment';
+    /** Max dimension for client-side image compression in pixels (#98) */
+    maxImageDimension?: number;
 }
 
 export function FileUpload({
@@ -23,7 +27,9 @@ export function FileUpload({
     description = "أو اسحب واسقط الملف هنا",
     previewUrl = null,
     onChange,
-    variant = 'document'
+    variant = 'document',
+    capture,
+    maxImageDimension = 1920,
 }: FileUploadProps) {
     const [dragActive, setDragActive] = useState(false);
     const [file, setFile] = useState<File | null>(null);
@@ -104,18 +110,57 @@ export function FileUpload({
             }
         }
 
-        setFile(selectedFile);
-        if (onChange) onChange(selectedFile);
+        // Client-side image compression (#98)
+        if (selectedFile.type.startsWith('image/') && maxImageDimension > 0) {
+            const img = new window.Image();
+            const objectUrl = URL.createObjectURL(selectedFile);
+            img.onload = () => {
+                URL.revokeObjectURL(objectUrl);
+                const { width, height } = img;
+                const needsResize = width > maxImageDimension || height > maxImageDimension;
+
+                if (!needsResize) {
+                    // No compression needed — use original
+                    finalizeFile(selectedFile);
+                    return;
+                }
+
+                const scale = Math.min(maxImageDimension / width, maxImageDimension / height);
+                const canvas = document.createElement('canvas');
+                canvas.width = Math.round(width * scale);
+                canvas.height = Math.round(height * scale);
+                const ctx = canvas.getContext('2d');
+                if (!ctx) { finalizeFile(selectedFile); return; }
+                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+                canvas.toBlob((blob) => {
+                    if (!blob) { finalizeFile(selectedFile); return; }
+                    const compressed = new File([blob], selectedFile.name, {
+                        type: selectedFile.type,
+                        lastModified: Date.now(),
+                    });
+                    finalizeFile(compressed);
+                }, selectedFile.type, 0.82); // 82% quality
+            };
+            img.onerror = () => finalizeFile(selectedFile);
+            img.src = objectUrl;
+        } else {
+            finalizeFile(selectedFile);
+        }
+    };
+
+    const finalizeFile = (processedFile: File) => {
+        setFile(processedFile);
+        if (onChange) onChange(processedFile);
 
         // Preview for Images
-        if (selectedFile.type.startsWith('image/')) {
+        if (processedFile.type.startsWith('image/')) {
             const reader = new FileReader();
             reader.onloadend = () => {
                 setPreview(reader.result as string);
             };
-            reader.readAsDataURL(selectedFile);
+            reader.readAsDataURL(processedFile);
         } else {
-            // Not an image preview
             setPreview(null);
         }
     };
@@ -142,7 +187,9 @@ export function FileUpload({
                 type="file"
                 name={name}
                 accept={accept}
+                capture={capture}
                 onChange={handleChange}
+                aria-label={placeholder}
                 className="hidden"
             />
 

@@ -343,90 +343,95 @@ export async function createInvoice(prevState: unknown, formData: FormData) {
         }
         const initialStatus = autoApprove ? "APPROVED" : "PENDING";
 
-        const newInvoice = await prisma.invoice.create({
-            data: {
-                projectId,
-                reference,
-                type,
-                amount,
-                notes: notes || null,
-                date: dateStr ? new Date(dateStr) : new Date(),
-                status: initialStatus,
-                creatorId: session.id,
-                paymentSource,
-                custodyAmount: custodyAmount ?? null,
-                pocketAmount: pocketAmount ?? null,
-                custodyId: custodyId || null,
-                categoryId: categoryId || null,
-                ...(filePathDb && { filePath: filePathDb }),
-                items: items.length > 0 ? {
-                    create: items.map(item => ({
-                        name: item.name,
-                        itemNumber: item.itemNumber || null,
-                        description: item.description || null,
-                        quantity: item.quantity,
-                        unitPrice: item.unitPrice || null,
-                        totalPrice: item.totalPrice
-                    }))
-                } : undefined
-            }
-        });
-
-        // ─ Create debt record for PERSONAL or SPLIT payments ────────────
-        if (paymentSource === "PERSONAL") {
-            await prisma.outOfPocketDebt.create({
+        // ─ ATOMIC: Create invoice + debt + auto-approve balance deductions in one transaction ─
+        const result = await prisma.$transaction(async (tx) => {
+            const newInvoice = await tx.invoice.create({
                 data: {
-                    invoiceId: newInvoice.id,
-                    employeeId: session.id,
-                    amount // full amount owed
+                    projectId,
+                    reference,
+                    type,
+                    amount,
+                    notes: notes || null,
+                    date: dateStr ? new Date(dateStr) : new Date(),
+                    status: initialStatus,
+                    creatorId: session.id,
+                    paymentSource,
+                    custodyAmount: custodyAmount ?? null,
+                    pocketAmount: pocketAmount ?? null,
+                    custodyId: custodyId || null,
+                    categoryId: categoryId || null,
+                    ...(filePathDb && { filePath: filePathDb }),
+                    items: items.length > 0 ? {
+                        create: items.map(item => ({
+                            name: item.name,
+                            itemNumber: item.itemNumber || null,
+                            description: item.description || null,
+                            quantity: item.quantity,
+                            unitPrice: item.unitPrice || null,
+                            totalPrice: item.totalPrice
+                        }))
+                    } : undefined
                 }
             });
-        } else if (paymentSource === "SPLIT" && pocketAmount && pocketAmount > 0) {
-            await prisma.outOfPocketDebt.create({
-                data: {
-                    invoiceId: newInvoice.id,
-                    employeeId: session.id,
-                    amount: pocketAmount // only the out-of-pocket portion
-                }
-            });
-        }
 
-        // I1: If auto-approved, apply the same balance side-effects as updateInvoiceStatus(APPROVED)
-        if (autoApprove && newInvoice.id) {
-            // Write approvedBy + approvedAt
-            await prisma.invoice.update({
-                where: { id: newInvoice.id },
-                data: { approvedBy: session.id, approvedAt: new Date() }
-            });
-
-            const deductAmount = paymentSource === "SPLIT"
-                ? (custodyAmount ?? amount)
-                : amount;
-
-            // Employee custody balance deduction
-            if (custodyId && (paymentSource === "CUSTODY" || paymentSource === "SPLIT")) {
-                await prisma.employeeCustody.update({
-                    where: { id: custodyId },
-                    data: { balance: { decrement: deductAmount } }
+            // ─ Create debt record for PERSONAL or SPLIT payments ────────────
+            if (paymentSource === "PERSONAL") {
+                await tx.outOfPocketDebt.create({
+                    data: {
+                        invoiceId: newInvoice.id,
+                        employeeId: session.id,
+                        amount // full amount owed
+                    }
                 });
-                if (projectId) {
-                    await prisma.projectMember.updateMany({
-                        where: { projectId, userId: session.id },
-                        data: { custodyBalance: { decrement: deductAmount } }
+            } else if (paymentSource === "SPLIT" && pocketAmount && pocketAmount > 0) {
+                await tx.outOfPocketDebt.create({
+                    data: {
+                        invoiceId: newInvoice.id,
+                        employeeId: session.id,
+                        amount: pocketAmount // only the out-of-pocket portion
+                    }
+                });
+            }
+
+            // I1: If auto-approved, apply the same balance side-effects as updateInvoiceStatus(APPROVED)
+            if (autoApprove) {
+                // Write approvedBy + approvedAt
+                await tx.invoice.update({
+                    where: { id: newInvoice.id },
+                    data: { approvedBy: session.id, approvedAt: new Date() }
+                });
+
+                const deductAmount = paymentSource === "SPLIT"
+                    ? (custodyAmount ?? amount)
+                    : amount;
+
+                // Employee custody balance deduction
+                if (custodyId && (paymentSource === "CUSTODY" || paymentSource === "SPLIT")) {
+                    await tx.employeeCustody.update({
+                        where: { id: custodyId },
+                        data: { balance: { decrement: deductAmount } }
+                    });
+                    if (projectId) {
+                        await tx.projectMember.updateMany({
+                            where: { projectId, userId: session.id },
+                            data: { custodyBalance: { decrement: deductAmount } }
+                        });
+                    }
+                }
+
+                // Manager implicit custody deduction (no custodyId, creator = manager)
+                if (!custodyId && projectId && (paymentSource === "CUSTODY" || paymentSource === "SPLIT") && projectIsManaged) {
+                    await tx.project.update({
+                        where: { id: projectId },
+                        data: { managerSpent: { increment: deductAmount } }
                     });
                 }
             }
 
-            // Manager implicit custody deduction (no custodyId, creator = manager)
-            if (!custodyId && projectId && (paymentSource === "CUSTODY" || paymentSource === "SPLIT") && projectIsManaged) {
-                await prisma.project.update({
-                    where: { id: projectId },
-                    data: { managerSpent: { increment: deductAmount } }
-                });
-            }
-        }
+            return newInvoice;
+        });
 
-        // ─ Fan-out notifications to ALL accountants on this project ───
+        // ─ Non-critical: Notifications (outside transaction — failure won't corrupt data) ───
         if (initialStatus === "PENDING" && projectId) {
             const accountantMembers = await prisma.projectMember.findMany({
                 where: { projectId }
@@ -458,13 +463,13 @@ export async function createInvoice(prevState: unknown, formData: FormData) {
         }
 
         if (purchaseId) {
-            await markPurchaseAsBought(purchaseId, newInvoice.id);
+            await markPurchaseAsBought(purchaseId, result.id);
             revalidatePath("/purchases");
         }
 
         revalidatePath("/invoices");
         revalidatePath("/");
-        return { success: true, invoiceId: newInvoice.id, autoApproved: autoApprove };
+        return { success: true, invoiceId: result.id, autoApproved: autoApprove };
 
     } catch (error) {
         console.error("Invoice Creation Error:", error);

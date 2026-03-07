@@ -11,10 +11,19 @@
   --font-sans: var(--font-cairo);
 }
 
+/* ─── Font & Text Scaling ────────────────────────────────── */
+html {
+  font-size: 100%;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
 body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-cairo), Arial, Helvetica, sans-serif;
+  overflow-wrap: break-word;
+  word-break: break-word;
 }
 
 /* ─── Mobile Touch Optimization ─────────────────────────────
@@ -25,6 +34,16 @@ body {
 *::before,
 *::after {
   touch-action: manipulation;
+}
+
+/* ─── Touch Active States (non-hover devices) ────────────── */
+@media (hover: none) {
+
+  button,
+  a,
+  [role="button"] {
+    -webkit-tap-highlight-color: transparent;
+  }
 }
 
 /* ─── Smooth Scrolling ───────────────────────────────────── */
@@ -50,6 +69,55 @@ body {
 .mobile-tabs-scroll::-webkit-scrollbar {
   display: none;
   /* Chrome / Safari */
+}
+
+/* ─── Scroll Snap Utilities ──────────────────────────────── */
+.scroll-snap-x {
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+}
+
+.scroll-snap-x>* {
+  scroll-snap-align: start;
+  scroll-snap-stop: normal;
+}
+
+/* ─── dvh (Dynamic Viewport Height) Fallback ────────────── */
+.min-h-dvh {
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+
+.h-dvh {
+  height: 100vh;
+  height: 100dvh;
+}
+
+/* ─── content-visibility Optimization ───────────────────── */
+.cv-auto {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 400px;
+}
+
+/* ─── Gradient Fade Scroll Indicator ─────────────────────── */
+.scroll-fade-wrap {
+  position: relative;
+}
+
+.scroll-fade-wrap::after {
+  content: '';
+  position: absolute;
+  inset-inline-end: 0;
+  top: 0;
+  bottom: 0;
+  width: 36px;
+  background: linear-gradient(to left, white 30%, transparent);
+  pointer-events: none;
+  z-index: 1;
+}
+
+[dir="rtl"] .scroll-fade-wrap::after {
+  background: linear-gradient(to right, white 30%, transparent);
 }
 
 /* ─── Skeleton / Shimmer Animation ──────────────────────────
@@ -80,6 +148,60 @@ body {
 [data-motion="fade-in"],
 .animate-in {
   will-change: opacity, transform;
+}
+
+/* ─── Reduced Motion — #86, #159 ─────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .skeleton {
+    animation: none;
+    background: #ebebeb;
+  }
+}
+
+/* ─── High Contrast Mode — #155 ──────────────────────────── */
+@media (prefers-contrast: high) {
+  :root {
+    --background: #ffffff;
+    --foreground: #000000;
+  }
+
+  button,
+  a,
+  input,
+  select,
+  textarea {
+    outline: 2px solid currentColor !important;
+  }
+}
+
+/* ─── Reduce Transparency — #154 ─────────────────────────── */
+@media (prefers-reduced-transparency: reduce) {
+
+  .backdrop-blur-xl,
+  .backdrop-blur-3xl,
+  .backdrop-blur-md,
+  .backdrop-blur-sm,
+  [class*="backdrop-blur"] {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+
+  /* Ensure backgrounds remain opaque */
+  header,
+  nav,
+  [class*="bg-white/"] {
+    background-color: rgba(255, 255, 255, 0.97) !important;
+  }
 }
 
 /* ─── Print / PDF Styles ──────────────────────────────────── */

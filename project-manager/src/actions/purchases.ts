@@ -81,6 +81,36 @@ export async function createPurchase(prevState: unknown, formData: FormData) {
         return { error: "المشروع والوصف مطلوبان" };
     }
 
+    // E3: Auth check BEFORE any file I/O to avoid saving orphan files for unauthorized users
+    const session = await getSession();
+    if (!session) return { error: "غير مسجل الدخول" };
+
+    // v3: Only ADMIN + GENERAL_MANAGER can create purchases at system level
+    const isGlobalCreator = session.role === "ADMIN" || session.role === "GENERAL_MANAGER";
+    if (!isGlobalCreator) {
+        const membership = await prisma.projectMember.findFirst({
+            where: {
+                projectId,
+                userId: session.id,
+                projectRoles: { contains: "PROJECT_MANAGER" }
+            }
+        });
+        if (!membership) {
+            return { error: "صلاحية مرفوضة: يجب أن تكون 'منسق' في هذا المشروع لإنشاء طلبات الشراء." };
+        }
+    }
+
+    // Check project is still active
+    const project = await prisma.project.findUnique({
+        where: { id: projectId },
+        select: { status: true }
+    });
+    if (!project) return { error: "المشروع غير موجود" };
+    if (project.status !== "IN_PROGRESS") {
+        return { error: "لا يمكن إنشاء طلب شراء لمشروع مكتمل أو متوقف" };
+    }
+
+    // File handling AFTER auth is confirmed
     let imageUrlDb: string | undefined = undefined;
     if (file && file.size > 0) {
         const allowedTypes = ['application/pdf', 'image/jpeg', 'image/png', 'image/webp'];
@@ -103,37 +133,6 @@ export async function createPurchase(prevState: unknown, formData: FormData) {
     }
 
     try {
-        const session = await getSession();
-        if (!session) return { error: "غير مسجل الدخول" };
-
-        // v3: Only ADMIN + GENERAL_MANAGER can create purchases at system level
-        // GLOBAL_ACCOUNTANT does NOT create purchases (financial role, not operational)
-        // USER with PROJECT_MANAGER role can create for their assigned projects
-        const isGlobalCreator = session.role === "ADMIN" || session.role === "GENERAL_MANAGER";
-        if (!isGlobalCreator) {
-            const membership = await prisma.projectMember.findFirst({
-                where: {
-                    projectId,
-                    userId: session.id,
-                    projectRoles: { contains: "PROJECT_MANAGER" } // STRICT COORDINATOR CHECK
-                }
-            });
-            if (!membership) {
-                return { error: "صلاحية مرفوضة: يجب أن تكون 'منسق' في هذا المشروع لإنشاء طلبات الشراء." };
-            }
-        }
-
-        // Check project is still active (blocks both global creators and coordinators)
-        const project = await prisma.project.findUnique({
-            where: { id: projectId },
-            select: { status: true }
-        });
-        if (!project) return { error: "المشروع غير موجود" };
-        if (project.status !== "IN_PROGRESS") {
-            return { error: "لا يمكن إنشاء طلب شراء لمشروع مكتمل أو متوقف" };
-        }
-        // ------------------------------
-
         const order = await prisma.purchase.create({
             data: {
                 orderNumber: `PO-${Date.now()}-0`,

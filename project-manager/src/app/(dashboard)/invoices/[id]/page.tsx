@@ -225,8 +225,8 @@ export default function InvoiceDetailsPage({ params }: { params: Promise<{ id: s
                                 <div className="mt-4 text-2xl font-bold text-gray-900">{invoice.amount.toLocaleString("en-GB")} <span className="text-sm text-gray-500">QAR</span></div>
                             </div>
                         ) : (
-                            <div className="border border-gray-200 rounded-xl overflow-hidden">
-                                <table className="w-full text-sm">
+                            <div className="border border-gray-200 rounded-xl overflow-hidden overflow-x-auto">
+                                <table className="w-full text-sm min-w-[420px]">
                                     <thead className="bg-gray-50 text-gray-600 border-b border-gray-200">
                                         <tr>
                                             <th className="p-3 text-right">#</th>

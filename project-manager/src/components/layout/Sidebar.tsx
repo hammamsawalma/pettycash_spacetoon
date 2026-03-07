@@ -1,7 +1,7 @@
 "use client"
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
     Home, FolderKanban, FileText, ShoppingCart,
@@ -313,6 +313,46 @@ export default function Sidebar({ isOpen, setIsOpen }: { isOpen?: boolean, setIs
 
     const [expandedMenus, setExpandedMenus] = useState<Record<string, boolean>>({});
     const [isQuickAddOpen, setIsQuickAddOpen] = useState(false);
+    const sidebarRef = useRef<HTMLDivElement>(null);
+
+    // ── Swipe-to-close (RTL-aware touch gesture) ──────────────────────────────
+    const touchStartX = useRef(0);
+    const handleTouchStart = useCallback((e: React.TouchEvent) => {
+        touchStartX.current = e.touches[0].clientX;
+    }, []);
+    const handleTouchEnd = useCallback((e: React.TouchEvent) => {
+        if (!setIsOpen || !isOpen) return;
+        const diff = e.changedTouches[0].clientX - touchStartX.current;
+        // In RTL: sidebar slides from the right, so swipe-right closes it
+        // In LTR: sidebar slides from the left, so swipe-left closes it
+        const isRTL = document.documentElement.dir === 'rtl';
+        if (isRTL ? diff > 60 : diff < -60) {
+            setIsOpen(false);
+        }
+    }, [isOpen, setIsOpen]);
+
+    // ── Focus trap when sidebar is open on mobile ──────────────────────────────
+    useEffect(() => {
+        if (!isOpen || !sidebarRef.current) return;
+        const sidebar = sidebarRef.current;
+        const focusable = sidebar.querySelectorAll<HTMLElement>(
+            'a, button, [tabindex]:not([tabindex="-1"])'
+        );
+        const first = focusable[0];
+        const last = focusable[focusable.length - 1];
+        const handleKeyDown = (e: KeyboardEvent) => {
+            if (e.key === 'Escape') { setIsOpen && setIsOpen(false); return; }
+            if (e.key !== 'Tab') return;
+            if (e.shiftKey) {
+                if (document.activeElement === first) { e.preventDefault(); last?.focus(); }
+            } else {
+                if (document.activeElement === last) { e.preventDefault(); first?.focus(); }
+            }
+        };
+        document.addEventListener('keydown', handleKeyDown);
+        first?.focus();
+        return () => document.removeEventListener('keydown', handleKeyDown);
+    }, [isOpen]);
 
     // Auto-expand menu if active item is inside
     useEffect(() => {
@@ -362,7 +402,14 @@ export default function Sidebar({ isOpen, setIsOpen }: { isOpen?: boolean, setIs
                 />
             )}
 
-            <div className={`fixed inset-y-0 start-0 z-50 flex w-[280px] flex-col bg-white/70 backdrop-blur-3xl border-e border-white/60 shadow-[0_0_40px_rgba(0,0,0,0.03)] transform transition-transform duration-300 ease-in-out md:translate-x-0 md:rtl:translate-x-0 md:ltr:translate-x-0 ${isOpen ? 'translate-x-0 rtl:translate-x-0' : '-translate-x-full rtl:translate-x-full'}`}>
+            <div
+                ref={sidebarRef}
+                role={isOpen ? 'dialog' : undefined}
+                aria-modal={isOpen ? 'true' : undefined}
+                aria-label="القائمة الجانبية"
+                onTouchStart={handleTouchStart}
+                onTouchEnd={handleTouchEnd}
+                className={`fixed inset-y-0 start-0 z-50 flex w-[280px] flex-col bg-white/70 backdrop-blur-3xl border-e border-white/60 shadow-[0_0_40px_rgba(0,0,0,0.03)] transform transition-transform duration-300 ease-in-out md:translate-x-0 md:rtl:translate-x-0 md:ltr:translate-x-0 ${isOpen ? 'translate-x-0 rtl:translate-x-0' : '-translate-x-full rtl:translate-x-full'}`}>
                 <div className="flex h-20 shrink-0 items-center justify-center border-b border-gray-100/50 mt-2 mb-2 px-6">
                     <div className="flex items-center justify-center gap-3 w-full">
                         <img src="/spacetoon-logo.png" alt="Spacetoon Logo" className="h-12 w-auto object-contain drop-shadow-md" />

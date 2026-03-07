@@ -170,14 +170,6 @@ function ManualContent() {
                         "إرجاع مبلغ نقدي متبقي من العهدة للمدير وتوثيقه بأمان.",
                     ]} />
                 </Section>
-                <Section title="تحويل عهدة طارئ (المدير أو المنسق)">
-                    <p className="text-gray-600">في حالات الطوارئ يمكن تحويل جزء من عهدة موظف إلى موظف آخر في نفس المشروع.</p>
-                    <Steps items={[
-                        { n: "1", text: "افتح تفاصيل العهدة ثم اضغط \"تحويل طارئ\"." },
-                        { n: "2", text: "اختر الموظف المستلم، حدد المبلغ، وأضف ملاحظة." },
-                        { n: "3", text: "اضغط \"تحويل\" — ستُنشأ عهدة جديدة للموظف المستلم تلقائياً." },
-                    ]} />
-                </Section>
             </Chapter>
 
             {/* ── Chapter 7: Invoices ── */}
@@ -208,19 +200,21 @@ function ManualContent() {
             <Chapter icon="🛒" num="الفصل الثامن" title="قائمة المشتريات">
                 <InfoBox type="warn" title="صلاحيات إنشاء الطلبات" text="إنشاء طلبات الشراء محصور على المدير والمنسق فقط. الموظف يمكنه فقط تنفيذ الطلبات (مثل بدء التنفيذ أو الشراء)." />
                 <Section title="حالات طلب الشراء">
-                    <table className="w-full text-sm border-collapse">
-                        <thead><tr className="bg-[#102550] text-white"><th className="p-3 text-right rounded-tr-xl">الحالة</th><th className="p-3 text-right rounded-tl-xl">المعنى</th></tr></thead>
-                        <tbody className="divide-y divide-gray-100">
-                            {[
-                                ["🟡 مطلوب", "طلب الشراء أُنشئ وينتظر التنفيذ"],
-                                ["🔵 قيد التنفيذ", "موظف بدأ بالتوجه للشراء"],
-                                ["🟢 تم الشراء", "اشترى الموظف الصنف وربطه بفاتورة"],
-                                ["🔴 ملغى", "أُلغي الطلب من المنسق أو المدير"],
-                            ].map(([s, m], i) => (
-                                <tr key={i} className={i % 2 === 1 ? "bg-gray-50" : ""}><td className="p-3">{s}</td><td className="p-3 text-gray-600">{m}</td></tr>
-                            ))}
-                        </tbody>
-                    </table>
+                    <div className="overflow-x-auto rounded-xl">
+                        <table className="w-full text-sm border-collapse min-w-[320px]">
+                            <thead><tr className="bg-[#102550] text-white"><th className="p-3 text-right rounded-tr-xl">الحالة</th><th className="p-3 text-right rounded-tl-xl">المعنى</th></tr></thead>
+                            <tbody className="divide-y divide-gray-100">
+                                {[
+                                    ["🟡 مطلوب", "طلب الشراء أُنشئ وينتظر التنفيذ"],
+                                    ["🔵 قيد التنفيذ", "موظف بدأ بالتوجه للشراء"],
+                                    ["🟢 تم الشراء", "اشترى الموظف الصنف وربطه بفاتورة"],
+                                    ["🔴 ملغى", "أُلغي الطلب من المنسق أو المدير"],
+                                ].map(([s, m], i) => (
+                                    <tr key={i} className={i % 2 === 1 ? "bg-gray-50" : ""}><td className="p-3">{s}</td><td className="p-3 text-gray-600">{m}</td></tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
                 </Section>
             </Chapter>
 

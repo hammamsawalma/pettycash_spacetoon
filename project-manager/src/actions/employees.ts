@@ -7,6 +7,7 @@ import { isGlobalFinance } from "@/lib/rbac";
 import path from "path";
 import fs from "fs";
 import { createEmployeeSchema } from "@/lib/validations/employees";
+import bcrypt from "bcryptjs";
 
 export async function getEmployees(excludeAdmins: boolean = false) {
     try {
@@ -186,12 +187,14 @@ export async function createEmployee(prevState: unknown, formData: FormData) {
             imagePath = `/uploads/${fileName}`;
         }
 
+        const hashedPassword = await bcrypt.hash(password, 12);
+
         const newEmployee = await prisma.user.create({
             data: {
                 name,
                 email: email || null,
                 phone,
-                password, // In a real app, hash this with bcrypt
+                password: hashedPassword,
                 role: role || "USER",
                 jobTitle: jobTitle || null,
                 salary: salary,
@@ -276,7 +279,8 @@ export async function updateEmployee(employeeId: string, prevState: unknown, for
             jobTitle: jobTitle || null,
             ...(salary !== undefined && { salary }),
             ...(imagePath && { image: imagePath }),
-            ...(password && { password }) // Update password only if provided
+            // E1: Hash password if provided — never store plaintext
+            ...(password && { password: await bcrypt.hash(password, 12) })
         };
 
         const updatedEmployee = await prisma.user.update({

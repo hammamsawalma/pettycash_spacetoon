@@ -121,7 +121,7 @@ export default function MobileBottomNav() {
 
         return (
             /* Outer wrapper — position:relative so the floating CTA can anchor to it */
-            <div className="fixed bottom-0 inset-x-0 z-50 w-full md:hidden">
+            <nav aria-label="التنقل الرئيسي" className="fixed bottom-0 inset-x-0 z-50 w-full md:hidden">
                 {/* ── Floating CTA — floats above the bar, centered ─────────────── */}
                 <div className="absolute -top-5 left-1/2 -translate-x-1/2 z-10">
                     <button
@@ -143,9 +143,11 @@ export default function MobileBottomNav() {
                                 <Link
                                     href={item.href}
                                     key={item.href}
+                                    aria-current={isActive ? 'page' : undefined}
                                     className="flex-1 inline-flex flex-col items-center justify-center py-2 hover:bg-gray-50 group transition-all duration-200 rounded-xl min-h-[48px] active:scale-95"
                                 >
                                     <item.icon
+                                        aria-hidden="true"
                                         className={`w-5 h-5 mb-0.5 transition-all duration-200 ${isActive ? 'text-[#102550] scale-110' : 'text-gray-400 group-hover:text-gray-600'}`}
                                     />
                                     <span className={`text-[10px] transition-colors duration-200 ${isActive ? 'text-[#102550] font-bold' : 'text-gray-400 group-hover:text-gray-600'}`}>
@@ -156,7 +158,7 @@ export default function MobileBottomNav() {
                         })}
                     </div>
                 </div>
-            </div>
+            </nav>
         );
     }
 
@@ -216,7 +218,7 @@ export default function MobileBottomNav() {
             </AnimatePresence>
 
             {/* Bottom Nav Bar */}
-            <div className="fixed bottom-0 inset-x-0 z-50 w-full bg-white/80 backdrop-blur-xl border-t border-gray-200/50 shadow-[0_-4px_30px_rgba(0,0,0,0.05)] md:hidden pb-[env(safe-area-inset-bottom)]">
+            <nav aria-label="التنقل الرئيسي" className="fixed bottom-0 inset-x-0 z-50 w-full bg-white/80 backdrop-blur-xl border-t border-gray-200/50 shadow-[0_-4px_30px_rgba(0,0,0,0.05)] md:hidden pb-[env(safe-area-inset-bottom)]">
                 <div className="flex items-center h-16 max-w-lg mx-auto font-medium px-2">
                     {navItems.map((item, idx) => {
                         const isActive = pathname === item.href || (pathname.startsWith(item.href) && item.href !== '/');
@@ -232,26 +234,29 @@ export default function MobileBottomNav() {
                                                 ? 'bg-gray-800 shadow-gray-400/30 rotate-45'
                                                 : 'bg-[#102550] shadow-blue-300/60'
                                                 }`}
-                                            aria-label="قائمة الإضافة السريعة"
+                                            aria-label={fabOpen ? 'إغلاق قائمة الإضافة السريعة' : 'قائمة الإضافة السريعة'}
+                                            aria-expanded={fabOpen}
                                         >
                                             {fabOpen
-                                                ? <X className="w-5 h-5 text-white" />
-                                                : <Plus className="w-5 h-5 text-white" />
+                                                ? <X className="w-5 h-5 text-white" aria-hidden="true" />
+                                                : <Plus className="w-5 h-5 text-white" aria-hidden="true" />
                                             }
                                         </button>
                                     </div>
                                 )}
                                 <Link
                                     href={item.href}
+                                    aria-current={isActive ? 'page' : undefined}
                                     className="flex-1 inline-flex flex-col items-center justify-center min-h-[48px] min-w-[48px] py-2 hover:bg-gray-50 group transition-all duration-200 rounded-xl active:scale-95"
                                 >
                                     <div className="relative">
                                         <item.icon
+                                            aria-hidden="true"
                                             className={`w-5 h-5 mb-1 transition-all duration-200 ${isActive ? 'text-[#102550] scale-110 drop-shadow-[0_2px_4px_rgba(127,86,217,0.4)]' : 'text-gray-400 group-hover:text-gray-600'}`}
                                         />
                                         {/* Notification badge */}
                                         {item.href === '/' && unreadCount > 0 && (
-                                            <span className="absolute -top-1 -right-1 min-w-[16px] h-4 px-0.5 bg-red-500 rounded-full text-white text-[9px] font-black flex items-center justify-center leading-none">
+                                            <span aria-label={`${unreadCount} إشعار غير مقروء`} className="absolute -top-1 -right-1 min-w-[16px] h-4 px-0.5 bg-red-500 rounded-full text-white text-[9px] font-black flex items-center justify-center leading-none">
                                                 {unreadCount > 9 ? '9+' : unreadCount}
                                             </span>
                                         )}
@@ -271,7 +276,7 @@ export default function MobileBottomNav() {
                         <p className="text-gray-300 text-xs text-center w-full">لا توجد عناصر</p>
                     )}
                 </div>
-            </div>
+            </nav>
         </>
     );
 }

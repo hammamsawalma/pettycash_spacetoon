@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { SessionData, getSession } from "@/lib/auth";
 import path from "path";
 import fs from "fs";
+import bcrypt from "bcryptjs";
 
 export async function updateProfile(prevState: unknown, formData: FormData) {
     try {
@@ -98,14 +99,28 @@ export async function updatePassword(prevState: unknown, formData: FormData) {
             return { error: "كلمات المرور الجديدة غير متطابقة" };
         }
 
+        if (newPassword.length < 6) {
+            return { error: "كلمة المرور يجب أن تكون 6 أحرف على الأقل" };
+        }
+
         const user = await prisma.user.findUnique({ where: { id: session.id } });
-        if (!user || user.password !== currentPassword) {
+        if (!user) return { error: "المستخدم غير موجود" };
+
+        // Support both hashed (bcrypt) and legacy plaintext passwords
+        const isCurrentPasswordValid = user.password.startsWith('$2')
+            ? await bcrypt.compare(currentPassword, user.password)
+            : user.password === currentPassword;
+
+        if (!isCurrentPasswordValid) {
             return { error: "كلمة المرور الحالية غير صحيحة" };
         }
 
+        // Always store the new password as bcrypt hash
+        const hashedNewPassword = await bcrypt.hash(newPassword, 12);
+
         await prisma.user.update({
             where: { id: session.id },
-            data: { password: newPassword },
+            data: { password: hashedNewPassword },
         });
 
         return { success: true, message: "تم تحديث كلمة المرور بنجاح" };

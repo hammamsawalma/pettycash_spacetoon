@@ -19,20 +19,16 @@ export async function approveFinanceRequest(requestId: string) {
         if (!req) return { error: "الطلب غير موجود" };
         if (req.status !== "PENDING") return { error: "هذا الطلب تمت معالجته مسبقاً" };
 
-        // تنفيذ العملية الفعلية
+        // C4: ATOMIC — execute financial operation + update status in one transaction
         const execResult = await executeFinanceRequest(
             requestId,
             req.type as any,
-            { amount: req.amount ?? undefined, targetId: req.targetId ?? undefined, note: req.note ?? undefined }
+            { amount: req.amount ?? undefined, targetId: req.targetId ?? undefined, note: req.note ?? undefined },
+            session.id
         );
         if (execResult?.error) return execResult;
 
-        await prisma.financeRequest.update({
-            where: { id: requestId },
-            data: { status: "APPROVED", approvedBy: session.id, resolvedAt: new Date() }
-        });
-
-        // إشعار مُقدِّم الطلب
+        // إشعار مُقدِّم الطلب (non-critical, outside transaction)
         await prisma.notification.create({
             data: {
                 title: "تمت الموافقة على طلبك المالي ✅",
@@ -120,100 +116,97 @@ export async function getPendingFinanceRequests() {
 }
 
 // ─── Helper: تنفيذ العملية المالية الفعلية ────────────────
+// C4: Now wraps everything (execute + status update) in one transaction
 async function executeFinanceRequest(
     requestId: string,
     type: string,
-    data: { amount?: number; targetId?: string; note?: string }
+    data: { amount?: number; targetId?: string; note?: string },
+    approverId: string
 ) {
     try {
-        if (type === "SETTLE_DEBT" && data.targetId) {
-            const debt = await prisma.outOfPocketDebt.findUnique({ where: { id: data.targetId } });
-            if (debt && !debt.isSettled) {
-                // Fetch the approver from the finance request for audit trail
-                const req = await prisma.financeRequest.findUnique({
-                    where: { id: requestId },
-                    select: { approvedBy: true }
-                });
-                await prisma.outOfPocketDebt.update({
-                    where: { id: data.targetId },
-                    data: {
-                        isSettled: true,
-                        settledAt: new Date(),
-                        settledBy: req?.approvedBy ?? null
-                    }
-                });
+        await prisma.$transaction(async (tx) => {
+            // C4: Update request status atomically with execution
+            await tx.financeRequest.update({
+                where: { id: requestId },
+                data: { status: "APPROVED", approvedBy: approverId, resolvedAt: new Date() }
+            });
+
+            if (type === "SETTLE_DEBT" && data.targetId) {
+                const debt = await tx.outOfPocketDebt.findUnique({ where: { id: data.targetId } });
+                if (debt && !debt.isSettled) {
+                    await tx.outOfPocketDebt.update({
+                        where: { id: data.targetId },
+                        data: {
+                            isSettled: true,
+                            settledAt: new Date(),
+                            settledBy: approverId
+                        }
+                    });
+                }
             }
-        }
 
-        if (type === "ALLOCATE_BUDGET" && data.targetId && data.amount && data.amount > 0) {
-            // تخصيص ميزانية لمشروع من الخزنة
-            const wallet = await prisma.companyWallet.findFirst();
-            if (!wallet) return { error: "خزنة الشركة غير موجودة" };
-            if (wallet.balance < data.amount) return { error: `الرصيد المتاح في الخزنة (${wallet.balance}) أقل من المبلغ المطلوب (${data.amount})` };
+            if (type === "ALLOCATE_BUDGET" && data.targetId && data.amount && data.amount > 0) {
+                const wallet = await tx.companyWallet.findFirst();
+                if (!wallet) throw new Error("خزنة الشركة غير موجودة");
+                if (wallet.balance < data.amount) throw new Error(`الرصيد المتاح في الخزنة (${wallet.balance}) أقل من المبلغ المطلوب (${data.amount})`);
 
-            const project = await prisma.project.findUnique({ where: { id: data.targetId } });
-            if (!project) return { error: "المشروع غير موجود" };
+                const project = await tx.project.findUnique({ where: { id: data.targetId } });
+                if (!project) throw new Error("المشروع غير موجود");
 
-            await prisma.$transaction([
-                prisma.companyWallet.update({
+                await tx.companyWallet.update({
                     where: { id: wallet.id },
                     data: { balance: { decrement: data.amount }, totalOut: { increment: data.amount } }
-                }),
-                prisma.walletEntry.create({
+                });
+                await tx.walletEntry.create({
                     data: {
                         walletId: wallet.id,
                         type: "ALLOCATE_TO_PROJECT",
                         amount: data.amount,
                         note: data.note || `تخصيص ميزانية للمشروع: ${project.name} (طلب مالي ${requestId})`,
-                        createdBy: project.managerId || wallet.id // fallback
+                        createdBy: approverId
                     }
-                }),
-                prisma.project.update({
+                });
+                await tx.project.update({
                     where: { id: data.targetId },
                     data: { budgetAllocated: { increment: data.amount } }
-                })
-            ]);
-        }
+                });
+            }
 
-        if (type === "RETURN_CUSTODY" && data.targetId) {
-            // Close the custody and sync all balance counters
-            const custody = await prisma.employeeCustody.findUnique({ where: { id: data.targetId } });
-            if (custody && !custody.isClosed) {
-                const remainingBalance = custody.balance;
-                await prisma.$transaction([
-                    // Mark custody closed and zero out balance
-                    prisma.employeeCustody.update({
+            if (type === "RETURN_CUSTODY" && data.targetId) {
+                const custody = await tx.employeeCustody.findUnique({ where: { id: data.targetId } });
+                if (custody && !custody.isClosed) {
+                    const remainingBalance = custody.balance;
+                    await tx.employeeCustody.update({
                         where: { id: data.targetId },
                         data: { isClosed: true, closedAt: new Date(), balance: 0 }
-                    }),
-                    // Sync member's custody balance
-                    prisma.projectMember.updateMany({
+                    });
+                    await tx.projectMember.updateMany({
                         where: { projectId: custody.projectId, userId: custody.employeeId },
                         data: { custodyBalance: { decrement: remainingBalance } }
-                    }),
-                    // Record returned amount on project
-                    prisma.project.update({
+                    });
+                    await tx.project.update({
                         where: { id: custody.projectId },
                         data: { custodyReturned: { increment: remainingBalance } }
-                    }),
-                    // Create a CustodyReturn record for audit trail
-                    prisma.custodyReturn.create({
+                    });
+                    // C3: Fixed — use approverId (User ID) instead of requestId (FinanceRequest ID)
+                    await tx.custodyReturn.create({
                         data: {
                             custodyId: data.targetId,
                             amount: remainingBalance,
                             returnedBy: custody.employeeId,
-                            recordedBy: requestId, // finance request id as recorder ref
+                            recordedBy: approverId,
                             note: data.note || 'إرجاع عهدة عبر طلب مالي'
                         }
-                    })
-                ]);
+                    });
+                }
             }
-        }
+        });
 
         return { success: true };
     } catch (error) {
         console.error("Execute Finance Request Error:", error);
-        return { error: "فشل تنفيذ العملية المالية" };
+        const message = error instanceof Error ? error.message : "فشل تنفيذ العملية المالية";
+        return { error: message };
     }
 }
 

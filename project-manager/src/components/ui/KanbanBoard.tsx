@@ -5,6 +5,7 @@ import {
     closestCenter,
     KeyboardSensor,
     PointerSensor,
+    TouchSensor,
     useSensor,
     useSensors,
     DragEndEvent,
@@ -99,7 +100,10 @@ export function KanbanBoard({ projects, onProjectClick, onStatusChange, canDragD
     ];
 
     const sensors = useSensors(
-        useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
+        // Pointer (mouse): 8px activation to avoid accidental drags on scroll
+        useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
+        // Touch: 250ms delay so normal scroll isn't interrupted (#67)
+        useSensor(TouchSensor, { activationConstraint: { delay: 250, tolerance: 8 } }),
         useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
     );
 

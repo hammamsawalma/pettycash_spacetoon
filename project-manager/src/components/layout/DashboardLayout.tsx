@@ -9,6 +9,7 @@ import { CommandMenu } from "../ui/CommandMenu";
 import { Toaster } from "react-hot-toast";
 import { NetworkStatus } from "../ui/NetworkStatus";
 import PWAInstallBanner from "../ui/PWAInstallBanner";
+import { useScrollRestoration } from "@/hooks/useMobileUtils";
 
 export default function DashboardLayout({
     children,
@@ -20,8 +21,23 @@ export default function DashboardLayout({
     const pathname = usePathname();
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
+    // Restore scroll position when navigating back (#199)
+    useScrollRestoration();
+
     return (
         <div className="min-h-screen relative flex bg-[#f8f9fa]">
+
+            {/* ─── Skip to Content Link (Accessibility #143) ───────────────── */}
+            <a
+                href="#main-content"
+                className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:start-4 focus:z-[200] focus:px-4 focus:py-2 focus:bg-[#102550] focus:text-white focus:rounded-xl focus:font-bold focus:shadow-lg"
+            >
+                تخطى إلى المحتوى الرئيسي
+            </a>
+
+            {/* ─── ARIA Live Region for screen reader announcements (#153) ─── */}
+            <div aria-live="polite" aria-atomic="true" className="sr-only" id="aria-announcer" />
+
             {/* Premium Ambient Background
               * Desktop: full 4-orb effect
               * Mobile: single lightweight orb (avoids expensive paint on low-end phones)
@@ -47,6 +63,8 @@ export default function DashboardLayout({
                 <Header title={title} onMenuClick={() => setIsSidebarOpen(true)} />
                 <AnimatePresence mode="popLayout">
                     <motion.main
+                        id="main-content"
+                        role="main"
                         key={pathname}
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
