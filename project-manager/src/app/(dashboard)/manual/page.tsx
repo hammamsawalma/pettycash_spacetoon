@@ -13,14 +13,14 @@ function ManualContent() {
         <div className="max-w-4xl mx-auto space-y-6 pb-12" dir="rtl">
 
             {/* ── Header Banner ── */}
-            <div className="rounded-2xl overflow-hidden bg-gradient-to-br from-[#7F56D9] via-[#6941C6] to-[#53389E] text-white p-8 flex items-center gap-6 shadow-xl shadow-purple-200/40">
+            <div className="rounded-2xl overflow-hidden bg-gradient-to-br from-[#102550] via-[#1a3a7c] to-[#53389E] text-white p-8 flex items-center gap-6 shadow-xl shadow-blue-200/40">
                 <div className="w-16 h-16 rounded-2xl bg-white/10 backdrop-blur-sm border border-white/20 flex items-center justify-center text-4xl shadow-inner flex-shrink-0">
                     📋
                 </div>
                 <div>
-                    <p className="text-purple-200 text-sm font-medium mb-1">وثيقة داخلية للموظفين</p>
+                    <p className="text-blue-200 text-sm font-medium mb-1">وثيقة داخلية للموظفين</p>
                     <h1 className="text-2xl md:text-3xl font-bold">دليل استخدام نظام إدارة المشاريع</h1>
-                    <p className="text-purple-200 text-sm mt-1">إصدار 4.0 — مارس 2026</p>
+                    <p className="text-blue-200 text-sm mt-1">إصدار 4.0 — مارس 2026</p>
                 </div>
             </div>
 
@@ -195,7 +195,7 @@ function ManualContent() {
                 <InfoBox type="info" title="صلاحيات الفواتير" text="المنسق لا يمكنه رفع فواتير. أما الموظفون، فيمكنهم رفع الفواتير وإضافة مصروفات مباشرة حتى بدون إنشاء طلبات شراء مسبقة بفضل الصلاحيات الجديدة." />
                 <Section title="ُأنواع طريقة الدفع">
                     <div className="space-y-2">
-                        <div className="p-3 rounded-xl bg-purple-50 border border-purple-100"><strong>من العهدة (CUSTODY):</strong> يُخصم المبلغ من رصيد عهدة الموظف عند الاعتماد.</div>
+                        <div className="p-3 rounded-xl bg-blue-50 border border-blue-100"><strong>من العهدة (CUSTODY):</strong> يُخصم المبلغ من رصيد عهدة الموظف عند الاعتماد.</div>
                         <div className="p-3 rounded-xl bg-blue-50 border border-blue-100"><strong>من الجيب الشخصي (PERSONAL):</strong> يُسجَّل كـ"دين" على الشركة تجاه الموظف ويُسوَّى لاحقاً.</div>
                         <div className="p-3 rounded-xl bg-green-50 border border-green-100"><strong>مختلط (SPLIT):</strong> جزء من العهدة وجزء شخصي — يحدد الموظف التوزيع.</div>
                     </div>
@@ -209,7 +209,7 @@ function ManualContent() {
                 <InfoBox type="warn" title="صلاحيات إنشاء الطلبات" text="إنشاء طلبات الشراء محصور على المدير والمنسق فقط. الموظف يمكنه فقط تنفيذ الطلبات (مثل بدء التنفيذ أو الشراء)." />
                 <Section title="حالات طلب الشراء">
                     <table className="w-full text-sm border-collapse">
-                        <thead><tr className="bg-[#7F56D9] text-white"><th className="p-3 text-right rounded-tr-xl">الحالة</th><th className="p-3 text-right rounded-tl-xl">المعنى</th></tr></thead>
+                        <thead><tr className="bg-[#102550] text-white"><th className="p-3 text-right rounded-tr-xl">الحالة</th><th className="p-3 text-right rounded-tl-xl">المعنى</th></tr></thead>
                         <tbody className="divide-y divide-gray-100">
                             {[
                                 ["🟡 مطلوب", "طلب الشراء أُنشئ وينتظر التنفيذ"],
@@ -275,14 +275,14 @@ function ManualContent() {
 
             {/* ── Final summary table ── */}
             <div className="rounded-2xl overflow-hidden shadow-sm border border-gray-100">
-                <div className="bg-gradient-to-r from-[#7F56D9] to-[#53389E] text-white px-6 py-4">
+                <div className="bg-gradient-to-r from-[#102550] to-[#53389E] text-white px-6 py-4">
                     <h2 className="text-lg font-bold">📌 جدول الصلاحيات المرجعي الشامل</h2>
                 </div>
                 <div className="overflow-x-auto">
                     <table className="w-full text-sm">
                         <thead className="bg-gray-50"><tr>
                             <th className="p-3 text-right font-bold text-gray-700">الصفحة / الوظيفة</th>
-                            <th className="p-3 text-center text-purple-700">👑 مدير</th>
+                            <th className="p-3 text-center text-blue-700">👑 مدير</th>
                             <th className="p-3 text-center text-blue-700">📊 محاسب</th>
                             <th className="p-3 text-center text-green-700">🧭 منسق</th>
                             <th className="p-3 text-center text-orange-700">👷 موظف</th>
@@ -334,10 +334,10 @@ function ManualContent() {
 function Chapter({ icon, num, title, children }: { icon: string; num: string; title: string; children: React.ReactNode }) {
     return (
         <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-            <div className="bg-gradient-to-r from-[#7F56D9] to-[#53389E] text-white px-6 py-5 flex items-center gap-4">
+            <div className="bg-gradient-to-r from-[#102550] to-[#53389E] text-white px-6 py-5 flex items-center gap-4">
                 <div className="w-12 h-12 rounded-xl bg-white/10 border border-white/20 flex items-center justify-center text-2xl flex-shrink-0">{icon}</div>
                 <div>
-                    <div className="text-purple-200 text-xs font-medium tracking-wide">{num}</div>
+                    <div className="text-blue-200 text-xs font-medium tracking-wide">{num}</div>
                     <div className="text-lg font-bold leading-snug">{title}</div>
                 </div>
             </div>
@@ -350,7 +350,7 @@ function Section({ title, children }: { title: string; children: React.ReactNode
     return (
         <div>
             <h2 className="flex items-center gap-2 text-base font-bold text-gray-800 mb-3">
-                <span className="w-1 h-5 rounded-full bg-gradient-to-b from-[#7F56D9] to-[#D6BBFB] block flex-shrink-0" />
+                <span className="w-1 h-5 rounded-full bg-gradient-to-b from-[#102550] to-[#D6BBFB] block flex-shrink-0" />
                 {title}
             </h2>
             <div className="space-y-2">{children}</div>
@@ -372,7 +372,7 @@ function Steps({ items }: { items: { n: string; text: React.ReactNode }[] }) {
         <ol className="space-y-2">
             {items.map((item, i) => (
                 <li key={i} className="flex gap-3 items-start bg-[#F9F5FF] border border-[#E9D7FE] rounded-xl p-3">
-                    <span className="min-w-6 h-6 rounded-full bg-gradient-to-br from-[#7F56D9] to-[#9E77ED] text-white text-xs font-bold flex items-center justify-center flex-shrink-0 mt-0.5">{item.n}</span>
+                    <span className="min-w-6 h-6 rounded-full bg-gradient-to-br from-[#102550] to-[#9E77ED] text-white text-xs font-bold flex items-center justify-center flex-shrink-0 mt-0.5">{item.n}</span>
                     <span className="text-sm text-gray-700 leading-relaxed">{item.text}</span>
                 </li>
             ))}
@@ -401,7 +401,7 @@ function FeatureList({ items }: { items: string[] }) {
         <ul className="space-y-1.5">
             {items.map((item, i) => (
                 <li key={i} className="flex gap-2 items-start text-sm text-gray-700">
-                    <span className="text-[#7F56D9] font-bold mt-0.5">←</span>
+                    <span className="text-[#102550] font-bold mt-0.5">←</span>
                     <span>{item}</span>
                 </li>
             ))}
@@ -411,7 +411,7 @@ function FeatureList({ items }: { items: string[] }) {
 
 function RoleCard({ icon, name, color, desc }: { icon: string; name: string; color: string; desc: string }) {
     const colors: Record<string, string> = {
-        purple: "bg-purple-50 border-purple-200",
+        purple: "bg-blue-50 border-blue-200",
         blue: "bg-blue-50 border-blue-200",
         green: "bg-emerald-50 border-emerald-200",
         orange: "bg-orange-50 border-orange-200",
@@ -430,7 +430,7 @@ function PermTable({ rows }: { rows: (string | boolean | null)[][] }) {
         <div className="overflow-x-auto rounded-xl border border-gray-200 shadow-sm">
             <table className="w-full text-sm">
                 <thead>
-                    <tr className="bg-[#7F56D9] text-white">
+                    <tr className="bg-[#102550] text-white">
                         <th className="p-3 text-right">الإجراء</th>
                         <th className="p-3 text-center">👑 المدير</th>
                         <th className="p-3 text-center">📊 المحاسب</th>

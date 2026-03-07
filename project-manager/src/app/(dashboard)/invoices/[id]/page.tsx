@@ -178,12 +178,12 @@ export default function InvoiceDetailsPage({ params }: { params: Promise<{ id: s
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                         <div>
                             <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">المشروع</h3>
-                            <p className="font-bold text-base md:text-lg text-[#7F56D9]">{invoice.project?.name || "مشروع عام"}</p>
+                            <p className="font-bold text-base md:text-lg text-[#102550]">{invoice.project?.name || "مشروع عام"}</p>
                         </div>
                         <div>
                             <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">جهة الدفع</h3>
                             <div className="flex items-center gap-2">
-                                <span className={`px-2 py-1 rounded-md text-xs font-bold ${invoice.paymentSource === 'PERSONAL' ? 'bg-orange-100 text-orange-700' : 'bg-purple-100 text-purple-700'}`}>
+                                <span className={`px-2 py-1 rounded-md text-xs font-bold ${invoice.paymentSource === 'PERSONAL' ? 'bg-orange-100 text-orange-700' : 'bg-blue-100 text-blue-700'}`}>
                                     {invoice.paymentSource === 'PERSONAL' ? 'شخصي (من الجيب)' : 'من العهدة'}
                                 </span>
                                 {invoice.paymentSource === 'PERSONAL' && <span className="text-xs text-orange-600">(تُحسب كدين)</span>}
@@ -231,14 +231,14 @@ export default function InvoiceDetailsPage({ params }: { params: Promise<{ id: s
                                                     {item.itemNumber && <span className="block text-xs text-gray-400 mt-0.5">كود: {item.itemNumber}</span>}
                                                 </td>
                                                 <td className="p-3 text-center text-gray-600">{item.quantity}</td>
-                                                <td className="p-3 text-left font-bold text-purple-700">{item.totalPrice.toLocaleString("en-GB")} ﷼</td>
+                                                <td className="p-3 text-left font-bold text-blue-700">{item.totalPrice.toLocaleString("en-GB")} ﷼</td>
                                             </tr>
                                         ))}
                                     </tbody>
-                                    <tfoot className="bg-purple-50/50 border-t border-purple-100">
+                                    <tfoot className="bg-blue-50/50 border-t border-blue-100">
                                         <tr>
                                             <td colSpan={3} className="p-4 text-left font-bold text-gray-700">الإجمالي الكلي:</td>
-                                            <td className="p-4 text-left font-bold text-xl text-purple-800">{invoice.amount.toLocaleString("en-GB")} ﷼</td>
+                                            <td className="p-4 text-left font-bold text-xl text-blue-800">{invoice.amount.toLocaleString("en-GB")} ﷼</td>
                                         </tr>
                                     </tfoot>
                                 </table>
@@ -265,7 +265,7 @@ export default function InvoiceDetailsPage({ params }: { params: Promise<{ id: s
                                         <p className="font-semibold text-gray-900 text-sm" dir="ltr">{invoice.filePath.split('/').pop()}</p>
                                         <p className="text-xs text-gray-500">مرفق معتمد</p>
                                     </div>
-                                    <a href={invoice.filePath} target="_blank" download className="mr-auto text-gray-400 hover:text-[#7F56D9] bg-white p-2 border border-gray-100 rounded-md shadow-sm opacity-100 md:opacity-0 group-hover:opacity-100 transition">
+                                    <a href={invoice.filePath} target="_blank" download className="mr-auto text-gray-400 hover:text-[#102550] bg-white p-2 border border-gray-100 rounded-md shadow-sm opacity-100 md:opacity-0 group-hover:opacity-100 transition">
                                         <Download className="w-4 h-4" />
                                     </a>
                                 </div>
@@ -280,12 +280,12 @@ export default function InvoiceDetailsPage({ params }: { params: Promise<{ id: s
                 <div className="w-full lg:w-80 space-y-4">
                     {/* Approve/Reject panel — PENDING invoices only */}
                     {(canReview || canReviewAsProjectAccountant) && (
-                        <Card className="p-5 space-y-3 bg-purple-50/50 border-purple-100 shadow-md">
-                            <h3 className="font-bold text-purple-900 flex items-center gap-2 mb-2">
-                                <CheckCircle className="w-5 h-5 text-purple-600" />
+                        <Card className="p-5 space-y-3 bg-blue-50/50 border-blue-100 shadow-md">
+                            <h3 className="font-bold text-blue-900 flex items-center gap-2 mb-2">
+                                <CheckCircle className="w-5 h-5 text-blue-600" />
                                 مراجعة المحاسب
                             </h3>
-                            <p className="text-xs text-purple-700 leading-relaxed mb-4">هذه الفاتورة تتطلب تدقيق واعتماد قبل أن تُخصم من الرصيد.</p>
+                            <p className="text-xs text-blue-700 leading-relaxed mb-4">هذه الفاتورة تتطلب تدقيق واعتماد قبل أن تُخصم من الرصيد.</p>
 
                             <Button onClick={handleApprove} disabled={isUpdating} variant="primary" className="w-full gap-2 bg-green-600 hover:bg-green-700 py-3 shadow-sm font-bold border-green-700">
                                 <CheckCircle className="w-5 h-5" />

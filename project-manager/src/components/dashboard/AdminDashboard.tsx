@@ -120,9 +120,9 @@ export default function AdminDashboard() {
                     <Card className="p-5 md:p-6 group cursor-default flex flex-col items-center">
                         <div className="w-full flex justify-between items-center mb-6">
                             <h3 className="font-bold text-sm md:text-lg text-gray-800">نسبة الإنجاز</h3>
-                            <TrendingUp className="w-5 h-5 text-purple-400" />
+                            <TrendingUp className="w-5 h-5 text-blue-400" />
                         </div>
-                        <div className="relative aspect-square w-[120px] md:w-full max-w-[160px] flex flex-col items-center justify-center rounded-full border-[12px] border-purple-100 border-t-primary shadow-inner shadow-purple-500/10 my-2 bg-gradient-to-tr from-white to-purple-50">
+                        <div className="relative aspect-square w-[120px] md:w-full max-w-[160px] flex flex-col items-center justify-center rounded-full border-[12px] border-blue-100 border-t-primary shadow-inner shadow-blue-500/10 my-2 bg-gradient-to-tr from-white to-blue-50">
                             <span className="text-gray-900 font-black text-2xl md:text-4xl drop-shadow-sm">
                                 {stats.totalProjects ? Math.round((stats.completedProjects / stats.totalProjects) * 100) : 0}%
                             </span>
@@ -186,7 +186,7 @@ export default function AdminDashboard() {
                                     <Tooltip cursor={{ fill: '#f3f4f6', radius: 8 }} contentStyle={{ borderRadius: '16px', border: 'none', boxShadow: '0 4px 20px rgba(0,0,0,0.08)', fontWeight: 'bold' }} />
                                     <Bar dataKey="value" radius={[6, 6, 6, 6]} barSize={32}>
                                         {chartData.map((_, index) => (
-                                            <Cell key={`cell-${index}`} fill={index % 2 === 0 ? "#7F56D9" : "#9E77ED"} />
+                                            <Cell key={`cell-${index}`} fill={index % 2 === 0 ? "#102550" : "#9E77ED"} />
                                         ))}
                                     </Bar>
                                 </BarChart>
@@ -208,7 +208,7 @@ export default function AdminDashboard() {
                                 <div className="flex justify-between items-start relative z-10">
                                     <div className="space-y-1">
                                         <h4 className="font-bold text-base md:text-lg text-gray-900">{project.name}</h4>
-                                        <span className={`inline-block px-2.5 py-0.5 text-[10px] md:text-xs font-bold rounded-md ${project.status === 'COMPLETED' ? 'bg-emerald-100 text-emerald-700' : 'bg-purple-100 text-primary'}`}>
+                                        <span className={`inline-block px-2.5 py-0.5 text-[10px] md:text-xs font-bold rounded-md ${project.status === 'COMPLETED' ? 'bg-emerald-100 text-emerald-700' : 'bg-blue-100 text-primary'}`}>
                                             {project.status === 'COMPLETED' ? 'مكتمل' : 'قيد التنفيذ'}
                                         </span>
                                     </div>

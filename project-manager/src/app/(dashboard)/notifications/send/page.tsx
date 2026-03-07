@@ -62,7 +62,7 @@ export default function SendNotificationPage() {
                     }}>
                         <div>
                             <h3 className="text-lg md:text-xl font-bold text-gray-900 mb-6 flex items-center gap-2 border-b border-gray-100 pb-4">
-                                <BellRing className="w-5 h-5 text-[#7F56D9]" />
+                                <BellRing className="w-5 h-5 text-[#102550]" />
                                 ارسال اشعار جديد
                             </h3>
 
@@ -74,7 +74,7 @@ export default function SendNotificationPage() {
                                         name="title"
                                         required
                                         placeholder="مثال: تحديث مهم في النظام..."
-                                        className="w-full rounded-xl border border-gray-200 p-3 md:p-4 outline-none focus:ring-2 focus:ring-[#7F56D9] bg-gray-50 text-sm md:text-base"
+                                        className="w-full rounded-xl border border-gray-200 p-3 md:p-4 outline-none focus:ring-2 focus:ring-[#102550] bg-gray-50 text-sm md:text-base"
                                     />
                                 </div>
 
@@ -85,23 +85,23 @@ export default function SendNotificationPage() {
                                         required
                                         rows={6}
                                         placeholder="اكتب رسالتك هنا..."
-                                        className="w-full rounded-xl border border-gray-200 p-3 md:p-4 outline-none focus:ring-2 focus:ring-[#7F56D9] resize-none bg-gray-50 text-sm md:text-base"
+                                        className="w-full rounded-xl border border-gray-200 p-3 md:p-4 outline-none focus:ring-2 focus:ring-[#102550] resize-none bg-gray-50 text-sm md:text-base"
                                     />
                                 </div>
 
                                 <div className="space-y-3">
                                     <label className="text-xs md:text-sm font-bold text-gray-700 block mb-2">الفئة المستهدفة</label>
                                     <div className="flex flex-col sm:flex-row gap-4">
-                                        <label className="flex items-center gap-3 p-3 border border-gray-200 rounded-xl hover:border-[#7F56D9]/50 transition-colors cursor-pointer bg-white">
-                                            <input type="radio" name="target" value="ALL" className="w-4 h-4 text-[#7F56D9] focus:ring-[#7F56D9] border-gray-300" defaultChecked />
+                                        <label className="flex items-center gap-3 p-3 border border-gray-200 rounded-xl hover:border-[#102550]/50 transition-colors cursor-pointer bg-white">
+                                            <input type="radio" name="target" value="ALL" className="w-4 h-4 text-[#102550] focus:ring-[#102550] border-gray-300" defaultChecked />
                                             <span className="text-sm font-medium text-gray-700">الجميع</span>
                                         </label>
-                                        <label className="flex items-center gap-3 p-3 border border-gray-200 rounded-xl hover:border-[#7F56D9]/50 transition-colors cursor-pointer bg-white opacity-50">
-                                            <input type="radio" name="target" value="PROJECT" disabled className="w-4 h-4 text-[#7F56D9] focus:ring-[#7F56D9] border-gray-300" />
+                                        <label className="flex items-center gap-3 p-3 border border-gray-200 rounded-xl hover:border-[#102550]/50 transition-colors cursor-pointer bg-white opacity-50">
+                                            <input type="radio" name="target" value="PROJECT" disabled className="w-4 h-4 text-[#102550] focus:ring-[#102550] border-gray-300" />
                                             <span className="text-sm font-medium text-gray-700">موظفي مشروع محدد (قريباً)</span>
                                         </label>
-                                        <label className="flex items-center gap-3 p-3 border border-gray-200 rounded-xl hover:border-[#7F56D9]/50 transition-colors cursor-pointer bg-white opacity-50">
-                                            <input type="radio" name="target" value="SPECIFIC" disabled className="w-4 h-4 text-[#7F56D9] focus:ring-[#7F56D9] border-gray-300" />
+                                        <label className="flex items-center gap-3 p-3 border border-gray-200 rounded-xl hover:border-[#102550]/50 transition-colors cursor-pointer bg-white opacity-50">
+                                            <input type="radio" name="target" value="SPECIFIC" disabled className="w-4 h-4 text-[#102550] focus:ring-[#102550] border-gray-300" />
                                             <span className="text-sm font-medium text-gray-700">موظفين محددين فقط (قريباً)</span>
                                         </label>
                                     </div>
@@ -137,7 +137,7 @@ export default function SendNotificationPage() {
                                     </p>
                                     <div className="flex justify-between items-center mt-3 pt-3 border-t border-gray-100/50">
                                         <span className="text-[10px] text-gray-400 font-medium">منذ {timeAgo(notification.createdAt)}</span>
-                                        <span className="text-[10px] bg-purple-50 text-[#7F56D9] px-2.5 py-1 rounded-lg font-bold">
+                                        <span className="text-[10px] bg-blue-50 text-[#102550] px-2.5 py-1 rounded-lg font-bold">
                                             {notification.targetRole === 'ALL' ? 'الجميع' : notification.targetRole || 'غير محدد'}
                                         </span>
                                     </div>

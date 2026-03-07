@@ -131,7 +131,7 @@ export default function AccountantDashboard() {
                                     <div className="flex gap-2 w-full sm:w-auto mt-2 sm:mt-0">
                                         <Button
                                             variant="primary"
-                                            className="flex-1 sm:flex-none h-8 md:h-9 px-4 text-[11px] md:text-xs bg-[#7F56D9] hover:bg-[#7F56D9]/90 font-bold rounded-lg shadow-sm"
+                                            className="flex-1 sm:flex-none h-8 md:h-9 px-4 text-[11px] md:text-xs bg-[#102550] hover:bg-[#102550]/90 font-bold rounded-lg shadow-sm"
                                             onClick={() => router.push(`/invoices/${invoice.id}`)}
                                         >
                                             مراجعة
@@ -143,7 +143,7 @@ export default function AccountantDashboard() {
                             )}
                         </div>
                         <div className="p-4 md:p-6 pt-0 bg-white">
-                            <Button onClick={() => router.push('/invoices')} variant="secondary" className="w-full text-[11px] md:text-xs h-10 font-bold bg-gray-50 hover:bg-gray-100 text-[#7F56D9] border-none transition-colors">
+                            <Button onClick={() => router.push('/invoices')} variant="secondary" className="w-full text-[11px] md:text-xs h-10 font-bold bg-gray-50 hover:bg-gray-100 text-[#102550] border-none transition-colors">
                                 عرض كل الفواتير <ChevronLeft className="w-3 h-3 md:w-4 md:h-4 ml-1" />
                             </Button>
                         </div>

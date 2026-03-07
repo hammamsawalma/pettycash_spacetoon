@@ -78,10 +78,10 @@ export default function CustodyBalanceCard({ className = "" }: { className?: str
         : allStats;
 
     return (
-        <Card className={`p-0 bg-gradient-to-l from-[#7F56D9] to-purple-500 text-white rounded-2xl md:rounded-[2rem] shadow-md border-transparent overflow-hidden relative ${className}`}>
+        <Card className={`p-0 bg-gradient-to-l from-[#102550] to-blue-500 text-white rounded-2xl md:rounded-[2rem] shadow-md border-transparent overflow-hidden relative ${className}`}>
             {/* Decorative blobs */}
             <div className="absolute top-0 right-0 w-72 h-72 bg-white opacity-5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 pointer-events-none" />
-            <div className="absolute bottom-0 left-0 w-72 h-72 bg-purple-900 opacity-20 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2 pointer-events-none" />
+            <div className="absolute bottom-0 left-0 w-72 h-72 bg-blue-900 opacity-20 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2 pointer-events-none" />
 
             <div className="relative z-10 p-6 md:p-8">
                 {/* Header */}
@@ -90,7 +90,7 @@ export default function CustodyBalanceCard({ className = "" }: { className?: str
                         <Wallet className="h-6 w-6 text-white" />
                     </div>
                     <div>
-                        <p className="text-purple-200 text-xs font-semibold tracking-wide">ملخص التدفق المالي</p>
+                        <p className="text-blue-200 text-xs font-semibold tracking-wide">ملخص التدفق المالي</p>
                         <p className="text-white font-black text-lg leading-tight">
                             {(flow?.role === "ADMIN" || flow?.role === "GLOBAL_ACCOUNTANT" || flow?.role === "GENERAL_MANAGER")
                                 ? "خزنة الشركة"
@@ -107,7 +107,7 @@ export default function CustodyBalanceCard({ className = "" }: { className?: str
                                 <s.icon className={`w-4 h-4 md:w-5 md:h-5 ${s.color}`} />
                             </div>
                             <div>
-                                <p className="text-purple-200 text-[10px] md:text-xs font-semibold leading-tight mb-1">{s.label}</p>
+                                <p className="text-blue-200 text-[10px] md:text-xs font-semibold leading-tight mb-1">{s.label}</p>
                                 {isLoading ? (
                                     <div className="h-6 w-20 bg-white/20 animate-pulse rounded-md" />
                                 ) : (

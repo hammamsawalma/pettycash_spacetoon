@@ -121,7 +121,7 @@ export default function DebtsPage() {
                                                 <td className="px-6 py-4 whitespace-nowrap">
                                                     <div className="flex items-center gap-3">
                                                         <div className="w-8 h-8 rounded-full bg-gray-200 overflow-hidden shrink-0">
-                                                            <div className="w-full h-full flex items-center justify-center bg-purple-100 text-purple-600 font-bold text-xs">
+                                                            <div className="w-full h-full flex items-center justify-center bg-blue-100 text-blue-600 font-bold text-xs">
                                                                 {debt.employee?.name?.charAt(0) || 'U'}
                                                             </div>
                                                         </div>

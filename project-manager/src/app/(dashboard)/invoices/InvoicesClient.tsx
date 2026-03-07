@@ -53,7 +53,7 @@ export default function InvoicesClient({ initialInvoices }: Props) {
                             placeholder="بحث عن فاتورة..."
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
-                            className="w-full pl-12 pr-4 py-3 md:py-4 rounded-full border border-transparent bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-[#7F56D9]/50 text-sm"
+                            className="w-full pl-12 pr-4 py-3 md:py-4 rounded-full border border-transparent bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-[#102550]/50 text-sm"
                         />
                         <div className="absolute left-3 top-1/2 -translate-y-1/2 w-8 h-8 bg-gray-50 rounded-full flex items-center justify-center pointer-events-none text-gray-400">
                             <Search className="h-4 w-4" />
@@ -67,7 +67,7 @@ export default function InvoicesClient({ initialInvoices }: Props) {
                                 key={tab}
                                 onClick={() => setFilter(tab)}
                                 className={`px-4 py-2 flex-1 text-[11px] md:text-sm font-medium rounded-md transition-colors ${filter === tab
-                                    ? "bg-[#7F56D9] text-white shadow-sm"
+                                    ? "bg-[#102550] text-white shadow-sm"
                                     : "text-gray-500 hover:text-gray-900"
                                     }`}
                             >
@@ -78,7 +78,7 @@ export default function InvoicesClient({ initialInvoices }: Props) {
 
                     {/* Add Invoice Button — hidden for GENERAL_MANAGER (view-only) */}
                     {!!user && user.role !== 'GENERAL_MANAGER' && (
-                        <button onClick={() => router.push('/invoices/new')} className="w-full py-6 md:py-7 text-sm md:text-lg font-bold rounded-2xl bg-[#7F56D9] hover:bg-[#7F56D9]-hover text-white border-none flex items-center justify-center gap-2 shadow-sm mt-2">
+                        <button onClick={() => router.push('/invoices/new')} className="w-full py-6 md:py-7 text-sm md:text-lg font-bold rounded-2xl bg-[#102550] hover:bg-[#102550]-hover text-white border-none flex items-center justify-center gap-2 shadow-sm mt-2">
                             <span>أضف فاتورة جديدة</span>
                         </button>
                     )}
@@ -99,11 +99,11 @@ export default function InvoicesClient({ initialInvoices }: Props) {
                             const clientName = invoice.project?.name || invoice.creator?.name || 'عميل';
 
                             return (
-                                <Card key={invoice.id} className="p-3 md:p-5 flex flex-col hover:border-[#7F56D9]/30 transition-colors relative overflow-hidden group shadow-sm border border-gray-100 rounded-2xl">
+                                <Card key={invoice.id} className="p-3 md:p-5 flex flex-col hover:border-[#102550]/30 transition-colors relative overflow-hidden group shadow-sm border border-gray-100 rounded-2xl">
                                     {/* Top Section */}
                                     <div className="flex justify-between items-start mb-3 md:mb-4">
                                         <div className="flex items-center gap-2 md:gap-3">
-                                            <div className="w-8 h-8 md:w-12 md:h-12 bg-purple-50 rounded-lg flex items-center justify-center text-[#7F56D9] font-bold shrink-0 text-xs md:text-base">
+                                            <div className="w-8 h-8 md:w-12 md:h-12 bg-blue-50 rounded-lg flex items-center justify-center text-[#102550] font-bold shrink-0 text-xs md:text-base">
                                                 {clientName.charAt(0)}
                                             </div>
                                             <div>
@@ -125,9 +125,9 @@ export default function InvoicesClient({ initialInvoices }: Props) {
                                             <p className="text-[9px] md:text-xs text-gray-400 font-bold mb-0.5 md:mb-1">التاريخ</p>
                                             <p className="font-bold text-gray-900 text-[10px] md:text-sm">{new Date(invoice.date).toLocaleDateString('en-GB')}</p>
                                         </div>
-                                        <div className="bg-[#7F56D9]/5 rounded-xl p-1.5 md:p-2">
+                                        <div className="bg-[#102550]/5 rounded-xl p-1.5 md:p-2">
                                             <p className="text-[9px] md:text-xs text-gray-400 font-bold mb-0.5 md:mb-1">الإجمالي</p>
-                                            <p className="font-bold text-[#7F56D9] text-[10px] md:text-sm">{invoice.amount.toLocaleString()} <span className="text-[8px] md:text-[10px]"><CurrencyDisplay /></span></p>
+                                            <p className="font-bold text-[#102550] text-[10px] md:text-sm">{invoice.amount.toLocaleString()} <span className="text-[8px] md:text-[10px]"><CurrencyDisplay /></span></p>
                                         </div>
                                         <div className="bg-gray-50 rounded-xl p-1.5 md:p-2 col-span-2 flex justify-between items-center px-3">
                                             <div className="flex items-center gap-1.5 text-[10px] md:text-xs font-bold text-gray-600">
@@ -149,7 +149,7 @@ export default function InvoicesClient({ initialInvoices }: Props) {
                                     <div className="flex justify-between items-center mt-auto pt-2 border-t border-gray-100">
                                         <StatusBadge status={invoice.status} />
                                         <div className="flex gap-1 md:gap-2">
-                                            <button onClick={(e) => { e.stopPropagation(); router.push(`/invoices/${invoice.id}`); }} className="p-1.5 md:p-2.5 text-gray-400 hover:text-[#7F56D9] hover:bg-purple-50 rounded-lg transition-colors bg-gray-50" title="عرض الفاتورة">
+                                            <button onClick={(e) => { e.stopPropagation(); router.push(`/invoices/${invoice.id}`); }} className="p-1.5 md:p-2.5 text-gray-400 hover:text-[#102550] hover:bg-blue-50 rounded-lg transition-colors bg-gray-50" title="عرض الفاتورة">
                                                 <Eye className="w-3 h-3 md:w-4 md:h-4" />
                                             </button>
                                         </div>

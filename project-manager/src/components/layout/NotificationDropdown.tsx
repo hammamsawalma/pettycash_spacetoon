@@ -42,14 +42,14 @@ export function NotificationDropdown({ isMobile = false }: NotificationDropdownP
         if (title.includes("دعم فني") || title.includes("تذكرة")) return <Ticket className="w-4 h-4 text-orange-500" />;
         if (title.includes("عاجل") || title.includes("تحذير")) return <AlertCircle className="w-4 h-4 text-red-500" />;
         if (title.includes("فاتورة") || title.includes("مشروع")) return <Bookmark className="w-4 h-4 text-blue-500" />;
-        return <Info className="w-4 h-4 text-[#7F56D9]" />;
+        return <Info className="w-4 h-4 text-[#102550]" />;
     };
 
     const getBgColor = (title: string) => {
         if (title.includes("دعم فني") || title.includes("تذكرة")) return "bg-orange-50";
         if (title.includes("عاجل") || title.includes("تحذير")) return "bg-red-50";
         if (title.includes("فاتورة") || title.includes("مشروع")) return "bg-blue-50";
-        return "bg-purple-50";
+        return "bg-blue-50";
     };
 
     return (
@@ -58,8 +58,8 @@ export function NotificationDropdown({ isMobile = false }: NotificationDropdownP
                 type="button"
                 onClick={() => setIsOpen(!isOpen)}
                 className={isMobile
-                    ? "h-10 w-10 flex items-center justify-center rounded-full bg-white text-[#7F56D9] shadow-sm relative"
-                    : "p-2 text-gray-400 hover:text-[#7F56D9] hover:bg-white rounded-full transition-all duration-300 shadow-sm shadow-transparent hover:shadow-gray-200/50 relative cursor-pointer outline-none"
+                    ? "h-10 w-10 flex items-center justify-center rounded-full bg-white text-[#102550] shadow-sm relative"
+                    : "p-2 text-gray-400 hover:text-[#102550] hover:bg-white rounded-full transition-all duration-300 shadow-sm shadow-transparent hover:shadow-gray-200/50 relative cursor-pointer outline-none"
                 }
             >
                 <span className="sr-only">View notifications</span>
@@ -79,7 +79,7 @@ export function NotificationDropdown({ isMobile = false }: NotificationDropdownP
                     <div className="p-4 border-b border-gray-50 bg-gray-50/30 flex items-center justify-between">
                         <div className="flex items-center gap-2">
                             <h3 className="font-bold text-gray-900">الإشعارات</h3>
-                            <span className="bg-[#7F56D9]/10 text-[#7F56D9] text-[10px] font-bold px-2 py-0.5 rounded-full">الجديدة</span>
+                            <span className="bg-[#102550]/10 text-[#102550] text-[10px] font-bold px-2 py-0.5 rounded-full">الجديدة</span>
                         </div>
                     </div>
 
@@ -132,7 +132,7 @@ export function NotificationDropdown({ isMobile = false }: NotificationDropdownP
                                 setIsOpen(false);
                                 router.push('/notifications');
                             }}
-                            className="w-full py-2.5 text-sm font-bold text-[#7F56D9] hover:text-[#6941C6] hover:bg-[#7F56D9]/5 rounded-xl transition-all flex items-center justify-center gap-1.5"
+                            className="w-full py-2.5 text-sm font-bold text-[#102550] hover:text-[#1a3a7c] hover:bg-[#102550]/5 rounded-xl transition-all flex items-center justify-center gap-1.5"
                         >
                             <span>عرض كل الإشعارات</span>
                             <ChevronLeft className="w-4 h-4" />

@@ -84,7 +84,7 @@ export default function NewEmployeePage() {
                                             name="name"
                                             required
                                             placeholder="ادخل اسم الموظف..."
-                                            className="w-full rounded-xl border border-gray-200 p-3.5 md:p-4 outline-none focus:ring-2 focus:ring-[#7F56D9] text-xs md:text-sm shadow-sm font-medium"
+                                            className="w-full rounded-xl border border-gray-200 p-3.5 md:p-4 outline-none focus:ring-2 focus:ring-[#102550] text-xs md:text-sm shadow-sm font-medium"
                                         />
                                     </div>
                                     <div className="space-y-2">
@@ -94,7 +94,7 @@ export default function NewEmployeePage() {
                                             name="phone"
                                             required
                                             placeholder="05xxxxxxxxx"
-                                            className="w-full rounded-xl border border-gray-200 p-3.5 md:p-4 outline-none focus:ring-2 focus:ring-[#7F56D9] text-xs md:text-sm shadow-sm font-medium"
+                                            className="w-full rounded-xl border border-gray-200 p-3.5 md:p-4 outline-none focus:ring-2 focus:ring-[#102550] text-xs md:text-sm shadow-sm font-medium"
                                         />
                                     </div>
 
@@ -104,12 +104,12 @@ export default function NewEmployeePage() {
                                             type="text"
                                             name="jobTitle"
                                             placeholder="مثال: مطور ويب، مصمم واجهات..."
-                                            className="w-full rounded-xl border border-gray-200 p-3.5 md:p-4 outline-none focus:ring-2 focus:ring-[#7F56D9] text-xs md:text-sm shadow-sm font-medium"
+                                            className="w-full rounded-xl border border-gray-200 p-3.5 md:p-4 outline-none focus:ring-2 focus:ring-[#102550] text-xs md:text-sm shadow-sm font-medium"
                                         />
                                     </div>
                                     <div className="space-y-2">
                                         <label className="text-xs md:text-sm font-bold text-gray-700">الدور وصلاحيات النظام</label>
-                                        <select name="role" required className="w-full rounded-xl border border-gray-200 p-3.5 md:p-4 outline-none focus:ring-2 focus:ring-[#7F56D9] bg-white text-gray-700 text-xs md:text-sm shadow-sm font-medium">
+                                        <select name="role" required className="w-full rounded-xl border border-gray-200 p-3.5 md:p-4 outline-none focus:ring-2 focus:ring-[#102550] bg-white text-gray-700 text-xs md:text-sm shadow-sm font-medium">
                                             <option value="USER">موظف (User)</option>
                                             <option value="GLOBAL_ACCOUNTANT">محاسب عام (Global Accountant)</option>
                                             <option value="GENERAL_MANAGER">المدير العام (General Manager)</option>
@@ -124,7 +124,7 @@ export default function NewEmployeePage() {
                                             name="salary"
                                             step="0.01"
                                             placeholder="مثال: 5000"
-                                            className="w-full rounded-xl border border-gray-200 p-3.5 md:p-4 outline-none focus:ring-2 focus:ring-[#7F56D9] text-xs md:text-sm shadow-sm font-medium"
+                                            className="w-full rounded-xl border border-gray-200 p-3.5 md:p-4 outline-none focus:ring-2 focus:ring-[#102550] text-xs md:text-sm shadow-sm font-medium"
                                         />
                                     </div>
 
@@ -134,7 +134,7 @@ export default function NewEmployeePage() {
                                             type="email"
                                             name="email"
                                             placeholder="example@company.com"
-                                            className="w-full rounded-xl border border-gray-200 p-3.5 md:p-4 outline-none focus:ring-2 focus:ring-[#7F56D9] text-xs md:text-sm shadow-sm font-medium"
+                                            className="w-full rounded-xl border border-gray-200 p-3.5 md:p-4 outline-none focus:ring-2 focus:ring-[#102550] text-xs md:text-sm shadow-sm font-medium"
                                         />
                                     </div>
                                     <div className="space-y-2">
@@ -144,7 +144,7 @@ export default function NewEmployeePage() {
                                             name="password"
                                             required
                                             placeholder="كلمة المرور لتسجيل الدخول الأول"
-                                            className="w-full rounded-xl border border-gray-200 p-3.5 md:p-4 outline-none focus:ring-2 focus:ring-[#7F56D9] text-xs md:text-sm shadow-sm font-medium"
+                                            className="w-full rounded-xl border border-gray-200 p-3.5 md:p-4 outline-none focus:ring-2 focus:ring-[#102550] text-xs md:text-sm shadow-sm font-medium"
                                         />
                                     </div>
                                 </div>

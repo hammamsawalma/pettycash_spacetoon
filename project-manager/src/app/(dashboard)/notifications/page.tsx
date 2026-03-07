@@ -21,14 +21,14 @@ export default function NotificationsPage() {
         if (title.includes("دعم فني") || title.includes("تذكرة")) return <Ticket className="w-5 h-5 text-orange-500" />;
         if (title.includes("عاجل") || title.includes("تحذير")) return <AlertCircle className="w-5 h-5 text-red-500" />;
         if (title.includes("فاتورة") || title.includes("مشروع")) return <Bookmark className="w-5 h-5 text-blue-500" />;
-        return <Info className="w-5 h-5 text-[#7F56D9]" />;
+        return <Info className="w-5 h-5 text-[#102550]" />;
     };
 
     const getBgColor = (title: string) => {
         if (title.includes("دعم فني") || title.includes("تذكرة")) return "bg-orange-50";
         if (title.includes("عاجل") || title.includes("تحذير")) return "bg-red-50";
         if (title.includes("فاتورة") || title.includes("مشروع")) return "bg-blue-50";
-        return "bg-purple-50";
+        return "bg-blue-50";
     };
 
     return (
@@ -36,7 +36,7 @@ export default function NotificationsPage() {
             <div className="space-y-6 md:space-y-8 pb-6 w-full max-w-4xl mx-auto">
                 <Card className="p-0 overflow-hidden shadow-sm border-gray-100 rounded-2xl">
                     <div className="p-5 md:p-6 border-b border-gray-100/50 bg-gray-50/50 flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-xl bg-purple-100 text-[#7F56D9] flex items-center justify-center shrink-0">
+                        <div className="w-10 h-10 rounded-xl bg-blue-100 text-[#102550] flex items-center justify-center shrink-0">
                             <Bell className="w-5 h-5" />
                         </div>
                         <div>

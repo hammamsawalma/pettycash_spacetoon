@@ -65,7 +65,7 @@ function NewPurchaseForm() {
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
                                 <div className="space-y-2">
                                     <label className="text-xs md:text-sm font-bold text-gray-700">المشروع</label>
-                                    <select name="projectId" required defaultValue={defaultProjectId} className="w-full rounded-xl border border-gray-200 p-3.5 md:p-4 outline-none focus:ring-2 focus:ring-[#7F56D9] bg-white text-gray-700 text-xs md:text-sm shadow-sm font-medium">
+                                    <select name="projectId" required defaultValue={defaultProjectId} className="w-full rounded-xl border border-gray-200 p-3.5 md:p-4 outline-none focus:ring-2 focus:ring-[#102550] bg-white text-gray-700 text-xs md:text-sm shadow-sm font-medium">
                                         <option value="">اختر المشروع</option>
                                         {projects.map(p => (
                                             <option key={p.id} value={p.id}>{p.name}</option>
@@ -78,7 +78,7 @@ function NewPurchaseForm() {
                                     <input
                                         type="date"
                                         name="date"
-                                        className="w-full rounded-xl border border-gray-200 p-3.5 md:p-4 outline-none focus:ring-2 focus:ring-[#7F56D9] text-xs md:text-sm shadow-sm font-medium"
+                                        className="w-full rounded-xl border border-gray-200 p-3.5 md:p-4 outline-none focus:ring-2 focus:ring-[#102550] text-xs md:text-sm shadow-sm font-medium"
                                     />
                                 </div>
 
@@ -90,7 +90,7 @@ function NewPurchaseForm() {
                                         required
                                         step="0.01"
                                         placeholder="0.00"
-                                        className="w-full rounded-xl border border-gray-200 p-3.5 md:p-4 outline-none focus:ring-2 focus:ring-[#7F56D9] text-xs md:text-sm shadow-sm font-medium"
+                                        className="w-full rounded-xl border border-gray-200 p-3.5 md:p-4 outline-none focus:ring-2 focus:ring-[#102550] text-xs md:text-sm shadow-sm font-medium"
                                     />
                                 </div>
 
@@ -101,7 +101,7 @@ function NewPurchaseForm() {
                                         required
                                         rows={4}
                                         placeholder="اكتب وصف تفصيلي للمشتريات..."
-                                        className="w-full rounded-xl border border-gray-200 p-3.5 md:p-4 outline-none focus:ring-2 focus:ring-[#7F56D9] resize-none text-xs md:text-sm shadow-sm font-medium"
+                                        className="w-full rounded-xl border border-gray-200 p-3.5 md:p-4 outline-none focus:ring-2 focus:ring-[#102550] resize-none text-xs md:text-sm shadow-sm font-medium"
                                     />
                                 </div>
 
@@ -111,7 +111,7 @@ function NewPurchaseForm() {
                                         type="file"
                                         name="image"
                                         accept="image/jpeg, image/png, image/webp, application/pdf"
-                                        className="w-full rounded-xl border border-gray-200 outline-none focus:ring-2 focus:ring-[#7F56D9] text-xs md:text-sm shadow-sm font-medium bg-white file:ml-4 file:py-3.5 file:md:py-4 file:px-4 file:border-0 file:text-sm file:font-bold file:bg-[#7F56D9]/10 file:text-[#7F56D9] hover:file:bg-[#7F56D9]/20 transition-colors cursor-pointer"
+                                        className="w-full rounded-xl border border-gray-200 outline-none focus:ring-2 focus:ring-[#102550] text-xs md:text-sm shadow-sm font-medium bg-white file:ml-4 file:py-3.5 file:md:py-4 file:px-4 file:border-0 file:text-sm file:font-bold file:bg-[#102550]/10 file:text-[#102550] hover:file:bg-[#102550]/20 transition-colors cursor-pointer"
                                     />
                                 </div>
                             </div>

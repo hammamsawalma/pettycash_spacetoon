@@ -65,13 +65,13 @@ export default function ManagerFinancialOverview({ className = "" }: { className
             title: "السيولة المتوقعة",
             value: expectedLiquidity,
             icon: ArrowRightLeft,
-            color: "text-purple-600",
-            bg: "bg-purple-600/10",
-            border: "border-purple-200",
+            color: "text-blue-600",
+            bg: "bg-blue-600/10",
+            border: "border-blue-200",
             highlight: true,
             subtitle: "السيولة المتبقية إذا تم اعتماد جميع الفواتير",
-            gradient: "from-purple-50 to-white",
-            shadow: "shadow-purple-100/50"
+            gradient: "from-blue-50 to-white",
+            shadow: "shadow-blue-100/50"
         }
     ];
 
@@ -101,8 +101,8 @@ export default function ManagerFinancialOverview({ className = "" }: { className
             title: "ميزانيات موزعة على مشاريع",
             value: projectsAllocated,
             icon: FolderKanban,
-            color: "text-[#7F56D9]",
-            bg: "bg-[#7F56D9]/10",
+            color: "text-[#102550]",
+            bg: "bg-[#102550]/10",
         }
     ];
 

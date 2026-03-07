@@ -12,9 +12,13 @@ export default function LoginPage() {
     return (
         <div className="min-h-screen flex flex-col md:flex-row bg-white">
             {/* Brand Section */}
-            <div className="md:w-1/2 bg-[#7F56D9] flex flex-col justify-center items-center p-8 text-white min-h-[30vh] md:min-h-screen">
-                <img src="/spacetoon-logo.png" alt="Spacetoon Logo" className="w-48 h-auto object-contain mb-4" />
-                <p className="text-purple-200 text-center max-w-sm hidden md:block">
+            <div className="md:w-1/2 bg-[#102550] flex flex-col justify-center items-center p-8 text-white min-h-[30vh] md:min-h-screen">
+                <img
+                    src="/spacetoon-logo.png"
+                    alt="Spacetoon Logo"
+                    className="w-48 h-auto object-contain mb-4 drop-shadow-[0_0_3px_rgba(255,255,255,1)]"
+                />
+                <p className="text-blue-200 text-center max-w-sm hidden md:block">
                     النظام الأذكى لإدارة مشاريعك وفريق عملك بكفاءة عالية
                 </p>
             </div>
@@ -52,7 +56,7 @@ export default function LoginPage() {
                             <p className="text-[10px] text-center font-bold text-gray-400 uppercase tracking-widest mb-2">دخول سريع للاختبار — كلمة المرور: 123456</p>
                             <div className="grid grid-cols-2 gap-2">
                                 {[
-                                    { label: "👑 مدير النظام", email: "admin@pocket.com", color: "bg-purple-50 hover:bg-purple-100 border-purple-200 text-purple-700" },
+                                    { label: "👑 مدير النظام", email: "admin@pocket.com", color: "bg-blue-50 hover:bg-blue-100 border-blue-200 text-blue-700" },
                                     { label: "🌟 مدير عام", email: "gm@pocket.com", color: "bg-yellow-50 hover:bg-yellow-100 border-yellow-300 text-yellow-700" },
                                     { label: "🧾 محاسب عام", email: "accountant@pocket.com", color: "bg-blue-50 hover:bg-blue-100 border-blue-200 text-blue-700" },
                                     { label: "🗂️ منسق — خالد", email: "coordinator@pocket.com", color: "bg-green-50 hover:bg-green-100 border-green-200 text-green-700" },
@@ -92,7 +96,7 @@ export default function LoginPage() {
                                     type="email"
                                     name="email"
                                     placeholder="البريد الالكتروني"
-                                    className="block w-full rounded-xl border-0 py-3.5 pl-4 pr-4 text-gray-900 ring-1 ring-inset ring-gray-200 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-[#7F56D9] sm:text-sm sm:leading-6 bg-gray-50"
+                                    className="block w-full rounded-xl border-0 py-3.5 pl-4 pr-4 text-gray-900 ring-1 ring-inset ring-gray-200 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-[#102550] sm:text-sm sm:leading-6 bg-gray-50"
                                 />
                             </div>
                         </div>
@@ -104,7 +108,7 @@ export default function LoginPage() {
                                     type="password"
                                     name="password"
                                     placeholder="كلمة المرور"
-                                    className="block w-full rounded-xl border-0 py-3.5 pl-12 pr-4 text-gray-900 ring-1 ring-inset ring-gray-200 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-[#7F56D9] sm:text-sm sm:leading-6 bg-gray-50"
+                                    className="block w-full rounded-xl border-0 py-3.5 pl-12 pr-4 text-gray-900 ring-1 ring-inset ring-gray-200 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-[#102550] sm:text-sm sm:leading-6 bg-gray-50"
                                 />
                                 <button type="button" className="absolute inset-y-0 left-0 flex items-center pl-4 text-gray-400 hover:text-gray-600">
                                     <EyeOff className="h-5 w-5" />
@@ -118,7 +122,7 @@ export default function LoginPage() {
                                     id="remember-me"
                                     name="remember-me"
                                     type="checkbox"
-                                    className="h-4 w-4 rounded border-gray-300 text-[#7F56D9] focus:ring-[#7F56D9]"
+                                    className="h-4 w-4 rounded border-gray-300 text-[#102550] focus:ring-[#102550]"
                                 />
                                 <label htmlFor="remember-me" className="mr-2 block text-sm text-gray-500">
                                     تذكرني
@@ -146,7 +150,7 @@ export default function LoginPage() {
                         href="/manual"
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="flex items-center justify-center gap-2 w-full py-3 rounded-xl border border-[#7F56D9]/30 text-[#7F56D9] hover:bg-[#F9F5FF] transition-colors text-sm font-semibold"
+                        className="flex items-center justify-center gap-2 w-full py-3 rounded-xl border border-[#102550]/30 text-[#102550] hover:bg-[#F9F5FF] transition-colors text-sm font-semibold"
                     >
                         <span className="text-base">📖</span>
                         دليل الاستخدام

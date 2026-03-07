@@ -106,8 +106,8 @@ function EmployeeInvoiceFlow({ projects, categories, defaultProjectId, defaultAm
                 {/* Progress dots */}
                 <div className="flex items-center justify-center gap-2 pt-4 pb-6">
                     {([1, 2, 3, 4] as const).map(s => (
-                        <div key={s} className={`transition-all rounded-full ${s === currentStep ? "w-6 h-2.5 bg-purple-600" :
-                            s < currentStep ? "w-2.5 h-2.5 bg-purple-300" :
+                        <div key={s} className={`transition-all rounded-full ${s === currentStep ? "w-6 h-2.5 bg-blue-600" :
+                            s < currentStep ? "w-2.5 h-2.5 bg-blue-300" :
                                 "w-2.5 h-2.5 bg-gray-200"
                             }`} />
                     ))}
@@ -121,21 +121,21 @@ function EmployeeInvoiceFlow({ projects, categories, defaultProjectId, defaultAm
                 {currentStep === 1 && (
                     <div className="space-y-5 animate-in fade-in slide-in-from-bottom-4 duration-300">
                         <div className="text-center pb-2">
-                            <div className="w-16 h-16 bg-purple-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                                <Camera className="w-8 h-8 text-purple-600" />
+                            <div className="w-16 h-16 bg-blue-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                                <Camera className="w-8 h-8 text-blue-600" />
                             </div>
                             <h1 className="text-2xl font-black text-gray-900">صوّر الفاتورة</h1>
                             <p className="text-gray-500 text-sm mt-1">الخطوة 1 من 4 — صورة واضحة للإيصال أو الفاتورة</p>
                         </div>
 
                         <button onClick={() => cameraInputRef.current?.click()}
-                            className="w-full flex flex-col items-center gap-3 bg-gradient-to-br from-purple-600 to-purple-700 text-white py-8 rounded-3xl shadow-lg shadow-purple-200 active:scale-95 transition-transform">
+                            className="w-full flex flex-col items-center gap-3 bg-gradient-to-br from-blue-600 to-blue-700 text-white py-8 rounded-3xl shadow-lg shadow-blue-200 active:scale-95 transition-transform">
                             <div className="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center">
                                 <Camera className="w-9 h-9" />
                             </div>
                             <div>
                                 <p className="text-lg font-black">صوّر الفاتورة</p>
-                                <p className="text-purple-200 text-sm">افتح الكاميرا مباشرة</p>
+                                <p className="text-blue-200 text-sm">افتح الكاميرا مباشرة</p>
                             </div>
                         </button>
 
@@ -196,7 +196,7 @@ function EmployeeInvoiceFlow({ projects, categories, defaultProjectId, defaultAm
                                     value={amount}
                                     onChange={e => setAmount(e.target.value)}
                                     placeholder="0.00"
-                                    className="flex-1 text-5xl font-black text-purple-700 bg-transparent outline-none border-b-2 border-purple-200 focus:border-purple-500 pb-1 transition-colors placeholder-gray-200"
+                                    className="flex-1 text-5xl font-black text-blue-700 bg-transparent outline-none border-b-2 border-blue-200 focus:border-blue-500 pb-1 transition-colors placeholder-gray-200"
                                 />
                                 <span className="text-xl font-bold text-gray-400">ريال</span>
                             </div>
@@ -210,7 +210,7 @@ function EmployeeInvoiceFlow({ projects, categories, defaultProjectId, defaultAm
                         <Button type="button" onClick={() => {
                             if (!amount || parseFloat(amount) <= 0) { toast.error("يرجى إدخال مبلغ صحيح"); return; }
                             setCurrentStep(3);
-                        }} variant="primary" className="flex-1 py-4 text-base font-black rounded-2xl shadow-lg shadow-purple-200">
+                        }} variant="primary" className="flex-1 py-4 text-base font-black rounded-2xl shadow-lg shadow-blue-200">
                             التالي ←
                         </Button>
                     </div>
@@ -220,8 +220,8 @@ function EmployeeInvoiceFlow({ projects, categories, defaultProjectId, defaultAm
                 {currentStep === 3 && (
                     <div className="space-y-5 animate-in fade-in slide-in-from-bottom-4 duration-300">
                         <div className="text-center pb-2">
-                            <div className="w-16 h-16 bg-purple-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                                <FolderOpen className="w-8 h-8 text-purple-600" />
+                            <div className="w-16 h-16 bg-blue-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                                <FolderOpen className="w-8 h-8 text-blue-600" />
                             </div>
                             <h1 className="text-2xl font-black text-gray-900">اختر المشروع</h1>
                             <p className="text-gray-500 text-sm mt-1">الخطوة 3 من 4</p>
@@ -238,11 +238,11 @@ function EmployeeInvoiceFlow({ projects, categories, defaultProjectId, defaultAm
                                     <button key={p.id} type="button"
                                         onClick={() => { setSelectedProjectId(p.id); setCurrentStep(4); }}
                                         className={`relative flex flex-col items-center gap-2 p-4 rounded-2xl border-2 transition-all active:scale-95 ${selectedProjectId === p.id
-                                            ? "border-purple-500 bg-purple-50 shadow-md shadow-purple-100"
+                                            ? "border-blue-500 bg-blue-50 shadow-md shadow-blue-100"
                                             : "border-gray-100 bg-white shadow-sm"
                                             }`}>
                                         {selectedProjectId === p.id && (
-                                            <div className="absolute top-2 left-2 w-5 h-5 bg-purple-600 rounded-full flex items-center justify-center">
+                                            <div className="absolute top-2 left-2 w-5 h-5 bg-blue-600 rounded-full flex items-center justify-center">
                                                 <CheckCircle className="w-3 h-3 text-white" />
                                             </div>
                                         )}
@@ -251,10 +251,10 @@ function EmployeeInvoiceFlow({ projects, categories, defaultProjectId, defaultAm
                                                 <Image src={p.image} alt={p.name} width={56} height={56} className="object-cover w-full h-full" />
                                             </div>
                                         ) : (
-                                            <div className={`w-14 h-14 rounded-xl flex items-center justify-center text-2xl font-black ${selectedProjectId === p.id ? "bg-purple-100 text-purple-700" : "bg-gray-100 text-gray-600"
+                                            <div className={`w-14 h-14 rounded-xl flex items-center justify-center text-2xl font-black ${selectedProjectId === p.id ? "bg-blue-100 text-blue-700" : "bg-gray-100 text-gray-600"
                                                 }`}>{p.name.charAt(0)}</div>
                                         )}
-                                        <p className={`text-xs font-bold text-center leading-tight line-clamp-2 ${selectedProjectId === p.id ? "text-purple-800" : "text-gray-700"
+                                        <p className={`text-xs font-bold text-center leading-tight line-clamp-2 ${selectedProjectId === p.id ? "text-blue-800" : "text-gray-700"
                                             }`}>{p.name}</p>
                                     </button>
                                 ))}
@@ -281,16 +281,16 @@ function EmployeeInvoiceFlow({ projects, categories, defaultProjectId, defaultAm
                         {selectedProjectId && (() => {
                             const proj = projects.find((p: any) => p.id === selectedProjectId);
                             return proj ? (
-                                <div className="flex items-center gap-3 bg-purple-50 rounded-2xl p-3 border border-purple-100">
+                                <div className="flex items-center gap-3 bg-blue-50 rounded-2xl p-3 border border-blue-100">
                                     {proj.image
                                         ? <Image src={proj.image} alt={proj.name} width={36} height={36} className="w-9 h-9 rounded-lg object-cover" />
-                                        : <div className="w-9 h-9 rounded-lg bg-purple-100 flex items-center justify-center text-base font-black text-purple-700">{proj.name.charAt(0)}</div>
+                                        : <div className="w-9 h-9 rounded-lg bg-blue-100 flex items-center justify-center text-base font-black text-blue-700">{proj.name.charAt(0)}</div>
                                     }
                                     <div className="flex-1 min-w-0">
-                                        <p className="text-[10px] text-purple-400 font-bold">المشروع</p>
-                                        <p className="text-sm font-black text-purple-900 truncate">{proj.name}</p>
+                                        <p className="text-[10px] text-blue-400 font-bold">المشروع</p>
+                                        <p className="text-sm font-black text-blue-900 truncate">{proj.name}</p>
                                     </div>
-                                    <button onClick={() => setCurrentStep(3)} className="text-xs text-purple-400 underline shrink-0">تغيير</button>
+                                    <button onClick={() => setCurrentStep(3)} className="text-xs text-blue-400 underline shrink-0">تغيير</button>
                                 </div>
                             ) : null;
                         })()}
@@ -305,7 +305,7 @@ function EmployeeInvoiceFlow({ projects, categories, defaultProjectId, defaultAm
                                             }`}>غير مصنف</button>
                                     {categories.map((c: any) => (
                                         <button key={c.id} type="button" onClick={() => setCategoryId(c.id)}
-                                            className={`px-3 py-2 rounded-xl text-xs font-bold border transition-colors ${categoryId === c.id ? "bg-purple-600 text-white border-purple-600" : "bg-white text-gray-600 border-gray-200"
+                                            className={`px-3 py-2 rounded-xl text-xs font-bold border transition-colors ${categoryId === c.id ? "bg-blue-600 text-white border-blue-600" : "bg-white text-gray-600 border-gray-200"
                                                 }`}>{c.icon} {c.name}</button>
                                     ))}
                                 </div>
@@ -316,7 +316,7 @@ function EmployeeInvoiceFlow({ projects, categories, defaultProjectId, defaultAm
                             <label className="text-xs font-black text-gray-500 uppercase tracking-wider block mb-2">ملاحظة (اختياري)</label>
                             <textarea value={notes} onChange={e => setNotes(e.target.value)} rows={3}
                                 placeholder="أي تفاصيل إضافية عن الفاتورة..."
-                                className="w-full rounded-2xl border border-gray-200 p-4 outline-none focus:ring-2 focus:ring-purple-400 resize-none text-sm shadow-sm bg-white" />
+                                className="w-full rounded-2xl border border-gray-200 p-4 outline-none focus:ring-2 focus:ring-blue-400 resize-none text-sm shadow-sm bg-white" />
                         </div>
                     </div>
                 )}
@@ -325,7 +325,7 @@ function EmployeeInvoiceFlow({ projects, categories, defaultProjectId, defaultAm
                     <div className="fixed bottom-0 inset-x-0 bg-white/90 backdrop-blur-xl border-t border-gray-100 p-4 pb-[calc(1rem+env(safe-area-inset-bottom))] shadow-2xl flex gap-3">
                         <Button type="button" onClick={() => setCurrentStep(3)} variant="secondary" className="flex-none px-5 py-4 rounded-2xl font-bold">←</Button>
                         <Button type="button" onClick={handleSubmit} disabled={isSubmitting} isLoading={isSubmitting}
-                            variant="primary" className="flex-1 py-4 text-base font-black rounded-2xl shadow-lg shadow-purple-200">
+                            variant="primary" className="flex-1 py-4 text-base font-black rounded-2xl shadow-lg shadow-blue-200">
                             {isSubmitting ? "جاري الرفع..." : "تقديم الفاتورة ✓"}
                         </Button>
                     </div>
@@ -452,29 +452,29 @@ function FullInvoiceForm() {
                 <div className="max-w-4xl mx-auto mb-8 relative">
                     <div className="absolute top-1/2 left-0 right-0 h-1 bg-gray-200 -translate-y-1/2 z-0 rounded-full">
                         <div
-                            className="h-full bg-purple-600 rounded-full transition-all duration-300"
+                            className="h-full bg-blue-600 rounded-full transition-all duration-300"
                             style={{ width: currentStep === 1 ? '0%' : currentStep === 2 ? '50%' : '100%' }}
                         />
                     </div>
 
                     <div className="relative z-10 flex justify-between">
                         <div className="flex flex-col items-center gap-2">
-                            <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm transition-colors ${currentStep >= 1 ? 'bg-purple-600 text-white shadow-md shadow-purple-200' : 'bg-white text-gray-400 border-2 border-gray-200'}`}>
+                            <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm transition-colors ${currentStep >= 1 ? 'bg-blue-600 text-white shadow-md shadow-blue-200' : 'bg-white text-gray-400 border-2 border-gray-200'}`}>
                                 <Camera className="w-5 h-5" />
                             </div>
-                            <span className={`text-xs font-bold ${currentStep >= 1 ? 'text-purple-700' : 'text-gray-400'}`}>المرفق</span>
+                            <span className={`text-xs font-bold ${currentStep >= 1 ? 'text-blue-700' : 'text-gray-400'}`}>المرفق</span>
                         </div>
                         <div className="flex flex-col items-center gap-2">
-                            <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm transition-colors ${currentStep >= 2 ? 'bg-purple-600 text-white shadow-md shadow-purple-200' : 'bg-white text-gray-400 border-2 border-gray-200'}`}>
+                            <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm transition-colors ${currentStep >= 2 ? 'bg-blue-600 text-white shadow-md shadow-blue-200' : 'bg-white text-gray-400 border-2 border-gray-200'}`}>
                                 <FileText className="w-5 h-5" />
                             </div>
-                            <span className={`text-xs font-bold ${currentStep >= 2 ? 'text-purple-700' : 'text-gray-400'}`}>البيانات</span>
+                            <span className={`text-xs font-bold ${currentStep >= 2 ? 'text-blue-700' : 'text-gray-400'}`}>البيانات</span>
                         </div>
                         <div className="flex flex-col items-center gap-2">
-                            <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm transition-colors ${currentStep >= 3 ? 'bg-purple-600 text-white shadow-md shadow-purple-200' : 'bg-white text-gray-400 border-2 border-gray-200'}`}>
+                            <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm transition-colors ${currentStep >= 3 ? 'bg-blue-600 text-white shadow-md shadow-blue-200' : 'bg-white text-gray-400 border-2 border-gray-200'}`}>
                                 <CheckCircle className="w-5 h-5" />
                             </div>
-                            <span className={`text-xs font-bold ${currentStep >= 3 ? 'text-purple-700' : 'text-gray-400'}`}>التنسيق (اختياري)</span>
+                            <span className={`text-xs font-bold ${currentStep >= 3 ? 'text-blue-700' : 'text-gray-400'}`}>التنسيق (اختياري)</span>
                         </div>
                     </div>
                 </div>
@@ -524,22 +524,22 @@ function FullInvoiceForm() {
                                                         type="button"
                                                         onClick={() => setFormData({ ...formData, projectId: p.id })}
                                                         className={`relative flex flex-col items-center gap-2 p-3 rounded-xl border-2 transition-all active:scale-95 text-center ${formData.projectId === p.id
-                                                            ? 'border-purple-500 bg-purple-50 shadow-md shadow-purple-100'
+                                                            ? 'border-blue-500 bg-blue-50 shadow-md shadow-blue-100'
                                                             : 'border-gray-100 bg-white shadow-sm hover:border-gray-200'
                                                             }`}
                                                     >
                                                         {formData.projectId === p.id && (
-                                                            <div className="absolute top-1.5 left-1.5 w-4 h-4 bg-purple-600 rounded-full flex items-center justify-center">
+                                                            <div className="absolute top-1.5 left-1.5 w-4 h-4 bg-blue-600 rounded-full flex items-center justify-center">
                                                                 <CheckCircle className="w-2.5 h-2.5 text-white" />
                                                             </div>
                                                         )}
                                                         {p.image ? (
                                                             <Image src={p.image} alt={p.name} width={40} height={40} className="w-10 h-10 rounded-lg object-cover" />
                                                         ) : (
-                                                            <div className={`w-10 h-10 rounded-lg flex items-center justify-center text-lg font-black ${formData.projectId === p.id ? 'bg-purple-100 text-purple-700' : 'bg-gray-100 text-gray-600'
+                                                            <div className={`w-10 h-10 rounded-lg flex items-center justify-center text-lg font-black ${formData.projectId === p.id ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-600'
                                                                 }`}>{p.name.charAt(0)}</div>
                                                         )}
-                                                        <p className={`text-xs font-bold leading-tight line-clamp-2 ${formData.projectId === p.id ? 'text-purple-800' : 'text-gray-700'
+                                                        <p className={`text-xs font-bold leading-tight line-clamp-2 ${formData.projectId === p.id ? 'text-blue-800' : 'text-gray-700'
                                                             }`}>{p.name}</p>
                                                     </button>
                                                 ))}
@@ -550,7 +550,7 @@ function FullInvoiceForm() {
                                                 value={formData.projectId}
                                                 onChange={e => setFormData({ ...formData, projectId: e.target.value })}
                                                 required
-                                                className="w-full rounded-xl border border-gray-200 p-3.5 min-h-[52px] outline-none focus:ring-2 focus:ring-purple-400 bg-white shadow-sm font-medium"
+                                                className="w-full rounded-xl border border-gray-200 p-3.5 min-h-[52px] outline-none focus:ring-2 focus:ring-blue-400 bg-white shadow-sm font-medium"
                                             >
                                                 <option value="">اختر المشروع</option>
                                                 {projects.map((p: any) => (
@@ -565,7 +565,7 @@ function FullInvoiceForm() {
                                         <select
                                             value={formData.categoryId}
                                             onChange={e => setFormData({ ...formData, categoryId: e.target.value })}
-                                            className="w-full rounded-xl border border-gray-200 p-3.5 outline-none focus:ring-2 focus:ring-purple-400 bg-white shadow-sm font-medium"
+                                            className="w-full rounded-xl border border-gray-200 p-3.5 outline-none focus:ring-2 focus:ring-blue-400 bg-white shadow-sm font-medium"
                                         >
                                             <option value="">غير مصنف...</option>
                                             {categories.map(c => (
@@ -576,7 +576,7 @@ function FullInvoiceForm() {
 
                                     <div className="space-y-2">
                                         <label className="text-sm font-bold text-gray-700">المبلغ الإجمالي *</label>
-                                        <div className="flex items-baseline gap-2 border-b-2 border-purple-200 focus-within:border-purple-500 transition-colors pb-1">
+                                        <div className="flex items-baseline gap-2 border-b-2 border-blue-200 focus-within:border-blue-500 transition-colors pb-1">
                                             <input
                                                 type="number"
                                                 required step="0.01" min="0.1"
@@ -584,7 +584,7 @@ function FullInvoiceForm() {
                                                 onChange={e => setFormData({ ...formData, amount: e.target.value })}
                                                 placeholder="0.00"
                                                 inputMode="decimal"
-                                                className="flex-1 text-3xl font-black text-purple-700 bg-transparent outline-none placeholder-gray-200"
+                                                className="flex-1 text-3xl font-black text-blue-700 bg-transparent outline-none placeholder-gray-200"
                                             />
                                             <span className="text-lg font-bold text-gray-400">ريال</span>
                                         </div>
@@ -597,7 +597,7 @@ function FullInvoiceForm() {
                                             value={formData.reference}
                                             onChange={e => setFormData({ ...formData, reference: e.target.value })}
                                             placeholder="يتولد تلقائياً إذا تُرك فارغاً"
-                                            className="w-full rounded-xl border border-gray-200 p-3.5 min-h-[52px] outline-none focus:ring-2 focus:ring-purple-400 shadow-sm font-medium"
+                                            className="w-full rounded-xl border border-gray-200 p-3.5 min-h-[52px] outline-none focus:ring-2 focus:ring-blue-400 shadow-sm font-medium"
                                         />
                                     </div>
 
@@ -621,7 +621,7 @@ function FullInvoiceForm() {
                             <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
                                 <div className="flex items-center justify-between border-b border-gray-100 pb-2">
                                     <h3 className="text-lg font-bold text-gray-900">تنسيق الفاتورة (البنود)</h3>
-                                    <Button type="button" onClick={addItem} variant="outline" className="text-sm bg-purple-50 text-purple-700 border-purple-200 hover:bg-purple-100 flex items-center gap-1 px-3 py-1.5 rounded-lg">
+                                    <Button type="button" onClick={addItem} variant="outline" className="text-sm bg-blue-50 text-blue-700 border-blue-200 hover:bg-blue-100 flex items-center gap-1 px-3 py-1.5 rounded-lg">
                                         <Plus className="w-4 h-4" /> إضافة مشتريات
                                     </Button>
                                 </div>
@@ -642,24 +642,24 @@ function FullInvoiceForm() {
                                                 <div className="flex-1 space-y-3">
                                                     <div className="flex gap-2">
                                                         <span className="bg-gray-100 text-gray-500 text-xs px-2 py-1 rounded font-mono">{index + 1}</span>
-                                                        <input type="text" placeholder="اسم المشتريات / السلعة" value={item.name} onChange={e => updateItem(item.id, 'name', e.target.value)} className="flex-1 bg-transparent border-b border-gray-200 focus:border-purple-400 outline-none text-sm font-semibold pb-1" required />
+                                                        <input type="text" placeholder="اسم المشتريات / السلعة" value={item.name} onChange={e => updateItem(item.id, 'name', e.target.value)} className="flex-1 bg-transparent border-b border-gray-200 focus:border-blue-400 outline-none text-sm font-semibold pb-1" required />
                                                     </div>
                                                     <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
                                                         <div>
                                                             <label className="text-[10px] text-gray-400 block mb-1">الرقم/الكود</label>
-                                                            <input type="text" value={item.itemNumber} onChange={e => updateItem(item.id, 'itemNumber', e.target.value)} className="w-full bg-gray-50 rounded p-1.5 focus:bg-white border focus:border-purple-300 outline-none" />
+                                                            <input type="text" value={item.itemNumber} onChange={e => updateItem(item.id, 'itemNumber', e.target.value)} className="w-full bg-gray-50 rounded p-1.5 focus:bg-white border focus:border-blue-300 outline-none" />
                                                         </div>
                                                         <div>
                                                             <label className="text-[10px] text-gray-400 block mb-1">الكمية</label>
-                                                            <input type="number" min="1" step="any" value={item.quantity} onChange={e => updateItem(item.id, 'quantity', e.target.value)} className="w-full bg-gray-50 rounded p-1.5 focus:bg-white border focus:border-purple-300 outline-none" required />
+                                                            <input type="number" min="1" step="any" value={item.quantity} onChange={e => updateItem(item.id, 'quantity', e.target.value)} className="w-full bg-gray-50 rounded p-1.5 focus:bg-white border focus:border-blue-300 outline-none" required />
                                                         </div>
                                                         <div>
                                                             <label className="text-[10px] text-gray-400 block mb-1">سعر الإفرادي</label>
-                                                            <input type="number" min="0" step="any" value={item.unitPrice} onChange={e => updateItem(item.id, 'unitPrice', e.target.value)} className="w-full bg-gray-50 rounded p-1.5 focus:bg-white border focus:border-purple-300 outline-none" />
+                                                            <input type="number" min="0" step="any" value={item.unitPrice} onChange={e => updateItem(item.id, 'unitPrice', e.target.value)} className="w-full bg-gray-50 rounded p-1.5 focus:bg-white border focus:border-blue-300 outline-none" />
                                                         </div>
                                                         <div>
-                                                            <label className="text-[10px] text-purple-600 font-bold block mb-1">الإجمالي</label>
-                                                            <input type="number" min="0" step="any" value={item.totalPrice} onChange={e => updateItem(item.id, 'totalPrice', e.target.value)} className="w-full bg-purple-50 text-purple-800 rounded p-1.5 font-bold border-none outline-none" required />
+                                                            <label className="text-[10px] text-blue-600 font-bold block mb-1">الإجمالي</label>
+                                                            <input type="number" min="0" step="any" value={item.totalPrice} onChange={e => updateItem(item.id, 'totalPrice', e.target.value)} className="w-full bg-blue-50 text-blue-800 rounded p-1.5 font-bold border-none outline-none" required />
                                                         </div>
                                                     </div>
                                                 </div>
@@ -680,7 +680,7 @@ function FullInvoiceForm() {
                                         onChange={e => setFormData({ ...formData, notes: e.target.value })}
                                         rows={2}
                                         placeholder="أي ملاحظات إضافية بخصوص الفاتورة..."
-                                        className="w-full rounded-xl border border-gray-200 p-3 outline-none focus:ring-2 focus:ring-purple-400 resize-none text-sm shadow-sm"
+                                        className="w-full rounded-xl border border-gray-200 p-3 outline-none focus:ring-2 focus:ring-blue-400 resize-none text-sm shadow-sm"
                                     />
                                 </div>
 

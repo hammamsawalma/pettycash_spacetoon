@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Spacetoon Design Sample — عينة الهوية البصرية</title>
+    <title>Spacetoon Design Sample — عينة الهوية البصرية المطابقة للواقع</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet" />
@@ -12,28 +12,26 @@
         /* ─── Spacetoon Color Variables ─── */
         :root {
             --st-blue: #102550;
-            /* Blue Zodiac — اللون الأزرق الداكن */
-            --st-yellow: #FDFF05;
-            /* صفراء فاقعة */
+            /* Blue Zodiac */
+            --st-yellow: #FFC107;
+            /* أصفر ذهبي أهدأ بناء على طلبك */
             --st-orange-red: #DC4313;
             /* برتقالي/أحمر */
             --st-white: #FAFBFF;
             /* أبيض زرقوني */
             --st-blue-mid: #1a3a7c;
-            /* أزرق وسط - لتدرجات السايدبار */
             --st-blue-light: #2253ae;
-            /* أزرق فاتح للهوفر */
-            --st-yellow-muted: #e8e900;
-            /* أصفر مكتوم للحالة Active */
             --st-red-hover: #b83409;
-            /* لون هوفر الزر الأحمر */
-            --st-gray: #f0f2f7;
-            --st-text-dark: #0d1b38;
-            --st-text-mid: #3a4a6b;
+            --st-gray: #f8f9fa;
+            /* لون الخلفية العام الحالي للمشروع */
+            --st-gray-border: #e2e8f0;
+            --st-text-dark: #171717;
+            /* Foreground الحالي للمشروع */
+            --st-text-mid: #475569;
 
-            --radius-xl: 1.25rem;
-            --radius-lg: 0.875rem;
-            --radius-md: 0.5rem;
+            --radius-2xl: 1rem;
+            --radius-xl: 0.75rem;
+            --radius-lg: 0.5rem;
         }
 
         * {
@@ -43,713 +41,564 @@
         }
 
         body {
-            font-family: 'Cairo', sans-serif;
+            font-family: 'Cairo', Arial, sans-serif;
             background: var(--st-gray);
             color: var(--st-text-dark);
             min-height: 100vh;
-            overflow-x: hidden;
-        }
-
-        /* ─── Layout Shell ─── */
-        .shell {
             display: flex;
-            min-height: 100vh;
         }
 
-        /* ─── Sidebar ─── */
+        /* ─── Sidebar Simulation (Based on Sidebar.tsx) ─── */
         .sidebar {
-            width: 240px;
-            background: linear-gradient(175deg, var(--st-blue) 0%, var(--st-blue-mid) 100%);
+            width: 280px;
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(24px);
+            border-left: 1px solid rgba(255, 255, 255, 0.6);
+            box-shadow: 0 0 40px rgba(0, 0, 0, 0.03);
             display: flex;
             flex-direction: column;
-            padding: 1.5rem 1rem;
-            gap: 0.5rem;
-            box-shadow: 4px 0 24px rgba(16, 37, 80, 0.15);
             flex-shrink: 0;
+            transition: all 0.3s ease;
+            position: relative;
         }
 
-        .sidebar-logo {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            padding: 0.75rem 1rem 1.5rem;
-            border-bottom: 1px solid rgba(253, 255, 5, 0.2);
-            margin-bottom: 0.5rem;
+        /* Here we apply the Spacetoon flavor to the sidebar background */
+        .sidebar.spacetoon-flavor {
+            background: linear-gradient(175deg, var(--st-blue) 0%, var(--st-blue-mid) 100%);
+            border-left: none;
         }
 
-        .sidebar-logo .logo-badge {
-            width: 40px;
-            height: 40px;
-            background: var(--st-yellow);
-            border-radius: 50%;
+        .sidebar-logo-area {
+            height: 5rem;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.2rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 0.5rem;
+            padding: 0 1.5rem;
+        }
+
+        /* Logo Styling */
+        .st-logo {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
             font-weight: 900;
-            color: var(--st-blue);
-            box-shadow: 0 4px 12px rgba(253, 255, 5, 0.4);
-            animation: pulse-logo 3s ease-in-out infinite;
-        }
-
-        @keyframes pulse-logo {
-
-            0%,
-            100% {
-                box-shadow: 0 4px 12px rgba(253, 255, 5, 0.4);
-                transform: scale(1);
-            }
-
-            50% {
-                box-shadow: 0 6px 20px rgba(253, 255, 5, 0.7);
-                transform: scale(1.06);
-            }
-        }
-
-        .sidebar-logo .logo-text {
+            font-size: 1.25rem;
             color: white;
-            font-weight: 900;
-            font-size: 1rem;
-            line-height: 1.2;
         }
 
-        .sidebar-logo .logo-text span {
+        .st-logo span {
             color: var(--st-yellow);
+        }
+
+        .quick-add-btn {
+            margin: 0.75rem 1.25rem 0.5rem;
+            background: var(--st-orange-red);
+            color: white;
+            padding: 0.6rem;
+            border-radius: var(--radius-xl);
+            font-weight: 700;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            box-shadow: 0 4px 14px rgba(220, 67, 19, 0.35);
+            cursor: pointer;
+            border: none;
+            transition: transform 0.2s;
+        }
+
+        .quick-add-btn:hover {
+            transform: translateY(-2px);
+            background: var(--st-red-hover);
+        }
+
+        .nav-section {
+            padding: 1rem 1rem 0;
+        }
+
+        .nav-section-title {
+            font-size: 0.7rem;
+            font-weight: 900;
+            color: rgba(255, 255, 255, 0.5);
+            margin-bottom: 0.75rem;
+            text-transform: uppercase;
+            padding-right: 0.5rem;
         }
 
         .nav-item {
             display: flex;
             align-items: center;
-            gap: 0.75rem;
-            padding: 0.65rem 1rem;
-            border-radius: var(--radius-lg);
+            justify-content: space-between;
+            padding: 0.6rem 0.75rem;
+            border-radius: var(--radius-xl);
             color: rgba(255, 255, 255, 0.75);
-            font-size: 0.9rem;
+            font-size: 0.875rem;
             font-weight: 600;
             cursor: pointer;
-            text-decoration: none;
+            margin-bottom: 0.25rem;
             transition: all 0.2s ease;
         }
 
         .nav-item:hover {
-            background: var(--st-blue-light);
+            background: rgba(255, 255, 255, 0.1);
             color: white;
-            transform: translateX(-3px);
+            transform: translateX(-4px);
         }
 
         .nav-item.active {
-            background: var(--st-yellow);
-            color: var(--st-blue);
+            background: rgba(255, 193, 7, 0.15);
+            /* Yellow Tint */
+            color: var(--st-yellow);
         }
 
-        .nav-item .nav-icon {
-            width: 20px;
-            height: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.1rem;
-        }
-
-        .sidebar-divider {
-            height: 1px;
-            background: rgba(255, 255, 255, 0.1);
-            margin: 0.5rem 0;
-        }
-
-        /* ─── Main Content ─── */
-        .main {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-        }
-
-        /* ─── Topbar ─── */
-        .topbar {
-            background: white;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0.9rem 1.75rem;
-            border-bottom: 1px solid rgba(16, 37, 80, 0.08);
-            box-shadow: 0 2px 12px rgba(16, 37, 80, 0.06);
-        }
-
-        .topbar-title {
-            font-size: 1.1rem;
-            font-weight: 800;
-            color: var(--st-blue);
-        }
-
-        .topbar-actions {
+        .nav-item-content {
             display: flex;
             align-items: center;
             gap: 0.75rem;
         }
 
-        .avatar {
+        /* ─── Main Content Area ─── */
+        .main-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            background: var(--st-gray);
+        }
+
+        /* ─── Header (Based on Header.tsx) ─── */
+        .header {
+            height: 5rem;
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(24px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.6);
+            box-shadow: 0 4px 40px rgba(0, 0, 0, 0.02);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 2rem;
+            flex-shrink: 0;
+            z-index: 40;
+        }
+
+        .breadcrumbs {
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: var(--st-blue);
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .header-icons {
+            display: flex;
+            gap: 0.5rem;
+            background: rgba(255, 255, 255, 0.8);
+            padding: 0.35rem;
+            border-radius: 99rem;
+            border: 1px solid var(--st-gray-border);
+        }
+
+        .icon-btn {
             width: 36px;
             height: 36px;
             border-radius: 50%;
-            background: linear-gradient(135deg, var(--st-blue), var(--st-blue-light));
+            border: none;
+            background: transparent;
+            color: var(--st-text-mid);
             display: flex;
             align-items: center;
             justify-content: center;
-            color: white;
-            font-weight: 700;
-            font-size: 0.85rem;
-            border: 2.5px solid var(--st-yellow);
+            cursor: pointer;
+            font-size: 1.1rem;
+            transition: all 0.2s;
+        }
+
+        .icon-btn:hover {
+            background: white;
+            color: var(--st-blue);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
             cursor: pointer;
         }
 
-        /* ─── Content Area ─── */
-        .content {
+        .user-info {
+            text-align: left;
+        }
+
+        .user-name {
+            font-size: 0.875rem;
+            font-weight: 700;
+            color: var(--st-text-dark);
+        }
+
+        .user-role {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--st-text-mid);
+        }
+
+        .user-avatar {
+            width: 44px;
+            height: 44px;
+            border-radius: var(--radius-2xl);
+            background: linear-gradient(135deg, rgba(255, 193, 7, 0.2), rgba(255, 193, 7, 0.4));
+            border: 1px solid rgba(255, 193, 7, 0.5);
+            color: var(--st-yellow);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+
+        /* ─── Page Content (Based on typical Dashboard Layout) ─── */
+        .page-content {
+            padding: 2rem;
             flex: 1;
-            padding: 1.75rem;
             overflow-y: auto;
             display: flex;
             flex-direction: column;
             gap: 1.5rem;
         }
 
-        /* ─── Section header ─── */
-        .section-label {
-            font-size: 0.7rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.08em;
-            color: var(--st-text-mid);
-            margin-bottom: 0.75rem;
-        }
-
-        /* ─── Stat Cards ─── */
-        .stats-grid {
+        /* Cards */
+        .card-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-            gap: 1rem;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1.5rem;
         }
 
-        .stat-card {
+        .card {
             background: white;
-            border-radius: var(--radius-xl);
-            padding: 1.25rem 1.25rem 1rem;
-            box-shadow: 0 2px 12px rgba(16, 37, 80, 0.07);
-            display: flex;
-            flex-direction: column;
-            gap: 0.5rem;
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-            cursor: default;
-            border-top: 4px solid transparent;
+            border-radius: var(--radius-2xl);
+            padding: 1.5rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+            border: 1px solid var(--st-gray-border);
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.2s;
         }
 
-        .stat-card:hover {
+        .card:hover {
             transform: translateY(-4px);
-            box-shadow: 0 10px 28px rgba(16, 37, 80, 0.14);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
         }
 
-        .stat-card.blue {
-            border-top-color: var(--st-blue);
+        /* Spacetoon Card Accents */
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            left: 0;
+            height: 4px;
+            background: var(--st-gray-border);
+            transition: background 0.3s;
         }
 
-        .stat-card.yellow {
-            border-top-color: var(--st-yellow);
+        .card:hover::before {
+            background: var(--st-blue);
         }
 
-        .stat-card.red {
-            border-top-color: var(--st-orange-red);
+        .card.accent-yellow:hover::before {
+            background: var(--st-yellow);
         }
 
-        .stat-card.teal {
-            border-top-color: #18a2b8;
+        .card.accent-red:hover::before {
+            background: var(--st-orange-red);
         }
 
-        .stat-icon {
-            width: 40px;
-            height: 40px;
-            border-radius: var(--radius-md);
+        .card-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: var(--radius-xl);
+            background: rgba(16, 37, 80, 0.05);
+            /* very light blue */
+            color: var(--st-blue);
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.3rem;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
         }
 
-        .stat-card.blue .stat-icon {
-            background: rgba(16, 37, 80, 0.08);
+        .card.accent-yellow .card-icon {
+            background: rgba(255, 193, 7, 0.15);
+            color: #b28600;
         }
 
-        .stat-card.yellow .stat-icon {
-            background: rgba(253, 255, 5, 0.18);
-        }
-
-        .stat-card.red .stat-icon {
+        .card.accent-red .card-icon {
             background: rgba(220, 67, 19, 0.1);
+            color: var(--st-orange-red);
         }
 
-        .stat-card.teal .stat-icon {
-            background: rgba(24, 162, 184, 0.1);
-        }
-
-        .stat-value {
-            font-size: 1.75rem;
+        .card-value {
+            font-size: 2rem;
             font-weight: 900;
-            color: var(--st-blue);
-            line-height: 1;
+            color: var(--st-text-dark);
+            line-height: 1.2;
         }
 
-        .stat-label {
-            font-size: 0.8rem;
+        .card-label {
+            font-size: 0.875rem;
             font-weight: 600;
             color: var(--st-text-mid);
         }
 
-        /* ─── Buttons Panel ─── */
-        .buttons-panel {
+        /* Spacetoon-styled Table/List Area */
+        .panel {
             background: white;
-            border-radius: var(--radius-xl);
+            border-radius: var(--radius-2xl);
             padding: 1.5rem;
-            box-shadow: 0 2px 12px rgba(16, 37, 80, 0.07);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+            border: 1px solid var(--st-gray-border);
         }
 
-        .btn-row {
+        .panel-header {
             display: flex;
-            flex-wrap: wrap;
-            gap: 0.75rem;
-            margin-top: 0.75rem;
-        }
-
-        .btn {
-            display: inline-flex;
+            justify-content: space-between;
             align-items: center;
-            gap: 0.5rem;
-            padding: 0.55rem 1.25rem;
-            border-radius: 999px;
-            font-family: 'Cairo', sans-serif;
-            font-size: 0.875rem;
-            font-weight: 700;
-            cursor: pointer;
-            border: none;
-            transition: transform 0.15s ease, box-shadow 0.15s ease;
+            margin-bottom: 1.5rem;
         }
 
-        .btn:hover {
-            transform: translateY(-2px) scale(1.03);
-        }
-
-        .btn:active {
-            transform: scale(0.97);
-        }
-
-        .btn-primary {
-            background: var(--st-orange-red);
-            color: white;
-            box-shadow: 0 4px 14px rgba(220, 67, 19, 0.35);
-        }
-
-        .btn-primary:hover {
-            box-shadow: 0 6px 20px rgba(220, 67, 19, 0.5);
-            background: var(--st-red-hover);
-        }
-
-        .btn-blue {
-            background: var(--st-blue);
-            color: white;
-            box-shadow: 0 4px 14px rgba(16, 37, 80, 0.3);
-        }
-
-        .btn-blue:hover {
-            box-shadow: 0 6px 20px rgba(16, 37, 80, 0.45);
-            background: var(--st-blue-mid);
-        }
-
-        .btn-yellow {
-            background: var(--st-yellow);
-            color: var(--st-blue);
-            box-shadow: 0 4px 14px rgba(253, 255, 5, 0.35);
-        }
-
-        .btn-yellow:hover {
-            box-shadow: 0 6px 20px rgba(253, 255, 5, 0.55);
-        }
-
-        .btn-outline {
-            background: transparent;
-            color: var(--st-blue);
-            border: 2px solid var(--st-blue);
-            box-shadow: none;
-        }
-
-        .btn-outline:hover {
-            background: var(--st-blue);
-            color: white;
-        }
-
-        .btn-ghost {
-            background: var(--st-gray);
-            color: var(--st-text-mid);
-        }
-
-        .btn-ghost:hover {
-            background: #dde1ec;
+        .panel-title {
+            font-size: 1.1rem;
+            font-weight: 800;
             color: var(--st-blue);
         }
 
-        /* ─── Badge Row ─── */
+        /* Badges */
         .badge {
-            display: inline-flex;
-            align-items: center;
-            padding: 0.2rem 0.75rem;
-            border-radius: 999px;
+            padding: 0.25rem 0.75rem;
+            border-radius: 99px;
             font-size: 0.75rem;
             font-weight: 700;
         }
 
-        .badge-blue {
+        .badge-primary {
             background: rgba(16, 37, 80, 0.1);
             color: var(--st-blue);
         }
 
-        .badge-yellow {
-            background: rgba(253, 255, 5, 0.35);
-            color: #6b6500;
+        .badge-warning {
+            background: rgba(255, 193, 7, 0.2);
+            color: #856404;
         }
 
-        .badge-red {
-            background: rgba(220, 67, 19, 0.12);
+        .badge-danger {
+            background: rgba(220, 67, 19, 0.1);
             color: var(--st-orange-red);
         }
 
-        .badge-green {
-            background: rgba(22, 163, 74, 0.1);
-            color: #15803d;
-        }
-
-        /* ─── Table-like Card ─── */
-        .table-card {
-            background: white;
-            border-radius: var(--radius-xl);
-            padding: 1.5rem;
-            box-shadow: 0 2px 12px rgba(16, 37, 80, 0.07);
-        }
-
-        .table-card table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        .table-card thead th {
-            text-align: right;
-            font-size: 0.75rem;
-            font-weight: 700;
-            color: var(--st-text-mid);
-            text-transform: uppercase;
-            letter-spacing: 0.06em;
-            padding: 0.5rem 0.75rem;
-            border-bottom: 2px solid var(--st-gray);
-        }
-
-        .table-card tbody tr {
-            transition: background 0.15s;
-        }
-
-        .table-card tbody tr:hover {
-            background: rgba(16, 37, 80, 0.03);
-        }
-
-        .table-card tbody td {
-            padding: 0.75rem;
-            font-size: 0.875rem;
-            color: var(--st-text-dark);
-            border-bottom: 1px solid var(--st-gray);
-        }
-
-        /* ─── Color Swatches ─── */
-        .swatches {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 1rem;
-            margin-top: 0.75rem;
-        }
-
-        .swatch {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 0.4rem;
-        }
-
-        .swatch-block {
-            width: 64px;
-            height: 64px;
-            border-radius: var(--radius-md);
-            border: 2px solid rgba(0, 0, 0, 0.08);
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-        }
-
-        .swatch span {
-            font-size: 0.7rem;
-            font-weight: 700;
-            color: var(--st-text-mid);
-            text-align: center;
-        }
-
-        /* ─── Notification strip ─── */
-        .notif-strip {
-            background: linear-gradient(90deg, var(--st-blue) 0%, var(--st-blue-light) 100%);
-            border-radius: var(--radius-xl);
-            padding: 1rem 1.5rem;
-            color: white;
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            box-shadow: 0 4px 20px rgba(16, 37, 80, 0.25);
-        }
-
-        .notif-strip .notif-icon {
-            font-size: 1.6rem;
+        /* Typical Buttons in UI */
+        .btn-spacetoon {
             background: var(--st-yellow);
-            width: 44px;
-            height: 44px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
             color: var(--st-blue);
-            font-size: 1.2rem;
-            flex-shrink: 0;
-            animation: wiggle 2.5s ease-in-out infinite;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: var(--radius-lg);
+            font-weight: 700;
+            font-family: 'Cairo';
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 2px 10px rgba(255, 193, 7, 0.3);
         }
 
-        @keyframes wiggle {
-
-            0%,
-            100% {
-                transform: rotate(0deg);
-            }
-
-            15% {
-                transform: rotate(-10deg);
-            }
-
-            30% {
-                transform: rotate(10deg);
-            }
-
-            45% {
-                transform: rotate(-6deg);
-            }
-
-            60% {
-                transform: rotate(6deg);
-            }
-
-            75% {
-                transform: rotate(0deg);
-            }
-        }
-
-        .notif-strip .notif-text {
-            flex: 1;
-        }
-
-        .notif-strip .notif-text h4 {
-            font-weight: 800;
-            font-size: 0.95rem;
-        }
-
-        .notif-strip .notif-text p {
-            font-size: 0.8rem;
-            opacity: 0.8;
-            margin-top: 0.15rem;
+        .btn-spacetoon:hover {
+            box-shadow: 0 4px 15px rgba(255, 193, 7, 0.5);
+            transform: translateY(-2px);
         }
     </style>
 </head>
 
 <body>
 
-    <div class="shell">
+    <!-- ─── Sidebar (Spacetoon Styled) ─── -->
+    <aside class="sidebar spacetoon-flavor">
+        <div class="sidebar-logo-area">
+            <div class="st-logo">
+                <span style="font-size: 1.5rem;">S</span> سبيستون P.M
+            </div>
+        </div>
 
-        <!-- ─── Sidebar ─── -->
-        <nav class="sidebar">
-            <div class="sidebar-logo">
-                <div class="logo-badge">S</div>
-                <div class="logo-text">سبيستون<br /><span>جيب</span></div>
+        <button class="quick-add-btn">
+            <span>+</span> إضافة سريعة
+        </button>
+
+        <div class="nav-section">
+            <div class="nav-section-title">الأساسيات</div>
+
+            <div class="nav-item active">
+                <div class="nav-item-content">
+                    <span>🏠</span>
+                    <span>لوحة التحكم</span>
+                </div>
             </div>
 
-            <a class="nav-item active" href="#">
-                <span class="nav-icon">🏠</span> الرئيسية
-            </a>
-            <a class="nav-item" href="#">
-                <span class="nav-icon">📁</span> المشاريع
-            </a>
-            <a class="nav-item" href="#">
-                <span class="nav-icon">📄</span> الفواتير
-            </a>
-            <a class="nav-item" href="#">
-                <span class="nav-icon">🛒</span> المشتريات
-            </a>
-            <a class="nav-item" href="#">
-                <span class="nav-icon">👥</span> المستخدمون
-            </a>
-
-            <div class="sidebar-divider"></div>
-
-            <a class="nav-item" href="#">
-                <span class="nav-icon">🔔</span> الإشعارات
-            </a>
-            <a class="nav-item" href="#">
-                <span class="nav-icon">⚙️</span> الإعدادات
-            </a>
-        </nav>
-
-        <!-- ─── Main ─── -->
-        <div class="main">
-
-            <!-- Topbar -->
-            <header class="topbar">
-                <span class="topbar-title">لوحة التحكم</span>
-                <div class="topbar-actions">
-                    <button class="btn btn-primary">+ مشروع جديد</button>
-                    <div class="avatar">حم</div>
+            <div class="nav-item">
+                <div class="nav-item-content">
+                    <span>📁</span>
+                    <span>المشاريع</span>
                 </div>
-            </header>
+                <span style="font-size: 0.7rem;">▼</span>
+            </div>
 
-            <div class="content">
-
-                <!-- Notification Strip -->
-                <div class="notif-strip">
-                    <div class="notif-icon">🔔</div>
-                    <div class="notif-text">
-                        <h4>مرحباً بك في سبيستون جيب!</h4>
-                        <p>لديك 3 فواتير معلقة تنتظر مراجعتك اليوم.</p>
-                    </div>
-                    <button class="btn btn-yellow" style="flex-shrink:0;">عرض الآن</button>
+            <div class="nav-item">
+                <div class="nav-item-content">
+                    <span>💬</span>
+                    <span>المحادثات</span>
                 </div>
+            </div>
+        </div>
 
-                <!-- Stat Cards -->
-                <div>
-                    <div class="section-label">نظرة عامة سريعة</div>
-                    <div class="stats-grid">
-                        <div class="stat-card blue">
-                            <div class="stat-icon">📂</div>
-                            <div class="stat-value">14</div>
-                            <div class="stat-label">مشاريع نشطة</div>
-                        </div>
-                        <div class="stat-card red">
-                            <div class="stat-icon">📄</div>
-                            <div class="stat-value">38</div>
-                            <div class="stat-label">فواتير هذا الشهر</div>
-                        </div>
-                        <div class="stat-card yellow">
-                            <div class="stat-icon">🛒</div>
-                            <div class="stat-value">7</div>
-                            <div class="stat-label">طلبات شراء معلقة</div>
-                        </div>
-                        <div class="stat-card teal">
-                            <div class="stat-icon">👥</div>
-                            <div class="stat-value">22</div>
-                            <div class="stat-label">موظفون نشطون</div>
-                        </div>
-                    </div>
+        <div class="nav-section">
+            <div class="nav-section-title">المالية والمشتريات</div>
+
+            <div class="nav-item">
+                <div class="nav-item-content">
+                    <span>📄</span>
+                    <span>الفواتير</span>
+                </div>
+            </div>
+
+            <div class="nav-item">
+                <div class="nav-item-content">
+                    <span>🛒</span>
+                    <span>المشتريات</span>
+                </div>
+            </div>
+
+            <div class="nav-item">
+                <div class="nav-item-content">
+                    <span>💼</span>
+                    <span>العهدة</span>
+                </div>
+            </div>
+        </div>
+
+    </aside>
+
+    <!-- ─── Main Area ─── -->
+    <main class="main-area">
+
+        <!-- Header -->
+        <header class="header">
+            <div class="breadcrumbs">
+                الرئيسية / لوحة التحكم
+            </div>
+
+            <div class="header-actions">
+                <!-- Icons mapping Header.tsx -->
+                <div class="header-icons">
+                    <button class="icon-btn">🏠</button>
+                    <button class="icon-btn">🔍</button>
+                    <button class="icon-btn">📖</button>
+                    <button class="icon-btn" style="position:relative;">
+                        🔔
+                        <span
+                            style="position:absolute; top:4px; right:4px; width:8px; height:8px; background:var(--st-orange-red); border-radius:50%;"></span>
+                    </button>
+                    <button class="icon-btn">⚙️</button>
                 </div>
 
-                <!-- Buttons -->
-                <div class="buttons-panel">
-                    <div class="section-label">مكتبة الأزرار</div>
-                    <div class="btn-row">
-                        <button class="btn btn-primary">🚀 إضافة جديد</button>
-                        <button class="btn btn-blue">💾 حفظ</button>
-                        <button class="btn btn-yellow">⭐ مميز</button>
-                        <button class="btn btn-outline">تعديل</button>
-                        <button class="btn btn-ghost">إلغاء</button>
+                <div style="width: 1px; height: 32px; background: var(--st-gray-border);"></div>
+
+                <!-- User Profile -->
+                <div class="user-profile">
+                    <div class="user-info">
+                        <div class="user-name">همام السوالمة</div>
+                        <div class="user-role">مدير النظام</div>
                     </div>
-                    <div class="btn-row" style="margin-top:1rem;">
-                        <span class="section-label" style="margin-bottom:0; align-self:center;">الشارات:</span>
-                        <span class="badge badge-blue">نشط</span>
-                        <span class="badge badge-red">عاجل</span>
-                        <span class="badge badge-yellow">قيد التنفيذ</span>
-                        <span class="badge badge-green">مكتمل</span>
+                    <div class="user-avatar">
+                        👤
                     </div>
                 </div>
+            </div>
+        </header>
 
-                <!-- Table Sample -->
-                <div class="table-card">
-                    <div class="section-label">آخر الفواتير</div>
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>#</th>
-                                <th>المشروع</th>
-                                <th>المبلغ</th>
-                                <th>التاريخ</th>
-                                <th>الحالة</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>INV-001</td>
-                                <td>مشروع الرياض</td>
-                                <td>15,000 ر.س</td>
-                                <td>2026-03-05</td>
-                                <td><span class="badge badge-green">مكتمل</span></td>
-                            </tr>
-                            <tr>
-                                <td>INV-002</td>
-                                <td>مشروع جدة</td>
-                                <td>28,500 ر.س</td>
-                                <td>2026-03-06</td>
-                                <td><span class="badge badge-yellow">قيد التنفيذ</span></td>
-                            </tr>
-                            <tr>
-                                <td>INV-003</td>
-                                <td>مشروع الخبر</td>
-                                <td>9,200 ر.س</td>
-                                <td>2026-03-07</td>
-                                <td><span class="badge badge-red">عاجل</span></td>
-                            </tr>
-                        </tbody>
-                    </table>
+        <!-- Page Content (Dashboard View) -->
+        <div class="page-content">
+
+            <div class="card-grid">
+                <div class="card">
+                    <div class="card-icon">📁</div>
+                    <div class="card-value">12</div>
+                    <div class="card-label">المشاريع النشطة</div>
                 </div>
 
-                <!-- Color Palette -->
-                <div class="buttons-panel">
-                    <div class="section-label">لوحة ألوان سبيستون المقترحة</div>
-                    <div class="swatches">
-                        <div class="swatch">
-                            <div class="swatch-block" style="background:#102550;"></div>
-                            <span>Blue Zodiac<br />#102550</span>
-                        </div>
-                        <div class="swatch">
-                            <div class="swatch-block" style="background:#1a3a7c;"></div>
-                            <span>أزرق وسط<br />#1a3a7c</span>
-                        </div>
-                        <div class="swatch">
-                            <div class="swatch-block" style="background:#2253ae;"></div>
-                            <span>أزرق فاتح<br />#2253ae</span>
-                        </div>
-                        <div class="swatch">
-                            <div class="swatch-block" style="background:#FDFF05; border-color:#ccc;"></div>
-                            <span>أصفر<br />#FDFF05</span>
-                        </div>
-                        <div class="swatch">
-                            <div class="swatch-block" style="background:#DC4313;"></div>
-                            <span>برتقالي/أحمر<br />#DC4313</span>
-                        </div>
-                        <div class="swatch">
-                            <div class="swatch-block" style="background:#FAFBFF; border-color:#ccc;"></div>
-                            <span>أبيض زرقوني<br />#FAFBFF</span>
-                        </div>
-                        <div class="swatch">
-                            <div class="swatch-block" style="background:#f0f2f7; border-color:#ccc;"></div>
-                            <span>خلفية<br />#f0f2f7</span>
-                        </div>
-                    </div>
+                <div class="card accent-yellow">
+                    <div class="card-icon">🛒</div>
+                    <div class="card-value">28</div>
+                    <div class="card-label">طلبات الشراء</div>
                 </div>
 
-            </div><!-- /content -->
-        </div><!-- /main -->
+                <div class="card accent-red">
+                    <div class="card-icon">📄</div>
+                    <div class="card-value">15</div>
+                    <div class="card-label">فواتير قيد المراجعة</div>
+                </div>
 
-    </div><!-- /shell -->
+                <div class="card">
+                    <div class="card-icon">👥</div>
+                    <div class="card-value">45</div>
+                    <div class="card-label">إجمالي الموظفين</div>
+                </div>
+            </div>
+
+            <div class="panel">
+                <div class="panel-header">
+                    <h2 class="panel-title">أحدث النشاطات / الفواتير</h2>
+                    <button class="btn-spacetoon">عرض الكل</button>
+                </div>
+
+                <table style="width: 100%; border-collapse: collapse; text-align: right;">
+                    <thead>
+                        <tr
+                            style="border-bottom: 2px solid var(--st-gray-border); color: var(--st-text-mid); font-size: 0.85rem;">
+                            <th style="padding: 1rem 0.5rem;">رقم المرجع</th>
+                            <th style="padding: 1rem 0.5rem;">المشروع</th>
+                            <th style="padding: 1rem 0.5rem;">المبلغ</th>
+                            <th style="padding: 1rem 0.5rem;">الحالة</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr style="border-bottom: 1px solid var(--st-gray-border);">
+                            <td style="padding: 1rem 0.5rem; font-weight: 600;">INV-2024-001</td>
+                            <td style="padding: 1rem 0.5rem;">مشروع تطوير المنصة</td>
+                            <td style="padding: 1rem 0.5rem; font-weight: 700;">4,500 ر.س</td>
+                            <td style="padding: 1rem 0.5rem;"><span class="badge badge-primary">مكتمل</span></td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid var(--st-gray-border);">
+                            <td style="padding: 1rem 0.5rem; font-weight: 600;">PUR-089</td>
+                            <td style="padding: 1rem 0.5rem;">تجهيز مكاتب</td>
+                            <td style="padding: 1rem 0.5rem; font-weight: 700;">12,000 ر.س</td>
+                            <td style="padding: 1rem 0.5rem;"><span class="badge badge-warning">قيد المراجعة</span></td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 1rem 0.5rem; font-weight: 600;">REQ-012</td>
+                            <td style="padding: 1rem 0.5rem;">رواتب شهر مارس</td>
+                            <td style="padding: 1rem 0.5rem; font-weight: 700;">85,000 ر.س</td>
+                            <td style="padding: 1rem 0.5rem;"><span class="badge badge-danger">مرفوض</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+    </main>
+
 </body>
 
 </html>

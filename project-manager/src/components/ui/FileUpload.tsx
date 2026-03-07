@@ -149,7 +149,7 @@ export function FileUpload({
             <div
                 className={`
                     relative w-full rounded-2xl border-2 border-dashed transition-all duration-300 ease-in-out
-                    ${dragActive ? 'border-[#7F56D9] bg-[#7F56D9]/5 scale-[1.02]' : 'border-gray-200 bg-white hover:border-[#7F56D9]/50 hover:bg-gray-50'}
+                    ${dragActive ? 'border-[#102550] bg-[#102550]/5 scale-[1.02]' : 'border-gray-200 bg-white hover:border-[#102550]/50 hover:bg-gray-50'}
                     ${error ? 'border-red-400 bg-red-50' : ''}
                     ${variant === 'avatar' ? 'py-6 px-4 flex flex-col items-center justify-center min-h-[160px]' : 'px-6 py-8 md:py-10'}
                 `}
@@ -184,8 +184,8 @@ export function FileUpload({
                                 </div>
                             </div>
                         ) : (
-                            <div className="flex flex-col items-center justify-center space-y-3 p-4 bg-gray-50 w-full rounded-xl border border-gray-100 group-hover:bg-[#7F56D9]/5 transition-colors">
-                                <FileType className="w-10 h-10 text-[#7F56D9]" />
+                            <div className="flex flex-col items-center justify-center space-y-3 p-4 bg-gray-50 w-full rounded-xl border border-gray-100 group-hover:bg-[#102550]/5 transition-colors">
+                                <FileType className="w-10 h-10 text-[#102550]" />
                                 <div className="text-center w-full">
                                     <p className="text-sm font-bold text-gray-900 truncate px-4">{file?.name}</p>
                                     <p className="text-xs text-gray-500 mt-1">{(file?.size ? (file.size / 1024 / 1024).toFixed(2) : 0)} MB</p>
@@ -204,15 +204,15 @@ export function FileUpload({
                 ) : (
                     /* Initial Empty State */
                     <div className="text-center group w-full cursor-pointer flex flex-col items-center justify-center">
-                        <div className={`rounded-full bg-gray-50 mb-4 transition-transform duration-300 group-hover:scale-110 group-hover:bg-[#7F56D9]/10 ${variant === 'avatar' ? 'p-4' : 'p-3'}`}>
+                        <div className={`rounded-full bg-gray-50 mb-4 transition-transform duration-300 group-hover:scale-110 group-hover:bg-[#102550]/10 ${variant === 'avatar' ? 'p-4' : 'p-3'}`}>
                             {variant === 'avatar' ? (
-                                <ImageIcon className="h-8 w-8 md:h-10 md:w-10 text-gray-400 group-hover:text-[#7F56D9] transition-colors" aria-hidden="true" />
+                                <ImageIcon className="h-8 w-8 md:h-10 md:w-10 text-gray-400 group-hover:text-[#102550] transition-colors" aria-hidden="true" />
                             ) : (
-                                <UploadCloud className="h-8 w-8 md:h-10 md:w-10 text-gray-400 group-hover:text-[#7F56D9] transition-colors" aria-hidden="true" />
+                                <UploadCloud className="h-8 w-8 md:h-10 md:w-10 text-gray-400 group-hover:text-[#102550] transition-colors" aria-hidden="true" />
                             )}
                         </div>
                         <div className="flex flex-col md:flex-row items-center justify-center text-xs md:text-sm leading-6 text-gray-600 group-hover:text-gray-900 transition-colors">
-                            <span className="relative font-bold text-[#7F56D9] px-1 md:px-2">
+                            <span className="relative font-bold text-[#102550] px-1 md:px-2">
                                 {placeholder}
                             </span>
                             <p className="hidden md:block font-medium">{description}</p>

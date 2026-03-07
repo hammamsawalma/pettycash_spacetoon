@@ -60,8 +60,8 @@ export default function ProjectsPage() {
         const statusMap: Record<string, string> = {
             "COMPLETED": "مكتمل",
             "IN_PROGRESS": "قيد التنفيذ",
-            "PENDING": "متوقف",
-            "ON_HOLD": "متوقف",
+            "PENDING": "المتوقفة",
+            "ON_HOLD": "المتوقفة",
             "ARCHIVED": "المؤرشفات",
         };
         const mappedStatus = statusMap[project.status] || "غير محدد";
@@ -124,7 +124,7 @@ export default function ProjectsPage() {
                             placeholder="بحث..."
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
-                            className="w-full pl-12 pr-4 py-3 md:py-4 rounded-full border border-transparent bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-[#7F56D9]/50 text-sm"
+                            className="w-full pl-12 pr-4 py-3 md:py-4 rounded-full border border-transparent bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-[#102550]/50 text-sm"
                         />
                         <div className="absolute left-3 top-1/2 -translate-y-1/2 w-8 h-8 bg-gray-50 rounded-full flex items-center justify-center pointer-events-none text-gray-400">
                             <Search className="h-4 w-4" />
@@ -139,7 +139,7 @@ export default function ProjectsPage() {
                                     key={tab}
                                     onClick={() => setFilter(tab === "المكتملة" ? "مكتمل" : tab)}
                                     className={`px-4 py-2 flex-1 text-[11px] md:text-sm font-medium rounded-md transition-colors ${(filter === tab || (filter === "مكتمل" && tab === "المكتملة"))
-                                        ? "bg-[#7F56D9] text-white shadow-sm"
+                                        ? "bg-[#102550] text-white shadow-sm"
                                         : "text-gray-500 hover:text-gray-900"
                                         }`}
                                 >
@@ -156,7 +156,7 @@ export default function ProjectsPage() {
                             </button>
                             <button
                                 onClick={() => setViewMode("board")}
-                                className={`flex-1 sm:flex-none px-4 py-1.5 md:py-2 text-xs md:text-sm font-bold rounded-lg transition-all ${viewMode === "board" ? "bg-[#7F56D9] text-white shadow-sm" : "text-gray-500 hover:text-gray-700"}`}
+                                className={`flex-1 sm:flex-none px-4 py-1.5 md:py-2 text-xs md:text-sm font-bold rounded-lg transition-all ${viewMode === "board" ? "bg-[#102550] text-white shadow-sm" : "text-gray-500 hover:text-gray-700"}`}
                             >
                                 بورد (سحب وإفلات)
                             </button>
@@ -165,7 +165,7 @@ export default function ProjectsPage() {
 
                     {/* Add Project Button - Only visible for ADMIN */}
                     {canCreateProject && (
-                        <Button onClick={() => router.push('/projects/new')} className="w-full py-6 md:py-7 text-sm md:text-lg font-bold rounded-2xl bg-[#7F56D9] hover:bg-[#7F56D9]-hover text-white border-none flex items-center justify-center gap-2 shadow-sm mt-2">
+                        <Button onClick={() => router.push('/projects/new')} className="w-full py-6 md:py-7 text-sm md:text-lg font-bold rounded-2xl bg-[#102550] hover:bg-[#102550]-hover text-white border-none flex items-center justify-center gap-2 shadow-sm mt-2">
                             <span>أضف مشروع جديد</span>
                         </Button>
                     )}
@@ -203,11 +203,11 @@ export default function ProjectsPage() {
                             const statusBadge = isCompleted
                                 ? 'bg-emerald-100 text-emerald-700'
                                 : isInProgress
-                                    ? 'bg-purple-100 text-[#7F56D9]'
+                                    ? 'bg-blue-100 text-[#102550]'
                                     : 'bg-orange-100 text-orange-600';
 
                             return (
-                                <Card onClick={() => router.push(`/projects/${project.id}`)} key={project.id} className="p-3 md:p-6 space-y-3 md:space-y-4 shadow-sm border border-gray-100 hover:border-[#7F56D9]/30 transition-all duration-300 relative overflow-hidden rounded-2xl w-full max-w-sm mx-auto md:max-w-none cursor-pointer group">
+                                <Card onClick={() => router.push(`/projects/${project.id}`)} key={project.id} className="p-3 md:p-6 space-y-3 md:space-y-4 shadow-sm border border-gray-100 hover:border-[#102550]/30 transition-all duration-300 relative overflow-hidden rounded-2xl w-full max-w-sm mx-auto md:max-w-none cursor-pointer group">
                                     {project.image ? (
                                         <img src={project.image} alt="" className="absolute -top-4 -left-4 w-16 h-16 md:w-24 md:h-24 opacity-10 pointer-events-none object-cover rotate-12 transition-transform duration-500 group-hover:scale-110 blur-[2px]" />
                                     ) : (
@@ -215,16 +215,16 @@ export default function ProjectsPage() {
                                     )}
                                     <div className="flex flex-col md:flex-row justify-between items-start relative z-10 gap-2">
                                         <div className="space-y-1">
-                                            <h4 className="font-bold text-sm md:text-lg text-gray-900 group-hover:text-[#7F56D9] transition-colors">{project.name}</h4>
+                                            <h4 className="font-bold text-sm md:text-lg text-gray-900 group-hover:text-[#102550] transition-colors">{project.name}</h4>
                                             <span className={`inline-block px-1.5 py-0.5 md:px-2.5 md:py-0.5 text-[9px] md:text-xs font-bold rounded-lg ${statusBadge}`}>
                                                 {statusLabel}
                                             </span>
                                         </div>
-                                        <div className="hidden md:flex w-10 h-10 bg-purple-50 rounded-xl items-center justify-center shrink-0 shadow-inner overflow-hidden">
+                                        <div className="hidden md:flex w-10 h-10 bg-blue-50 rounded-xl items-center justify-center shrink-0 shadow-inner overflow-hidden">
                                             {project.image ? (
                                                 <img src={project.image} alt={project.name} className="w-full h-full object-cover" />
                                             ) : (
-                                                <FolderKanban className="w-5 h-5 text-[#7F56D9]" />
+                                                <FolderKanban className="w-5 h-5 text-[#102550]" />
                                             )}
                                         </div>
                                     </div>
@@ -247,8 +247,8 @@ export default function ProjectsPage() {
                                     {/* Financial Details Grid */}
                                     {canViewFinancials && (
                                         <div className="grid grid-cols-2 gap-2 mt-4 pt-4 border-t border-gray-100 relative z-10 w-full">
-                                            <div className="bg-purple-50/70 rounded-xl p-2.5 flex flex-col justify-center items-start border border-purple-100/50">
-                                                <span className="text-[9px] md:text-[10px] text-[#7F56D9] font-bold mb-0.5" title="إجمالي الميزانية المخصصة للمشروع">الميزانية المخصصة</span>
+                                            <div className="bg-blue-50/70 rounded-xl p-2.5 flex flex-col justify-center items-start border border-blue-100/50">
+                                                <span className="text-[9px] md:text-[10px] text-[#102550] font-bold mb-0.5" title="إجمالي الميزانية المخصصة للمشروع">الميزانية المخصصة</span>
                                                 <span className="text-xs md:text-sm font-black text-gray-900">{(project.budgetAllocated || 0).toLocaleString()} <span className="text-[8px] md:text-[9px] text-gray-500 font-normal"><CurrencyDisplay /></span></span>
                                             </div>
                                             <div className="bg-emerald-50/70 rounded-xl p-2.5 flex flex-col justify-center items-start border border-emerald-100/50">

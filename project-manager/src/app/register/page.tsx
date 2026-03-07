@@ -7,9 +7,9 @@ export default function RegisterPage() {
     return (
         <div className="min-h-screen flex flex-col md:flex-row bg-white">
             {/* Brand Section */}
-            <div className="md:w-1/2 bg-[#7F56D9] flex flex-col justify-center items-center p-8 text-white min-h-[30vh] md:min-h-screen">
+            <div className="md:w-1/2 bg-[#102550] flex flex-col justify-center items-center p-8 text-white min-h-[30vh] md:min-h-screen">
                 <h1 className="text-5xl font-bold tracking-tight mb-4">لوجو</h1>
-                <p className="text-purple-200 text-center max-w-sm hidden md:block">
+                <p className="text-blue-200 text-center max-w-sm hidden md:block">
                     قم بإنشاء حسابك الآن وانضم إلى منصتنا لإدارة مشاريعك بسهولة
                 </p>
             </div>
@@ -28,7 +28,7 @@ export default function RegisterPage() {
                                 <input
                                     type="text"
                                     placeholder="الاسم الأول"
-                                    className="block w-full rounded-xl border-0 py-3.5 px-4 text-gray-900 ring-1 ring-inset ring-gray-200 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-[#7F56D9] sm:text-sm sm:leading-6 bg-gray-50"
+                                    className="block w-full rounded-xl border-0 py-3.5 px-4 text-gray-900 ring-1 ring-inset ring-gray-200 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-[#102550] sm:text-sm sm:leading-6 bg-gray-50"
                                     required
                                 />
                             </div>
@@ -36,7 +36,7 @@ export default function RegisterPage() {
                                 <input
                                     type="text"
                                     placeholder="الاسم الأخير"
-                                    className="block w-full rounded-xl border-0 py-3.5 px-4 text-gray-900 ring-1 ring-inset ring-gray-200 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-[#7F56D9] sm:text-sm sm:leading-6 bg-gray-50"
+                                    className="block w-full rounded-xl border-0 py-3.5 px-4 text-gray-900 ring-1 ring-inset ring-gray-200 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-[#102550] sm:text-sm sm:leading-6 bg-gray-50"
                                     required
                                 />
                             </div>
@@ -46,7 +46,7 @@ export default function RegisterPage() {
                             <input
                                 type="tel"
                                 placeholder="رقم الهاتف"
-                                className="block w-full rounded-xl border-0 py-3.5 px-4 text-gray-900 ring-1 ring-inset ring-gray-200 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-[#7F56D9] sm:text-sm sm:leading-6 bg-gray-50"
+                                className="block w-full rounded-xl border-0 py-3.5 px-4 text-gray-900 ring-1 ring-inset ring-gray-200 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-[#102550] sm:text-sm sm:leading-6 bg-gray-50"
                                 required
                             />
                         </div>
@@ -55,7 +55,7 @@ export default function RegisterPage() {
                             <input
                                 type="email"
                                 placeholder="البريد الالكتروني"
-                                className="block w-full rounded-xl border-0 py-3.5 px-4 text-gray-900 ring-1 ring-inset ring-gray-200 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-[#7F56D9] sm:text-sm sm:leading-6 bg-gray-50"
+                                className="block w-full rounded-xl border-0 py-3.5 px-4 text-gray-900 ring-1 ring-inset ring-gray-200 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-[#102550] sm:text-sm sm:leading-6 bg-gray-50"
                                 required
                             />
                         </div>
@@ -65,7 +65,7 @@ export default function RegisterPage() {
                                 <input
                                     type="password"
                                     placeholder="كلمة المرور"
-                                    className="block w-full rounded-xl border-0 py-3.5 pl-12 pr-4 text-gray-900 ring-1 ring-inset ring-gray-200 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-[#7F56D9] sm:text-sm sm:leading-6 bg-gray-50"
+                                    className="block w-full rounded-xl border-0 py-3.5 pl-12 pr-4 text-gray-900 ring-1 ring-inset ring-gray-200 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-[#102550] sm:text-sm sm:leading-6 bg-gray-50"
                                     required
                                 />
                                 <button type="button" className="absolute inset-y-0 left-0 flex items-center pl-4 text-gray-400 hover:text-gray-600">
@@ -79,7 +79,7 @@ export default function RegisterPage() {
                                 <input
                                     type="password"
                                     placeholder="تأكيد كلمة المرور"
-                                    className="block w-full rounded-xl border-0 py-3.5 pl-12 pr-4 text-gray-900 ring-1 ring-inset ring-gray-200 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-[#7F56D9] sm:text-sm sm:leading-6 bg-gray-50"
+                                    className="block w-full rounded-xl border-0 py-3.5 pl-12 pr-4 text-gray-900 ring-1 ring-inset ring-gray-200 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-[#102550] sm:text-sm sm:leading-6 bg-gray-50"
                                     required
                                 />
                                 <button type="button" className="absolute inset-y-0 left-0 flex items-center pl-4 text-gray-400 hover:text-gray-600">
@@ -93,11 +93,11 @@ export default function RegisterPage() {
                                 id="terms"
                                 name="terms"
                                 type="checkbox"
-                                className="mt-1 h-4 w-4 rounded border-gray-300 text-[#7F56D9] focus:ring-[#7F56D9]"
+                                className="mt-1 h-4 w-4 rounded border-gray-300 text-[#102550] focus:ring-[#102550]"
                                 required
                             />
                             <label htmlFor="terms" className="text-sm text-gray-600 leading-relaxed">
-                                بالتسجيل، أنت توافق على <Link href="#" className="font-semibold text-[#7F56D9]">الشروط والأحكام</Link> المتصلة بخدمات منصتنا.
+                                بالتسجيل، أنت توافق على <Link href="#" className="font-semibold text-[#102550]">الشروط والأحكام</Link> المتصلة بخدمات منصتنا.
                             </label>
                         </div>
 
@@ -108,7 +108,7 @@ export default function RegisterPage() {
                         <div className="text-center mt-6">
                             <p className="text-sm text-gray-600">
                                 لديك حساب بالفعل؟{' '}
-                                <Link href="/login" className="font-bold text-[#7F56D9] hover:text-[#6941C6]">
+                                <Link href="/login" className="font-bold text-[#102550] hover:text-[#1a3a7c]">
                                     تسجيل الدخول هنا
                                 </Link>
                             </p>

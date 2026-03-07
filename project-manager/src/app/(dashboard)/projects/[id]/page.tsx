@@ -86,7 +86,7 @@ export default function ProjectDetailsPage({ params }: { params: Promise<{ id: s
     const expectedRemaining = budgetAllocated - approvedExpenses - pendingExpenses;
 
     const kpis = [
-        { title: "الميزانية المخصصة", value: budgetAllocated.toLocaleString(), icon: Wallet, color: "text-[#7F56D9]", bg: "bg-purple-50" },
+        { title: "الميزانية المخصصة", value: budgetAllocated.toLocaleString(), icon: Wallet, color: "text-[#102550]", bg: "bg-blue-50" },
         { title: "العهد المتبقية (مع الموظفين)", value: custodyRemaining.toLocaleString(), icon: Landmark, color: "text-emerald-600", bg: "bg-emerald-50" },
         { title: "المصروفات المعتمدة", value: approvedExpenses.toLocaleString(), icon: FileText, color: "text-red-600", bg: "bg-red-50" },
         { title: "المتبقي المتوقع (الصافي)", value: expectedRemaining.toLocaleString(), icon: ArrowDownLeft, color: expectedRemaining < 0 ? "text-red-600" : "text-orange-600", bg: expectedRemaining < 0 ? "bg-red-50" : "bg-orange-50" },
@@ -227,7 +227,7 @@ export default function ProjectDetailsPage({ params }: { params: Promise<{ id: s
                                     {project.image ? (
                                         <img src={project.image} alt={project.name} className="w-16 h-16 rounded-xl object-cover shadow-sm shrink-0 border border-gray-100" />
                                     ) : (
-                                        <div className="w-16 h-16 rounded-xl bg-purple-100 flex items-center justify-center text-[#7F56D9] shrink-0">
+                                        <div className="w-16 h-16 rounded-xl bg-blue-100 flex items-center justify-center text-[#102550] shrink-0">
                                             <FolderKanban className="w-8 h-8" />
                                         </div>
                                     )}
@@ -246,7 +246,7 @@ export default function ProjectDetailsPage({ params }: { params: Promise<{ id: s
                                         </Button>
                                     )}
                                     {canManageMembers && (
-                                        <Button variant="outline" onClick={() => window.location.href = `/projects/${project.id}/members`} className="gap-2 h-7 md:h-8 px-2 md:px-3 text-[10px] md:text-xs text-purple-600 border-purple-200 hover:bg-purple-50">
+                                        <Button variant="outline" onClick={() => window.location.href = `/projects/${project.id}/members`} className="gap-2 h-7 md:h-8 px-2 md:px-3 text-[10px] md:text-xs text-blue-600 border-blue-200 hover:bg-blue-50">
                                             <Users className="w-3 h-3 md:w-3.5 md:h-3.5" />
                                             الأعضاء
                                         </Button>
@@ -268,18 +268,18 @@ export default function ProjectDetailsPage({ params }: { params: Promise<{ id: s
                                         <p className="text-[10px] md:text-xs text-emerald-600/70 font-bold">إجمالي ما تم سحبه للعهد</p>
                                         <p className="font-bold text-emerald-600 mt-1.5 text-xs md:text-sm">{project.custodyIssued?.toLocaleString() || '0'} <span className="text-[10px]"><CurrencyDisplay /></span></p>
                                     </div>
-                                    <div className="bg-purple-50 p-4 rounded-xl">
-                                        <p className="text-[10px] md:text-xs text-purple-400 font-bold">مدير المشروع</p>
-                                        <p className="font-bold text-purple-700 mt-1.5 text-xs md:text-sm">{project.manager?.name || 'غير محدد'}</p>
+                                    <div className="bg-blue-50 p-4 rounded-xl">
+                                        <p className="text-[10px] md:text-xs text-blue-400 font-bold">مدير المشروع</p>
+                                        <p className="font-bold text-blue-700 mt-1.5 text-xs md:text-sm">{project.manager?.name || 'غير محدد'}</p>
                                     </div>
                                 </div>
                             )}
 
                             {role === "USER" && (
                                 <div className="grid grid-cols-1 border-t border-gray-100 pt-6">
-                                    <div className="bg-purple-50 p-4 rounded-xl max-w-sm">
-                                        <p className="text-[10px] md:text-xs text-purple-400 font-bold">مدير المشروع</p>
-                                        <p className="font-bold text-purple-700 mt-1.5 text-xs md:text-sm">{project.manager?.name || 'غير محدد'}</p>
+                                    <div className="bg-blue-50 p-4 rounded-xl max-w-sm">
+                                        <p className="text-[10px] md:text-xs text-blue-400 font-bold">مدير المشروع</p>
+                                        <p className="font-bold text-blue-700 mt-1.5 text-xs md:text-sm">{project.manager?.name || 'غير محدد'}</p>
                                     </div>
                                 </div>
                             )}
@@ -305,7 +305,7 @@ export default function ProjectDetailsPage({ params }: { params: Promise<{ id: s
                                         <circle
                                             cx="50%" cy="50%" r="42%"
                                             fill="none"
-                                            stroke={expectedRemaining < 0 ? "#ef4444" : "#7F56D9"}
+                                            stroke={expectedRemaining < 0 ? "#ef4444" : "#102550"}
                                             strokeWidth="8%"
                                             strokeDasharray="264%"
                                             strokeDashoffset={`${Math.max(0, 264 - (264 * (budgetAllocated > 0 ? Math.max(0, expectedRemaining) / budgetAllocated : 0)))}%`}
@@ -331,7 +331,7 @@ export default function ProjectDetailsPage({ params }: { params: Promise<{ id: s
                         <Card className="p-5 md:p-6 shadow-sm border-gray-100 space-y-4">
                             <div className="flex justify-between items-center">
                                 <h3 className="font-bold text-base md:text-lg text-gray-900 flex items-center gap-2">
-                                    <Users className="w-5 h-5 text-[#7F56D9]" />
+                                    <Users className="w-5 h-5 text-[#102550]" />
                                     أعضاء الفريق
                                 </h3>
                                 <Button variant="outline" onClick={() => router.push(`/projects/${project.id}/members`)} className="text-xs h-8 px-3 gap-1.5">
@@ -355,14 +355,14 @@ export default function ProjectDetailsPage({ params }: { params: Promise<{ id: s
                                         return (
                                             <div key={m.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-xl gap-3">
                                                 <div className="flex items-center gap-3">
-                                                    <div className="w-10 h-10 rounded-full bg-[#7F56D9]/10 flex items-center justify-center text-[#7F56D9] font-black shrink-0 text-sm">
+                                                    <div className="w-10 h-10 rounded-full bg-[#102550]/10 flex items-center justify-center text-[#102550] font-black shrink-0 text-sm">
                                                         {m.user.name.charAt(0)}
                                                     </div>
                                                     <div>
                                                         <p className="font-bold text-sm text-gray-900">{m.user.name}</p>
                                                         <div className="flex gap-1 flex-wrap mt-0.5">
                                                             {roles.map((r: string) => (
-                                                                <span key={r} className="text-[10px] px-2 py-0.5 bg-purple-100 text-purple-700 rounded-full font-semibold">
+                                                                <span key={r} className="text-[10px] px-2 py-0.5 bg-blue-100 text-blue-700 rounded-full font-semibold">
                                                                     {roleLabels[r] || r}
                                                                 </span>
                                                             ))}
@@ -458,7 +458,7 @@ export default function ProjectDetailsPage({ params }: { params: Promise<{ id: s
                                                 value={custodyEmployeeId}
                                                 onChange={e => setCustodyEmployeeId(e.target.value)}
                                                 required
-                                                className="w-full rounded-xl border border-gray-200 p-3 outline-none focus:ring-2 focus:ring-[#7F56D9] text-sm bg-white"
+                                                className="w-full rounded-xl border border-gray-200 p-3 outline-none focus:ring-2 focus:ring-[#102550] text-sm bg-white"
                                             >
                                                 <option value="">— اختر من القائمة —</option>
                                                 {project.members?.map((m: ProjectMember & { user: User }) => (
@@ -473,7 +473,7 @@ export default function ProjectDetailsPage({ params }: { params: Promise<{ id: s
                                                     type="number" required min="1" step="0.01"
                                                     value={custodyAmount}
                                                     onChange={e => setCustodyAmount(e.target.value)}
-                                                    className="w-full rounded-xl border border-gray-200 p-3 outline-none focus:ring-2 focus:ring-[#7F56D9] text-sm"
+                                                    className="w-full rounded-xl border border-gray-200 p-3 outline-none focus:ring-2 focus:ring-[#102550] text-sm"
                                                     placeholder="0.00"
                                                 />
                                             </div>
@@ -482,7 +482,7 @@ export default function ProjectDetailsPage({ params }: { params: Promise<{ id: s
                                                 <select
                                                     value={custodyMethod}
                                                     onChange={e => setCustodyMethod(e.target.value)}
-                                                    className="w-full rounded-xl border border-gray-200 p-3 outline-none focus:ring-2 focus:ring-[#7F56D9] text-sm bg-white"
+                                                    className="w-full rounded-xl border border-gray-200 p-3 outline-none focus:ring-2 focus:ring-[#102550] text-sm bg-white"
                                                 >
                                                     <option value="CASH">نقدي</option>
                                                     <option value="BANK">تحويل بنكي</option>
@@ -495,7 +495,7 @@ export default function ProjectDetailsPage({ params }: { params: Promise<{ id: s
                                                 type="text"
                                                 value={custodyNote}
                                                 onChange={e => setCustodyNote(e.target.value)}
-                                                className="w-full rounded-xl border border-gray-200 p-3 outline-none focus:ring-2 focus:ring-[#7F56D9] text-sm"
+                                                className="w-full rounded-xl border border-gray-200 p-3 outline-none focus:ring-2 focus:ring-[#102550] text-sm"
                                                 placeholder="سبب صرف العهدة..."
                                             />
                                         </div>
@@ -544,7 +544,7 @@ export default function ProjectDetailsPage({ params }: { params: Promise<{ id: s
                                 {project.invoices.map((inv: Invoice) => (
                                     <div key={inv.id} className="flex justify-between items-center p-4 bg-gray-50 rounded-xl">
                                         <div className="flex items-center gap-4">
-                                            <div className="w-10 h-10 rounded-xl bg-purple-100 flex items-center justify-center text-primary">
+                                            <div className="w-10 h-10 rounded-xl bg-blue-100 flex items-center justify-center text-primary">
                                                 <FileText className="w-5 h-5" />
                                             </div>
                                             <div>
@@ -631,7 +631,7 @@ export default function ProjectDetailsPage({ params }: { params: Promise<{ id: s
                                     <label className="text-sm font-bold text-gray-700">المبلغ (ريال)</label>
                                     <input type="number" required step="0.01" min="1"
                                         value={allocationAmount} onChange={e => setAllocationAmount(e.target.value)}
-                                        className="w-full rounded-xl border border-gray-200 p-3 outline-none focus:ring-2 focus:ring-purple-400"
+                                        className="w-full rounded-xl border border-gray-200 p-3 outline-none focus:ring-2 focus:ring-blue-400"
                                         placeholder="0.00"
                                     />
                                 </div>
@@ -639,7 +639,7 @@ export default function ProjectDetailsPage({ params }: { params: Promise<{ id: s
                                     <label className="text-sm font-bold text-gray-700">ملاحظات (اختياري)</label>
                                     <input type="text"
                                         value={allocationNote} onChange={e => setAllocationNote(e.target.value)}
-                                        className="w-full rounded-xl border border-gray-200 p-3 outline-none focus:ring-2 focus:ring-purple-400"
+                                        className="w-full rounded-xl border border-gray-200 p-3 outline-none focus:ring-2 focus:ring-blue-400"
                                         placeholder="سبب التخصيص..."
                                     />
                                 </div>

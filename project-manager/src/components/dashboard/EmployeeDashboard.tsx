@@ -151,7 +151,7 @@ export default function EmployeeDashboard() {
 
     // ─── KPI cards for personal financial summary ──────────────────────────────
     const kpis = [
-        { title: "إجمالي العُهد الواردة", value: flow.received, icon: Wallet, color: "text-[#7F56D9]", bg: "bg-[#7F56D9]/10", isCurrency: true },
+        { title: "إجمالي العُهد الواردة", value: flow.received, icon: Wallet, color: "text-[#102550]", bg: "bg-[#102550]/10", isCurrency: true },
         { title: "مُنفَّق (فواتير مقبولة)", value: flow.spent, icon: Receipt, color: "text-rose-500", bg: "bg-rose-500/10", isCurrency: true },
         { title: "المشاريع المسندة إليك", value: stats.totalProjects, icon: FolderKanban, color: "text-amber-500", bg: "bg-amber-500/10", isCurrency: false },
     ];
@@ -177,15 +177,15 @@ export default function EmployeeDashboard() {
                 {/* Pull-to-refresh indicator */}
                 {isRefreshing && (
                     <div className="flex justify-center py-2">
-                        <RefreshCw className="w-5 h-5 text-[#7F56D9] animate-spin" />
+                        <RefreshCw className="w-5 h-5 text-[#102550] animate-spin" />
                     </div>
                 )}
 
                 {/* ── EC1: No projects at all → welcome / empty state ─────────────── */}
                 {!projectRoles.hasAnyProject ? (
                     <div className="flex flex-col items-center justify-center py-20 text-center gap-4">
-                        <div className="w-20 h-20 rounded-3xl bg-[#7F56D9]/10 flex items-center justify-center">
-                            <PackageSearch className="w-10 h-10 text-[#7F56D9]" />
+                        <div className="w-20 h-20 rounded-3xl bg-[#102550]/10 flex items-center justify-center">
+                            <PackageSearch className="w-10 h-10 text-[#102550]" />
                         </div>
                         <div>
                             <h2 className="font-black text-xl text-gray-900 mb-1">أهلاً بك في منظومة المشاريع! 👋</h2>
@@ -200,14 +200,14 @@ export default function EmployeeDashboard() {
                         {projectRoles.canAddInvoice && (
                             <button
                                 onClick={() => router.push('/invoices/new')}
-                                className="w-full flex items-center gap-4 bg-gradient-to-l from-purple-700 to-purple-500 text-white rounded-2xl p-5 shadow-lg shadow-purple-200 active:scale-95 transition-transform"
+                                className="w-full flex items-center gap-4 bg-gradient-to-l from-blue-700 to-blue-500 text-white rounded-2xl p-5 shadow-lg shadow-blue-200 active:scale-95 transition-transform"
                             >
                                 <div className="w-14 h-14 bg-white/20 rounded-2xl flex items-center justify-center shrink-0">
                                     <Camera className="w-8 h-8" />
                                 </div>
                                 <div className="text-right flex-1">
                                     <p className="text-xl font-black">رفع فاتورة</p>
-                                    <p className="text-purple-200 text-sm mt-0.5">صوّر أو ارفع فاتورة الآن ←</p>
+                                    <p className="text-blue-200 text-sm mt-0.5">صوّر أو ارفع فاتورة الآن ←</p>
                                 </div>
                             </button>
                         )}
@@ -378,10 +378,10 @@ export default function EmployeeDashboard() {
                                 </div>
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                     {stats.recentProjects.slice(0, 4).map(project => (
-                                        <Card key={project.id} className="p-4 md:p-5 flex flex-col hover:border-[#7F56D9]/30 transition-colors relative overflow-hidden group shadow-sm border border-gray-100 rounded-2xl">
+                                        <Card key={project.id} className="p-4 md:p-5 flex flex-col hover:border-[#102550]/30 transition-colors relative overflow-hidden group shadow-sm border border-gray-100 rounded-2xl">
                                             <div className="flex justify-between items-start mb-3">
                                                 <div>
-                                                    <h4 className="font-bold text-sm md:text-base text-gray-900 line-clamp-1 group-hover:text-[#7F56D9] transition-colors">{project.name}</h4>
+                                                    <h4 className="font-bold text-sm md:text-base text-gray-900 line-clamp-1 group-hover:text-[#102550] transition-colors">{project.name}</h4>
                                                     <p className="text-[10px] md:text-xs font-semibold mt-1 text-gray-400">
                                                         {project.endDate ? new Date(project.endDate).toLocaleDateString('en-GB') : 'تاريخ غير محدد'}
                                                     </p>
@@ -401,7 +401,7 @@ export default function EmployeeDashboard() {
                                                 </div>
                                             </div>
                                             <div className="mt-auto pt-3 border-t border-gray-50">
-                                                <Button onClick={() => router.push(`/projects/${project.id}`)} variant="secondary" className="w-full text-[11px] md:text-xs h-10 font-bold bg-[#7F56D9]/5 text-[#7F56D9] hover:bg-[#7F56D9]/10 border-none transition-colors rounded-xl">
+                                                <Button onClick={() => router.push(`/projects/${project.id}`)} variant="secondary" className="w-full text-[11px] md:text-xs h-10 font-bold bg-[#102550]/5 text-[#102550] hover:bg-[#102550]/10 border-none transition-colors rounded-xl">
                                                     عرض التفاصيل
                                                 </Button>
                                             </div>

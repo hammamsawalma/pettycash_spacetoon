@@ -322,6 +322,8 @@ model Purchase {
   invoiceId    String?   // الفاتورة المرتبطة بعد الشراء
   notes        String?   // ملاحظات للموظف
   imageUrl     String?   // V3: صورة مرفقة للشراء (اختياري)
+  isRedFlagged Boolean   @default(false)
+  redFlagReason String?  // سبب الراية الحمراء (مثلاً: المنتج غير متوفر)
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
   isDeleted    Boolean   @default(false)

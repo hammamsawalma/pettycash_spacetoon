@@ -172,3 +172,99 @@ export async function markPurchaseAsBought(purchaseId: string, invoiceId?: strin
         return { error: "حدث خطأ أثناء تحديث حالة الشراء" };
     }
 }
+
+// ─── جلب تفاصيل طلب شراء بواسطة ID ─────────────────────────
+export async function getPurchaseById(id: string) {
+    try {
+        const session = await getSession();
+        if (!session) return null;
+
+        const purchase = await prisma.purchase.findUnique({
+            where: { id, isDeleted: false },
+            include: {
+                creator: { select: { id: true, name: true, image: true, role: true } },
+                project: { select: { id: true, name: true, managerId: true } }
+            }
+        });
+
+        if (!purchase) return null;
+
+        const isUnrestricted = isGlobalFinance(session.role) || session.role === "GENERAL_MANAGER";
+        if (isUnrestricted || purchase.creatorId === session.id || purchase.project?.managerId === session.id) {
+            return purchase;
+        }
+
+        // Check project membership roles
+        if (purchase.projectId) {
+            const member = await prisma.projectMember.findUnique({
+                where: { projectId_userId: { projectId: purchase.projectId, userId: session.id } }
+            });
+            if (member && (member.projectRoles.includes("PROJECT_MANAGER") || member.projectRoles.includes("PROJECT_ACCOUNTANT") || member.projectRoles.includes("PROJECT_EMPLOYEE"))) {
+                return purchase;
+            }
+        }
+
+        return null;
+    } catch (error) {
+        console.error("Get Purchase By Id Error:", error);
+        return null;
+    }
+}
+
+// ─── وضع / إزالة راية حمراء ────────────────────────────────
+export async function togglePurchaseRedFlag(purchaseId: string, reason: string | null, isRemoving: boolean) {
+    try {
+        const session = await getSession();
+        if (!session) return { error: "غير مسجل الدخول" };
+
+        const purchase = await prisma.purchase.findUnique({
+            where: { id: purchaseId },
+            include: { project: true }
+        });
+
+        if (!purchase) return { error: "طلب الشراء غير موجود" };
+
+        // Authorization: Project Employee/Manager/Accountant or Global Finance
+        let authorized = false;
+        if (isGlobalFinance(session.role) || purchase.creatorId === session.id || purchase.project?.managerId === session.id) {
+            authorized = true;
+        } else if (purchase.projectId) {
+            const member = await prisma.projectMember.findUnique({
+                where: { projectId_userId: { projectId: purchase.projectId, userId: session.id } }
+            });
+            if (member && (member.projectRoles.includes("PROJECT_MANAGER") || member.projectRoles.includes("PROJECT_EMPLOYEE"))) {
+                authorized = true;
+            }
+        }
+
+        if (!authorized) return { error: "لا تملك صلاحية لتحديث حالة هذا الطلب" };
+
+        // Update the purchase
+        await prisma.purchase.update({
+            where: { id: purchaseId },
+            data: {
+                isRedFlagged: !isRemoving,
+                redFlagReason: isRemoving ? null : reason,
+            }
+        });
+
+        // EC1: Notify the creator if a red flag is added
+        if (!isRemoving && purchase.creatorId !== session.id) {
+            await prisma.notification.create({
+                data: {
+                    title: "تنبيه: عنصر غير متوفر 🚩",
+                    content: `تم وضع راية حمراء على طلب الشراء المرجعي ${purchase.orderNumber}. السبب: ${reason}`,
+                    targetUserId: purchase.creatorId,
+                    targetProjectId: purchase.projectId,
+                }
+            });
+        }
+
+        revalidatePath(`/purchases/${purchaseId}`);
+        revalidatePath("/purchases");
+        return { success: true };
+    } catch (error) {
+        console.error("Toggle Red Flag Error:", error);
+        return { error: "حدث خطأ أثناء تحديث حالة الراية الحمراء" };
+    }
+}

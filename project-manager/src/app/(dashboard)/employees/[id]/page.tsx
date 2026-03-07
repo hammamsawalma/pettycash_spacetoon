@@ -54,7 +54,7 @@ export default function EmployeeDetailsPage({ params }: { params: Promise<{ id: 
                 <div className="w-full lg:w-80 space-y-6">
                     <Card className="p-6 flex flex-col items-center text-center">
                         <div className="relative mb-4 mt-2">
-                            <div className="w-32 h-32 rounded-full border-4 border-purple-100 flex items-center justify-center bg-gray-50 text-5xl overflow-hidden shadow-sm">
+                            <div className="w-32 h-32 rounded-full border-4 border-blue-100 flex items-center justify-center bg-gray-50 text-5xl overflow-hidden shadow-sm">
                                 {employee.name?.charAt(0) || "👨🏻‍💼"}
                             </div>
                             <span className="absolute bottom-2 right-2 w-5 h-5 rounded-full bg-green-500 border-2 border-white"></span>
@@ -68,7 +68,7 @@ export default function EmployeeDetailsPage({ params }: { params: Promise<{ id: 
                         )}
 
                         <h2 className="text-xl font-bold text-gray-900">{employee.name}</h2>
-                        <p className="text-[#7F56D9] font-semibold mt-1 mb-4">{employee.jobTitle || employee.role}</p>
+                        <p className="text-[#102550] font-semibold mt-1 mb-4">{employee.jobTitle || employee.role}</p>
 
                         <div className="w-full text-right mt-6 space-y-4">
                             <div>
@@ -81,18 +81,18 @@ export default function EmployeeDetailsPage({ params }: { params: Promise<{ id: 
                             </div>
                             <div>
                                 <p className="text-xs text-gray-500">الراتب المتفق عليه</p>
-                                <p className="font-bold text-[#7F56D9] mt-1 text-lg">QAR {employee.salary?.toLocaleString() || "0"}</p>
+                                <p className="font-bold text-[#102550] mt-1 text-lg">QAR {employee.salary?.toLocaleString() || "0"}</p>
                             </div>
                         </div>
 
                         <div className="flex gap-2 w-full mt-6 pt-6 border-t border-gray-100">
                             <Link href="/chat" className="flex-1">
-                                <Button variant="primary" className="w-full gap-2 bg-[#7F56D9] hover:bg-purple-700">
+                                <Button variant="primary" className="w-full gap-2 bg-[#102550] hover:bg-blue-700">
                                     <MessageSquare className="w-4 h-4" />
                                     ارسال رسالة
                                 </Button>
                             </Link>
-                            <Button variant="outline" className="px-4 border-gray-200 text-gray-600 hover:text-[#7F56D9]">
+                            <Button variant="outline" className="px-4 border-gray-200 text-gray-600 hover:text-[#102550]">
                                 <Phone className="w-5 h-5" />
                             </Button>
                         </div>
@@ -104,8 +104,8 @@ export default function EmployeeDetailsPage({ params }: { params: Promise<{ id: 
 
                     {/* Performance KPIs */}
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                        <Card className="p-4 flex items-center gap-4 bg-purple-50/50 border-purple-100">
-                            <div className="w-10 h-10 rounded-lg bg-white flex items-center justify-center text-purple-600 shadow-sm shrink-0">
+                        <Card className="p-4 flex items-center gap-4 bg-blue-50/50 border-blue-100">
+                            <div className="w-10 h-10 rounded-lg bg-white flex items-center justify-center text-blue-600 shadow-sm shrink-0">
                                 <FolderKanban className="w-5 h-5" />
                             </div>
                             <div>
@@ -146,17 +146,17 @@ export default function EmployeeDetailsPage({ params }: { params: Promise<{ id: 
                     <Card className="p-6">
                         <div className="flex justify-between items-center mb-6 border-b border-gray-100 pb-4">
                             <h3 className="font-bold text-lg text-gray-900">المشاريع الحالية</h3>
-                            <Link href="/projects" className="text-sm text-[#7F56D9] font-medium hover:underline">عرض الكل</Link>
+                            <Link href="/projects" className="text-sm text-[#102550] font-medium hover:underline">عرض الكل</Link>
                         </div>
 
                         <div className="space-y-4">
                             {employee.memberships?.length === 0 ? (
                                 <div className="text-center py-10 text-gray-500 text-sm">لا توجد مشاريع مسندة إلى هذا الموظف حالياً.</div>
                             ) : employee.memberships?.map((m: { id: string, project: { name: string, description: string | null, status: string, endDate: Date | string | null } }) => (
-                                <div key={m.id} className="p-4 border border-gray-100 rounded-xl hover:bg-gray-50 hover:border-[#7F56D9] transition-colors cursor-pointer group">
+                                <div key={m.id} className="p-4 border border-gray-100 rounded-xl hover:bg-gray-50 hover:border-[#102550] transition-colors cursor-pointer group">
                                     <div className="flex justify-between items-start">
                                         <div>
-                                            <h4 className="font-bold text-lg text-gray-900 group-hover:text-[#7F56D9] transition-colors">{m.project.name}</h4>
+                                            <h4 className="font-bold text-lg text-gray-900 group-hover:text-[#102550] transition-colors">{m.project.name}</h4>
                                             <p className="text-sm text-gray-500 mt-1">{m.project.description || "لا يوجد وصف"}</p>
                                         </div>
                                         <span className={`px-3 py-1 text-xs font-semibold rounded-full ${m.project.status === 'COMPLETED' ? 'bg-green-100 text-green-700' : 'bg-blue-100 text-blue-700'}`}>
@@ -167,7 +167,7 @@ export default function EmployeeDetailsPage({ params }: { params: Promise<{ id: 
                                         <div className="flex items-center gap-4">
                                             <span className="text-xs text-gray-500">التقدم:</span>
                                             <div className="w-32 h-2 bg-gray-200 rounded-full overflow-hidden">
-                                                <div className={`h-full rounded-full ${m.project.status === 'COMPLETED' ? 'bg-green-500 w-full' : 'bg-[#7F56D9] w-1/2'}`}></div>
+                                                <div className={`h-full rounded-full ${m.project.status === 'COMPLETED' ? 'bg-green-500 w-full' : 'bg-[#102550] w-1/2'}`}></div>
                                             </div>
                                             <span className="text-xs font-medium text-gray-700">{m.project.status === 'COMPLETED' ? '100%' : '50%'}</span>
                                         </div>

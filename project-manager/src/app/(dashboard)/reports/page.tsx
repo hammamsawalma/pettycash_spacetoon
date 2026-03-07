@@ -14,7 +14,7 @@ import { useCanDo } from "@/components/auth/Protect";
 import { useRouter } from "next/navigation";
 import { CurrencyDisplay } from "@/components/ui/CurrencyDisplay";
 
-const COLORS = ['#7F56D9', '#0ea5e9', '#10b981', '#f59e0b', '#f43f5e'];
+const COLORS = ['#102550', '#0ea5e9', '#10b981', '#f59e0b', '#f43f5e'];
 
 export default function ReportsPage() {
     const { user } = useAuth();
@@ -79,7 +79,7 @@ export default function ReportsPage() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
                     <Card className="p-5 md:p-6 transition-all duration-300 transform shadow-sm border-gray-100 hover:shadow-md hover:border-primary/30">
                         <div className="flex flex-row md:flex-col lg:flex-row items-center md:items-start lg:items-center gap-4">
-                            <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-purple-50 text-primary flex items-center justify-center shrink-0 shadow-sm border border-purple-100/50">
+                            <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-blue-50 text-primary flex items-center justify-center shrink-0 shadow-sm border border-blue-100/50">
                                 <Wallet className="w-5 h-5 md:w-6 md:h-6" />
                             </div>
                             <div>

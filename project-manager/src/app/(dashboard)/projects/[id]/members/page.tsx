@@ -12,7 +12,7 @@ import toast from "react-hot-toast";
 
 const ROLE_CONFIG = {
     PROJECT_EMPLOYEE: { label: "موظف", color: "bg-blue-100 text-blue-700", desc: "يستلم عهدة، يرفع فواتير" },
-    PROJECT_ACCOUNTANT: { label: "محاسب", color: "bg-purple-100 text-purple-700", desc: "يراجع ويعتمد الفواتير" },
+    PROJECT_ACCOUNTANT: { label: "محاسب", color: "bg-blue-100 text-blue-700", desc: "يراجع ويعتمد الفواتير" },
     PROJECT_MANAGER: { label: "منسق", color: "bg-amber-100 text-amber-700", desc: "يضيف قوائم المشتريات" },
 };
 
@@ -75,8 +75,8 @@ export default function ProjectMembersPage() {
                 {/* Header */}
                 <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-purple-100 rounded-xl flex items-center justify-center">
-                            <Users className="w-5 h-5 text-purple-600" />
+                        <div className="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center">
+                            <Users className="w-5 h-5 text-blue-600" />
                         </div>
                         <div>
                             <h1 className="text-xl font-bold text-gray-900">أعضاء المشروع</h1>
@@ -126,7 +126,7 @@ export default function ProjectMembersPage() {
                                         onClick={() => setExpandedId(isExpanded ? null : member.id)}
                                     >
                                         {/* Avatar */}
-                                        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-400 to-blue-500 flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
+                                        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-400 to-blue-500 flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
                                             {member.user.name?.charAt(0) || "?"}
                                         </div>
                                         {/* Info */}

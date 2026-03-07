@@ -200,8 +200,8 @@ export default function MyCustodiesClient({ custodies }: { custodies: CustodyDat
                 {/* 2. Active Custodies Section */}
                 <section>
                     <div className="flex items-center gap-2 mb-4">
-                        <div className="w-8 h-8 rounded-lg bg-[#7F56D9]/10 flex items-center justify-center">
-                            <Wallet className="w-4 h-4 text-[#7F56D9]" />
+                        <div className="w-8 h-8 rounded-lg bg-[#102550]/10 flex items-center justify-center">
+                            <Wallet className="w-4 h-4 text-[#102550]" />
                         </div>
                         <h2 className="text-xl font-bold text-gray-900">العهد النشطة</h2>
                     </div>
@@ -216,11 +216,11 @@ export default function MyCustodiesClient({ custodies }: { custodies: CustodyDat
                             {active.map(custody => {
                                 const spentPercentage = Math.min(((custody.amount - custody.balance) / custody.amount) * 100, 100);
                                 return (
-                                    <Card key={custody.id} className="p-5 hover:border-[#7F56D9]/30 transition-all group">
+                                    <Card key={custody.id} className="p-5 hover:border-[#102550]/30 transition-all group">
                                         <div className="flex justify-between items-start mb-3">
                                             <div>
                                                 <p className="text-xs font-semibold text-gray-500 mb-0.5">{custody.project.name}</p>
-                                                <h3 className="text-xl font-black text-gray-900 group-hover:text-[#7F56D9] transition-colors line-clamp-1">
+                                                <h3 className="text-xl font-black text-gray-900 group-hover:text-[#102550] transition-colors line-clamp-1">
                                                     المتبقي: {custody.balance.toLocaleString()} <span className="text-xs text-gray-400 font-bold"><CurrencyDisplay /></span>
                                                 </h3>
                                             </div>
@@ -237,7 +237,7 @@ export default function MyCustodiesClient({ custodies }: { custodies: CustodyDat
                                             </div>
                                             <div className="h-2 w-full bg-gray-100 rounded-full overflow-hidden">
                                                 <div
-                                                    className={`h-full rounded-full transition-all duration-1000 ${spentPercentage > 90 ? 'bg-red-500' : spentPercentage > 75 ? 'bg-amber-500' : 'bg-[#7F56D9]'
+                                                    className={`h-full rounded-full transition-all duration-1000 ${spentPercentage > 90 ? 'bg-red-500' : spentPercentage > 75 ? 'bg-amber-500' : 'bg-[#102550]'
                                                         }`}
                                                     style={{ width: `${spentPercentage}%` }}
                                                 />

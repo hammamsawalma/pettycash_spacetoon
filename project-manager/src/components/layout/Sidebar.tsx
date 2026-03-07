@@ -283,7 +283,7 @@ const QUICK_ADD_ITEMS: QuickAddItem[] = [
         icon: Users,
         href: '/employees/new',
         desc: 'إضافة موظف للنظام',
-        color: 'bg-purple-50 text-purple-600 border-purple-100',
+        color: 'bg-blue-50 text-blue-600 border-blue-100',
         check: (r) => canDo(r, 'employees', 'create'), // ADMIN only
     },
     {
@@ -373,7 +373,7 @@ export default function Sidebar({ isOpen, setIsOpen }: { isOpen?: boolean, setIs
                     <div className="px-5 pt-3 pb-2">
                         <button
                             onClick={() => setIsQuickAddOpen(true)}
-                            className="w-full flex items-center justify-center gap-2 bg-[#7F56D9] hover:bg-[#6941C6] text-white py-2.5 rounded-xl font-semibold shadow-sm shadow-[#7F56D9]/30 transition-all duration-200 hover:-translate-y-0.5"
+                            className="w-full flex items-center justify-center gap-2 bg-[#102550] hover:bg-[#1a3a7c] text-white py-2.5 rounded-xl font-semibold shadow-sm shadow-[#102550]/30 transition-all duration-200 hover:-translate-y-0.5"
                         >
                             <PlusCircle className="w-5 h-5" />
                             إضافة سريعة
@@ -408,7 +408,7 @@ export default function Sidebar({ isOpen, setIsOpen }: { isOpen?: boolean, setIs
                                                         <button
                                                             onClick={() => toggleMenu(item.name)}
                                                             className={`group relative flex items-center justify-between w-full rounded-xl px-3 py-2.5 text-sm font-semibold transition-all duration-200
-                                                                ${isActive ? 'text-[#7F56D9] bg-[#7F56D9]/5' : 'text-gray-500 hover:text-gray-900 hover:bg-gray-50/80 hover:shadow-sm'}`}
+                                                                ${isActive ? 'text-[#102550] bg-[#102550]/5' : 'text-gray-500 hover:text-gray-900 hover:bg-gray-50/80 hover:shadow-sm'}`}
                                                         >
                                                             <div className="flex items-center gap-x-3.5">
                                                                 <item.icon className="h-5 w-5 shrink-0 transition-transform duration-200 group-hover:scale-110" aria-hidden="true" />
@@ -435,9 +435,9 @@ export default function Sidebar({ isOpen, setIsOpen }: { isOpen?: boolean, setIs
                                                                                         href={subItem.href}
                                                                                         onClick={() => setIsOpen && setIsOpen(false)}
                                                                                         className={`group relative flex items-center gap-x-3 rounded-lg px-3 py-2 text-sm font-medium transition-all duration-200
-                                                                                            ${isSubActive ? 'text-[#7F56D9] bg-[#7F56D9]/5 font-bold' : 'text-gray-500 hover:text-gray-900 hover:bg-gray-50'}`}
+                                                                                            ${isSubActive ? 'text-[#102550] bg-[#102550]/5 font-bold' : 'text-gray-500 hover:text-gray-900 hover:bg-gray-50'}`}
                                                                                     >
-                                                                                        <div className={`w-1.5 h-1.5 rounded-full ${isSubActive ? 'bg-[#7F56D9]' : 'bg-gray-300 group-hover:bg-gray-400'} transition-colors`} />
+                                                                                        <div className={`w-1.5 h-1.5 rounded-full ${isSubActive ? 'bg-[#102550]' : 'bg-gray-300 group-hover:bg-gray-400'} transition-colors`} />
                                                                                         {subItem.name}
                                                                                     </Link>
                                                                                 </li>
@@ -454,7 +454,7 @@ export default function Sidebar({ isOpen, setIsOpen }: { isOpen?: boolean, setIs
                                                         {isActive && !hasSubItems && (
                                                             <motion.div
                                                                 layoutId="active-sidebar-item"
-                                                                className="absolute inset-0 bg-gradient-to-r from-[#7F56D9]/10 to-transparent rounded-xl border-e-2 border-[#7F56D9]"
+                                                                className="absolute inset-0 bg-gradient-to-r from-[#102550]/10 to-transparent rounded-xl border-e-2 border-[#102550]"
                                                                 initial={{ opacity: 0 }}
                                                                 animate={{ opacity: 1 }}
                                                                 transition={{ type: "spring", stiffness: 300, damping: 30 }}
@@ -464,7 +464,7 @@ export default function Sidebar({ isOpen, setIsOpen }: { isOpen?: boolean, setIs
                                                             href={item.href || '#'}
                                                             onClick={() => setIsOpen && setIsOpen(false)}
                                                             className={`group relative flex items-center gap-x-3.5 rounded-xl px-3 py-2.5 text-sm font-semibold transition-all duration-200
-                                                                ${isActive ? 'text-[#7F56D9]' : 'text-gray-500 hover:text-gray-900 hover:bg-gray-50/80 hover:shadow-sm hover:translate-x-[-4px]'}`}
+                                                                ${isActive ? 'text-[#102550]' : 'text-gray-500 hover:text-gray-900 hover:bg-gray-50/80 hover:shadow-sm hover:translate-x-[-4px]'}`}
                                                         >
                                                             <item.icon className="h-5 w-5 shrink-0 transition-transform duration-200 group-hover:scale-110" aria-hidden="true" />
                                                             {item.name}
@@ -538,13 +538,13 @@ export default function Sidebar({ isOpen, setIsOpen }: { isOpen?: boolean, setIs
                                                     key={idx}
                                                     href={item.href}
                                                     onClick={(e) => { e.stopPropagation(); setIsQuickAddOpen(false); }}
-                                                    className="group flex items-start gap-4 p-4 rounded-xl border border-gray-100 hover:border-[#7F56D9]/30 hover:shadow-md hover:bg-[#7F56D9]/5 transition-all duration-200"
+                                                    className="group flex items-start gap-4 p-4 rounded-xl border border-gray-100 hover:border-[#102550]/30 hover:shadow-md hover:bg-[#102550]/5 transition-all duration-200"
                                                 >
                                                     <div className={`w-10 h-10 rounded-lg flex items-center justify-center shrink-0 border ${item.color}`}>
                                                         <item.icon className="w-5 h-5" />
                                                     </div>
                                                     <div>
-                                                        <h4 className="font-semibold text-gray-900 group-hover:text-[#7F56D9] transition-colors">{item.name}</h4>
+                                                        <h4 className="font-semibold text-gray-900 group-hover:text-[#102550] transition-colors">{item.name}</h4>
                                                         <p className="text-xs text-gray-500 mt-1 line-clamp-2">{item.desc}</p>
                                                     </div>
                                                 </Link>

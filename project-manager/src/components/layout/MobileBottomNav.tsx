@@ -138,9 +138,9 @@ export default function MobileBottomNav() {
                                 className="flex-1 inline-flex flex-col items-center justify-center py-2 hover:bg-gray-50 group transition-all duration-200 rounded-xl min-h-[44px]"
                             >
                                 <item.icon
-                                    className={`w-5 h-5 mb-1 transition-all duration-200 ${isActive ? 'text-[#7F56D9] scale-110 drop-shadow-[0_2px_4px_rgba(127,86,217,0.4)]' : 'text-gray-400 group-hover:text-gray-600'}`}
+                                    className={`w-5 h-5 mb-1 transition-all duration-200 ${isActive ? 'text-[#102550] scale-110 drop-shadow-[0_2px_4px_rgba(127,86,217,0.4)]' : 'text-gray-400 group-hover:text-gray-600'}`}
                                 />
-                                <span className={`text-[10px] transition-colors duration-200 ${isActive ? 'text-[#7F56D9] font-bold' : 'text-gray-400 group-hover:text-gray-600'}`}>
+                                <span className={`text-[10px] transition-colors duration-200 ${isActive ? 'text-[#102550] font-bold' : 'text-gray-400 group-hover:text-gray-600'}`}>
                                     {item.name}
                                 </span>
                             </Link>
@@ -151,7 +151,7 @@ export default function MobileBottomNav() {
                     {canAddInvoice ? (
                         <button
                             onClick={() => router.push('/invoices/new')}
-                            className="flex flex-col items-center justify-center gap-1 bg-[#7F56D9] text-white rounded-2xl px-4 py-3 shadow-lg shadow-purple-300 active:scale-95 transition-transform mx-1 min-h-[52px]"
+                            className="flex flex-col items-center justify-center gap-1 bg-[#102550] text-white rounded-2xl px-4 py-3 shadow-lg shadow-blue-300 active:scale-95 transition-transform mx-1 min-h-[52px]"
                             aria-label="رفع فاتورة"
                         >
                             <Camera className="w-6 h-6" />
@@ -214,7 +214,7 @@ export default function MobileBottomNav() {
                                             <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${item.color}`}>
                                                 <item.icon className="w-5 h-5" />
                                             </div>
-                                            <span className="font-bold text-gray-800 group-hover:text-[#7F56D9] transition-colors">{item.name}</span>
+                                            <span className="font-bold text-gray-800 group-hover:text-[#102550] transition-colors">{item.name}</span>
                                         </Link>
                                     ))}
                                     {roleQuickAdd.length === 0 && (
@@ -242,7 +242,7 @@ export default function MobileBottomNav() {
                                             onClick={() => setFabOpen(v => !v)}
                                             className={`w-12 h-12 rounded-2xl flex items-center justify-center shadow-lg transition-all duration-300 active:scale-90 ${fabOpen
                                                 ? 'bg-gray-800 shadow-gray-400/30 rotate-45'
-                                                : 'bg-[#7F56D9] shadow-purple-300/60'
+                                                : 'bg-[#102550] shadow-blue-300/60'
                                                 }`}
                                             aria-label="قائمة الإضافة السريعة"
                                         >
@@ -259,7 +259,7 @@ export default function MobileBottomNav() {
                                 >
                                     <div className="relative">
                                         <item.icon
-                                            className={`w-5 h-5 mb-1 transition-all duration-200 ${isActive ? 'text-[#7F56D9] scale-110 drop-shadow-[0_2px_4px_rgba(127,86,217,0.4)]' : 'text-gray-400 group-hover:text-gray-600'}`}
+                                            className={`w-5 h-5 mb-1 transition-all duration-200 ${isActive ? 'text-[#102550] scale-110 drop-shadow-[0_2px_4px_rgba(127,86,217,0.4)]' : 'text-gray-400 group-hover:text-gray-600'}`}
                                         />
                                         {/* Notification badge on home icon */}
                                         {item.href === '/' && unreadCount > 0 && (
@@ -269,7 +269,7 @@ export default function MobileBottomNav() {
                                         )}
                                     </div>
                                     <span
-                                        className={`text-[10px] transition-colors duration-200 ${isActive ? 'text-[#7F56D9] font-bold' : 'text-gray-400 group-hover:text-gray-600'}`}
+                                        className={`text-[10px] transition-colors duration-200 ${isActive ? 'text-[#102550] font-bold' : 'text-gray-400 group-hover:text-gray-600'}`}
                                     >
                                         {item.name}
                                     </span>

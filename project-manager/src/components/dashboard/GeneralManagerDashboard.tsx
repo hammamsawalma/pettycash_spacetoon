@@ -62,7 +62,7 @@ export default function GeneralManagerDashboard() {
             <DashboardLayout title="لوحة المدير العام">
                 <div className="min-h-screen flex items-center justify-center">
                     <div className="flex flex-col items-center gap-4">
-                        <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[#7F56D9] to-[#9E77ED] flex items-center justify-center animate-pulse">
+                        <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[#102550] to-[#9E77ED] flex items-center justify-center animate-pulse">
                             <Star className="w-8 h-8 text-white" />
                         </div>
                         <span className="text-gray-500 font-semibold animate-pulse">جاري تحميل البيانات...</span>
@@ -97,8 +97,8 @@ export default function GeneralManagerDashboard() {
             title: "الموظفون",
             value: stats.employees,
             icon: Users,
-            color: "text-purple-600",
-            bg: "from-[#7F56D9] to-[#9E77ED]",
+            color: "text-blue-600",
+            bg: "from-[#102550] to-[#9E77ED]",
             isCurrency: false,
             sub: "العدد الكلي للموظفين",
         },
@@ -121,7 +121,7 @@ export default function GeneralManagerDashboard() {
                 <motion.div
                     initial={{ opacity: 0, y: -12 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-[#7F56D9] via-[#6941C6] to-[#53389E] p-6 md:p-8 text-white shadow-xl shadow-[#7F56D9]/25"
+                    className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-[#102550] via-[#1a3a7c] to-[#53389E] p-6 md:p-8 text-white shadow-xl shadow-[#102550]/25"
                 >
                     {/* decorative circles */}
                     <div className="absolute -top-10 -right-10 w-40 h-40 rounded-full bg-white/05 blur-2xl pointer-events-none" />
@@ -176,14 +176,14 @@ export default function GeneralManagerDashboard() {
                         <Card className="p-5 md:p-6">
                             <div className="flex justify-between items-center mb-5">
                                 <h3 className="font-bold text-lg text-gray-900">التدفق المالي الشامل</h3>
-                                <TrendingUp className="w-5 h-5 text-[#7F56D9]" />
+                                <TrendingUp className="w-5 h-5 text-[#102550]" />
                             </div>
                             <div className="grid grid-cols-3 md:grid-cols-6 gap-3">
                                 {[
                                     { label: "وارد الخزنة", value: walletFlow.walletReceived, color: "text-emerald-600", bg: "bg-emerald-50" },
                                     { label: "موزَّع للمشاريع", value: walletFlow.projectsAllocated, color: "text-blue-600", bg: "bg-blue-50" },
                                     { label: "عهد للموظفين", value: walletFlow.custodyIssued, color: "text-amber-600", bg: "bg-amber-50" },
-                                    { label: "عهد مُرجَعة", value: walletFlow.custodyReturned, color: "text-purple-600", bg: "bg-purple-50" },
+                                    { label: "عهد مُرجَعة", value: walletFlow.custodyReturned, color: "text-blue-600", bg: "bg-blue-50" },
                                     { label: "فواتير معتمدة", value: walletFlow.invoicesApproved, color: "text-rose-600", bg: "bg-rose-50" },
                                     { label: "رصيد الخزنة", value: walletFlow.walletRemaining, color: "text-emerald-700", bg: "bg-emerald-100 ring-1 ring-emerald-200" },
                                 ].map((item, i) => (
@@ -217,7 +217,7 @@ export default function GeneralManagerDashboard() {
                             </div>
                             <button
                                 onClick={() => router.push('/invoices')}
-                                className="text-xs text-[#7F56D9] font-semibold flex items-center gap-1 hover:gap-2 transition-all"
+                                className="text-xs text-[#102550] font-semibold flex items-center gap-1 hover:gap-2 transition-all"
                             >
                                 عرض الكل <ArrowRight className="w-3 h-3" />
                             </button>
@@ -291,7 +291,7 @@ export default function GeneralManagerDashboard() {
                                 })}
                                 <button
                                     onClick={() => router.push('/purchases')}
-                                    className="w-full mt-2 text-xs text-[#7F56D9] font-semibold flex items-center justify-center gap-1 hover:gap-2 transition-all pt-1"
+                                    className="w-full mt-2 text-xs text-[#102550] font-semibold flex items-center justify-center gap-1 hover:gap-2 transition-all pt-1"
                                 >
                                     عرض كل المشتريات <ArrowRight className="w-3 h-3" />
                                 </button>
@@ -301,8 +301,8 @@ export default function GeneralManagerDashboard() {
                         {/* العهد */}
                         <Card className="p-5">
                             <div className="flex items-center gap-2 mb-4">
-                                <div className="w-8 h-8 rounded-lg bg-purple-50 flex items-center justify-center">
-                                    <Building2 className="w-4 h-4 text-purple-600" />
+                                <div className="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center">
+                                    <Building2 className="w-4 h-4 text-blue-600" />
                                 </div>
                                 <h3 className="font-bold text-gray-900">العُهَد</h3>
                             </div>
@@ -400,7 +400,7 @@ export default function GeneralManagerDashboard() {
                         <h3 className="font-bold text-lg text-gray-900">آخر المشاريع</h3>
                         <button
                             onClick={() => router.push('/projects')}
-                            className="text-xs text-[#7F56D9] font-semibold flex items-center gap-1 hover:gap-2 transition-all"
+                            className="text-xs text-[#102550] font-semibold flex items-center gap-1 hover:gap-2 transition-all"
                         >
                             عرض الكل <ArrowRight className="w-3 h-3" />
                         </button>
@@ -410,13 +410,13 @@ export default function GeneralManagerDashboard() {
                             <Card
                                 key={project.id}
                                 onClick={() => router.push(`/projects/${project.id}`)}
-                                className="p-5 hover:shadow-xl hover:shadow-[#7F56D9]/10 cursor-pointer group transition-all duration-200 relative overflow-hidden"
+                                className="p-5 hover:shadow-xl hover:shadow-[#102550]/10 cursor-pointer group transition-all duration-200 relative overflow-hidden"
                             >
                                 <FolderKanban className="absolute -top-4 -right-4 w-28 h-28 text-gray-100 rotate-12 pointer-events-none" />
                                 <div className="relative z-10 space-y-3">
                                     <div className="flex justify-between items-start">
                                         <div>
-                                            <h4 className="font-bold text-gray-900 group-hover:text-[#7F56D9] transition-colors">{project.name}</h4>
+                                            <h4 className="font-bold text-gray-900 group-hover:text-[#102550] transition-colors">{project.name}</h4>
                                             <p className="text-xs text-gray-500 mt-0.5">{(project as any).manager?.name ?? 'بلا مدير'}</p>
                                         </div>
                                         <StatusBadge status={project.status} />

@@ -21,7 +21,7 @@ type WalletEntry = {
 const entryTypeLabel: Record<string, { label: string; icon: React.ElementType; color: string; bg: string; sign: '+' | '-' }> = {
     DEPOSIT: { label: "إيداع في الخزنة", icon: ArrowDownRight, color: "text-emerald-600", bg: "bg-emerald-50", sign: '+' },
     WITHDRAW: { label: "سحب من الخزنة", icon: ArrowUpRight, color: "text-red-600", bg: "bg-red-50", sign: '-' },
-    ALLOCATE_TO_PROJECT: { label: "تخصيص لمشروع", icon: FolderKanban, color: "text-[#7F56D9]", bg: "bg-purple-50", sign: '-' },
+    ALLOCATE_TO_PROJECT: { label: "تخصيص لمشروع", icon: FolderKanban, color: "text-[#102550]", bg: "bg-blue-50", sign: '-' },
     RETURN_FROM_PROJECT: { label: "إرجاع من مشروع", icon: Building, color: "text-amber-600", bg: "bg-amber-50", sign: '+' },
 };
 
@@ -51,7 +51,7 @@ export default function DepositsPage() {
 
                 {/* Transactions History */}
                 <h3 className="font-bold text-base md:text-lg text-gray-900 pt-2 md:pt-4 flex items-center gap-2">
-                    <Wallet className="w-5 h-5 text-[#7F56D9]" />
+                    <Wallet className="w-5 h-5 text-[#102550]" />
                     سجل عمليات خزنة الشركة
                 </h3>
 
@@ -91,7 +91,7 @@ export default function DepositsPage() {
                                         const Icon = meta.icon;
                                         return (
                                             <tr key={entry.id} className="hover:bg-gray-50/80 transition-colors group">
-                                                <td className="px-4 md:px-6 py-4 font-bold text-gray-900 border-r-4 border-transparent group-hover:border-[#7F56D9]" title={entry.id}>
+                                                <td className="px-4 md:px-6 py-4 font-bold text-gray-900 border-r-4 border-transparent group-hover:border-[#102550]" title={entry.id}>
                                                     TRX-{entry.id.substring(0, 8).toUpperCase()}
                                                 </td>
                                                 <td className="px-4 md:px-6 py-4 text-gray-500 font-medium text-[11px] md:text-sm">

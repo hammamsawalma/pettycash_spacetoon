@@ -58,23 +58,23 @@ export function CommandMenu() {
                     </Command.Empty>
 
                     <Command.Group heading={<span className="text-[11px] font-bold text-gray-400 px-3 uppercase tracking-wider">التنقل السريع</span>}>
-                        <Command.Item onSelect={() => runCommand(() => router.push("/"))} className="flex items-center gap-3 px-3 py-3 text-sm text-gray-700 hover:bg-[#7F56D9]/10 hover:text-[#7F56D9] rounded-xl cursor-pointer transition-colors outline-none aria-[selected=true]:bg-[#7F56D9]/10 aria-[selected=true]:text-[#7F56D9]">
+                        <Command.Item onSelect={() => runCommand(() => router.push("/"))} className="flex items-center gap-3 px-3 py-3 text-sm text-gray-700 hover:bg-[#102550]/10 hover:text-[#102550] rounded-xl cursor-pointer transition-colors outline-none aria-[selected=true]:bg-[#102550]/10 aria-[selected=true]:text-[#102550]">
                             <LayoutDashboard className="h-4 w-4" />
                             <span>لوحة التحكم الرئيسية</span>
                         </Command.Item>
-                        <Command.Item onSelect={() => runCommand(() => router.push("/projects"))} className="flex items-center gap-3 px-3 py-3 text-sm text-gray-700 hover:bg-[#7F56D9]/10 hover:text-[#7F56D9] rounded-xl cursor-pointer transition-colors outline-none aria-[selected=true]:bg-[#7F56D9]/10 aria-[selected=true]:text-[#7F56D9]">
+                        <Command.Item onSelect={() => runCommand(() => router.push("/projects"))} className="flex items-center gap-3 px-3 py-3 text-sm text-gray-700 hover:bg-[#102550]/10 hover:text-[#102550] rounded-xl cursor-pointer transition-colors outline-none aria-[selected=true]:bg-[#102550]/10 aria-[selected=true]:text-[#102550]">
                             <FolderKanban className="h-4 w-4" />
                             <span>المشاريع</span>
                         </Command.Item>
-                        <Command.Item onSelect={() => runCommand(() => router.push("/employees"))} className="flex items-center gap-3 px-3 py-3 text-sm text-gray-700 hover:bg-[#7F56D9]/10 hover:text-[#7F56D9] rounded-xl cursor-pointer transition-colors outline-none aria-[selected=true]:bg-[#7F56D9]/10 aria-[selected=true]:text-[#7F56D9]">
+                        <Command.Item onSelect={() => runCommand(() => router.push("/employees"))} className="flex items-center gap-3 px-3 py-3 text-sm text-gray-700 hover:bg-[#102550]/10 hover:text-[#102550] rounded-xl cursor-pointer transition-colors outline-none aria-[selected=true]:bg-[#102550]/10 aria-[selected=true]:text-[#102550]">
                             <Users className="h-4 w-4" />
                             <span>الموظفين</span>
                         </Command.Item>
-                        <Command.Item onSelect={() => runCommand(() => router.push("/invoices"))} className="flex items-center gap-3 px-3 py-3 text-sm text-gray-700 hover:bg-[#7F56D9]/10 hover:text-[#7F56D9] rounded-xl cursor-pointer transition-colors outline-none aria-[selected=true]:bg-[#7F56D9]/10 aria-[selected=true]:text-[#7F56D9]">
+                        <Command.Item onSelect={() => runCommand(() => router.push("/invoices"))} className="flex items-center gap-3 px-3 py-3 text-sm text-gray-700 hover:bg-[#102550]/10 hover:text-[#102550] rounded-xl cursor-pointer transition-colors outline-none aria-[selected=true]:bg-[#102550]/10 aria-[selected=true]:text-[#102550]">
                             <FileText className="h-4 w-4" />
                             <span>الفواتير</span>
                         </Command.Item>
-                        <Command.Item onSelect={() => runCommand(() => router.push("/settings"))} className="flex items-center gap-3 px-3 py-3 text-sm text-gray-700 hover:bg-[#7F56D9]/10 hover:text-[#7F56D9] rounded-xl cursor-pointer transition-colors outline-none aria-[selected=true]:bg-[#7F56D9]/10 aria-[selected=true]:text-[#7F56D9]">
+                        <Command.Item onSelect={() => runCommand(() => router.push("/settings"))} className="flex items-center gap-3 px-3 py-3 text-sm text-gray-700 hover:bg-[#102550]/10 hover:text-[#102550] rounded-xl cursor-pointer transition-colors outline-none aria-[selected=true]:bg-[#102550]/10 aria-[selected=true]:text-[#102550]">
                             <Settings className="h-4 w-4" />
                             <span>الاعدادات</span>
                         </Command.Item>

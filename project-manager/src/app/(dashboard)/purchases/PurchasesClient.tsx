@@ -12,6 +12,7 @@ import { useCanDo } from "@/components/auth/Protect";
 import { useRouter } from "next/navigation";
 import { useDebounce } from "@/hooks/useDebounce";
 import { matchArabicText } from "@/utils/arabic";
+import { Flag } from "lucide-react";
 
 type PurchaseWithRelations = Purchase & {
     project: Project | null;
@@ -26,15 +27,29 @@ export default function PurchasesClient({ initialPurchases }: Props) {
     const canCreatePurchase = useCanDo('purchases', 'createGlobal');
     const router = useRouter();
     const [searchQuery, setSearchQuery] = useState("");
+    const [filter, setFilter] = useState("الكل");
     const debouncedSearchQuery = useDebounce(searchQuery, 300);
 
-    const filteredPurchases = initialPurchases.filter(purchase =>
-        matchArabicText(debouncedSearchQuery, [
+    const filteredPurchases = initialPurchases.filter(purchase => {
+        const matchesSearch = matchArabicText(debouncedSearchQuery, [
             purchase.project?.name,
             purchase.orderNumber,
             purchase.description
-        ])
-    );
+        ]);
+
+        let matchesFilter = true;
+        if (filter === "غير متوفر") {
+            matchesFilter = !!(purchase as any).isRedFlagged;
+        } else if (filter === "بانتظار الشراء") {
+            matchesFilter = purchase.status === "REQUESTED" && !(purchase as any).isRedFlagged;
+        } else if (filter === "قيد الشراء") {
+            matchesFilter = purchase.status === "IN_PROGRESS" && !(purchase as any).isRedFlagged;
+        } else if (filter === "مكتملة") {
+            matchesFilter = purchase.status === "PURCHASED";
+        }
+
+        return matchesSearch && matchesFilter;
+    });
 
     return (
         <DashboardLayout title="المشتريات">
@@ -54,10 +69,20 @@ export default function PurchasesClient({ initialPurchases }: Props) {
                     </div>
 
                     <div className="flex gap-3 md:gap-4 w-full sm:w-auto">
-                        <Button variant="outline" className="gap-2 bg-white flex-1 sm:flex-none border-gray-200 py-2.5 md:py-2 text-xs md:text-sm h-auto justify-center">
-                            <Filter className="w-3.5 h-3.5 md:w-4 md:h-4" />
-                            تصفية
-                        </Button>
+                        <div className="flex bg-white rounded-lg p-1 shadow-sm border border-gray-100 overflow-x-auto custom-scrollbar whitespace-nowrap w-full sm:w-auto">
+                            {["الكل", "بانتظار الشراء", "قيد الشراء", "مكتملة", "غير متوفر"].map((tab) => (
+                                <button
+                                    key={tab}
+                                    onClick={() => setFilter(tab)}
+                                    className={`px-4 py-2 flex-1 text-[11px] md:text-sm font-medium rounded-md transition-colors ${filter === tab
+                                        ? "bg-[#7F56D9] text-white shadow-sm"
+                                        : "text-gray-500 hover:text-gray-900"
+                                        } ${tab === "غير متوفر" && filter !== tab ? "text-red-500 hover:text-red-700 hover:bg-red-50" : ""}`}
+                                >
+                                    {tab === "غير متوفر" ? <span className="flex items-center gap-1"><Flag className="w-3.5 h-3.5" /> {tab}</span> : tab}
+                                </button>
+                            ))}
+                        </div>
                         {canCreatePurchase && (
                             <Button onClick={() => router.push('/purchases/new')} variant="primary" className="gap-2 flex-1 sm:flex-none py-2.5 md:py-2 text-xs md:text-sm h-auto justify-center">
                                 <Plus className="w-3.5 h-3.5 md:w-4 md:h-4" />
@@ -95,10 +120,10 @@ export default function PurchasesClient({ initialPurchases }: Props) {
                                 ) : (
                                     filteredPurchases.map((purchase) => (
                                         <tr key={purchase.id} className="hover:bg-gray-50/50 transition-colors group cursor-pointer">
-                                            <td className="px-4 md:px-6 py-4 font-bold text-gray-900 border-r-4 border-transparent group-hover:border-[#7F56D9]">
+                                            <td className="px-4 md:px-6 py-4 font-bold text-gray-900 border-r-4 border-transparent group-hover:border-[#102550]">
                                                 {purchase.orderNumber}
                                             </td>
-                                            <td className="px-4 md:px-6 py-4 text-[#7F56D9] font-bold">
+                                            <td className="px-4 md:px-6 py-4 text-[#102550] font-bold">
                                                 {purchase.project?.name || "عام"}
                                             </td>
                                             <td className="px-4 md:px-6 py-4 text-gray-500 font-medium text-[11px] md:text-sm">
@@ -108,7 +133,7 @@ export default function PurchasesClient({ initialPurchases }: Props) {
                                                 <div className="flex items-center gap-2">
                                                     <span>{purchase.description || "-"}</span>
                                                     {purchase.imageUrl && (
-                                                        <a href={purchase.imageUrl} target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-[#7F56D9] transition-colors" title="عرض المرفق" onClick={(e) => e.stopPropagation()}>
+                                                        <a href={purchase.imageUrl} target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-[#102550] transition-colors" title="عرض المرفق" onClick={(e) => e.stopPropagation()}>
                                                             <Paperclip className="w-4 h-4" />
                                                         </a>
                                                     )}
@@ -122,7 +147,7 @@ export default function PurchasesClient({ initialPurchases }: Props) {
                                                 {(purchase.status === 'REQUESTED' || purchase.status === 'IN_PROGRESS') && (
                                                     <Button
                                                         variant="outline"
-                                                        className="h-7 text-[10px] px-2 py-0 border-primary text-primary hover:bg-primary/10"
+                                                        className={`h-7 text-[10px] px-2 py-0 ${isFlagged ? 'border-red-500 text-red-600 hover:bg-red-50' : 'border-primary text-primary hover:bg-primary/10'}`}
                                                         onClick={(e) => {
                                                             e.stopPropagation();
                                                             window.location.href = `/invoices/new?purchaseId=${purchase.id}&projectId=${purchase.projectId || ''}&amount=${purchase.amount}&description=${encodeURIComponent(purchase.description)}`;
@@ -133,7 +158,8 @@ export default function PurchasesClient({ initialPurchases }: Props) {
                                                 )}
                                             </td>
                                         </tr>
-                                    ))
+                                    );
+                                    })
                                 )}
                             </tbody>
                         </table>

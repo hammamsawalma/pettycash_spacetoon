@@ -82,7 +82,7 @@ export default function ArchivesPage() {
                             placeholder="ابحث في المشاريع المؤرشفة..."
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
-                            className="w-full pl-10 pr-4 py-2.5 md:py-3 text-xs md:text-sm font-bold rounded-xl border border-gray-100 focus:outline-none focus:ring-2 focus:ring-[#7F56D9]/50 bg-white shadow-sm"
+                            className="w-full pl-10 pr-4 py-2.5 md:py-3 text-xs md:text-sm font-bold rounded-xl border border-gray-100 focus:outline-none focus:ring-2 focus:ring-[#102550]/50 bg-white shadow-sm"
                         />
                         <Search className="absolute left-3 top-3 md:top-3.5 h-4 w-4 md:h-5 md:w-5 text-gray-400" />
                     </div>
@@ -137,9 +137,9 @@ export default function ArchivesPage() {
                                         <p className="text-xs font-black text-gray-700">{(project.budgetAllocated ?? 0).toLocaleString()}</p>
                                         <p className="text-[9px] text-gray-400"><CurrencyDisplay /></p>
                                     </div>
-                                    <div className="bg-purple-50 rounded-xl p-2">
-                                        <Users className="w-3.5 h-3.5 text-purple-400 mx-auto mb-0.5" />
-                                        <p className="text-xs font-black text-purple-700">{project._count.members}</p>
+                                    <div className="bg-blue-50 rounded-xl p-2">
+                                        <Users className="w-3.5 h-3.5 text-blue-400 mx-auto mb-0.5" />
+                                        <p className="text-xs font-black text-blue-700">{project._count.members}</p>
                                         <p className="text-[9px] text-gray-400">عضو</p>
                                     </div>
                                     <div className="bg-blue-50 rounded-xl p-2">

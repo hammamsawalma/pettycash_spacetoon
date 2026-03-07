@@ -85,7 +85,7 @@ export default function EmployeesPage() {
                                 key={tab}
                                 onClick={() => setFilter(tab)}
                                 className={`px-3 md:px-4 py-2 text-xs md:text-sm font-bold rounded-lg whitespace-nowrap transition-colors flex-1 sm:flex-none ${filter === tab
-                                    ? "bg-[#7F56D9] text-white shadow-sm"
+                                    ? "bg-[#102550] text-white shadow-sm"
                                     : "text-gray-500 hover:text-gray-900 hover:bg-gray-50"
                                     }`}
                             >
@@ -131,17 +131,17 @@ export default function EmployeesPage() {
                         {filteredEmployees.map(emp => {
                             const arabicRole = emp.jobTitle || roleMap[emp.role] || emp.role;
                             return (
-                                <Card key={emp.id} className="p-5 md:p-6 flex flex-col items-center text-center shadow-sm border border-gray-100 hover:border-[#7F56D9]/50 transition-all cursor-default hover:shadow-md rounded-2xl group">
+                                <Card key={emp.id} className="p-5 md:p-6 flex flex-col items-center text-center shadow-sm border border-gray-100 hover:border-[#102550]/50 transition-all cursor-default hover:shadow-md rounded-2xl group">
 
                                     <div className="relative mb-4 mt-2">
-                                        <div className="w-20 h-20 rounded-full border-4 border-purple-50 flex items-center justify-center bg-gray-100 text-3xl overflow-hidden shadow-sm">
+                                        <div className="w-20 h-20 rounded-full border-4 border-blue-50 flex items-center justify-center bg-gray-100 text-3xl overflow-hidden shadow-sm">
                                             {emp.image ? <Image src={emp.image} alt={emp.name} fill className="object-cover" /> : "👨🏻‍💻"}
                                         </div>
                                         <span className={`absolute bottom-0 md:bottom-1 right-0 md:right-1 w-3.5 h-3.5 md:w-4 md:h-4 rounded-full border-2 border-white bg-emerald-500`}></span>
                                     </div>
 
                                     <h4 className="font-bold text-base md:text-lg text-gray-900 line-clamp-1">{emp.name}</h4>
-                                    <p className="text-[10px] md:text-xs text-[#7F56D9] font-bold mt-1 bg-purple-50 px-2.5 py-1 rounded-md">{arabicRole}</p>
+                                    <p className="text-[10px] md:text-xs text-[#102550] font-bold mt-1 bg-blue-50 px-2.5 py-1 rounded-md">{arabicRole}</p>
 
                                     <div className="w-full grid grid-cols-3 gap-2 mt-5 md:mt-6 mb-5 md:mb-6 bg-gray-50 rounded-xl p-3 md:p-4">
                                         <div>
@@ -159,10 +159,10 @@ export default function EmployeesPage() {
                                     </div>
 
                                     <div className="flex gap-2 w-full mt-auto pt-4 border-t border-gray-50">
-                                        <Button onClick={() => router.push(`/employees/${emp.id}`)} variant="secondary" className="flex-1 text-[11px] md:text-xs h-9 font-bold bg-white border-gray-200 hover:bg-gray-50 hover:text-[#7F56D9]">
+                                        <Button onClick={() => router.push(`/employees/${emp.id}`)} variant="secondary" className="flex-1 text-[11px] md:text-xs h-9 font-bold bg-white border-gray-200 hover:bg-gray-50 hover:text-[#102550]">
                                             المزيد
                                         </Button>
-                                        <Button variant="secondary" className="w-9 h-9 md:w-10 md:h-10 p-0 text-[#7F56D9] bg-purple-50 border-transparent hover:bg-purple-100 flex items-center justify-center shrink-0" onClick={() => router.push('/chat')}>
+                                        <Button variant="secondary" className="w-9 h-9 md:w-10 md:h-10 p-0 text-[#102550] bg-blue-50 border-transparent hover:bg-blue-100 flex items-center justify-center shrink-0" onClick={() => router.push('/chat')}>
                                             <MessageSquare className="w-3.5 h-3.5 md:w-4 md:h-4" />
                                         </Button>
                                         <Button variant="secondary" className="w-9 h-9 md:w-10 md:h-10 p-0 text-emerald-600 bg-emerald-50 border-transparent hover:bg-emerald-100 flex items-center justify-center shrink-0" onClick={() => window.location.href = `tel:${emp.phone || ''}`}>

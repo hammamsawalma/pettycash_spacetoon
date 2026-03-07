@@ -95,21 +95,21 @@ export default function SettingsPage() {
                 <Card className="w-full md:w-64 flex md:flex-col gap-2 shrink-0 p-2 md:p-6 shadow-sm border-gray-100 overflow-x-auto custom-scrollbar md:overflow-visible rounded-2xl">
                     <button
                         onClick={() => setActiveTab("profile")}
-                        className={`min-w-max md:w-full flex items-center gap-2 md:gap-3 px-4 py-3 font-bold text-xs md:text-sm rounded-xl transition-colors ${activeTab === 'profile' ? 'bg-[#7F56D9]/10 text-[#7F56D9]' : 'text-gray-500 hover:bg-gray-50 hover:text-gray-900'}`}
+                        className={`min-w-max md:w-full flex items-center gap-2 md:gap-3 px-4 py-3 font-bold text-xs md:text-sm rounded-xl transition-colors ${activeTab === 'profile' ? 'bg-[#102550]/10 text-[#102550]' : 'text-gray-500 hover:bg-gray-50 hover:text-gray-900'}`}
                     >
                         <User className="w-4 h-4 md:w-5 md:h-5" />
                         الملف الشخصي
                     </button>
                     <button
                         onClick={() => setActiveTab("phone")}
-                        className={`min-w-max md:w-full flex items-center gap-2 md:gap-3 px-4 py-3 font-bold text-xs md:text-sm rounded-xl transition-colors ${activeTab === 'phone' ? 'bg-[#7F56D9]/10 text-[#7F56D9]' : 'text-gray-500 hover:bg-gray-50 hover:text-gray-900'}`}
+                        className={`min-w-max md:w-full flex items-center gap-2 md:gap-3 px-4 py-3 font-bold text-xs md:text-sm rounded-xl transition-colors ${activeTab === 'phone' ? 'bg-[#102550]/10 text-[#102550]' : 'text-gray-500 hover:bg-gray-50 hover:text-gray-900'}`}
                     >
                         <Phone className="w-4 h-4 md:w-5 md:h-5" />
                         رقم الجوال
                     </button>
                     <button
                         onClick={() => setActiveTab("password")}
-                        className={`min-w-max md:w-full flex items-center gap-2 md:gap-3 px-4 py-3 font-bold text-xs md:text-sm rounded-xl transition-colors ${activeTab === 'password' ? 'bg-[#7F56D9]/10 text-[#7F56D9]' : 'text-gray-500 hover:bg-gray-50 hover:text-gray-900'}`}
+                        className={`min-w-max md:w-full flex items-center gap-2 md:gap-3 px-4 py-3 font-bold text-xs md:text-sm rounded-xl transition-colors ${activeTab === 'password' ? 'bg-[#102550]/10 text-[#102550]' : 'text-gray-500 hover:bg-gray-50 hover:text-gray-900'}`}
                     >
                         <Lock className="w-4 h-4 md:w-5 md:h-5" />
                         كلمة المرور
@@ -155,26 +155,26 @@ export default function SettingsPage() {
                                 {/* Form Fields */}
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
                                     {/* Using design image style: label at top-right (small grey text), value below (bold black text), edit icon far left */}
-                                    <div className="relative group p-4 border border-gray-100 rounded-2xl bg-gray-50 focus-within:ring-2 focus-within:ring-[#7F56D9]/50 focus-within:bg-white transition-all">
+                                    <div className="relative group p-4 border border-gray-100 rounded-2xl bg-gray-50 focus-within:ring-2 focus-within:ring-[#102550]/50 focus-within:bg-white transition-all">
                                         <label className="block text-[10px] md:text-xs font-bold text-gray-400 mb-1">اسم الموظف</label>
                                         <input
                                             type="text"
                                             defaultValue={user?.name || ""}
                                             className="w-full bg-transparent font-bold text-gray-900 text-sm md:text-base outline-none pr-1 focus:ring-0"
                                         />
-                                        <div className="absolute left-4 top-1/2 -translate-y-1/2 text-[#7F56D9] opacity-50 group-hover:opacity-100 transition-opacity">
+                                        <div className="absolute left-4 top-1/2 -translate-y-1/2 text-[#102550] opacity-50 group-hover:opacity-100 transition-opacity">
                                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" /></svg>
                                         </div>
                                     </div>
 
-                                    <div className="relative group p-4 border border-gray-100 rounded-2xl bg-gray-50 focus-within:ring-2 focus-within:ring-[#7F56D9]/50 focus-within:bg-white transition-all">
+                                    <div className="relative group p-4 border border-gray-100 rounded-2xl bg-gray-50 focus-within:ring-2 focus-within:ring-[#102550]/50 focus-within:bg-white transition-all">
                                         <label className="block text-[10px] md:text-xs font-bold text-gray-400 mb-1">البريد الالكتروني</label>
                                         <input
                                             type="email"
                                             defaultValue={user?.email || ""}
                                             className="w-full bg-transparent font-bold text-gray-900 text-sm md:text-base outline-none pr-1 flex-1 focus:ring-0"
                                         />
-                                        <div className="absolute left-4 top-1/2 -translate-y-1/2 text-[#7F56D9] opacity-50 group-hover:opacity-100 transition-opacity">
+                                        <div className="absolute left-4 top-1/2 -translate-y-1/2 text-[#102550] opacity-50 group-hover:opacity-100 transition-opacity">
                                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" /></svg>
                                         </div>
                                     </div>
@@ -190,20 +190,20 @@ export default function SettingsPage() {
                                                 title="لتغيير رقم الجوال الرجاء الانتقال الى تبويب رقم الجوال"
                                             />
                                         </div>
-                                        <button type="button" onClick={() => setActiveTab("phone")} className="shrink-0 ml-2 text-[#7F56D9] bg-purple-50 px-3 py-1.5 rounded-lg hover:bg-[#7F56D9] hover:text-white transition-colors text-[10px] md:text-xs font-bold shadow-sm">
+                                        <button type="button" onClick={() => setActiveTab("phone")} className="shrink-0 ml-2 text-[#102550] bg-blue-50 px-3 py-1.5 rounded-lg hover:bg-[#102550] hover:text-white transition-colors text-[10px] md:text-xs font-bold shadow-sm">
                                             تغيير
                                         </button>
                                     </div>
 
                                     {/* Mocking Address Field from design */}
-                                    <div className="relative group p-4 border border-gray-100 rounded-2xl bg-gray-50 focus-within:ring-2 focus-within:ring-[#7F56D9]/50 focus-within:bg-white transition-all md:col-span-2">
+                                    <div className="relative group p-4 border border-gray-100 rounded-2xl bg-gray-50 focus-within:ring-2 focus-within:ring-[#102550]/50 focus-within:bg-white transition-all md:col-span-2">
                                         <label className="block text-[10px] md:text-xs font-bold text-gray-400 mb-1">العنوان</label>
                                         <input
                                             type="text"
                                             defaultValue="الرياض، المملكة العربية السعودية"
                                             className="w-full bg-transparent font-bold text-gray-900 text-sm md:text-base outline-none pr-1 flex-1 focus:ring-0"
                                         />
-                                        <div className="absolute left-4 top-1/2 -translate-y-1/2 text-[#7F56D9] opacity-50 group-hover:opacity-100 transition-opacity">
+                                        <div className="absolute left-4 top-1/2 -translate-y-1/2 text-[#102550] opacity-50 group-hover:opacity-100 transition-opacity">
                                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" /></svg>
                                         </div>
                                     </div>
@@ -228,7 +228,7 @@ export default function SettingsPage() {
                             <form ref={phoneFormRef} className="space-y-6" action={phoneAction}>
                                 <div>
                                     <label className="block text-xs md:text-sm font-bold text-gray-400 mb-2">رقم الجوال الجديد</label>
-                                    <div className="w-full flex rounded-xl border border-gray-200 overflow-hidden bg-white focus-within:ring-2 focus-within:ring-[#7F56D9] shadow-sm">
+                                    <div className="w-full flex rounded-xl border border-gray-200 overflow-hidden bg-white focus-within:ring-2 focus-within:ring-[#102550] shadow-sm">
                                         <span className="px-5 py-4 bg-gray-50 border-l border-gray-200 text-gray-500 font-bold dir-ltr">+966</span>
                                         <input
                                             type="tel"
@@ -255,7 +255,7 @@ export default function SettingsPage() {
                                     <input
                                         type="password"
                                         name="currentPassword"
-                                        className="w-full rounded-xl border border-gray-200 p-4 outline-none focus:ring-2 focus:ring-[#7F56D9] font-bold shadow-sm"
+                                        className="w-full rounded-xl border border-gray-200 p-4 outline-none focus:ring-2 focus:ring-[#102550] font-bold shadow-sm"
                                         required
                                     />
                                 </div>
@@ -264,7 +264,7 @@ export default function SettingsPage() {
                                     <input
                                         type="password"
                                         name="newPassword"
-                                        className="w-full rounded-xl border border-gray-200 p-4 outline-none focus:ring-2 focus:ring-[#7F56D9] font-bold shadow-sm"
+                                        className="w-full rounded-xl border border-gray-200 p-4 outline-none focus:ring-2 focus:ring-[#102550] font-bold shadow-sm"
                                         required
                                     />
                                 </div>
@@ -273,7 +273,7 @@ export default function SettingsPage() {
                                     <input
                                         type="password"
                                         name="confirmPassword"
-                                        className="w-full rounded-xl border border-gray-200 p-4 outline-none focus:ring-2 focus:ring-[#7F56D9] font-bold shadow-sm"
+                                        className="w-full rounded-xl border border-gray-200 p-4 outline-none focus:ring-2 focus:ring-[#102550] font-bold shadow-sm"
                                         required
                                     />
                                 </div>
@@ -322,7 +322,7 @@ export default function SettingsPage() {
                                         type="checkbox"
                                         checked={autoRequiresManager}
                                         onChange={e => setAutoRequiresManager(e.target.checked)}
-                                        className="w-4 h-4 accent-[#7F56D9]"
+                                        className="w-4 h-4 accent-[#102550]"
                                     />
                                     <label htmlFor="requiresManager" className="text-sm font-bold text-gray-700 cursor-pointer">
                                         يحتاج موافقة المدير حتى عند تجاوز الحد
@@ -366,7 +366,7 @@ export default function SettingsPage() {
                                             if (res.error) toast.error(res.error);
                                             else toast.success("تم تحديث العملة بنجاح");
                                         }}
-                                        className="w-full rounded-xl border border-gray-200 p-4 outline-none focus:ring-2 focus:ring-[#7F56D9] font-bold shadow-sm"
+                                        className="w-full rounded-xl border border-gray-200 p-4 outline-none focus:ring-2 focus:ring-[#102550] font-bold shadow-sm"
                                     >
                                         <option value="ر.ق">ريال قطري (ر.ق)</option>
                                         <option value="ر.س">ريال سعودي (ر.س)</option>

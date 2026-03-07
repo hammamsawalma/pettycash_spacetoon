@@ -81,15 +81,15 @@ export function VirtualMultiSelect({
                             <div
                                 key={opt.id}
                                 onClick={() => onChange(opt.id)}
-                                className={`absolute w-full px-4 py-0 flex items-center gap-3 cursor-pointer hover:bg-gray-50 transition-colors border-b border-gray-50/50 ${isSelected ? 'bg-purple-50/30' : ''}`}
+                                className={`absolute w-full px-4 py-0 flex items-center gap-3 cursor-pointer hover:bg-gray-50 transition-colors border-b border-gray-50/50 ${isSelected ? 'bg-blue-50/30' : ''}`}
                                 style={{ top: 0, transform: `translateY(${actualIndex * itemHeight}px)`, height: `${itemHeight}px` }}
                             >
-                                <div className={`w-4 h-4 md:w-5 md:h-5 rounded flex items-center justify-center shrink-0 border transition-all ${isSelected ? 'bg-[#7F56D9] border-[#7F56D9]' : 'border-gray-300 bg-white'}`}>
+                                <div className={`w-4 h-4 md:w-5 md:h-5 rounded flex items-center justify-center shrink-0 border transition-all ${isSelected ? 'bg-[#102550] border-[#102550]' : 'border-gray-300 bg-white'}`}>
                                     {isSelected && <Check className="w-3 h-3 text-white" strokeWidth={3} />}
                                 </div>
 
                                 {opt.avatar && (
-                                    <div className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-purple-100 text-[#7F56D9] flex items-center justify-center font-bold text-xs md:text-sm shrink-0">
+                                    <div className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-blue-100 text-[#102550] flex items-center justify-center font-bold text-xs md:text-sm shrink-0">
                                         {opt.avatar}
                                     </div>
                                 )}

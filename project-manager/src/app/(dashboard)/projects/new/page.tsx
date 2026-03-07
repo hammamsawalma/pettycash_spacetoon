@@ -112,7 +112,7 @@ export default function NewProjectPage() {
                                         type="text"
                                         name="name"
                                         required
-                                        className="w-full rounded-xl border border-gray-200 p-3.5 md:p-4 outline-none focus:ring-2 focus:ring-[#7F56D9] text-xs md:text-sm shadow-sm font-medium"
+                                        className="w-full rounded-xl border border-gray-200 p-3.5 md:p-4 outline-none focus:ring-2 focus:ring-[#102550] text-xs md:text-sm shadow-sm font-medium"
                                         placeholder="ادخل اسم المشروع..."
                                     />
                                 </div>
@@ -120,7 +120,7 @@ export default function NewProjectPage() {
                                 <div className="space-y-2 col-span-1 md:col-span-2">
                                     <label className="text-xs md:text-sm font-bold text-gray-700">صورة / شعار المشروع <span className="text-gray-400 font-normal">— اختياري</span></label>
                                     <div className="flex items-center gap-4 p-4 border border-dashed border-gray-300 rounded-xl bg-gray-50/50 hover:bg-gray-50 transition-colors">
-                                        <div className="w-12 h-12 rounded-full bg-purple-100 flex items-center justify-center text-purple-600 shrink-0">
+                                        <div className="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 shrink-0">
                                             <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                                             </svg>
@@ -130,7 +130,7 @@ export default function NewProjectPage() {
                                                 type="file"
                                                 name="image"
                                                 accept="image/*"
-                                                className="w-full text-xs md:text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-purple-50 file:text-purple-700 hover:file:bg-purple-100 transition-all cursor-pointer"
+                                                className="w-full text-xs md:text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 transition-all cursor-pointer"
                                             />
                                             <p className="mt-1 text-[10px] text-gray-400">صيغ الصور المدعومة: JPG, PNG, GIF</p>
                                         </div>
@@ -142,7 +142,7 @@ export default function NewProjectPage() {
                                     <textarea
                                         name="description"
                                         rows={4}
-                                        className="w-full rounded-xl border border-gray-200 p-3.5 md:p-4 outline-none focus:ring-2 focus:ring-[#7F56D9] resize-none text-xs md:text-sm shadow-sm font-medium"
+                                        className="w-full rounded-xl border border-gray-200 p-3.5 md:p-4 outline-none focus:ring-2 focus:ring-[#102550] resize-none text-xs md:text-sm shadow-sm font-medium"
                                         placeholder="اكتب وصفاً مفصلاً للمشروع..."
                                     />
                                 </div>
@@ -154,7 +154,7 @@ export default function NewProjectPage() {
                                         name="budget"
                                         min="0"
                                         step="0.01"
-                                        className="w-full rounded-xl border border-gray-200 p-3.5 md:p-4 outline-none focus:ring-2 focus:ring-[#7F56D9] text-xs md:text-sm shadow-sm font-medium"
+                                        className="w-full rounded-xl border border-gray-200 p-3.5 md:p-4 outline-none focus:ring-2 focus:ring-[#102550] text-xs md:text-sm shadow-sm font-medium"
                                         placeholder="0"
                                     />
                                     <p className="text-[10px] text-gray-400 font-medium">رقم تقديري للتخطيط فقط — الميزانية الفعلية تُحوَّل من خزنة الشركة لاحقاً</p>
@@ -195,7 +195,7 @@ export default function NewProjectPage() {
                                                 return (
                                                     <div key={empId} className="flex flex-col sm:flex-row sm:items-center justify-between p-3 border border-gray-100 rounded-xl bg-gray-50/50">
                                                         <div className="flex items-center gap-3 mb-2 sm:mb-0">
-                                                            <div className="w-8 h-8 rounded-full bg-purple-100 text-[#7F56D9] flex items-center justify-center font-bold text-xs shrink-0">
+                                                            <div className="w-8 h-8 rounded-full bg-blue-100 text-[#102550] flex items-center justify-center font-bold text-xs shrink-0">
                                                                 {emp.name.charAt(0)}
                                                             </div>
                                                             <div>
@@ -216,7 +216,7 @@ export default function NewProjectPage() {
                                                                         key={roleOption}
                                                                         type="button"
                                                                         onClick={() => toggleRole(roleOption)}
-                                                                        className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-colors border ${isActive ? 'bg-purple-100 border-purple-200 text-purple-700' : 'bg-white border-gray-200 text-gray-600 hover:bg-gray-50'}`}
+                                                                        className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-colors border ${isActive ? 'bg-blue-100 border-blue-200 text-blue-700' : 'bg-white border-gray-200 text-gray-600 hover:bg-gray-50'}`}
                                                                     >
                                                                         {labels[roleOption]}
                                                                     </button>

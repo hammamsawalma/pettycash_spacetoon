@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Spacetoon Color Swap Sample</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet" />
+    <style>
+        /* ─── Variables Matching Current UI + Spacetoon Colors ─── */
+        :root {
+            /* Former Purple: #7F56D9 -> Now Spacetoon Blue Zodiac */
+            --brand-primary: #102550;
+            --brand-hover: #1a3a7c;
+            /* Former #6941C6 */
+
+            /* Spacetoon Accents replacing generic UI colors where appropriate */
+            --accent-yellow: #FFC107;
+            /* For active states / highlights */
+            --accent-red: #DC4313;
+            /* For destructive / urgent actions */
+
+            /* Current UI Base Colors (Unchanged) */
+            --bg-color: #f8f9fa;
+            /* white-ish background */
+            --card-bg: #ffffff;
+            --text-main: #111827;
+            /* gray-900 */
+            --text-muted: #6b7280;
+            /* gray-500 */
+            --border-color: #f3f4f6;
+            /* gray-100 */
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Cairo', Arial, sans-serif;
+            background: var(--bg-color);
+            color: var(--text-main);
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* ─── Sidebar (Unchanged Structural Design, Changed Brand Color) ─── */
+        .sidebar {
+            width: 280px;
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(24px);
+            border-left: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+        }
+
+        .sidebar-header {
+            height: 5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .st-logo {
+            height: 48px;
+            object-fit: contain;
+            filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.1));
+        }
+
+        .quick-add-btn {
+            margin: 1rem;
+            background: var(--brand-primary);
+            color: white;
+            padding: 0.6rem;
+            border-radius: 0.75rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(16, 37, 80, 0.2);
+        }
+
+        .quick-add-btn:hover {
+            background: var(--brand-hover);
+        }
+
+        .nav-list {
+            padding: 1rem;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            padding: 0.6rem 0.75rem;
+            border-radius: 0.75rem;
+            color: var(--text-muted);
+            font-size: 0.875rem;
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+            cursor: pointer;
+        }
+
+        /* Active state uses the primary brand background at 5% opacity + brand text */
+        .nav-item.active {
+            background: rgba(16, 37, 80, 0.05);
+            color: var(--brand-primary);
+        }
+
+        .nav-item:hover:not(.active) {
+            background: rgba(243, 244, 246, 0.8);
+            color: var(--text-main);
+        }
+
+        /* ─── Main Content Area ─── */
+        .main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Header (Unchanged Structure) */
+        .header {
+            height: 5rem;
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(24px);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 2rem;
+        }
+
+        .breadcrumbs {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--text-main);
+        }
+
+        .header-icons {
+            display: flex;
+            gap: 0.5rem;
+            background: rgba(249, 250, 251, 0.8);
+            padding: 0.35rem;
+            border-radius: 999px;
+            border: 1px solid var(--border-color);
+        }
+
+        .icon-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Hover on icons uses brand color */
+        .icon-btn:hover {
+            color: var(--brand-primary);
+            background: white;
+        }
+
+        /* User Avatar - Swapped purple accents to brand primary */
+        .avatar {
+            width: 44px;
+            height: 44px;
+            border-radius: 1rem;
+            background: rgba(16, 37, 80, 0.1);
+            border: 1px solid rgba(16, 37, 80, 0.2);
+            color: var(--brand-primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Page Content */
+        .content {
+            padding: 2rem;
+        }
+
+        /* UI Cards (Unchanged structure, white bg, thin gray border) */
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 1rem;
+            padding: 1.5rem;
+        }
+
+        .stat-label {
+            color: var(--text-muted);
+            font-size: 0.875rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-value {
+            color: var(--text-main);
+            font-size: 1.875rem;
+            font-weight: 800;
+        }
+
+        /* Using new accent colors for icons inside cards */
+        .stat-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 0.75rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        .stat-icon.primary {
+            background: rgba(16, 37, 80, 0.1);
+            color: var(--brand-primary);
+        }
+
+        .stat-icon.warning {
+            background: rgba(255, 193, 7, 0.15);
+            color: #b28600;
+        }
+
+        .stat-icon.danger {
+            background: rgba(220, 67, 19, 0.1);
+            color: var(--accent-red);
+        }
+
+        /* Primary Button matching the new color */
+        .btn {
+            background: var(--brand-primary);
+            color: white;
+            border: none;
+            padding: 0.6rem 1.2rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            font-family: 'Cairo';
+            cursor: pointer;
+        }
+
+        .btn:hover {
+            background: var(--brand-hover);
+        }
+
+        /* Links / Text Buttons */
+        .text-link {
+            color: var(--brand-primary);
+            font-weight: 700;
+            cursor: pointer;
+            text-decoration: none;
+        }
+
+        .text-link:hover {
+            color: var(--brand-hover);
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <img src="https://spacetoongroup.com/wp-content/uploads/2023/11/logo.png" alt="Spacetoon Logo"
+                class="st-logo" style="max-height: 40px;" />
+        </div>
+
+        <!-- Replaces purple quick add button -->
+        <button class="quick-add-btn">
+            + إضافة سريعة
+        </button>
+
+        <div class="nav-list">
+            <!-- Active Item: Replaces #7F56D9 background and text with Blue Zodiac -->
+            <div class="nav-item active">
+                <span style="margin-left: 0.5rem;">🏠</span> لوحة التحكم
+            </div>
+            <div class="nav-item">
+                <span style="margin-left: 0.5rem;">📁</span> المشاريع
+            </div>
+            <div class="nav-item">
+                <span style="margin-left: 0.5rem;">📄</span> الفواتير
+            </div>
+            <div class="nav-item">
+                <span style="margin-left: 0.5rem;">⚙️</span> الإعدادات
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main Area -->
+    <main class="main">
+
+        <!-- Header -->
+        <header class="header">
+            <div class="breadcrumbs">نظرة عامة</div>
+
+            <div style="display: flex; gap: 1rem; align-items: center;">
+                <div class="header-icons">
+                    <button class="icon-btn">🔍</button>
+                    <button class="icon-btn">🔔</button>
+                </div>
+                <div style="display: flex; gap: 0.75rem; align-items: center;">
+                    <div style="text-align: left;">
+                        <div style="font-weight: 700; font-size: 0.875rem;">همام السوالمة</div>
+                        <div style="font-size: 0.75rem; color: var(--text-muted);">مدير النظام</div>
+                    </div>
+                    <div class="avatar">👤</div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Page Content -->
+        <div class="content">
+
+            <div class="card-grid">
+                <!-- Card 1: Brand Primary focus -->
+                <div class="card">
+                    <div class="stat-icon primary">📁</div>
+                    <div class="stat-label">المشاريع النشطة</div>
+                    <div class="stat-value">12</div>
+                    <div style="margin-top: 1rem;">
+                        <a href="#" class="text-link">عرض التفاصيل ←</a>
+                    </div>
+                </div>
+
+                <!-- Card 2: Warning/Yellow focus -->
+                <div class="card">
+                    <div class="stat-icon warning">🛒</div>
+                    <div class="stat-label">طلبات بانتظار الموافقة</div>
+                    <div class="stat-value">7</div>
+                    <div style="margin-top: 1rem; color: #b28600; font-size: 0.875rem; font-weight: 600;">
+                        طلب جديد اليوم
+                    </div>
+                </div>
+
+                <!-- Card 3: Danger/Red focus -->
+                <div class="card">
+                    <div class="stat-icon danger">📄</div>
+                    <div class="stat-label">فواتير عاجلة</div>
+                    <div class="stat-value">3</div>
+                    <div style="margin-top: 1rem;">
+                        <button class="btn" style="background: var(--accent-red);">مراجعة الآن</button>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+</body>
+
+</html>

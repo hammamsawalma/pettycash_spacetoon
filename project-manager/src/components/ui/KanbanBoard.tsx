@@ -54,11 +54,11 @@ function SortableProjectCard({ project, onProjectClick }: SortableProjectCardPro
 
     return (
         <div ref={setNodeRef} style={style} {...attributes} {...listeners} className="touch-none">
-            <Card onClick={() => onProjectClick?.(project.id)} className={`p-4 space-y-3 relative overflow-hidden rounded-xl bg-white hover:shadow-md transition-shadow ${isDragging ? "ring-2 ring-[#7F56D9]" : "border-gray-100"}`}>
+            <Card onClick={() => onProjectClick?.(project.id)} className={`p-4 space-y-3 relative overflow-hidden rounded-xl bg-white hover:shadow-md transition-shadow ${isDragging ? "ring-2 ring-[#102550]" : "border-gray-100"}`}>
                 <div className="flex justify-between items-start gap-2">
                     <div className="space-y-1">
-                        <h4 className="font-bold text-sm text-gray-900 group-hover:text-[#7F56D9] transition-colors line-clamp-1">{project.name}</h4>
-                        <span className="inline-block px-1.5 py-0.5 text-[10px] font-bold rounded-md bg-purple-50 text-[#7F56D9]">
+                        <h4 className="font-bold text-sm text-gray-900 group-hover:text-[#102550] transition-colors line-clamp-1">{project.name}</h4>
+                        <span className="inline-block px-1.5 py-0.5 text-[10px] font-bold rounded-md bg-blue-50 text-[#102550]">
                             {statusLabel}
                         </span>
                     </div>
@@ -94,7 +94,7 @@ export function KanbanBoard({ projects, onProjectClick, onStatusChange }: { proj
 
     const columns = [
         { id: 'PENDING', title: 'متوقفة', color: 'border-red-200 bg-red-50/50 text-red-700' },
-        { id: 'IN_PROGRESS', title: 'قيد التنفيذ', color: 'border-purple-200 bg-purple-50/50 text-purple-700' },
+        { id: 'IN_PROGRESS', title: 'قيد التنفيذ', color: 'border-blue-200 bg-blue-50/50 text-blue-700' },
         { id: 'COMPLETED', title: 'مكتملة', color: 'border-emerald-200 bg-emerald-50/50 text-emerald-700' }
     ];
 

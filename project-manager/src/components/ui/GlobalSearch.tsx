@@ -15,7 +15,7 @@ const HighlightText = ({ text, highlight }: { text: string; highlight: string })
         <span>
             {parts.map((part, i) =>
                 new RegExp(`^${escapedHighlight}$`, 'i').test(part)
-                    ? <span key={i} className="text-[#7F56D9] bg-purple-100/50 font-bold px-0.5 rounded-sm">{part}</span>
+                    ? <span key={i} className="text-[#102550] bg-blue-100/50 font-bold px-0.5 rounded-sm">{part}</span>
                     : <span key={i}>{part}</span>
             )}
         </span>
@@ -24,7 +24,7 @@ const HighlightText = ({ text, highlight }: { text: string; highlight: string })
 
 const navigationPages = [
     { id: 'nav-1', name: 'الرئيسية (لوحة التحكم)', icon: <FolderKanban className="w-5 h-5 text-gray-500" />, url: '/', type: 'page' },
-    { id: 'nav-2', name: 'المشاريع', icon: <FolderKanban className="w-5 h-5 text-[#7F56D9]" />, url: '/projects', type: 'page' },
+    { id: 'nav-2', name: 'المشاريع', icon: <FolderKanban className="w-5 h-5 text-[#102550]" />, url: '/projects', type: 'page' },
     { id: 'nav-3', name: 'المالية (العهد)', icon: <Wallet className="w-5 h-5 text-emerald-500" />, url: '/finances', type: 'page' },
     { id: 'nav-4', name: 'الروابط الهامة', icon: <LinkIcon className="w-5 h-5 text-blue-500" />, url: '/links', type: 'page' },
     { id: 'nav-5', name: 'الدعم الفني', icon: <HeadphonesIcon className="w-5 h-5 text-orange-500" />, url: '/support', type: 'page' },
@@ -213,7 +213,7 @@ export function GlobalSearch({ isOpen, onClose }: GlobalSearchProps) {
                                     }}
                                 />
                                 {isPending && (
-                                    <Loader2 className="w-5 h-5 text-[#7F56D9] animate-spin absolute end-12" />
+                                    <Loader2 className="w-5 h-5 text-[#102550] animate-spin absolute end-12" />
                                 )}
                                 <button
                                     onClick={onClose}
@@ -279,7 +279,7 @@ export function GlobalSearch({ isOpen, onClose }: GlobalSearchProps) {
                                     <div className="py-12 px-6 text-center">
                                         {isPending ? (
                                             <>
-                                                <Loader2 className="mx-auto h-10 w-10 text-[#7F56D9] animate-spin" />
+                                                <Loader2 className="mx-auto h-10 w-10 text-[#102550] animate-spin" />
                                                 <h3 className="mt-4 text-sm font-semibold text-gray-900">جاري البحث...</h3>
                                             </>
                                         ) : searchError ? (
@@ -324,7 +324,7 @@ export function GlobalSearch({ isOpen, onClose }: GlobalSearchProps) {
                                                         setQuery(term);
                                                         inputRef.current?.focus();
                                                     }}
-                                                    className="px-3 py-1.5 bg-gray-50 hover:bg-purple-50 hover:text-[#7F56D9] text-gray-600 hover:border-purple-200 text-sm rounded-full transition-colors border border-gray-100 shadow-sm"
+                                                    className="px-3 py-1.5 bg-gray-50 hover:bg-blue-50 hover:text-[#102550] text-gray-600 hover:border-blue-200 text-sm rounded-full transition-colors border border-gray-100 shadow-sm"
                                                 >
                                                     {term}
                                                 </button>
