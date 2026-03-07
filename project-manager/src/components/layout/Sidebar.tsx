@@ -411,14 +411,14 @@ export default function Sidebar({ isOpen, setIsOpen }: { isOpen?: boolean, setIs
                 onTouchEnd={handleTouchEnd}
                 className={`
                     fixed z-50 flex flex-col
-                    bg-white/80 backdrop-blur-3xl
-                    border-e border-white/60
-                    shadow-[4px_0_40px_rgba(0,0,0,0.08)]
+                    bg-white/85 backdrop-blur-3xl
+                    shadow-[6px_0_40px_rgba(0,0,0,0.12),2px_0_12px_rgba(0,0,0,0.06)]
                     transform transition-transform duration-300 ease-in-out
                     start-0
-                    top-16 bottom-[calc(4rem+env(safe-area-inset-bottom))]
+                    top-[calc(4rem+0.5rem)] bottom-[calc(4rem+env(safe-area-inset-bottom)+0.5rem)]
                     w-[min(280px,85vw)]
-                    md:inset-y-0 md:top-0 md:bottom-0 md:w-[280px]
+                    rounded-e-3xl border border-white/60 border-s-0
+                    md:inset-y-0 md:top-0 md:bottom-0 md:w-[280px] md:rounded-none md:border-s-0 md:border-e md:border-white/60
                     ${isOpen ? 'translate-x-0 rtl:translate-x-0' : '-translate-x-full rtl:translate-x-full'}
                     md:translate-x-0 md:rtl:translate-x-0
                 `}>

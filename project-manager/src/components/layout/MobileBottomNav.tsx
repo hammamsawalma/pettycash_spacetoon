@@ -121,7 +121,7 @@ export default function MobileBottomNav({ hiddenBySidebar = false }: { hiddenByS
 
         return (
             /* Outer wrapper — position:relative so the floating CTA can anchor to it */
-            <nav aria-label="التنقل الرئيسي" className="fixed bottom-0 inset-x-0 z-50 w-full md:hidden">
+            <nav aria-label="التنقل الرئيسي" className="fixed bottom-0 inset-x-0 z-50 w-full md:hidden pb-[calc(0.5rem+env(safe-area-inset-bottom))]">
                 {/* ── Floating CTA — floats above the bar, centered ─────────────── */}
                 <div className="absolute -top-5 left-1/2 -translate-x-1/2 z-10">
                     <button
@@ -134,8 +134,8 @@ export default function MobileBottomNav({ hiddenBySidebar = false }: { hiddenByS
                     </button>
                 </div>
 
-                {/* ── Bar ─────────────────────────────────────────────────────── */}
-                <div className="bg-white/90 backdrop-blur-xl border-t border-gray-200/50 shadow-[0_-4px_30px_rgba(0,0,0,0.08)] pb-[env(safe-area-inset-bottom)]">
+                {/* ── Floating Bar ──────────────────────────────────────────────── */}
+                <div className="mx-3 bg-white/90 backdrop-blur-xl rounded-2xl border border-gray-200/60 shadow-[0_8px_32px_rgba(0,0,0,0.14),0_2px_8px_rgba(0,0,0,0.06)]">
                     <div className="flex items-center h-16 max-w-lg mx-auto px-2 font-medium" dir="rtl">
                         {employeeNavItems.map((item) => {
                             const isActive = pathname === item.href || (pathname.startsWith(item.href) && item.href !== '/');
@@ -218,8 +218,8 @@ export default function MobileBottomNav({ hiddenBySidebar = false }: { hiddenByS
             </AnimatePresence>
 
             {/* Bottom Nav Bar */}
-            <nav aria-label="التنقل الرئيسي" className="fixed bottom-0 inset-x-0 z-50 w-full bg-white/80 backdrop-blur-xl border-t border-gray-200/50 shadow-[0_-4px_30px_rgba(0,0,0,0.05)] md:hidden pb-[env(safe-area-inset-bottom)]">
-                <div className="flex items-center h-16 max-w-lg mx-auto font-medium px-2" dir="rtl">
+            <nav aria-label="التنقل الرئيسي" className="fixed bottom-0 inset-x-0 z-50 w-full md:hidden pb-[calc(0.5rem+env(safe-area-inset-bottom))]">
+                <div className="mx-3 flex items-center h-16 max-w-lg mx-auto font-medium px-2 bg-white/90 backdrop-blur-xl rounded-2xl border border-gray-200/60 shadow-[0_8px_32px_rgba(0,0,0,0.14),0_2px_8px_rgba(0,0,0,0.06)]" dir="rtl">
                     {navItems.map((item, idx) => {
                         const isActive = pathname === item.href || (pathname.startsWith(item.href) && item.href !== '/');
                         const midIndex = Math.floor(navItems.length / 2);
