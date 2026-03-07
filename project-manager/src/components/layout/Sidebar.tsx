@@ -308,7 +308,7 @@ const QUICK_ADD_ITEMS: QuickAddItem[] = [
 
 export default function Sidebar({ isOpen, setIsOpen }: { isOpen?: boolean, setIsOpen?: (val: boolean) => void }) {
     const pathname = usePathname();
-    const { user, isCoordinatorInAny } = useAuth();
+    const { user, isCoordinatorInAny, roleNameAr } = useAuth();
     const role = user?.role as UserRole | undefined;
 
     const [expandedMenus, setExpandedMenus] = useState<Record<string, boolean>>({});
@@ -539,22 +539,40 @@ export default function Sidebar({ isOpen, setIsOpen }: { isOpen?: boolean, setIs
                         );
                     })}
                 </nav>
-                <div className="border-t border-gray-100/50 p-4 space-y-2 shrink-0">
-                    <Link href="/settings" onClick={() => setIsOpen && setIsOpen(false)} className="group flex items-center gap-x-3.5 rounded-xl px-3 py-2.5 text-sm font-semibold text-gray-500 hover:bg-gray-50/80 hover:text-gray-900 transition-all duration-200">
-                        <Settings className="h-5 w-5 shrink-0 transition-transform group-hover:rotate-45" aria-hidden="true" />
-                        الإعدادات
+                {/* ── Footer: User card + actions ─────────────────────────── */}
+                <div className="shrink-0 mx-3 mb-3">
+                    {/* Gradient divider */}
+                    <div className="h-px bg-gradient-to-r from-transparent via-gray-200 to-transparent mb-3" />
+
+                    {/* User card → settings */}
+                    <Link
+                        href="/settings"
+                        onClick={() => setIsOpen && setIsOpen(false)}
+                        className="group flex items-center gap-3 p-3 rounded-2xl bg-gray-50/80 hover:bg-[#102550]/5 border border-gray-100/80 hover:border-[#102550]/20 transition-all duration-200 mb-2"
+                    >
+                        <div className="h-9 w-9 rounded-xl bg-gradient-to-br from-[#102550]/10 to-[#102550]/20 border border-[#102550]/20 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                            <span className="text-[#102550] font-black text-sm">{user?.name?.charAt(0) ?? '؟'}</span>
+                        </div>
+                        <div className="flex-1 min-w-0">
+                            <p className="text-sm font-bold text-gray-900 truncate group-hover:text-[#102550] transition-colors">{user?.name || 'مستخدم'}</p>
+                            <p className="text-[10px] text-gray-400 font-medium truncate">{roleNameAr}</p>
+                        </div>
+                        <Settings className="h-4 w-4 text-gray-300 group-hover:text-[#102550] group-hover:rotate-45 transition-all shrink-0" />
                     </Link>
+
+                    {/* Logout */}
                     <button
                         onClick={async () => {
                             if (setIsOpen) setIsOpen(false);
                             await logout();
                         }}
-                        className="group flex w-full items-center gap-x-3.5 rounded-xl px-3 py-2.5 text-sm font-semibold text-red-500 hover:bg-red-50 hover:text-red-600 transition-all duration-200"
+                        className="group flex w-full items-center justify-center gap-2 rounded-xl px-3 py-2.5 text-sm font-bold text-red-500/80 hover:text-red-600 hover:bg-red-50 border border-transparent hover:border-red-100 transition-all duration-200"
                     >
-                        <LogOut className="h-5 w-5 shrink-0 transition-transform group-hover:-translate-x-1" />
+                        <LogOut className="h-4 w-4 shrink-0 transition-transform group-hover:-translate-x-1" />
                         تسجيل الخروج
                     </button>
                 </div>
+
             </div>
 
             {/* Quick Add Modal */}
