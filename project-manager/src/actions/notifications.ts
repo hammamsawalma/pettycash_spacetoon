@@ -10,7 +10,13 @@ export async function getUnreadCount(): Promise<number> {
 
         const whereClause = session.role === "ADMIN"
             ? {}
-            : { OR: [{ targetRole: session.role }, { targetRole: "ALL" }] };
+            : {
+                OR: [
+                    { targetRole: session.role },
+                    { targetRole: "ALL" },
+                    { targetUserId: session.id } // specific user-targeted notifications
+                ]
+            };
 
         // Count notifications from the last 7 days as a proxy for "unread"
         const count = await prisma.notification.count({
@@ -32,7 +38,13 @@ export async function getNotifications() {
 
         const whereClause = session.role === "ADMIN"
             ? {}
-            : { OR: [{ targetRole: session.role }, { targetRole: "ALL" }] };
+            : {
+                OR: [
+                    { targetRole: session.role },
+                    { targetRole: "ALL" },
+                    { targetUserId: session.id } // specific user-targeted notifications
+                ]
+            };
 
         const notifications = await prisma.notification.findMany({
             where: whereClause,
@@ -48,7 +60,8 @@ export async function getNotifications() {
 export async function createNotification(prevState: unknown, formData: FormData) {
     try {
         const session = await getSession();
-        if (!session || session.role !== "ADMIN") {
+        // Allow ADMIN and GENERAL_MANAGER (matches PERMISSIONS.notifications.send)
+        if (!session || !['ADMIN', 'GENERAL_MANAGER'].includes(session.role)) {
             return { error: "غير مصرح لك بإرسال إشعارات عامة" };
         }
 

@@ -35,6 +35,23 @@ body {
   scroll-behavior: smooth;
 }
 
+/* ─── Mobile Tab Scrollbar Hide ─────────────────────────────
+ * Hides the horizontal scrollbar inside tab bars on mobile
+ * while preserving the swipe-to-scroll gesture.
+ */
+.mobile-tabs-scroll {
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  /* Firefox */
+  -ms-overflow-style: none;
+  /* IE/Edge */
+}
+
+.mobile-tabs-scroll::-webkit-scrollbar {
+  display: none;
+  /* Chrome / Safari */
+}
+
 /* ─── Skeleton / Shimmer Animation ──────────────────────────
  * Used by SkeletonCard component for loading states.
  */

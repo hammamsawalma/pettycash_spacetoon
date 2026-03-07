@@ -179,8 +179,8 @@ export default function ProjectDetailsPage({ params }: { params: Promise<{ id: s
         <DashboardLayout title={`تفاصيل المشروع - ${project.name}`}>
             <div className="space-y-6 md:space-y-8 pb-6">
 
-                {/* KPI Grid - Hidden for Employee */}
-                {role !== "USER" && (
+                {/* KPI Grid — hidden for pure employees (USER with no coordinator/accountant role) */}
+                {(role !== "USER" || isProjectCoordinator || isProjectAccountant) && (
                     <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
                         {kpis.map((kpi, i) => (
                             <Card key={i} className="flex flex-col md:flex-row items-start md:items-center gap-3 md:gap-4 p-4 md:p-6 group cursor-default shadow-sm border-gray-100">
@@ -526,7 +526,7 @@ export default function ProjectDetailsPage({ params }: { params: Promise<{ id: s
                                 const isManager = project.managerId === user?.id;
                                 const memberRecord = project.members?.find((m: any) => m.userId === user?.id);
                                 const memberRoles = memberRecord?.projectRoles ? memberRecord.projectRoles.split(",") : [];
-                                const canAddInvoice = role === "ADMIN" || role === "GLOBAL_ACCOUNTANT" || role === "GENERAL_MANAGER" || isManager || memberRoles.includes("PROJECT_EMPLOYEE") || memberRoles.includes("PROJECT_ACCOUNTANT");
+                                const canAddInvoice = role === "ADMIN" || role === "GLOBAL_ACCOUNTANT" || isManager || memberRoles.includes("PROJECT_EMPLOYEE") || memberRoles.includes("PROJECT_ACCOUNTANT");
                                 return canAddInvoice && (
                                     <Button
                                         variant="primary"

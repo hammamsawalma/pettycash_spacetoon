@@ -24,6 +24,11 @@ export async function issueCustody(prevState: unknown, formData: FormData) {
         const project = await prisma.project.findUnique({ where: { id: projectId } });
         if (!project) return { error: "المشروع غير موجود" };
 
+        // Block custody issuance for non-active projects
+        if (project.status !== "IN_PROGRESS") {
+            return { error: "لا يمكن صرف عهدة لمشروع مكتمل أو متوقف" };
+        }
+
         // v3: Only ADMIN (system-level) + PROJECT_ACCOUNTANT (project-level) can issue custody
         // GLOBAL_ACCOUNTANT is also allowed (they are auto-added as project accountant)
         let isAuthorized = session.role === "ADMIN" || session.role === "GLOBAL_ACCOUNTANT";

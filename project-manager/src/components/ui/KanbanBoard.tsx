@@ -83,7 +83,7 @@ function SortableProjectCard({ project, onProjectClick }: SortableProjectCardPro
     );
 }
 
-export function KanbanBoard({ projects, onProjectClick, onStatusChange }: { projects: ProjectWithRelations[], onProjectClick: (id: string) => void, onStatusChange: (projectId: string, newStatus: string) => void }) {
+export function KanbanBoard({ projects, onProjectClick, onStatusChange, canDragDrop = false }: { projects: ProjectWithRelations[], onProjectClick: (id: string) => void, onStatusChange: (projectId: string, newStatus: string) => void | Promise<void>, canDragDrop?: boolean }) {
     const [localProjects, setLocalProjects] = useState(projects);
     const [activeProject, setActiveProject] = useState<ProjectWithRelations | null>(null);
 
@@ -130,6 +130,8 @@ export function KanbanBoard({ projects, onProjectClick, onStatusChange }: { proj
         }
 
         if (newStatus && activeProject && activeProject.status !== newStatus) {
+            // Only proceed if user has permission
+            if (!canDragDrop) return;
             // Optimistic update
             setLocalProjects(prev => prev.map(p => p.id === projectId ? { ...p, status: newStatus as "COMPLETED" | "IN_PROGRESS" | "PENDING" } : p));
             // Backend update

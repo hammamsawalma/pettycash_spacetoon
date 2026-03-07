@@ -38,7 +38,10 @@ const ROUTE_RULES: Array<{ prefix: string; exact?: boolean; allowed: string[] }>
     { prefix: '/invoices', allowed: ['ADMIN', 'GLOBAL_ACCOUNTANT', 'USER', 'GENERAL_MANAGER'] },
 
     // Purchases create — restricted
-    { prefix: '/purchases/new', allowed: ['ADMIN', 'GLOBAL_ACCOUNTANT', 'GENERAL_MANAGER'] },
+    // USER is included because coordinators (USER + PROJECT_MANAGER) need access.
+    // Fine-grained check (isCoordinatorInAny) happens in the page via useCanDo,
+    // and server-side in createPurchase() via projectMember lookup.
+    { prefix: '/purchases/new', allowed: ['ADMIN', 'GLOBAL_ACCOUNTANT', 'GENERAL_MANAGER', 'USER'] },
     // Purchases list
     { prefix: '/purchases', allowed: ['ADMIN', 'GLOBAL_ACCOUNTANT', 'USER', 'GENERAL_MANAGER'] },
 ];

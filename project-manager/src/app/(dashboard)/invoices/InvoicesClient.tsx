@@ -47,7 +47,7 @@ export default function InvoicesClient({ initialInvoices }: Props) {
                 {/* ─── Sticky Header: Search + Filters ─────────────────────
                   * Stays at top on mobile so users can filter while scrolling
                   */}
-                <div className="sticky top-0 z-20 bg-[#f8f9fa]/95 backdrop-blur-md pt-1 pb-3 -mx-4 px-4 md:-mx-8 md:px-8 space-y-3">
+                <div className="sticky top-16 md:top-20 z-20 bg-[#f8f9fa]/95 backdrop-blur-md pt-1 pb-3 -mx-4 px-4 md:-mx-8 md:px-8 space-y-3">
                     {/* Search Bar */}
                     <div className="relative w-full">
                         <input
@@ -63,12 +63,12 @@ export default function InvoicesClient({ initialInvoices }: Props) {
                     </div>
 
                     {/* Filter Tabs — horizontal scroll on mobile */}
-                    <div className="flex bg-white rounded-xl p-1 shadow-sm border border-gray-100 overflow-x-auto custom-scrollbar whitespace-nowrap gap-1">
+                    <div className="flex bg-white rounded-xl p-1 shadow-sm border border-gray-100 overflow-x-auto mobile-tabs-scroll whitespace-nowrap gap-1">
                         {["الكل", "مقبولة", "معلقة", "مرفوضة"].map((tab) => (
                             <button
                                 key={tab}
                                 onClick={() => setFilter(tab)}
-                                className={`px-4 py-2 flex-1 min-w-[72px] text-[11px] md:text-sm font-bold rounded-lg transition-all duration-150 active:scale-95 ${filter === tab
+                                className={`px-4 py-2.5 flex-1 min-w-[68px] text-xs font-bold rounded-lg transition-all duration-150 active:scale-95 ${filter === tab
                                     ? "bg-[#102550] text-white shadow-sm"
                                     : "text-gray-500 hover:text-gray-900 hover:bg-gray-50"
                                     }`}
@@ -110,8 +110,8 @@ export default function InvoicesClient({ initialInvoices }: Props) {
                                                 {clientName.charAt(0)}
                                             </div>
                                             <div>
-                                                <h4 className="font-bold text-xs md:text-lg text-gray-900 line-clamp-1" title={clientName}>{clientName}</h4>
-                                                <p className="text-gray-400 text-[10px] md:text-xs font-semibold">{invoice.reference}</p>
+                                                <h4 className="font-bold text-sm md:text-lg text-gray-900 line-clamp-1" title={clientName}>{clientName}</h4>
+                                                <p className="text-gray-400 text-xs md:text-xs font-semibold">{invoice.reference}</p>
                                             </div>
                                         </div>
                                         {/* QrCode icon — decorative, hidden on mobile to save space */}
@@ -120,17 +120,17 @@ export default function InvoicesClient({ initialInvoices }: Props) {
 
                                     {/* Center Section */}
                                     <div className="mb-3 md:mb-4 flex-1">
-                                        <p className="text-[10px] md:text-sm text-gray-500 line-clamp-2 leading-relaxed">{invoice.notes || "لا يوجد وصف"}</p>
+                                        <p className="text-xs md:text-sm text-gray-500 line-clamp-2 leading-relaxed">{invoice.notes || "لا يوجد وصف"}</p>
                                     </div>
 
                                     {/* Bottom Section */}
                                     <div className="grid grid-cols-2 gap-2 md:gap-4 pt-3 md:pt-4 border-t border-gray-50 mb-3 md:mb-4 text-center">
                                         <div className="bg-gray-50 rounded-xl p-2 md:p-2">
-                                            <p className="text-[10px] md:text-xs text-gray-400 font-bold mb-0.5 md:mb-1">التاريخ</p>
+                                            <p className="text-[11px] md:text-xs text-gray-400 font-bold mb-0.5 md:mb-1">التاريخ</p>
                                             <p className="font-bold text-gray-900 text-xs md:text-sm">{new Date(invoice.date).toLocaleDateString('en-GB')}</p>
                                         </div>
                                         <div className="bg-[#102550]/5 rounded-xl p-2 md:p-2">
-                                            <p className="text-[10px] md:text-xs text-gray-400 font-bold mb-0.5 md:mb-1">الإجمالي</p>
+                                            <p className="text-[11px] md:text-xs text-gray-400 font-bold mb-0.5 md:mb-1">الإجمالي</p>
                                             <p className="font-bold text-[#102550] text-xs md:text-sm">{invoice.amount.toLocaleString()} <span className="text-[9px] md:text-[10px]"><CurrencyDisplay /></span></p>
                                         </div>
                                         {/* Bug #4 fix: flex-wrap so 3 items never overflow the card width */}

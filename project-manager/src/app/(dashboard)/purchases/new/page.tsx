@@ -3,7 +3,7 @@ import DashboardLayout from "@/components/layout/DashboardLayout";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { useState, useEffect, useActionState } from "react";
-import { getProjects } from "@/actions/projects";
+import { getProjectsForPurchase } from "@/actions/projects";
 import { createPurchase } from "@/actions/purchases";
 import { Project } from "@prisma/client";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -28,7 +28,7 @@ function NewPurchaseForm() {
             router.replace("/purchases");
             return;
         }
-        getProjects().then(data => setProjects(data as unknown as Project[]));
+        getProjectsForPurchase().then(data => setProjects(data as unknown as Project[]));
     }, [canCreate]);
 
     useEffect(() => {

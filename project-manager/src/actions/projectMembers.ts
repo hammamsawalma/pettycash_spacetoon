@@ -66,11 +66,24 @@ export async function updateMemberRoles(
     }
 }
 
-// ─── جلب أعضاء المشروع مع أدوارهم ────────────────────────
+
 export async function getProjectMembers(projectId: string) {
     try {
         const session = await getSession();
         if (!session) return [];
+
+        // Authorization: must be ADMIN, global finance, or a member of this project
+        if (!['ADMIN', 'GLOBAL_ACCOUNTANT', 'GENERAL_MANAGER'].includes(session.role)) {
+            const membership = await prisma.projectMember.findFirst({
+                where: { projectId, userId: session.id }
+            });
+            const isManager = await prisma.project.findFirst({
+                where: { id: projectId, managerId: session.id }
+            });
+            if (!membership && !isManager) {
+                return []; // silently return empty — don’t leak project existence
+            }
+        }
 
         const members = await prisma.projectMember.findMany({
             where: { projectId },

@@ -102,6 +102,10 @@ export async function allocateBudgetToProject(prevState: unknown, formData: Form
 
         const project = await prisma.project.findUnique({ where: { id: projectId } });
         if (!project) return { error: "المشروع غير موجود" };
+        if (project.status !== "IN_PROGRESS") {
+            return { error: "لا يمكن تخصيص ميزانية لمشروع مكتمل أو متوقف" };
+        }
+
 
         await prisma.$transaction([
             prisma.companyWallet.update({

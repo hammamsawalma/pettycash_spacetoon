@@ -114,6 +114,113 @@ export async function getProjectById(id: string) {
     }
 }
 
+// ─── Projects available for Invoice creation ─────────────────────────────────
+// Filters: IN_PROGRESS + user has PROJECT_EMPLOYEE or PROJECT_ACCOUNTANT role
+// (or is a global role that can create invoices)
+export async function getProjectsForInvoice() {
+    try {
+        const session = await getSession();
+        if (!session) return [];
+
+        // Global roles that can always create invoices against any project
+        if (["ADMIN", "GLOBAL_ACCOUNTANT"].includes(session.role)) {
+            return prisma.project.findMany({
+                where: { status: "IN_PROGRESS", isDeleted: false },
+                orderBy: { name: "asc" },
+                select: { id: true, name: true, status: true }
+            });
+        }
+
+        // USER: only projects where user has PROJECT_EMPLOYEE or PROJECT_ACCOUNTANT role
+        const memberships = await prisma.projectMember.findMany({
+            where: {
+                userId: session.id,
+                project: { status: "IN_PROGRESS", isDeleted: false }
+            },
+            select: { projectId: true, projectRoles: true, project: { select: { id: true, name: true, status: true } } }
+        });
+
+        // Also include projects where user is the manager AND has employee role
+        const eligible = memberships.filter(m => {
+            const roles = (m.projectRoles || "").split(",").map((r: string) => r.trim());
+            return roles.includes("PROJECT_EMPLOYEE") || roles.includes("PROJECT_ACCOUNTANT");
+        });
+
+        return eligible.map(m => m.project);
+    } catch (error) {
+        console.error("getProjectsForInvoice Error:", error);
+        return [];
+    }
+}
+
+// ─── Projects available for Purchase request creation ────────────────────────
+// Filters: IN_PROGRESS + user has PROJECT_MANAGER role (or is ADMIN/GM)
+export async function getProjectsForPurchase() {
+    try {
+        const session = await getSession();
+        if (!session) return [];
+
+        // ADMIN and GENERAL_MANAGER can create purchases for any active project
+        if (["ADMIN", "GENERAL_MANAGER"].includes(session.role)) {
+            return prisma.project.findMany({
+                where: { status: "IN_PROGRESS", isDeleted: false },
+                orderBy: { name: "asc" },
+                select: { id: true, name: true, status: true }
+            });
+        }
+
+        // USER: only projects where user has PROJECT_MANAGER role
+        const memberships = await prisma.projectMember.findMany({
+            where: {
+                userId: session.id,
+                project: { status: "IN_PROGRESS", isDeleted: false }
+            },
+            select: { projectId: true, projectRoles: true, project: { select: { id: true, name: true, status: true } } }
+        });
+
+        const eligible = memberships.filter(m => {
+            const roles = (m.projectRoles || "").split(",").map((r: string) => r.trim());
+            return roles.includes("PROJECT_MANAGER");
+        });
+
+        return eligible.map(m => m.project);
+    } catch (error) {
+        console.error("getProjectsForPurchase Error:", error);
+        return [];
+    }
+}
+
+// ─── Update Project Status (Kanban server action) ─────────────────────────────
+// Restricted to ADMIN only. Persists stage changes from the Kanban board.
+export async function updateProjectStatus(projectId: string, status: string) {
+    try {
+        const session = await getSession();
+        if (!session || session.role !== "ADMIN") {
+            return { error: "فقط المدير يمكنه تغيير حالة المشاريع" };
+        }
+
+        const allowedStatuses = ["IN_PROGRESS", "PENDING", "COMPLETED"];
+        if (!allowedStatuses.includes(status)) {
+            return { error: "حالة غير صالحة" };
+        }
+
+        const project = await prisma.project.findUnique({
+            where: { id: projectId, isDeleted: false }
+        });
+        if (!project) return { error: "المشروع غير موجود" };
+
+        await prisma.project.update({
+            where: { id: projectId },
+            data: { status: status as any }
+        });
+
+        revalidatePath("/projects");
+        return { success: true };
+    } catch (error) {
+        console.error("updateProjectStatus Error:", error);
+        return { error: "حدث خطأ أثناء تحديث حالة المشروع" };
+    }
+}
 
 export async function createProject(prevState: unknown, formData: FormData) {
     try {

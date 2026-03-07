@@ -92,40 +92,45 @@ export default function SettingsPage() {
             <div className="flex flex-col md:flex-row gap-4 md:gap-6 pb-6 w-full max-w-4xl mx-auto">
 
                 {/* Settings Sidebar Menu */}
-                <Card className="w-full md:w-64 flex md:flex-col gap-2 shrink-0 p-2 md:p-6 shadow-sm border-gray-100 overflow-x-auto custom-scrollbar md:overflow-visible rounded-2xl">
-                    <button
-                        onClick={() => setActiveTab("profile")}
-                        className={`min-w-max md:w-full flex items-center gap-2 md:gap-3 px-4 py-3 font-bold text-xs md:text-sm rounded-xl transition-colors ${activeTab === 'profile' ? 'bg-[#102550]/10 text-[#102550]' : 'text-gray-500 hover:bg-gray-50 hover:text-gray-900'}`}
-                    >
-                        <User className="w-4 h-4 md:w-5 md:h-5" />
-                        الملف الشخصي
-                    </button>
-                    <button
-                        onClick={() => setActiveTab("phone")}
-                        className={`min-w-max md:w-full flex items-center gap-2 md:gap-3 px-4 py-3 font-bold text-xs md:text-sm rounded-xl transition-colors ${activeTab === 'phone' ? 'bg-[#102550]/10 text-[#102550]' : 'text-gray-500 hover:bg-gray-50 hover:text-gray-900'}`}
-                    >
-                        <Phone className="w-4 h-4 md:w-5 md:h-5" />
-                        رقم الجوال
-                    </button>
-                    <button
-                        onClick={() => setActiveTab("password")}
-                        className={`min-w-max md:w-full flex items-center gap-2 md:gap-3 px-4 py-3 font-bold text-xs md:text-sm rounded-xl transition-colors ${activeTab === 'password' ? 'bg-[#102550]/10 text-[#102550]' : 'text-gray-500 hover:bg-gray-50 hover:text-gray-900'}`}
-                    >
-                        <Lock className="w-4 h-4 md:w-5 md:h-5" />
-                        كلمة المرور
-                    </button>
-                    {/* Admin-only: advanced settings */}
-                    {canManageSystem && (
+                {/* Settings Sidebar / Top Nav */}
+                <Card className="w-full md:w-64 flex flex-col shrink-0 p-2 md:p-6 shadow-sm border-gray-100 rounded-2xl">
+                    {/* Tab buttons — scroll on mobile, stack on desktop */}
+                    <div className="flex md:flex-col gap-2 overflow-x-auto mobile-tabs-scroll md:overflow-visible pb-1 md:pb-0">
                         <button
-                            onClick={() => setActiveTab("advanced")}
-                            className={`min-w-max md:w-full flex items-center gap-2 md:gap-3 px-4 py-3 font-bold text-xs md:text-sm rounded-xl transition-colors ${activeTab === 'advanced' ? 'bg-amber-50 text-amber-700' : 'text-gray-500 hover:bg-gray-50 hover:text-gray-900'}`}
+                            onClick={() => setActiveTab("profile")}
+                            className={`shrink-0 md:w-full flex items-center gap-2 md:gap-3 px-4 py-3 font-bold text-xs md:text-sm rounded-xl transition-colors ${activeTab === 'profile' ? 'bg-[#102550]/10 text-[#102550]' : 'text-gray-500 hover:bg-gray-50 hover:text-gray-900'}`}
                         >
-                            <Settings2 className="w-4 h-4 md:w-5 md:h-5" />
-                            إعدادات متقدمة
+                            <User className="w-4 h-4 md:w-5 md:h-5" />
+                            الملف الشخصي
                         </button>
-                    )}
-                    <div className="md:pt-4 md:mt-4 md:border-t md:border-gray-100 mr-auto md:mr-0 pl-2 md:pl-0">
-                        <Button type="button" disabled={isPending} isLoading={isPending} variant="danger" className="min-w-max md:w-full flex items-center gap-2 md:gap-3 px-4 py-3 text-xs md:text-sm rounded-xl font-bold shadow-sm" onClick={handleLogout}>
+                        <button
+                            onClick={() => setActiveTab("phone")}
+                            className={`shrink-0 md:w-full flex items-center gap-2 md:gap-3 px-4 py-3 font-bold text-xs md:text-sm rounded-xl transition-colors ${activeTab === 'phone' ? 'bg-[#102550]/10 text-[#102550]' : 'text-gray-500 hover:bg-gray-50 hover:text-gray-900'}`}
+                        >
+                            <Phone className="w-4 h-4 md:w-5 md:h-5" />
+                            رقم الجوال
+                        </button>
+                        <button
+                            onClick={() => setActiveTab("password")}
+                            className={`shrink-0 md:w-full flex items-center gap-2 md:gap-3 px-4 py-3 font-bold text-xs md:text-sm rounded-xl transition-colors ${activeTab === 'password' ? 'bg-[#102550]/10 text-[#102550]' : 'text-gray-500 hover:bg-gray-50 hover:text-gray-900'}`}
+                        >
+                            <Lock className="w-4 h-4 md:w-5 md:h-5" />
+                            كلمة المرور
+                        </button>
+                        {/* Admin-only: advanced settings */}
+                        {canManageSystem && (
+                            <button
+                                onClick={() => setActiveTab("advanced")}
+                                className={`shrink-0 md:w-full flex items-center gap-2 md:gap-3 px-4 py-3 font-bold text-xs md:text-sm rounded-xl transition-colors ${activeTab === 'advanced' ? 'bg-amber-50 text-amber-700' : 'text-gray-500 hover:bg-gray-50 hover:text-gray-900'}`}
+                            >
+                                <Settings2 className="w-4 h-4 md:w-5 md:h-5" />
+                                إعدادات متقدمة
+                            </button>
+                        )}
+                    </div>
+                    {/* Logout — always visible, outside the scroll area */}
+                    <div className="pt-3 mt-2 border-t border-gray-100 md:pt-4 md:mt-4">
+                        <Button type="button" disabled={isPending} isLoading={isPending} variant="danger" className="w-full flex items-center gap-2 md:gap-3 px-4 py-3 text-xs md:text-sm rounded-xl font-bold shadow-sm" onClick={handleLogout}>
                             <LogOut className="w-4 h-4 md:w-5 md:h-5" />
                             تسجيل الخروج
                         </Button>

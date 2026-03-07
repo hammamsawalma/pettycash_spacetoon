@@ -6,6 +6,9 @@ import { getSession } from "@/lib/auth";
 // ─── Get current AutoApprovalRule ────────────────────────
 export async function getAutoApprovalRule() {
     try {
+        const session = await getSession();
+        if (!session || session.role !== "ADMIN") return null;
+
         const rule = await prisma.autoApprovalRule.findFirst({ where: { isActive: true } });
         return rule;
     } catch {

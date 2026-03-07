@@ -69,6 +69,9 @@ export async function getInvoices() {
 
 export async function getInvoiceById(id: string) {
     try {
+        const session = await getSession();
+        if (!session) return null;
+
         const invoice = await prisma.invoice.findUnique({
             where: { id },
             include: {
@@ -82,7 +85,18 @@ export async function getInvoiceById(id: string) {
                 outOfPocketDebt: true
             }
         });
-        return invoice;
+        if (!invoice) return null;
+
+        // Auth: creator, global finance roles, or project member can read
+        if (isGlobalFinance(session.role)) return invoice;
+        if (invoice.creator?.id === session.id) return invoice;
+        if (invoice.projectId) {
+            const member = await prisma.projectMember.findFirst({
+                where: { projectId: invoice.projectId, userId: session.id }
+            });
+            if (member) return invoice;
+        }
+        return null; // unauthorized
     } catch (error) {
         console.error("Get Invoice Error:", error);
         return null;
@@ -139,6 +153,11 @@ export async function createInvoice(prevState: unknown, formData: FormData) {
             });
 
             if (!project) return { error: "غير مصرح لك بالإضافة لهذا المشروع" };
+
+            // Check project is still active
+            if (project.status !== "IN_PROGRESS") {
+                return { error: "لا يمكن إضافة فاتورة لمشروع مكتمل أو متوقف" };
+            }
 
             projectIsManaged = project.managerId === session.id;
             const memberRecord = project.members[0];

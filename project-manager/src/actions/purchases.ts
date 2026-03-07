@@ -122,6 +122,16 @@ export async function createPurchase(prevState: unknown, formData: FormData) {
                 return { error: "صلاحية مرفوضة: يجب أن تكون 'منسق' في هذا المشروع لإنشاء طلبات الشراء." };
             }
         }
+
+        // Check project is still active (blocks both global creators and coordinators)
+        const project = await prisma.project.findUnique({
+            where: { id: projectId },
+            select: { status: true }
+        });
+        if (!project) return { error: "المشروع غير موجود" };
+        if (project.status !== "IN_PROGRESS") {
+            return { error: "لا يمكن إنشاء طلب شراء لمشروع مكتمل أو متوقف" };
+        }
         // ------------------------------
 
         const order = await prisma.purchase.create({

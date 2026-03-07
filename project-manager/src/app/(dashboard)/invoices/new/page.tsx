@@ -12,7 +12,7 @@ import { FileUpload } from "@/components/ui/FileUpload";
 import toast from "react-hot-toast";
 import { Suspense } from "react";
 import { Camera, FileText, CheckCircle, Trash2, Plus, ImageIcon, FolderOpen } from "lucide-react";
-import { getProjects, getManagerAvailableCustody } from "@/actions/projects";
+import { getProjectsForInvoice, getManagerAvailableCustody } from "@/actions/projects";
 import { useAuth } from "@/context/AuthContext";
 import Image from "next/image";
 import { FormPageSkeleton } from "@/components/ui/FormPageSkeleton";
@@ -368,7 +368,7 @@ function FullInvoiceForm() {
     const [items, setItems] = useState<InvoiceItemInput[]>([]);
 
     useEffect(() => {
-        getProjects().then(data => setProjects(data as unknown as Project[]));
+        getProjectsForInvoice().then(data => setProjects(data as unknown as Project[]));
         getCategories().then(setCategories);
     }, []);
 
@@ -716,7 +716,7 @@ function NewInvoicePageInner() {
     const [categories, setCategories] = useState<any[]>([]);
 
     useEffect(() => {
-        getProjects().then(data => setProjects(data as any[]));
+        getProjectsForInvoice().then(data => setProjects(data as any[]));
         getCategories().then(setCategories);
     }, []);
 

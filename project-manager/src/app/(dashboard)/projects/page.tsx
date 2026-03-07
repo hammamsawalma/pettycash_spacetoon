@@ -7,7 +7,7 @@ import { useState, useEffect, useCallback } from "react";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { LoadingSkeleton } from "@/components/ui/LoadingSkeleton";
 import { KanbanBoard } from "@/components/ui/KanbanBoard";
-import { getProjects } from "@/actions/projects";
+import { getProjects, updateProjectStatus } from "@/actions/projects";
 import { Project, User } from "@prisma/client";
 import { useAuth } from "@/context/AuthContext";
 import { useCanDo } from "@/components/auth/Protect";
@@ -32,6 +32,8 @@ export default function ProjectsPage() {
     const canCreateProject = useCanDo('projects', 'create');
     // Management roles see financial details (budget, custody) — USER role sees only project info
     const canViewFinancials = useCanDo('projects', 'viewAll');
+    // Only ADMIN can change project status via Kanban DnD
+    const canDragDrop = useCanDo('projects', 'close');
 
     const [filter, setFilter] = useState("الكل");
     const [viewMode, setViewMode] = useState<"grid" | "board">("grid");
@@ -77,22 +79,31 @@ export default function ProjectsPage() {
     });
 
     const handleStatusChange = async (projectId: string, newStatus: string) => {
-        // Optimistic update locally
-        setProjects(prev => prev.map(p => p.id === projectId ? { ...p, status: newStatus as "COMPLETED" | "IN_PROGRESS" | "PENDING" } : p));
-        toast.success("تم تحديث حالة المشروع بنجاح", {
-            icon: '✨',
-            style: {
-                borderRadius: '16px',
-                background: '#fff',
-                color: '#333',
-                boxShadow: '0 10px 40px rgba(0,0,0,0.08)',
-                fontWeight: 'bold',
-                padding: '12px 24px',
-            },
-        });
+        // Save previous state for rollback
+        const previousProjects = projects;
 
-        // In a real app, call Server Action here:
-        // await updateProjectStatus(projectId, newStatus);
+        // Optimistic update
+        setProjects(prev => prev.map(p => p.id === projectId ? { ...p, status: newStatus as "COMPLETED" | "IN_PROGRESS" | "PENDING" } : p));
+
+        // Persist via server action
+        const result = await updateProjectStatus(projectId, newStatus);
+        if (result?.error) {
+            // Rollback on failure
+            setProjects(previousProjects);
+            toast.error(result.error);
+        } else {
+            toast.success("تم تحديث حالة المشروع بنجاح", {
+                icon: '✨',
+                style: {
+                    borderRadius: '16px',
+                    background: '#fff',
+                    color: '#333',
+                    boxShadow: '0 10px 40px rgba(0,0,0,0.08)',
+                    fontWeight: 'bold',
+                    padding: '12px 24px',
+                },
+            });
+        }
     };
 
     return (
@@ -133,12 +144,12 @@ export default function ProjectsPage() {
 
                     {/* Filter Tabs & View Toggle */}
                     <div className="flex flex-col sm:flex-row gap-3 items-center justify-between">
-                        <div className="flex bg-white rounded-lg p-1 shadow-sm border border-gray-100 overflow-x-auto custom-scrollbar whitespace-nowrap w-full sm:w-auto">
+                        <div className="flex bg-white rounded-lg p-1 shadow-sm border border-gray-100 overflow-x-auto mobile-tabs-scroll whitespace-nowrap w-full sm:w-auto">
                             {["الكل", "المكتملة", "قيد التنفيذ", "المتوقفة"].map((tab) => (
                                 <button
                                     key={tab}
                                     onClick={() => setFilter(tab === "المكتملة" ? "مكتمل" : tab)}
-                                    className={`px-4 py-2 flex-1 text-[11px] md:text-sm font-medium rounded-md transition-colors ${(filter === tab || (filter === "مكتمل" && tab === "المكتملة"))
+                                    className={`px-3 py-2.5 shrink-0 min-w-fit text-xs font-medium rounded-md transition-colors ${(filter === tab || (filter === "مكتمل" && tab === "المكتملة"))
                                         ? "bg-[#102550] text-white shadow-sm"
                                         : "text-gray-500 hover:text-gray-900"
                                         }`}
@@ -156,9 +167,10 @@ export default function ProjectsPage() {
                             </button>
                             <button
                                 onClick={() => setViewMode("board")}
-                                className={`flex-1 sm:flex-none px-4 py-1.5 md:py-2 text-xs md:text-sm font-bold rounded-lg transition-all ${viewMode === "board" ? "bg-[#102550] text-white shadow-sm" : "text-gray-500 hover:text-gray-700"}`}
+                                className={`flex-1 sm:flex-none px-3 py-1.5 md:py-2 text-xs md:text-sm font-bold rounded-lg transition-all ${viewMode === "board" ? "bg-[#102550] text-white shadow-sm" : "text-gray-500 hover:text-gray-700"}`}
                             >
-                                بورد (سحب وإفلات)
+                                <span className="hidden sm:inline">بورد (سحب وإفلات)</span>
+                                <span className="sm:hidden">بورد</span>
                             </button>
                         </div>
                     </div>
@@ -191,7 +203,7 @@ export default function ProjectsPage() {
                     </div>
                 ) : viewMode === "board" ? (
                     <div className="py-4">
-                        <KanbanBoard projects={filteredProjects} onProjectClick={(id) => router.push(`/projects/${id}`)} onStatusChange={handleStatusChange} />
+                        <KanbanBoard projects={filteredProjects} onProjectClick={(id) => router.push(`/projects/${id}`)} onStatusChange={handleStatusChange} canDragDrop={canDragDrop} />
                     </div>
                 ) : (
                     <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3 md:gap-6 pb-6 mt-4">
