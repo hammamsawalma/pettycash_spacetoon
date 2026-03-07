@@ -42,10 +42,12 @@ export default function InvoicesClient({ initialInvoices }: Props) {
 
     return (
         <DashboardLayout title="الفواتير">
-            <div className="space-y-6 md:space-y-8 pb-6">
+            <div className="space-y-4 pb-6">
 
-                {/* Header Actions */}
-                <div className="flex flex-col gap-4">
+                {/* ─── Sticky Header: Search + Filters ─────────────────────
+                  * Stays at top on mobile so users can filter while scrolling
+                  */}
+                <div className="sticky top-0 z-20 bg-[#f8f9fa]/95 backdrop-blur-md pt-1 pb-3 -mx-4 px-4 md:-mx-8 md:px-8 space-y-3">
                     {/* Search Bar */}
                     <div className="relative w-full">
                         <input
@@ -60,15 +62,15 @@ export default function InvoicesClient({ initialInvoices }: Props) {
                         </div>
                     </div>
 
-                    {/* Filter Tabs */}
-                    <div className="flex bg-white rounded-lg p-1 shadow-sm border border-gray-100 overflow-x-auto custom-scrollbar whitespace-nowrap">
+                    {/* Filter Tabs — horizontal scroll on mobile */}
+                    <div className="flex bg-white rounded-xl p-1 shadow-sm border border-gray-100 overflow-x-auto custom-scrollbar whitespace-nowrap gap-1">
                         {["الكل", "مقبولة", "معلقة", "مرفوضة"].map((tab) => (
                             <button
                                 key={tab}
                                 onClick={() => setFilter(tab)}
-                                className={`px-4 py-2 flex-1 text-[11px] md:text-sm font-medium rounded-md transition-colors ${filter === tab
+                                className={`px-4 py-2 flex-1 min-w-[72px] text-[11px] md:text-sm font-bold rounded-lg transition-all duration-150 active:scale-95 ${filter === tab
                                     ? "bg-[#102550] text-white shadow-sm"
-                                    : "text-gray-500 hover:text-gray-900"
+                                    : "text-gray-500 hover:text-gray-900 hover:bg-gray-50"
                                     }`}
                             >
                                 {tab}
@@ -78,11 +80,12 @@ export default function InvoicesClient({ initialInvoices }: Props) {
 
                     {/* Add Invoice Button — hidden for GENERAL_MANAGER (view-only) */}
                     {!!user && user.role !== 'GENERAL_MANAGER' && (
-                        <button onClick={() => router.push('/invoices/new')} className="w-full py-6 md:py-7 text-sm md:text-lg font-bold rounded-2xl bg-[#102550] hover:bg-[#102550]-hover text-white border-none flex items-center justify-center gap-2 shadow-sm mt-2">
-                            <span>أضف فاتورة جديدة</span>
+                        <button onClick={() => router.push('/invoices/new')} className="w-full py-4 md:py-5 text-sm md:text-base font-bold rounded-2xl bg-[#102550] hover:bg-[#102550]/90 active:scale-[0.98] text-white border-none flex items-center justify-center gap-2 shadow-sm transition-all duration-150">
+                            <span>+ إضافة فاتورة جديدة</span>
                         </button>
                     )}
                 </div>
+
 
                 {/* Invoices Grid */}
                 {filteredInvoices.length === 0 ? (

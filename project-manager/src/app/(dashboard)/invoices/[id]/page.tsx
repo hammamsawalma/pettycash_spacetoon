@@ -11,6 +11,7 @@ import { getInvoiceById, updateInvoiceStatus } from "@/actions/invoices";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import { UserRole } from "@/context/AuthContext";
+import { AnimatedCheckmark } from "@/components/ui/AnimatedCheckmark";
 
 type InvoiceItem = {
     id: string;
@@ -93,7 +94,17 @@ export default function InvoiceDetailsPage({ params }: { params: Promise<{ id: s
         });
     }, [id]);
 
-    // I4: Re-open handler — transitions APPROVED or REJECTED back to PENDING
+    // ── Animated checkmark state ────────────────────────────────────────────
+    const [showCheckmark, setShowCheckmark] = useState(false);
+    const [checkmarkLabel, setCheckmarkLabel] = useState("");
+
+    const showSuccessAndReload = (label: string) => {
+        setCheckmarkLabel(label);
+        setShowCheckmark(true);
+        setTimeout(() => window.location.reload(), 1000);
+    };
+
+    // I4: Re-open handler
     const handleReopen = async () => {
         if (!confirm("هل تريد إعادة الفاتورة إلى حالة مراجعة (معلقة)؟")) return;
         setIsUpdating(true);
@@ -102,7 +113,7 @@ export default function InvoiceDetailsPage({ params }: { params: Promise<{ id: s
         if (res?.error) toast.error(res.error);
         else {
             toast.success("تمت إعادة الفاتورة إلى قائمة المراجعة");
-            window.location.reload();
+            showSuccessAndReload("تمت الإعادة");
         }
     };
 
@@ -114,7 +125,7 @@ export default function InvoiceDetailsPage({ params }: { params: Promise<{ id: s
         if (res?.error) toast.error(res.error);
         else {
             toast.success("تم اعتماد الفاتورة بنجاح");
-            window.location.reload();
+            showSuccessAndReload("تم الاعتماد ✅");
         }
     };
 
@@ -130,7 +141,7 @@ export default function InvoiceDetailsPage({ params }: { params: Promise<{ id: s
         else {
             toast.success("تم رفض الفاتورة وإرسال السبب للموظف");
             handleCloseRejectModal();
-            window.location.reload();
+            showSuccessAndReload("تم الرفض");
         }
     };
 
@@ -154,6 +165,7 @@ export default function InvoiceDetailsPage({ params }: { params: Promise<{ id: s
 
     return (
         <DashboardLayout title={`تفاصيل الفاتورة #${invoice.reference}`}>
+            <AnimatedCheckmark show={showCheckmark} label={checkmarkLabel} />
             <div className="flex flex-col lg:flex-row gap-6 relative" dir="rtl">
 
                 {/* Main Invoice Card */}

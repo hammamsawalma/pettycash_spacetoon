@@ -12,6 +12,7 @@ import {
     TrendingUp, TrendingDown, AlertTriangle, CheckCircle2,
     Clock, ArrowRight, Building2, BarChart3, Star
 } from 'lucide-react';
+import { GeneralManagerDashboardSkeleton } from "@/components/ui/SkeletonCard";
 
 type GMStats = Awaited<ReturnType<typeof getGMDashboardStats>>;
 type FlowStats = Awaited<ReturnType<typeof getFlowStats>>;
@@ -60,14 +61,7 @@ export default function GeneralManagerDashboard() {
     if (!isMounted || !stats) {
         return (
             <DashboardLayout title="لوحة المدير العام">
-                <div className="min-h-screen flex items-center justify-center">
-                    <div className="flex flex-col items-center gap-4">
-                        <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[#102550] to-[#2563eb] flex items-center justify-center animate-pulse">
-                            <Star className="w-8 h-8 text-white" />
-                        </div>
-                        <span className="text-gray-500 font-semibold animate-pulse">جاري تحميل البيانات...</span>
-                    </div>
-                </div>
+                <GeneralManagerDashboardSkeleton />
             </DashboardLayout>
         );
     }

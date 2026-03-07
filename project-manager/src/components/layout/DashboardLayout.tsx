@@ -8,6 +8,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { CommandMenu } from "../ui/CommandMenu";
 import { Toaster } from "react-hot-toast";
 import { NetworkStatus } from "../ui/NetworkStatus";
+import PWAInstallBanner from "../ui/PWAInstallBanner";
 
 export default function DashboardLayout({
     children,
@@ -20,10 +21,15 @@ export default function DashboardLayout({
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
     return (
-        <div className="min-h-screen relative flex bg-[#f8f9fa] overflow-x-hidden">
-            {/* Premium Ambient Background — reduced blur on mobile for perf */}
+        <div className="min-h-screen relative flex bg-[#f8f9fa]">
+            {/* Premium Ambient Background
+              * Desktop: full 4-orb effect
+              * Mobile: single lightweight orb (avoids expensive paint on low-end phones)
+              */}
             <div className="fixed inset-0 -z-10 w-full h-full overflow-hidden pointer-events-none bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-white via-blue-50/40 to-[#f8f9fa] rtl:bg-[radial-gradient(ellipse_at_top_left,_var(--tw-gradient-stops))]">
-                <div className="absolute top-[-20%] end-[-10%] w-[500px] h-[500px] rounded-full bg-blue-400/20 md:blur-[120px] blur-[60px] mix-blend-multiply" />
+                {/* Mobile: one orb only */}
+                <div className="absolute top-[-20%] end-[-10%] w-[300px] h-[300px] rounded-full bg-blue-400/15 blur-[60px] mix-blend-multiply md:w-[500px] md:h-[500px] md:bg-blue-400/20 md:blur-[120px]" />
+                {/* Desktop-only orbs */}
                 <div className="hidden md:block absolute top-[20%] start-[-10%] w-[600px] h-[600px] rounded-full bg-blue-300/20 blur-[140px] mix-blend-multiply" />
                 <div className="hidden md:block absolute bottom-[-10%] start-[20%] w-[500px] h-[500px] rounded-full bg-blue-300/20 blur-[120px] mix-blend-multiply" />
                 <div className="hidden md:block absolute top-[50%] end-[30%] w-[400px] h-[400px] rounded-full bg-blue-200/30 blur-[150px] mix-blend-multiply" />
@@ -39,13 +45,16 @@ export default function DashboardLayout({
 
             <div className="md:ms-[280px] flex flex-col min-h-screen w-full pb-24 md:pb-0 transition-all duration-300">
                 <Header title={title} onMenuClick={() => setIsSidebarOpen(true)} />
-                <AnimatePresence mode="wait">
+                <AnimatePresence mode="popLayout">
                     <motion.main
                         key={pathname}
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: -10 }}
-                        transition={{ duration: 0.3, ease: "easeInOut" }}
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        transition={{
+                            duration: 0.12,
+                            ease: "easeOut",
+                        }}
                         className="flex-1 p-4 md:p-8 max-w-7xl mx-auto w-full"
                     >
                         {children}
@@ -53,6 +62,7 @@ export default function DashboardLayout({
                 </AnimatePresence>
             </div>
             <MobileBottomNav />
+            <PWAInstallBanner />
             <CommandMenu />
             <NetworkStatus />
             <Toaster
@@ -74,3 +84,4 @@ export default function DashboardLayout({
         </div>
     );
 }
+

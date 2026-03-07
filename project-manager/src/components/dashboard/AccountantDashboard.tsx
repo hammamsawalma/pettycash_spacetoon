@@ -10,6 +10,7 @@ import { Project, User, Notification, Invoice, ProjectMember } from '@prisma/cli
 import { AnimatedNumber } from "@/components/ui/AnimatedNumber";
 import { useRouter } from "next/navigation";
 import { CurrencyDisplay } from "@/components/ui/CurrencyDisplay";
+import { AccountantDashboardSkeleton } from "@/components/ui/SkeletonCard";
 
 export default function AccountantDashboard() {
     const router = useRouter();
@@ -34,7 +35,10 @@ export default function AccountantDashboard() {
         invoicesApproved: 0,
     });
 
+    const [isMounted, setIsMounted] = useState(false);
+
     useEffect(() => {
+        setIsMounted(true);
         getDashboardStats().then(setStats);
         getFlowStats().then(data => {
             if (data && (data.role === "ADMIN" || data.role === "GLOBAL_ACCOUNTANT" || data.role === "GENERAL_MANAGER")) {
@@ -47,6 +51,14 @@ export default function AccountantDashboard() {
             }
         });
     }, []);
+
+    if (!isMounted) {
+        return (
+            <DashboardLayout title="اللوحة المالية">
+                <AccountantDashboardSkeleton />
+            </DashboardLayout>
+        );
+    }
 
     const kpis = [
         { title: "إجمالي العُهد المصروفة", value: flow.custodyIssued, icon: Wallet, color: "text-rose-500", bg: "bg-rose-500/10", isCurrency: true },

@@ -11,15 +11,63 @@
   --font-sans: var(--font-cairo);
 }
 
-
 body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-cairo), Arial, Helvetica, sans-serif;
 }
+
+/* ─── Mobile Touch Optimization ─────────────────────────────
+ * Eliminates the 300ms tap delay on mobile browsers.
+ * "manipulation" allows pinch-to-zoom but disables double-tap-to-zoom.
+ */
+*,
+*::before,
+*::after {
+  touch-action: manipulation;
+}
+
+/* ─── Smooth Scrolling ───────────────────────────────────── */
+.custom-scrollbar,
+.overflow-y-auto,
+.overflow-x-auto {
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
+}
+
+/* ─── Skeleton / Shimmer Animation ──────────────────────────
+ * Used by SkeletonCard component for loading states.
+ */
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.skeleton {
+  background: linear-gradient(90deg,
+      #f0f0f0 25%,
+      #e8e8e8 50%,
+      #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.4s ease-in-out infinite;
+  border-radius: 8px;
+}
+
+/* ─── Performance hints for animated elements ────────────── */
+.motion-safe\:animate-in,
+[data-motion="fade-in"],
+.animate-in {
+  will-change: opacity, transform;
+}
+
 /* ─── Print / PDF Styles ──────────────────────────────────── */
 @media print {
-  /* Hide everything except the main invoice content */
+
   nav,
   aside,
   header,
@@ -28,8 +76,9 @@ body {
     display: none !important;
   }
 
-  /* Full-width content area */
-  main, body, html {
+  main,
+  body,
+  html {
     width: 100% !important;
     margin: 0 !important;
     padding: 0 !important;
@@ -37,20 +86,17 @@ body {
     font-size: 12pt;
   }
 
-  /* Invoice detail card — expand to fill the page */
   .invoice-print-area {
     max-width: 100% !important;
     box-shadow: none !important;
     border: none !important;
   }
 
-  /* Force page to be A4-friendly */
   @page {
     margin: 1.5cm;
     size: A4;
   }
 
-  /* Collapse the sidebar column in grid layouts */
   .grid {
     display: block !important;
   }

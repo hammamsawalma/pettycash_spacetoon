@@ -18,7 +18,8 @@ import { CurrencyDisplay } from "@/components/ui/CurrencyDisplay";
 import { usePullToRefresh } from "@/hooks/usePullToRefresh";
 import { useRouter } from "next/navigation";
 import { useProjectRoles } from "@/context/ProjectRolesContext";
-
+import { EmployeeDashboardSkeleton } from "@/components/ui/SkeletonCard";
+import { PullToRefreshIndicator } from "@/components/ui/PullToRefreshIndicator";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 interface ProjectRoleFlags {
@@ -147,7 +148,7 @@ export default function EmployeeDashboard() {
         setIsRefreshing(false);
     }, [loadData]);
 
-    const { onTouchStart, onTouchEnd } = usePullToRefresh(handleRefresh);
+    const { onTouchStart, onTouchMove, onTouchEnd, pullProgress, isRefreshing: isPullRefreshing } = usePullToRefresh(handleRefresh);
 
     // ─── KPI cards for personal financial summary ──────────────────────────────
     const kpis = [
@@ -160,9 +161,7 @@ export default function EmployeeDashboard() {
     if (!isMounted || !rolesLoaded) {
         return (
             <DashboardLayout title="مساحة العمل">
-                <div className="min-h-screen flex items-center justify-center p-8">
-                    <span className="animate-pulse text-gray-400 font-medium">جاري تحضير مساحة عملك...</span>
-                </div>
+                <EmployeeDashboardSkeleton />
             </DashboardLayout>
         );
     }
@@ -172,14 +171,11 @@ export default function EmployeeDashboard() {
             <div
                 className="space-y-6 md:space-y-8 pb-6"
                 onTouchStart={onTouchStart}
+                onTouchMove={onTouchMove}
                 onTouchEnd={onTouchEnd}
             >
-                {/* Pull-to-refresh indicator */}
-                {isRefreshing && (
-                    <div className="flex justify-center py-2">
-                        <RefreshCw className="w-5 h-5 text-[#102550] animate-spin" />
-                    </div>
-                )}
+                {/* Pull-to-refresh visual indicator */}
+                <PullToRefreshIndicator pullProgress={pullProgress} isRefreshing={isPullRefreshing} />
 
                 {/* ── EC1: No projects at all → welcome / empty state ─────────────── */}
                 {!projectRoles.hasAnyProject ? (

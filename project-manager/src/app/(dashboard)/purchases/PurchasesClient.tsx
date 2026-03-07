@@ -53,44 +53,50 @@ export default function PurchasesClient({ initialPurchases }: Props) {
 
     return (
         <DashboardLayout title="المشتريات">
-            <div className="space-y-6 md:space-y-8 pb-6">
+            <div className="space-y-4 pb-6">
 
-                {/* Header Actions */}
-                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                    <div className="relative w-full sm:w-96">
-                        <input
-                            type="text"
-                            placeholder="ابحث عن مشتريات..."
-                            value={searchQuery}
-                            onChange={(e) => setSearchQuery(e.target.value)}
-                            className="w-full pl-10 pr-4 py-2.5 md:py-2 text-xs md:text-sm font-bold rounded-xl border border-gray-100 focus:outline-primary bg-white shadow-sm"
-                        />
-                        <Search className="absolute left-3 top-3 md:top-2.5 h-4 w-4 md:h-5 md:w-5 text-gray-400" />
-                    </div>
-
-                    <div className="flex gap-3 md:gap-4 w-full sm:w-auto">
-                        <div className="flex bg-white rounded-lg p-1 shadow-sm border border-gray-100 overflow-x-auto custom-scrollbar whitespace-nowrap w-full sm:w-auto">
-                            {["الكل", "بانتظار الشراء", "قيد الشراء", "مكتملة", "غير متوفر"].map((tab) => (
-                                <button
-                                    key={tab}
-                                    onClick={() => setFilter(tab)}
-                                    className={`px-4 py-2 flex-1 text-[11px] md:text-sm font-medium rounded-md transition-colors ${filter === tab
-                                        ? "bg-[#102550] text-white shadow-sm"
-                                        : "text-gray-500 hover:text-gray-900"
-                                        } ${tab === "غير متوفر" && filter !== tab ? "text-red-500 hover:text-red-700 hover:bg-red-50" : ""}`}
-                                >
-                                    {tab === "غير متوفر" ? <span className="flex items-center gap-1"><Flag className="w-3.5 h-3.5" /> {tab}</span> : tab}
-                                </button>
-                            ))}
+                {/* ─── Sticky Header: Search + Filters ─────────────────────────── */}
+                <div className="sticky top-0 z-20 bg-[#f8f9fa]/95 backdrop-blur-md pt-1 pb-3 -mx-4 px-4 md:-mx-8 md:px-8 space-y-3">
+                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                        {/* Search */}
+                        <div className="relative w-full sm:w-96">
+                            <input
+                                type="text"
+                                placeholder="ابحث عن مشتريات..."
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
+                                className="w-full pl-10 pr-4 py-3 text-xs md:text-sm font-bold rounded-xl border border-gray-100 focus:outline-primary bg-white shadow-sm"
+                            />
+                            <Search className="absolute left-3 top-3.5 h-4 w-4 text-gray-400" />
                         </div>
+
                         {canCreatePurchase && (
-                            <Button onClick={() => router.push('/purchases/new')} variant="primary" className="gap-2 flex-1 sm:flex-none py-2.5 md:py-2 text-xs md:text-sm h-auto justify-center">
+                            <Button onClick={() => router.push('/purchases/new')} variant="primary" className="gap-2 w-full sm:w-auto py-3 text-xs md:text-sm h-auto justify-center active:scale-95 transition-transform">
                                 <Plus className="w-3.5 h-3.5 md:w-4 md:h-4" />
                                 اضافة طلب شراء
                             </Button>
                         )}
                     </div>
+
+                    {/* Filter Tabs — horizontal scroll on mobile */}
+                    <div className="flex bg-white rounded-xl p-1 shadow-sm border border-gray-100 overflow-x-auto custom-scrollbar whitespace-nowrap gap-1">
+                        {["الكل", "بانتظار الشراء", "قيد الشراء", "مكتملة", "غير متوفر"].map((tab) => (
+                            <button
+                                key={tab}
+                                onClick={() => setFilter(tab)}
+                                className={`px-3 py-2 flex-1 min-w-[80px] text-[11px] md:text-sm font-bold rounded-lg transition-all duration-150 active:scale-95 ${filter === tab
+                                    ? "bg-[#102550] text-white shadow-sm"
+                                    : tab === "غير متوفر"
+                                        ? "text-red-500 hover:text-red-700 hover:bg-red-50"
+                                        : "text-gray-500 hover:text-gray-900 hover:bg-gray-50"
+                                    }`}
+                            >
+                                {tab === "غير متوفر" ? <span className="flex items-center justify-center gap-1"><Flag className="w-3 h-3" /> {tab}</span> : tab}
+                            </button>
+                        ))}
+                    </div>
                 </div>
+
 
                 {/* Purchases Table */}
                 <Card className="overflow-hidden shadow-sm border-gray-100 p-0">

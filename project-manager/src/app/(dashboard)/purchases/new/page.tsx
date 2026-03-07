@@ -10,6 +10,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import toast from "react-hot-toast";
 import { Suspense } from "react";
 import { useCanDo } from "@/components/auth/Protect";
+import { FormPageSkeleton } from "@/components/ui/FormPageSkeleton";
 
 function NewPurchaseForm() {
     const router = useRouter();
@@ -73,7 +74,7 @@ function NewPurchaseForm() {
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
                                 <div className="space-y-2">
                                     <label className="text-xs md:text-sm font-bold text-gray-700">المشروع</label>
-                                    <select name="projectId" required defaultValue={defaultProjectId} className="w-full rounded-xl border border-gray-200 p-3.5 md:p-4 outline-none focus:ring-2 focus:ring-[#102550] bg-white text-gray-700 text-xs md:text-sm shadow-sm font-medium">
+                                    <select name="projectId" required defaultValue={defaultProjectId} className="w-full rounded-xl border border-gray-200 p-3.5 md:p-4 outline-none focus:ring-2 focus:ring-[#102550] bg-white text-gray-700 text-xs md:text-sm shadow-sm font-medium min-h-[52px]">
                                         <option value="">اختر المشروع</option>
                                         {projects.map(p => (
                                             <option key={p.id} value={p.id}>{p.name}</option>
@@ -86,7 +87,7 @@ function NewPurchaseForm() {
                                     <input
                                         type="date"
                                         name="deadline"
-                                        className="w-full rounded-xl border border-gray-200 p-3.5 md:p-4 outline-none focus:ring-2 focus:ring-[#102550] text-xs md:text-sm shadow-sm font-medium"
+                                        className="w-full rounded-xl border border-gray-200 p-3.5 md:p-4 outline-none focus:ring-2 focus:ring-[#102550] text-xs md:text-sm shadow-sm font-medium min-h-[52px]"
                                     />
                                 </div>
 
@@ -96,8 +97,9 @@ function NewPurchaseForm() {
                                         type="text"
                                         name="quantity"
                                         required
+                                        inputMode="numeric"
                                         placeholder="مثال: 3 حبات، 2 كرتون..."
-                                        className="w-full rounded-xl border border-gray-200 p-3.5 md:p-4 outline-none focus:ring-2 focus:ring-[#102550] text-xs md:text-sm shadow-sm font-medium"
+                                        className="w-full rounded-xl border border-gray-200 p-3.5 md:p-4 outline-none focus:ring-2 focus:ring-[#102550] text-xs md:text-sm shadow-sm font-medium min-h-[52px]"
                                     />
                                 </div>
 
@@ -124,14 +126,26 @@ function NewPurchaseForm() {
                             </div>
                         </div>
 
-                        <div className="flex justify-end pt-6 border-t border-gray-100">
-                            <Button type="submit" disabled={isPending} isLoading={isPending} variant="primary" className="px-8 py-3 rounded-xl font-bold shadow-sm w-full sm:w-auto text-sm">
-                                حفظ الطلب
+                        {/* ── Fixed mobile CTA — Submit primary, Cancel secondary ── */}
+                        <div className="fixed bottom-0 inset-x-0 md:static bg-white/95 backdrop-blur-xl border-t border-gray-100 p-4 pb-[calc(1rem+env(safe-area-inset-bottom))] md:p-0 md:border-0 md:bg-transparent md:flex md:justify-end md:gap-3 md:pt-6 md:mt-6 md:border-t md:border-gray-100 space-y-2 md:space-y-0">
+                            <Button
+                                type="submit"
+                                disabled={isPending}
+                                isLoading={isPending}
+                                variant="primary"
+                                className="w-full md:w-auto px-8 py-4 rounded-2xl font-bold shadow-sm text-sm active:scale-[0.98] transition-transform"
+                            >
+                                حفظ الطلب ✓
                             </Button>
-                            <Button onClick={() => router.push('/purchases')} variant="outline" type="button" className="flex-1 py-4 md:py-6 text-sm md:text-lg rounded-xl font-bold bg-gray-50 hover:bg-gray-100 border-transparent text-gray-700">
+                            <button
+                                type="button"
+                                onClick={() => router.push('/purchases')}
+                                className="w-full md:w-auto py-3 text-sm text-gray-500 hover:text-gray-800 font-medium transition-colors text-center"
+                            >
                                 إلغاء
-                            </Button>
+                            </button>
                         </div>
+
 
                     </form>
                 </Card>
@@ -142,11 +156,7 @@ function NewPurchaseForm() {
 
 export default function NewPurchasePage() {
     return (
-        <Suspense fallback={
-            <DashboardLayout title="اضافة طلب شراء جديد - جاري التحميل">
-                <div className="py-20 text-center text-gray-500">جاري تحميل النموذج...</div>
-            </DashboardLayout>
-        }>
+        <Suspense fallback={<FormPageSkeleton title="اضافة طلب شراء جديد" />}>
             <NewPurchaseForm />
         </Suspense>
     );

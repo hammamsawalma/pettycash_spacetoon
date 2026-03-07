@@ -12,6 +12,7 @@ import { Project, User, ProjectMember, Notification } from '@prisma/client';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 import { motion } from 'framer-motion';
 import { CurrencyDisplay } from "@/components/ui/CurrencyDisplay";
+import { AdminDashboardSkeleton } from "@/components/ui/SkeletonCard";
 
 export default function AdminDashboard() {
     const router = useRouter();
@@ -61,7 +62,11 @@ export default function AdminDashboard() {
     }, []);
 
     if (!isMounted) {
-        return <DashboardLayout title="الرئيسية"><div className="min-h-screen flex items-center justify-center p-8"><span className="animate-pulse">جاري التحميل...</span></div></DashboardLayout>;
+        return (
+            <DashboardLayout title="الرئيسية">
+                <AdminDashboardSkeleton />
+            </DashboardLayout>
+        );
     }
 
     const kpis = [

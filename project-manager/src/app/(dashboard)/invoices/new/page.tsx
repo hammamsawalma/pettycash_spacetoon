@@ -15,6 +15,7 @@ import { Camera, FileText, CheckCircle, Trash2, Plus, ImageIcon, FolderOpen } fr
 import { getProjects, getManagerAvailableCustody } from "@/actions/projects";
 import { useAuth } from "@/context/AuthContext";
 import Image from "next/image";
+import { FormPageSkeleton } from "@/components/ui/FormPageSkeleton";
 
 type InvoiceItemInput = {
     id: string; // temp id for UI
@@ -757,11 +758,7 @@ function NewInvoicePageInner() {
 
 export default function NewInvoicePage() {
     return (
-        <Suspense fallback={
-            <DashboardLayout title="إضافة فاتورة جديدة">
-                <div className="py-20 text-center text-gray-500">جاري تحميل النموذج...</div>
-            </DashboardLayout>
-        }>
+        <Suspense fallback={<FormPageSkeleton title="إضافة فاتورة جديدة" />}>
             <NewInvoicePageInner />
         </Suspense>
     );

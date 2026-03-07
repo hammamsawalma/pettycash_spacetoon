@@ -1,8 +1,8 @@
 {
     "name": "Spacetoon Pocket",
     "short_name": "SpacePocket",
-    "description": "نظام إدارة المشاريع والمالية",
-    "theme_color": "#7F56D9",
+    "description": "نظام إدارة المشاريع والمالية - سبيستون",
+    "theme_color": "#102550",
     "background_color": "#f8f9fa",
     "display": "standalone",
     "orientation": "portrait",
@@ -10,6 +10,10 @@
     "scope": "/",
     "lang": "ar",
     "dir": "rtl",
+    "categories": [
+        "business",
+        "finance"
+    ],
     "icons": [
         {
             "src": "/spacetoon-logo.png",
@@ -22,6 +26,32 @@
             "sizes": "512x512",
             "type": "image/png",
             "purpose": "any maskable"
+        }
+    ],
+    "shortcuts": [
+        {
+            "name": "رفع فاتورة",
+            "short_name": "فاتورة",
+            "description": "رفع فاتورة جديدة",
+            "url": "/invoices/new",
+            "icons": [
+                {
+                    "src": "/spacetoon-logo.png",
+                    "sizes": "192x192"
+                }
+            ]
+        },
+        {
+            "name": "الفواتير",
+            "short_name": "فواتير",
+            "description": "عرض قائمة الفواتير",
+            "url": "/invoices",
+            "icons": [
+                {
+                    "src": "/spacetoon-logo.png",
+                    "sizes": "192x192"
+                }
+            ]
         }
     ]
 }
