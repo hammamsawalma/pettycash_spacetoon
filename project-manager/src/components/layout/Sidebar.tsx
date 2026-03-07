@@ -32,12 +32,12 @@ type NavItem = {
     name: string;
     icon: React.ElementType;
     href?: string;
-    // Returns true if this item should be visible for the given role
-    check: (role: UserRole) => boolean;
+    // check receives system role + optional coordinator flag for project-role-based visibility
+    check: (role: UserRole, isCoordinatorInAny?: boolean) => boolean;
     subItems?: {
         name: string;
         href: string;
-        check: (role: UserRole) => boolean;
+        check: (role: UserRole, isCoordinatorInAny?: boolean) => boolean;
     }[];
 };
 
@@ -120,8 +120,8 @@ const navigationGroups: NavGroup[] = [
                     {
                         name: 'إضافة طلب شراء',
                         href: '/purchases/new',
-                        // Only management roles see this nav link (edge case: USER creates via project page)
-                        check: (r) => canDo(r, 'purchases', 'createGlobal'),
+                        // ADMIN + GM at system level; USER-coordinator via isCoordinatorInAny
+                        check: (r, isCoordinatorInAny) => canDo(r, 'purchases', 'createGlobal') || (r === 'USER' && !!isCoordinatorInAny),
                     },
                 ],
             },
@@ -257,7 +257,7 @@ type QuickAddItem = {
     href: string;
     desc: string;
     color: string;
-    check: (role: UserRole) => boolean;
+    check: (role: UserRole, isCoordinatorInAny?: boolean) => boolean;
 };
 
 const QUICK_ADD_ITEMS: QuickAddItem[] = [
@@ -300,14 +300,15 @@ const QUICK_ADD_ITEMS: QuickAddItem[] = [
         href: '/purchases/new',
         desc: 'إنشاء طلب مشتريات',
         color: 'bg-teal-50 text-teal-600 border-teal-100',
-        // Only management roles (not USER — they use project page)
-        check: (r) => canDo(r, 'purchases', 'createGlobal'),
+        // ADMIN + GM at system level; USER-coordinator via isCoordinatorInAny
+        check: (r: UserRole, isCoordinatorInAny?: boolean) => canDo(r, 'purchases', 'createGlobal') || (r === 'USER' && !!isCoordinatorInAny),
     },
-];
+] satisfies QuickAddItem[];
+
 
 export default function Sidebar({ isOpen, setIsOpen }: { isOpen?: boolean, setIsOpen?: (val: boolean) => void }) {
     const pathname = usePathname();
-    const { user } = useAuth();
+    const { user, isCoordinatorInAny } = useAuth();
     const role = user?.role as UserRole | undefined;
 
     const [expandedMenus, setExpandedMenus] = useState<Record<string, boolean>>({});
@@ -323,7 +324,7 @@ export default function Sidebar({ isOpen, setIsOpen }: { isOpen?: boolean, setIs
             group.items.forEach(item => {
                 if (item.subItems) {
                     const isAnySubActive = item.subItems.some(sub =>
-                        sub.check(role) && (pathname === sub.href || (pathname.startsWith(sub.href + '/') && !pathname.endsWith('/new') && sub.href !== '/'))
+                        sub.check(role, isCoordinatorInAny) && (pathname === sub.href || (pathname.startsWith(sub.href + '/') && !pathname.endsWith('/new') && sub.href !== '/'))
                     );
                     if (isAnySubActive && !expandedMenus[item.name]) {
                         newExpanded[item.name] = true;
@@ -350,7 +351,7 @@ export default function Sidebar({ isOpen, setIsOpen }: { isOpen?: boolean, setIs
     // Nothing to render if role is not yet loaded — prevents flash of wrong nav
     if (!role) return null;
 
-    const availableQuickAddItems = QUICK_ADD_ITEMS.filter(item => item.check(role));
+    const availableQuickAddItems = QUICK_ADD_ITEMS.filter(item => role && item.check(role, isCoordinatorInAny));
 
     return (
         <>
@@ -392,7 +393,7 @@ export default function Sidebar({ isOpen, setIsOpen }: { isOpen?: boolean, setIs
                                 <h3 className="text-[11px] font-black text-gray-500 mb-3 uppercase tracking-widest px-2">{group.section}</h3>
                                 <ul className="space-y-1.5 relative">
                                     {visibleItems.map((item) => {
-                                        const visibleSubItems = item.subItems?.filter(sub => sub.check(role)) || [];
+                                        const visibleSubItems = item.subItems?.filter(sub => role && sub.check(role, isCoordinatorInAny)) || [];
                                         const hasSubItems = visibleSubItems.length > 0;
 
                                         const isActiveParent = item.href ? (pathname === item.href || (pathname.startsWith(item.href + '/') && !pathname.endsWith('/new') && item.href !== '/')) : false;

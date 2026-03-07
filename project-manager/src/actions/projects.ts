@@ -183,6 +183,24 @@ export async function createProject(prevState: unknown, formData: FormData) {
             }
         });
 
+        // ── Auto-accountant: if no PROJECT_ACCOUNTANT was assigned, add GLOBAL_ACCOUNTANT ──
+        const hasAccountant = membersData.some(m => m.roles.includes("PROJECT_ACCOUNTANT"));
+        if (!hasAccountant) {
+            const globalAccountant = await prisma.user.findFirst({
+                where: { role: "GLOBAL_ACCOUNTANT", isDeleted: false },
+                select: { id: true },
+            });
+            if (globalAccountant) {
+                await prisma.projectMember.create({
+                    data: {
+                        projectId: newProject.id,
+                        userId: globalAccountant.id,
+                        projectRoles: "PROJECT_EMPLOYEE,PROJECT_ACCOUNTANT",
+                    }
+                });
+            }
+        }
+
         revalidatePath("/projects");
         revalidatePath("/");
 

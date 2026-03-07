@@ -10,6 +10,7 @@ import { useEffect, useState, use } from "react";
 import { getInvoiceById, updateInvoiceStatus } from "@/actions/invoices";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
+import { UserRole } from "@/context/AuthContext";
 
 type InvoiceItem = {
     id: string;
@@ -46,9 +47,9 @@ type FullInvoice = {
 
 export default function InvoiceDetailsPage({ params }: { params: Promise<{ id: string }> }) {
     const { id } = use(params);
-    const { role, user } = useAuth();
+    const { role, user, isAccountantIn } = useAuth();
     const router = useRouter();
-    // Admins who can settle debts are the ones who need to see the personal-expense warning
+    // Only GLOBAL_ACCOUNTANT can settle debts (v3 rule)
     const canViewDebtWarning = useCanDo('debts', 'settle');
 
 
@@ -136,20 +137,20 @@ export default function InvoiceDetailsPage({ params }: { params: Promise<{ id: s
     if (isLoading) return <DashboardLayout title="تفاصيل الفاتورة"><div className="p-10 text-center">جاري التحميل...</div></DashboardLayout>;
     if (!invoice) return <DashboardLayout title="خطأ"><div className="p-10 text-center text-red-500">الفاتورة غير موجودة</div></DashboardLayout>;
 
-    // I8: GM is view-only — removed from canReview
-    // I9: Also allow PROJECT_ACCOUNTANT (role=USER but has project accountant role)
-    // Since project role info isn't in the user object, we check if the user
-    // is neither the creator, is not GM, and is either a global finance role OR
-    // has been marked as a project accountant (the backend will enforce authz either way)
-    const isGlobalApprover = role === "ADMIN" || role === "GLOBAL_ACCOUNTANT";
-    const canReview = isGlobalApprover && invoice.status === "PENDING" && invoice.creator.id !== user?.id;
-    // PROJECT_ACCOUNTANT: role=USER without being the creator — backend will validate actual project role
-    const isProjectAccountant = role === "USER" && invoice.creator.id !== user?.id;
-    const canReviewAsProjectAccountant = isProjectAccountant && invoice.status === "PENDING";
-    // I4: Re-open capability — available to same set as canReview
-    const canReopen = (isGlobalApprover || isProjectAccountant) &&
-        (invoice.status === "APPROVED" || invoice.status === "REJECTED") &&
-        invoice.creator.id !== user?.id;
+    // v3 Rules:
+    // - ADMIN does NOT approve invoices
+    // - GLOBAL_ACCOUNTANT can approve invoices they are assigned to as project accountant
+    // - PROJECT_ACCOUNTANT (USER role) can approve invoices in their specific project
+    // - canReview is determined by isAccountantIn(projectId) which covers both cases
+    const projectId = invoice.project?.id ?? null;
+    const isApprover = projectId
+        ? isAccountantIn(projectId)              // project-specific accountant check
+        : (role as UserRole) === "GLOBAL_ACCOUNTANT"; // no project → global accountant only
+    const notTheCreator = invoice.creator.id !== user?.id;
+    const canReview = isApprover && notTheCreator && invoice.status === "PENDING";
+    // Re-open: same set as approve (accountant of the project)
+    const canReopen = isApprover && notTheCreator &&
+        (invoice.status === "APPROVED" || invoice.status === "REJECTED");
 
     return (
         <DashboardLayout title={`تفاصيل الفاتورة #${invoice.reference}`}>
@@ -279,7 +280,7 @@ export default function InvoiceDetailsPage({ params }: { params: Promise<{ id: s
                 {/* Accountant / Actions Sidebar */}
                 <div className="w-full lg:w-80 space-y-4">
                     {/* Approve/Reject panel — PENDING invoices only */}
-                    {(canReview || canReviewAsProjectAccountant) && (
+                    {canReview && (
                         <Card className="p-5 space-y-3 bg-blue-50/50 border-blue-100 shadow-md">
                             <h3 className="font-bold text-blue-900 flex items-center gap-2 mb-2">
                                 <CheckCircle className="w-5 h-5 text-blue-600" />

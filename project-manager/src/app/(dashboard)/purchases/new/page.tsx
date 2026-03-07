@@ -9,18 +9,26 @@ import { Project } from "@prisma/client";
 import { useRouter, useSearchParams } from "next/navigation";
 import toast from "react-hot-toast";
 import { Suspense } from "react";
+import { useCanDo } from "@/components/auth/Protect";
 
 function NewPurchaseForm() {
     const router = useRouter();
     const searchParams = useSearchParams();
     const defaultProjectId = searchParams.get('projectId') || "";
+    // v3: Guard — only ADMIN, GM, and coordinators can create purchase orders
+    const canCreate = useCanDo('purchases', 'createGlobal');
 
     const [projects, setProjects] = useState<Project[]>([]);
     const [state, formAction, isPending] = useActionState(createPurchase, null);
 
     useEffect(() => {
+        if (!canCreate) {
+            toast.error("ليس لديك صلاحية لإنشاء طلبات الشراء");
+            router.replace("/purchases");
+            return;
+        }
         getProjects().then(data => setProjects(data as unknown as Project[]));
-    }, []);
+    }, [canCreate]);
 
     useEffect(() => {
         if (state?.success) {

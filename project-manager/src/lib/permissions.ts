@@ -1,18 +1,24 @@
 /**
  * ════════════════════════════════════════════════════════════════════════
  *  CENTRALIZED ROLE-BASED ACCESS CONTROL (RBAC)
- *  Single Source of Truth — derived strictly from user_manual.html v3.0
+ *  Single Source of Truth — v3 Final (2026-03-07)
  *
- *  System Roles  (session.role):
- *    ADMIN             – Full system access
- *    GENERAL_MANAGER   – Global view, same as ADMIN for read-only
- *    GLOBAL_ACCOUNTANT – Financial oversight, invoices & wallet
+ *  System Roles  (session.role / User.role in DB):
+ *    ADMIN             – Superuser: create projects/employees, manage trash
+ *    GENERAL_MANAGER   – Executive: view everything + create purchase orders
+ *    GLOBAL_ACCOUNTANT – Financial: settle debts, approve invoices, view wallet
  *    USER              – Project-scoped; further differentiated by projectRoles
  *
- *  Project-level Roles (projectRoles field on ProjectMember):
- *    PROJECT_MANAGER  – Manages projects they own/coordinate
- *    ACCOUNTANT   – Project-level accountant (can approve invoices in that project)
- *    EMPLOYEE     – Regular project member
+ *  Project-level Roles (ProjectMember.projectRoles — comma-separated CSV):
+ *    PROJECT_MANAGER   – Coordinator: creates purchase orders for their project
+ *    PROJECT_ACCOUNTANT – Approves invoices & issues custody in their project
+ *    PROJECT_EMPLOYEE  – Base role: submits invoices, receives custody
+ *
+ *  Key design decisions:
+ *  - invoices.approve is EMPTY here — approval is gated via project role (accountant)
+ *  - custodies.issue is ADMIN-only here — USER + PROJECT_ACCOUNTANT gated via context
+ *  - projects.create/edit is ADMIN-only — COORDINATORs no longer create projects globally
+ *  - debts.settle is GLOBAL_ACCOUNTANT only — ADMIN is view/manage, not settle
  * ════════════════════════════════════════════════════════════════════════
  */
 
@@ -41,13 +47,12 @@ export const PERMISSIONS = {
     // ── Projects ────────────────────────────────────────────────────────────────
     projects: {
         /**
-         * Can create a new project.
-         * NOTE: USER who is PROJECT_MANAGER in a project can also create — handled in action
-         * by checking projectRoles; here we expose the minimum system-level roles.
+         * Can create a new project — ADMIN only.
+         * Coordinators (PROJECT_MANAGER) manage existing projects but cannot create new ones.
          */
-        create: ["ADMIN", "USER"] as UserRole[],   // USER + coordinator role validated server-side
-        /** Can edit ANY project (ADMIN) or only their own managed projects (USER/PROJECT_MANAGER) */
-        edit: ["ADMIN", "USER"] as UserRole[],
+        create: ["ADMIN"] as UserRole[],
+        /** Can edit ANY project — ADMIN only */
+        edit: ["ADMIN"] as UserRole[],
         /** Can permanently close (complete) a project */
         close: ["ADMIN"] as UserRole[],
         /** Can reopen an archived/completed project */
@@ -58,12 +63,18 @@ export const PERMISSIONS = {
 
     // ── Custodies (العهدات) ──────────────────────────────────────────────────────
     custodies: {
-        /** Can issue (صرف) a new custody to an employee */
-        issue: ["ADMIN", "USER"] as UserRole[],  // USER + COORDINATOR role
+        /**
+         * Can issue (صرف) a new custody to an employee.
+         * ADMIN: any project.
+         * GLOBAL_ACCOUNTANT + PROJECT_ACCOUNTANT: only their assigned projects — gated in context.
+         * NOTE: this permission allows ADMIN only at system level.
+         *       PROJECT_ACCOUNTANT access is handled via AuthContext.isAccountantInAny.
+         */
+        issue: ["ADMIN"] as UserRole[],
         /** Can confirm receipt of a custody — only the receiving employee */
         confirmReceipt: ["USER"] as UserRole[],
         /** Can do emergency transfer of custody between employees */
-        transfer: ["ADMIN", "USER"] as UserRole[],  // USER + PROJECT_MANAGER role
+        transfer: ["ADMIN"] as UserRole[],
         /** Can record a custody return (إرجاع) */
         recordReturn: ["ADMIN"] as UserRole[],
         /** Can view custody records */
@@ -72,10 +83,18 @@ export const PERMISSIONS = {
 
     // ── Invoices (الفواتير) ──────────────────────────────────────────────────────
     invoices: {
-        /** Can create/upload a new invoice */
-        create: ["ADMIN", "GENERAL_MANAGER", "GLOBAL_ACCOUNTANT", "USER"] as UserRole[],
-        /** Can approve or reject a pending invoice */
-        approve: ["ADMIN", "GLOBAL_ACCOUNTANT"] as UserRole[],
+        /**
+         * Can create/upload a new invoice.
+         * GENERAL_MANAGER is explicitly excluded — view-only role.
+         */
+        create: ["ADMIN", "GLOBAL_ACCOUNTANT", "USER"] as UserRole[],
+        /**
+         * Approve/reject invoices.
+         * EMPTY at system level — only PROJECT_ACCOUNTANT (and GLOBAL_ACCOUNTANT acting as one)
+         * can approve invoices, gated via AuthContext.isAccountantIn(projectId).
+         * ADMIN does NOT approve invoices per business rules.
+         */
+        approve: [] as UserRole[],
         /** Can hard-delete an invoice */
         delete: ["ADMIN"] as UserRole[],
         /** Can view all invoices regardless of project */
@@ -88,24 +107,29 @@ export const PERMISSIONS = {
         view: ["ADMIN", "GENERAL_MANAGER", "GLOBAL_ACCOUNTANT", "USER"] as UserRole[],
         /**
          * Can navigate to /purchases/new from global navigation.
-         * Only management roles have this nav link. USER/Coordinator access
-         * purchase creation through the project page, not the global sidebar.
-         * Edge case: we split "can show nav link" from "can create (server action)"
-         * so that removing a role from nav doesn't block their project-scoped ability.
+         * ADMIN + GENERAL_MANAGER see this nav link globally.
+         * USER/Coordinator access is added via AuthContext.isCoordinatorInAny check in UI.
          */
-        createGlobal: ["ADMIN", "GLOBAL_ACCOUNTANT", "GENERAL_MANAGER", "USER"] as UserRole[],
-        /** Can create a new purchase order (includes USER/Coordinator — validated server-side) */
-        create: ["ADMIN", "USER"] as UserRole[],
+        createGlobal: ["ADMIN", "GENERAL_MANAGER"] as UserRole[],
+        /**
+         * Can create a new purchase order.
+         * ADMIN + GENERAL_MANAGER at system level.
+         * USER + PROJECT_MANAGER validated server-side via prisma.projectMember check.
+         */
+        create: ["ADMIN", "GENERAL_MANAGER"] as UserRole[],
         /** Can update purchase status (IN_PROGRESS / PURCHASED) */
         updateStatus: ["ADMIN", "GENERAL_MANAGER", "GLOBAL_ACCOUNTANT", "USER"] as UserRole[],
         /** Can cancel a purchase order */
-        cancel: ["ADMIN", "USER"] as UserRole[],  // USER + PROJECT_MANAGER role
+        cancel: ["ADMIN"] as UserRole[],
     },
 
     // ── Debts (الديون الشخصية) ───────────────────────────────────────────────────
     debts: {
-        /** Can settle employee personal debts */
-        settle: ["ADMIN", "GLOBAL_ACCOUNTANT"] as UserRole[],
+        /**
+         * Can settle employee personal debts.
+         * GLOBAL_ACCOUNTANT only — ADMIN manages the system but does not settle debts.
+         */
+        settle: ["GLOBAL_ACCOUNTANT"] as UserRole[],
         /** Can view the debts list */
         view: ["ADMIN", "GENERAL_MANAGER", "GLOBAL_ACCOUNTANT"] as UserRole[],
     },
@@ -212,9 +236,16 @@ export function hasProjectRole(
 }
 
 /**
- * Determine if a USER-role user is a coordinator in a given project context.
+ * Determine if a USER-role user is a coordinator (PROJECT_MANAGER) in a given project context.
  * Used in server actions that need project-level role validation.
  */
 export function isProjectCoordinator(projectRoles: string | null | undefined): boolean {
     return hasProjectRole(projectRoles, ["PROJECT_MANAGER"]);
+}
+
+/**
+ * Determine if a USER-role user is an accountant (PROJECT_ACCOUNTANT) in a given project context.
+ */
+export function isProjectAccountant(projectRoles: string | null | undefined): boolean {
+    return hasProjectRole(projectRoles, ["PROJECT_ACCOUNTANT"]);
 }

@@ -39,9 +39,9 @@ export async function getPendingDebts() {
 export async function settleDebt(debtId: string) {
     try {
         const session = await getSession();
-        // Fallback checks + Explicit GM block
-        if (!session || !isGlobalFinance(session.role) || session.role === "GENERAL_MANAGER") {
-            return { error: "غير مصرح لك بتسوية الديون، هذه الصلاحية للإدارة المالية فقط." };
+        // v3: Only GLOBAL_ACCOUNTANT can settle debts — not ADMIN, not GM
+        if (!session || session.role !== "GLOBAL_ACCOUNTANT") {
+            return { error: "غير مصرح لك بتسوية الديون، هذه الصلاحية للمحاسب العام فقط." };
         }
 
         const debt = await prisma.outOfPocketDebt.findUnique({ where: { id: debtId } });

@@ -483,11 +483,15 @@ export async function updateInvoiceStatus(
             return { error: `لا يمكن تحويل الفاتورة من "${existingInvoice.status}" إلى "${status}". التحويل غير مسموح به.` };
         }
 
-        // ─ Authorization: global finance OR project accountant ──────────────────
-        const isGlobalAuth = isGlobalFinance(session.role);
+        // ─ Authorization: v3 rules ──────────────────────────────────────
+        // ADMIN does NOT approve invoices
+        // GLOBAL_ACCOUNTANT can approve (they are automatically a project accountant)
+        // PROJECT_ACCOUNTANT of the specific project can approve
+        // GENERAL_MANAGER is view-only and cannot approve
+        const isGlobalAccountant = session.role === "GLOBAL_ACCOUNTANT";
         let isProjectAuth = false;
 
-        if (!isGlobalAuth && existingInvoice.projectId) {
+        if (existingInvoice.projectId) {
             const memberRecord = await prisma.projectMember.findUnique({
                 where: { projectId_userId: { projectId: existingInvoice.projectId, userId: session.id } }
             });
@@ -496,18 +500,15 @@ export async function updateInvoiceStatus(
             }
         }
 
-        if (!isGlobalAuth && !isProjectAuth) {
-            return { error: "غير مصرح لك بتغيير حالة الفاتورة" };
+        const canApprove = isGlobalAccountant || isProjectAuth;
+
+        if (!canApprove) {
+            return { error: "غير مصرح لك بتغيير حالة الفاتورة — هذه الصلاحية للمحاسبين فقط" };
         }
 
-        if (session.role === "ADMIN" && existingInvoice.projectId && existingInvoice.project?.managerId !== session.id) {
-            return { error: "غير مصرح لك بتغيير حالة فاتورة في مشروع لا تديره" };
-        }
-
-        // Separation of Duties
-        // Exception: ADMIN and finance roles (GLOBAL_ACCOUNTANT, PROJECT_ACCOUNTANT) may self-approve
-        const isAccountantRole = session.role === "ADMIN" || session.role === "GLOBAL_ACCOUNTANT" || isProjectAuth;
-        if (existingInvoice.creatorId === session.id && !isAccountantRole) {
+        // Separation of Duties: accountant cannot approve their own invoices
+        // Exception: PROJECT_ACCOUNTANT and GLOBAL_ACCOUNTANT may self-approve
+        if (existingInvoice.creatorId === session.id && !isGlobalAccountant && !isProjectAuth) {
             return { error: "لا يمكن اعتماد أو رفض فاتورة قمت بإنشائها (فصل المهام)" };
         }
 

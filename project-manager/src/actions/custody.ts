@@ -24,13 +24,13 @@ export async function issueCustody(prevState: unknown, formData: FormData) {
         const project = await prisma.project.findUnique({ where: { id: projectId } });
         if (!project) return { error: "المشروع غير موجود" };
 
-        let isAuthorized = isGlobalFinance(session.role);
-        if (session.role === "ADMIN" && project.managerId === session.id) {
-            isAuthorized = true;
-        }
+        // v3: Only ADMIN (system-level) + PROJECT_ACCOUNTANT (project-level) can issue custody
+        // GLOBAL_ACCOUNTANT is also allowed (they are auto-added as project accountant)
+        let isAuthorized = session.role === "ADMIN" || session.role === "GLOBAL_ACCOUNTANT";
 
+        // Check if user is a PROJECT_ACCOUNTANT in this specific project
         const projectRoles = await getUserRolesInProject(projectId, session.id);
-        if (hasProjectPermission(projectRoles, ["PROJECT_MANAGER", "PROJECT_ACCOUNTANT"])) {
+        if (hasProjectPermission(projectRoles, ["PROJECT_ACCOUNTANT"])) {
             isAuthorized = true;
         }
 
@@ -297,11 +297,11 @@ export async function emergencyTransferCustody(
 
         const project = await prisma.project.findUnique({ where: { id: fromCustody.projectId } });
 
-        let isAuthorized = isGlobalFinance(session.role);
-        if (session.role === "ADMIN" && project?.managerId === session.id) isAuthorized = true;
+        // v3: Only ADMIN (system-level) can do emergency transfers
+        let isAuthorized = session.role === "ADMIN";
 
         const projectRoles = await getUserRolesInProject(fromCustody.projectId, session.id);
-        if (hasProjectPermission(projectRoles, ["PROJECT_MANAGER", "PROJECT_ACCOUNTANT"])) {
+        if (hasProjectPermission(projectRoles, ["PROJECT_ACCOUNTANT"])) {
             isAuthorized = true;
         }
 

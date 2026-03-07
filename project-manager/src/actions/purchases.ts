@@ -106,8 +106,10 @@ export async function createPurchase(prevState: unknown, formData: FormData) {
         const session = await getSession();
         if (!session) return { error: "غير مسجل الدخول" };
 
-        // --- BACKEND SECURITY CHECK ---
-        const isGlobalCreator = isGlobalFinance(session.role) || session.role === "GENERAL_MANAGER";
+        // v3: Only ADMIN + GENERAL_MANAGER can create purchases at system level
+        // GLOBAL_ACCOUNTANT does NOT create purchases (financial role, not operational)
+        // USER with PROJECT_MANAGER role can create for their assigned projects
+        const isGlobalCreator = session.role === "ADMIN" || session.role === "GENERAL_MANAGER";
         if (!isGlobalCreator) {
             const membership = await prisma.projectMember.findFirst({
                 where: {

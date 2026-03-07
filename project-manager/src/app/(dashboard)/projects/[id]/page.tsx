@@ -27,12 +27,12 @@ export default function ProjectDetailsPage({ params }: { params: Promise<{ id: s
     const router = useRouter();
     const searchParams = useNextSearchParams();
     const { role, user } = useAuth();
-    // Centralized permission checks derived from permissions.ts
-    const canEditProject = useCanDo('projects', 'edit');
-    const canCloseProject = useCanDo('projects', 'close');
-    const canIssueCustody = useCanDo('custodies', 'issue');
-    const canAddPurchase = useCanDo('purchases', 'create');   // project-scoped (ADMIN + USER/Coordinator)
-    const canManageMembers = useCanDo('employees', 'create'); // Only ADMIN can manage members
+    // v3: Project-scoped permission checks using AuthContext memberships
+    const canEditProject = useCanDo('projects', 'edit');                          // ADMIN only
+    const canCloseProject = useCanDo('projects', 'close');                        // ADMIN only
+    const canIssueCustody = useCanDo('custodies', 'issue', projectId);            // ADMIN + PROJECT_ACCOUNTANT of this project
+    const canAddPurchase = useCanDo('purchases', 'create', projectId);            // ADMIN + GM + PROJECT_MANAGER of this project
+    const canManageMembers = useCanDo('employees', 'create');                     // ADMIN only
     const [activeTab, setActiveTab] = useState("تفاصيل المشروع");
     const [project, setProject] = useState<any>(null);
     const [isClosing, setIsClosing] = useState(false);

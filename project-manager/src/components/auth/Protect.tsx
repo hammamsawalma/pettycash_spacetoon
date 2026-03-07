@@ -2,41 +2,58 @@
 
 /**
  * ════════════════════════════════════════════════════════════════════════
- *  <Protect> — Conditional UI rendering based on RBAC permissions
+ *  <Protect> — Conditional UI rendering based on RBAC permissions v3
  *
- *  Reads the current user from AuthContext and hides children if the
- *  user does not have the required system-level permission.
+ *  Automatically reads system role + project memberships from AuthContext.
+ *  No need to manually pass projectRoles anywhere.
  *
- *  Usage:
- *    <Protect resource="projects" action="create">
- *      <button>إنشاء مشروع</button>
+ *  Usage (system-level):
+ *    <Protect resource="projects" action="close">
+ *      <button>إغلاق المشروع</button>
  *    </Protect>
  *
- *  For project-level role checks (coordinator / employee), use the
- *  `projectRoles` prop to pass the current member's projectRoles string:
- *    <Protect resource="custodies" action="issue" projectRoles={member.projectRoles}>
- *      <button>صرف عهدة</button>
+ *  Usage (project-scoped — coordinator / accountant):
+ *    <Protect resource="purchases" action="create" projectId={projectId}>
+ *      <button>إضافة شراء</button>
+ *    </Protect>
+ *
+ *  Usage (any-project check — e.g. for global nav visibility):
+ *    <Protect resource="purchases" action="createGlobal">
+ *      <button>إضافة شراء</button>
  *    </Protect>
  * ════════════════════════════════════════════════════════════════════════
  */
 
 import { useAuth } from "@/context/AuthContext";
-import { PERMISSIONS, canDo, hasProjectRole } from "@/lib/permissions";
+import { PERMISSIONS, canDo } from "@/lib/permissions";
 import { UserRole } from "@/context/AuthContext";
 
 type Resource = keyof typeof PERMISSIONS;
 type Action<R extends Resource> = keyof typeof PERMISSIONS[R];
 
+// ─── Coordinator-gated actions (need PROJECT_MANAGER in specified/any project) ─
+const COORDINATOR_GATED: Partial<Record<Resource, string[]>> = {
+    purchases: ["create", "createGlobal", "cancel"],
+    projects: ["create", "edit"],
+    custodies: ["transfer"],
+};
+
+// ─── Accountant-gated actions (need PROJECT_ACCOUNTANT in specified/any project) ─
+const ACCOUNTANT_GATED: Partial<Record<Resource, string[]>> = {
+    invoices: ["approve"],
+    custodies: ["issue"],
+};
+
+// ─── Main Component ───────────────────────────────────────────────────────────
+
 interface ProtectProps<R extends Resource> {
     resource: R;
     action: Action<R>;
     /**
-     * Optional: comma-separated projectRoles from ProjectMember.projectRoles.
-     * When provided, a USER role user with PROJECT_MANAGER in projectRoles will be
-     * granted access to coordinator-level actions (issue custody, create purchase, etc.)
+     * Optional: check against a specific project.
+     * If not provided, checks if the user has the role in ANY project.
      */
-    projectRoles?: string | null;
-    /** Fallback to render when access is denied (defaults to null) */
+    projectId?: string | null;
     fallback?: React.ReactNode;
     children: React.ReactNode;
 }
@@ -44,67 +61,53 @@ interface ProtectProps<R extends Resource> {
 export function Protect<R extends Resource>({
     resource,
     action,
-    projectRoles,
+    projectId,
     fallback = null,
     children,
 }: ProtectProps<R>) {
-    const { user } = useAuth();
-
-    if (!user) return <>{fallback}</>;
-
-    // 1. Check system-level role
-    const hasSystemPermission = canDo(user.role as UserRole, resource, action);
-
-    if (hasSystemPermission) {
-        // For USER role, certain actions also require a coordinator project role
-        if (user.role === "USER") {
-            const coordinatorActions: Partial<Record<Resource, string[]>> = {
-                projects: ["create", "edit"],
-                custodies: ["issue", "transfer"],
-                purchases: ["create", "cancel"],
-            };
-            const requiresCoordinator = coordinatorActions[resource]?.includes(action as string);
-            if (requiresCoordinator) {
-                if (!projectRoles || !hasProjectRole(projectRoles, ["PROJECT_MANAGER"])) {
-                    return <>{fallback}</>;
-                }
-            }
-        }
-        return <>{children}</>;
-    }
-
-    return <>{fallback}</>;
+    const allowed = useCanDo(resource, action, projectId);
+    return allowed ? <>{children}</> : <>{fallback}</>;
 }
 
+// ─── Hook ────────────────────────────────────────────────────────────────────
+
 /**
- * Hook version — returns a boolean so you can use it in conditions.
+ * Primary permission hook — checks both system-level and project-level access.
  *
- * @example
- *   const canClose = useCanDo("projects", "close");
- *   if (canClose) { ... }
+ * @param resource - Permission resource (e.g. "purchases", "invoices")
+ * @param action   - Permission action (e.g. "create", "approve")
+ * @param projectId - (optional) restrict check to a specific project
+ * @returns true if the user may perform the action
  */
 export function useCanDo<R extends Resource>(
     resource: R,
     action: Action<R>,
-    projectRoles?: string | null
+    projectId?: string | null
 ): boolean {
-    const { user } = useAuth();
+    const {
+        user,
+        isCoordinatorInAny,
+        isAccountantInAny,
+        isCoordinatorIn,
+        isAccountantIn,
+    } = useAuth();
+
     if (!user) return false;
+    const role = user.role as UserRole;
 
-    const hasSystem = canDo(user.role as UserRole, resource, action);
-    if (!hasSystem) return false;
+    // 1. System-level check (PERMISSIONS matrix)
+    if (canDo(role, resource, action)) return true;
 
-    if (user.role === "USER") {
-        const coordinatorActions: Partial<Record<Resource, string[]>> = {
-            projects: ["create", "edit"],
-            custodies: ["issue", "transfer"],
-            purchases: ["create", "cancel"],
-        };
-        const requiresCoordinator = coordinatorActions[resource]?.includes(action as string);
-        if (requiresCoordinator) {
-            return !!projectRoles && hasProjectRole(projectRoles, ["PROJECT_MANAGER"]);
-        }
+    // 2. Coordinator-gated: needs PROJECT_MANAGER in the given (or any) project
+    if (COORDINATOR_GATED[resource]?.includes(action as string)) {
+        return projectId ? isCoordinatorIn(projectId) : isCoordinatorInAny;
     }
 
-    return true;
+    // 3. Accountant-gated: needs PROJECT_ACCOUNTANT in the given (or any) project
+    //    Also granted to GLOBAL_ACCOUNTANT + ADMIN via AuthContext helpers
+    if (ACCOUNTANT_GATED[resource]?.includes(action as string)) {
+        return projectId ? isAccountantIn(projectId) : isAccountantInAny;
+    }
+
+    return false;
 }
