@@ -18,7 +18,36 @@ export async function getPurchases(projectId?: string) {
                 isDeleted: false,
                 ...(projectId ? { projectId } : {}),
                 ...(!isUnrestricted
-                    ? { project: { OR: [{ managerId: session.id }, { members: { some: { userId: session.id } } }] } }
+                    ? {
+                        OR: [
+                            // Own purchases regardless of role
+                            { creatorId: session.id },
+                            // All purchases in projects where user is project manager (managerId)
+                            { project: { managerId: session.id } },
+                            // All purchases in projects where user holds PROJECT_MANAGER role
+                            {
+                                project: {
+                                    members: {
+                                        some: {
+                                            userId: session.id,
+                                            projectRoles: { contains: "PROJECT_MANAGER" }
+                                        }
+                                    }
+                                }
+                            },
+                            // All purchases in projects where user holds PROJECT_ACCOUNTANT role
+                            {
+                                project: {
+                                    members: {
+                                        some: {
+                                            userId: session.id,
+                                            projectRoles: { contains: "PROJECT_ACCOUNTANT" }
+                                        }
+                                    }
+                                }
+                            }
+                        ]
+                    }
                     : {})
             },
             include: {

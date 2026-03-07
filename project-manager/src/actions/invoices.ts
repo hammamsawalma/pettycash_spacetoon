@@ -19,7 +19,36 @@ export async function getInvoices() {
             where: {
                 isDeleted: false,
                 ...(isRestricted
-                    ? { project: { OR: [{ managerId: session.id }, { members: { some: { userId: session.id } } }] } }
+                    ? {
+                        OR: [
+                            // Own invoices regardless of role
+                            { creatorId: session.id },
+                            // All invoices in projects where user is project manager (managerId)
+                            { project: { managerId: session.id } },
+                            // All invoices in projects where user holds PROJECT_MANAGER role
+                            {
+                                project: {
+                                    members: {
+                                        some: {
+                                            userId: session.id,
+                                            projectRoles: { contains: "PROJECT_MANAGER" }
+                                        }
+                                    }
+                                }
+                            },
+                            // All invoices in projects where user holds PROJECT_ACCOUNTANT role
+                            {
+                                project: {
+                                    members: {
+                                        some: {
+                                            userId: session.id,
+                                            projectRoles: { contains: "PROJECT_ACCOUNTANT" }
+                                        }
+                                    }
+                                }
+                            }
+                        ]
+                    }
                     : {})
             },
             orderBy: { createdAt: 'desc' },

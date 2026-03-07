@@ -13,20 +13,70 @@ export async function getEmployees(excludeAdmins: boolean = false) {
         const session = await getSession();
         if (!session) return [];
 
-        // M2: Only ADMIN, GLOBAL_ACCOUNTANT, and GENERAL_MANAGER can list employees
-        const allowedRoles = ["ADMIN", "GLOBAL_ACCOUNTANT", "GENERAL_MANAGER"];
-        if (!allowedRoles.includes(session.role)) {
-            return []; // USER role cannot enumerate all employees
+        // Global management roles see the full employee directory
+        const allowedGlobalRoles = ["ADMIN", "GLOBAL_ACCOUNTANT", "GENERAL_MANAGER"];
+        const isGlobalRole = allowedGlobalRoles.includes(session.role);
+
+        let whereClause: any = { isDeleted: false };
+
+        if (isGlobalRole) {
+            // Global roles: full list, with optional admin exclusion
+            if (excludeAdmins) {
+                whereClause.role = { notIn: ["ADMIN", "GENERAL_MANAGER"] };
+            }
+        } else {
+            // USER role: only see employees who share at least one project with the session user.
+            // Step 1: find all projectIds this user is involved in (as manager or member)
+            const [managedProjects, memberProjects] = await Promise.all([
+                prisma.project.findMany({
+                    where: { managerId: session.id, isDeleted: false },
+                    select: { id: true }
+                }),
+                prisma.projectMember.findMany({
+                    where: { userId: session.id },
+                    select: { projectId: true }
+                })
+            ]);
+
+            const projectIds = [
+                ...managedProjects.map(p => p.id),
+                ...memberProjects.map(m => m.projectId)
+            ];
+
+            if (projectIds.length === 0) {
+                // Not involved in any project — sees nobody (empty contacts list)
+                return [];
+            }
+
+            // Step 2: find all user IDs who are also in those projects (manager or member)
+            const [coManagers, coMembers] = await Promise.all([
+                prisma.project.findMany({
+                    where: { id: { in: projectIds }, managerId: { not: null } },
+                    select: { managerId: true }
+                }),
+                prisma.projectMember.findMany({
+                    where: { projectId: { in: projectIds } },
+                    select: { userId: true }
+                })
+            ]);
+
+            const coWorkerIds = [
+                ...coManagers.map(p => p.managerId as string),
+                ...coMembers.map(m => m.userId)
+            ].filter(Boolean);
+
+            // Unique IDs, excluding the session user themselves
+            const uniqueCoWorkerIds = [...new Set(coWorkerIds)].filter(id => id !== session.id);
+
+            if (uniqueCoWorkerIds.length === 0) return [];
+
+            whereClause = {
+                isDeleted: false,
+                id: { in: uniqueCoWorkerIds },
+                ...(excludeAdmins ? { role: { notIn: ["ADMIN", "GENERAL_MANAGER"] } } : {})
+            };
         }
 
-        const whereClause: any = { isDeleted: false };
-        if (excludeAdmins) {
-            whereClause.role = { notIn: ["ADMIN", "GENERAL_MANAGER"] };
-        }
-
-        // All authenticated users can generally see the directory
-        // but perhaps hide salary or sensitive info if not Admin/Accountant
-        // For now, we return basic info
         const users = await prisma.user.findMany({
             where: whereClause,
             orderBy: { createdAt: 'desc' },
@@ -37,7 +87,7 @@ export async function getEmployees(excludeAdmins: boolean = false) {
             }
         });
 
-        // Remove salary if not admin/accountant
+        // Remove salary data from non-management roles
         if (!isGlobalFinance(session.role)) {
             const filteredUsers = users.map((u: User) => ({ ...u, salary: null }));
             return JSON.parse(JSON.stringify(filteredUsers));
