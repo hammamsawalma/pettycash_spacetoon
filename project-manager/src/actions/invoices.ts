@@ -473,7 +473,7 @@ export async function createInvoice(prevState: unknown, formData: FormData) {
 
     } catch (error) {
         console.error("Invoice Creation Error:", error);
-        return { error: error instanceof Error ? error.message : "حدث خطأ أثناء إنشاء الفاتورة" };
+        return { error: "حدث خطأ أثناء إنشاء الفاتورة" };
     }
 }
 

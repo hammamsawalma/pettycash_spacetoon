@@ -52,7 +52,7 @@ export async function restoreItem(type: "PROJECT" | "INVOICE" | "PURCHASE" | "US
         revalidatePath(`/${type.toLowerCase()}s`);
         return { success: true };
     } catch (error) {
-        return { error: error instanceof Error ? error.message : "Error restoring item" };
+        return { error: "حدث خطأ أثناء استعادة العنصر" };
     }
 }
 
@@ -80,7 +80,7 @@ export async function permanentlyDelete(type: "PROJECT" | "INVOICE" | "PURCHASE"
         revalidatePath("/trash");
         return { success: true };
     } catch (error) {
-        return { error: error instanceof Error ? error.message : "Error deleting item" };
+        return { error: "حدث خطأ أثناء الحذف النهائي" };
     }
 }
 
@@ -136,6 +136,6 @@ export async function purgeOldTrash() {
         return { success: true, message: "تم تنظيف سلة المهملات من العناصر القديمة بنجاح" };
     } catch (error) {
         console.error("Purge Trash Error:", error);
-        return { error: error instanceof Error ? error.message : "حدث خطأ أثناء تنظيف المهملات" };
+        return { error: "حدث خطأ أثناء تنظيف المهملات" };
     }
 }

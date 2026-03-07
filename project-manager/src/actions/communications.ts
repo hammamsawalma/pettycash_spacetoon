@@ -22,6 +22,7 @@ export async function getMessages() {
                 }
                 : {},
             orderBy: { createdAt: 'desc' },
+            take: 100, // A3: Prevent unbounded payload
             include: {
                 sender: true,
                 receiver: true,
@@ -65,7 +66,7 @@ export async function sendMessage(content: string, receiverId?: string, projectI
 
     } catch (error) {
         console.error("Send Message Error:", error);
-        return { error: error instanceof Error ? error.message : "حدث خطأ أثناء إرسال الرسالة" };
+        return { error: "حدث خطأ أثناء إرسال الرسالة" };
     }
 }
 

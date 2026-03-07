@@ -38,6 +38,10 @@ export async function updateGlobalCurrency(newCurrency: string) {
         if (!newCurrency || newCurrency.trim().length === 0) {
             return { error: "رمز العملة لا يمكن أن يكون فارغاً" };
         }
+        // A4: Prevent oversized currency symbols
+        if (newCurrency.trim().length > 10) {
+            return { error: "رمز العملة طويل جداً (10 أحرف كحد أقصى)" };
+        }
 
         await prisma.setting.upsert({
             where: { id: "global" },

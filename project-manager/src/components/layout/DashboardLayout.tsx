@@ -10,6 +10,7 @@ import { Toaster } from "react-hot-toast";
 import { NetworkStatus } from "../ui/NetworkStatus";
 import PWAInstallBanner from "../ui/PWAInstallBanner";
 import { useScrollRestoration } from "@/hooks/useMobileUtils";
+import { useScrollDirection } from "@/hooks/useScrollDirection";
 
 export default function DashboardLayout({
     children,
@@ -23,6 +24,10 @@ export default function DashboardLayout({
 
     // Restore scroll position when navigating back (#199)
     useScrollRestoration();
+
+    // Auto-hide header on scroll down, show on scroll up (mobile only)
+    const scrollDirection = useScrollDirection();
+    const isHeaderHidden = scrollDirection === 'down' && !isSidebarOpen;
 
     return (
         <div className="min-h-screen relative flex bg-[#f8f9fa]">
@@ -60,7 +65,7 @@ export default function DashboardLayout({
             </div>
 
             <div className="md:ms-[280px] flex flex-col min-h-screen w-full pb-28 md:pb-0 overflow-x-hidden transition-all duration-300">
-                <Header title={title} onMenuClick={() => setIsSidebarOpen(true)} />
+                <Header title={title} onMenuClick={() => setIsSidebarOpen(true)} isHidden={isHeaderHidden} />
                 <AnimatePresence mode="popLayout">
                     <motion.main
                         id="main-content"

@@ -205,7 +205,7 @@ async function executeFinanceRequest(
         return { success: true };
     } catch (error) {
         console.error("Execute Finance Request Error:", error);
-        const message = error instanceof Error ? error.message : "فشل تنفيذ العملية المالية";
+        const message = "فشل تنفيذ العملية المالية";
         return { error: message };
     }
 }

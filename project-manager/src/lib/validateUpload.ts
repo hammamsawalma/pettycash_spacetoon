@@ -38,7 +38,10 @@ export function validateUploadedFile(
  * Replaces everything except alphanumeric, dots, and hyphens.
  */
 export function sanitizeFileName(rawName: string): string {
-    // Strip any directory components first
-    const base = rawName.split(/[\\/]/).pop() ?? 'upload';
-    return base.replace(/[^a-zA-Z0-9.\-_]/g, '_');
+    // Strip directory components (.. traversal, absolute paths)
+    const base = rawName.split(/[\/\\]/).pop() || 'upload';
+    // Replace all non-safe characters with underscore
+    const sanitized = base.replace(/[^a-zA-Z0-9.\-_]/g, '_');
+    // Final fallback if everything was stripped
+    return sanitized || 'upload';
 }

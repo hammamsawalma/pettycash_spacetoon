@@ -214,7 +214,7 @@ export async function createEmployee(prevState: unknown, formData: FormData) {
 
     } catch (error) {
         console.error("Employee Creation Error:", error);
-        return { error: error instanceof Error ? error.message : "حدث خطأ أثناء إضافة الموظف" };
+        return { error: "حدث خطأ أثناء إضافة الموظف" };
     }
 }
 
@@ -312,6 +312,6 @@ export async function updateEmployee(employeeId: string, prevState: unknown, for
 
     } catch (error) {
         console.error("Employee Update Error:", error);
-        return { error: error instanceof Error ? error.message : "حدث خطأ أثناء تعديل بيانات الموظف" };
+        return { error: "حدث خطأ أثناء تعديل بيانات الموظف" };
     }
 }

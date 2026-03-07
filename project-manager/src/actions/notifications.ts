@@ -96,6 +96,6 @@ export async function createNotification(prevState: unknown, formData: FormData)
 
     } catch (error) {
         console.error("Create Notification Error:", error);
-        return { error: error instanceof Error ? error.message : "حدث خطأ أثناء إرسال الإشعار" };
+        return { error: "حدث خطأ أثناء إرسال الإشعار" };
     }
 }
