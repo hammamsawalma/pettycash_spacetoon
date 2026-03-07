@@ -3,6 +3,7 @@ import { getSession } from "@/lib/auth";
 import { AuthProvider } from "@/context/AuthContext";
 import { getGlobalCurrency } from "@/actions/settings";
 import { CurrencyProvider } from "@/context/CurrencyContext";
+import { ProjectRolesProvider } from "@/context/ProjectRolesContext";
 
 export default async function DashboardLayout({
     children,
@@ -19,8 +20,11 @@ export default async function DashboardLayout({
     return (
         <AuthProvider initialUser={user}>
             <CurrencyProvider initialCurrency={currency}>
-                {children}
+                <ProjectRolesProvider>
+                    {children}
+                </ProjectRolesProvider>
             </CurrencyProvider>
         </AuthProvider>
     );
 }
+

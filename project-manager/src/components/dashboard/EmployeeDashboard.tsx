@@ -9,15 +9,16 @@ import {
 } from 'lucide-react';
 import { useState, useEffect, useCallback } from 'react';
 import { getDashboardStats, getFlowStats } from '@/actions/dashboard';
-import { getMyCustodies, confirmCustodyReceipt } from '@/actions/custody';
+import { getMyCustodies } from '@/actions/custody';
 import { getPurchases } from '@/actions/purchases';
 import { getInvoices } from '@/actions/invoices';
 import { Project, User, ProjectMember, Notification } from '@prisma/client';
-import toast from 'react-hot-toast';
 import { AnimatedNumber } from "@/components/ui/AnimatedNumber";
 import { CurrencyDisplay } from "@/components/ui/CurrencyDisplay";
 import { usePullToRefresh } from "@/hooks/usePullToRefresh";
 import { useRouter } from "next/navigation";
+import { useProjectRoles } from "@/context/ProjectRolesContext";
+
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 interface ProjectRoleFlags {
@@ -32,6 +33,7 @@ interface ProjectRoleFlags {
 export default function EmployeeDashboard() {
     const router = useRouter();
     const [isMounted, setIsMounted] = useState(false);
+    const { setFlags: setContextFlags } = useProjectRoles();
 
     const [stats, setStats] = useState({
         totalProjects: 0,
@@ -82,13 +84,16 @@ export default function EmployeeDashboard() {
                 remaining: fd.personalRemaining ?? 0,
             });
             // Set project role flags from same response (EC8: no extra round-trip → no flash)
-            setProjectRoles({
+            const flags = {
                 isProjectManager: fd.isProjectManager ?? false,
                 isProjectAccountant: fd.isProjectAccountant ?? false,
                 isProjectEmployee: fd.isProjectEmployee ?? false,
                 canAddInvoice: fd.canAddInvoice ?? false,
                 hasAnyProject: fd.hasAnyProject ?? false,
-            });
+            };
+            setProjectRoles(flags);
+            // Share into global context so MobileBottomNav can consume without re-fetching
+            setContextFlags({ ...flags, loaded: true });
         }
         setRolesLoaded(true);
 

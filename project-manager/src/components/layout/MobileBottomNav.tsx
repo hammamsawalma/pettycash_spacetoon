@@ -8,6 +8,7 @@ import { canDo } from '@/lib/permissions';
 import { useState, useEffect, Fragment } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { getUnreadCount } from '@/actions/notifications';
+import { useProjectRoles } from '@/context/ProjectRolesContext';
 
 // ─── Employee (USER role) nav — simple, mobile-first ─────────────────────────
 // Edge case: USER role has a completely separate UX from management roles.
@@ -108,6 +109,7 @@ export default function MobileBottomNav() {
     const role = (user?.role ?? 'USER') as UserRole;
     const [fabOpen, setFabOpen] = useState(false);
     const [unreadCount, setUnreadCount] = useState(0);
+    const { flags } = useProjectRoles();
 
     useEffect(() => {
         getUnreadCount().then(count => setUnreadCount(count ?? 0)).catch(() => { });
@@ -117,8 +119,13 @@ export default function MobileBottomNav() {
         setFabOpen(false);
     }, [pathname]);
 
-    // ── Employee (USER) view — dedicated nav with prominent "رفع فاتورة" CTA ──
+    // ── Employee (USER) view — dedicated nav with role-aware CTA ───────────────
     if (role === 'USER') {
+        // Read from shared context (populated by EmployeeDashboard on load)
+        // Default to true while loading to avoid flicker for the common case
+        const canAddInvoice = !flags.loaded || flags.canAddInvoice;
+        const isCoordinator = flags.loaded && flags.isProjectManager && !flags.canAddInvoice;
+
         return (
             <div className="fixed bottom-0 inset-x-0 z-50 w-full bg-white/90 backdrop-blur-xl border-t border-gray-200/50 shadow-[0_-4px_30px_rgba(0,0,0,0.08)] md:hidden pb-[env(safe-area-inset-bottom)]">
                 <div className="flex items-center h-20 max-w-lg mx-auto px-2 gap-1 font-medium pt-1">
@@ -140,19 +147,31 @@ export default function MobileBottomNav() {
                         );
                     })}
 
-                    {/* Prominent "رفع فاتورة" CTA for employees */}
-                    <button
-                        onClick={() => router.push('/invoices/new')}
-                        className="flex flex-col items-center justify-center gap-1 bg-[#7F56D9] text-white rounded-2xl px-4 py-3 shadow-lg shadow-purple-300 active:scale-95 transition-transform mx-1 min-h-[52px]"
-                        aria-label="رفع فاتورة"
-                    >
-                        <Camera className="w-6 h-6" />
-                        <span className="text-[10px] font-black whitespace-nowrap">رفع فاتورة</span>
-                    </button>
+                    {/* EC4: Show invoice CTA only if canAddInvoice; Coordinator gets Purchases shortcut */}
+                    {canAddInvoice ? (
+                        <button
+                            onClick={() => router.push('/invoices/new')}
+                            className="flex flex-col items-center justify-center gap-1 bg-[#7F56D9] text-white rounded-2xl px-4 py-3 shadow-lg shadow-purple-300 active:scale-95 transition-transform mx-1 min-h-[52px]"
+                            aria-label="رفع فاتورة"
+                        >
+                            <Camera className="w-6 h-6" />
+                            <span className="text-[10px] font-black whitespace-nowrap">رفع فاتورة</span>
+                        </button>
+                    ) : (
+                        <button
+                            onClick={() => router.push('/purchases/new')}
+                            className="flex flex-col items-center justify-center gap-1 bg-blue-600 text-white rounded-2xl px-4 py-3 shadow-lg shadow-blue-300 active:scale-95 transition-transform mx-1 min-h-[52px]"
+                            aria-label="طلب شراء"
+                        >
+                            <ShoppingCart className="w-6 h-6" />
+                            <span className="text-[10px] font-black whitespace-nowrap">طلب شراء</span>
+                        </button>
+                    )}
                 </div>
             </div>
         );
     }
+
 
     // ── Management nav (ADMIN, GLOBAL_ACCOUNTANT, GENERAL_MANAGER) ─────────────
     const navItems = allNavItems.filter(item => item.check(role));
