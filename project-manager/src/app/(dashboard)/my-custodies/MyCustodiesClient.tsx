@@ -8,7 +8,7 @@ import { CurrencyDisplay } from "@/components/ui/CurrencyDisplay";
 import { confirmCustodyReceipt, rejectCustody, returnCustodyBalance } from "@/actions/custody";
 import { getUserSignature, saveUserSignature } from "@/actions/employees";
 import toast from "react-hot-toast";
-import { AlertTriangle, CheckCircle, XCircle, Wallet, Clock, Check, Briefcase, FileText, ArrowDownLeft, Pen } from "lucide-react";
+import { AlertTriangle, CheckCircle, XCircle, Wallet, Clock, Check, Briefcase, FileText, ArrowDownLeft, Pen, FileOutput } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { AnimatedNumber } from "@/components/ui/AnimatedNumber";
 import { SignaturePad } from "@/components/ui/SignaturePad";
@@ -276,7 +276,16 @@ export default function MyCustodiesClient({ custodies }: { custodies: CustodyDat
                                         </div>
 
                                         {custody.balance > 0 && (
-                                            <div className="mt-4 pt-3 border-t border-gray-50 flex justify-end">
+                                            <div className="mt-4 pt-3 border-t border-gray-50 flex justify-end gap-2">
+                                                <a
+                                                    href={`/api/vouchers/${custody.id}`}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    className="inline-flex items-center gap-1.5 h-8 px-3 text-xs font-bold text-[#102550] border border-[#102550]/20 hover:bg-blue-50 rounded-xl transition-colors"
+                                                >
+                                                    <FileOutput className="w-3.5 h-3.5" />
+                                                    سند الصرف
+                                                </a>
                                                 <Button
                                                     variant="outline"
                                                     onClick={() => { setReturnCustody(custody); setShowReturnModal(true); }}
@@ -285,6 +294,19 @@ export default function MyCustodiesClient({ custodies }: { custodies: CustodyDat
                                                     <ArrowDownLeft className="w-3.5 h-3.5" />
                                                     إرجاع كاش ({custody.balance.toLocaleString()} ر)
                                                 </Button>
+                                            </div>
+                                        )}
+                                        {custody.balance <= 0 && (
+                                            <div className="mt-4 pt-3 border-t border-gray-50 flex justify-end">
+                                                <a
+                                                    href={`/api/vouchers/${custody.id}`}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    className="inline-flex items-center gap-1.5 h-8 px-3 text-xs font-bold text-[#102550] border border-[#102550]/20 hover:bg-blue-50 rounded-xl transition-colors"
+                                                >
+                                                    <FileOutput className="w-3.5 h-3.5" />
+                                                    سند الصرف
+                                                </a>
                                             </div>
                                         )}
                                     </Card>
@@ -312,6 +334,7 @@ export default function MyCustodiesClient({ custodies }: { custodies: CustodyDat
                                             <th className="px-4 py-3">قيمة العهدة</th>
                                             <th className="px-4 py-3">تاريخ الصرف</th>
                                             <th className="px-4 py-3">الحالة</th>
+                                            <th className="px-4 py-3">السند</th>
                                         </tr>
                                     </thead>
                                     <tbody className="divide-y divide-gray-50">
@@ -324,6 +347,17 @@ export default function MyCustodiesClient({ custodies }: { custodies: CustodyDat
                                                     <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md text-[10px] font-bold bg-gray-100 text-gray-600">
                                                         مغلقة
                                                     </span>
+                                                </td>
+                                                <td className="px-4 py-3">
+                                                    <a
+                                                        href={`/api/vouchers/${c.id}`}
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                        className="inline-flex items-center gap-1 text-[10px] font-bold text-[#102550] hover:text-blue-700 hover:underline"
+                                                    >
+                                                        <FileOutput className="w-3 h-3" />
+                                                        عرض
+                                                    </a>
                                                 </td>
                                             </tr>
                                         ))}
