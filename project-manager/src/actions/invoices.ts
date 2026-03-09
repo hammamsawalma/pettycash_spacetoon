@@ -477,6 +477,8 @@ export async function createInvoice(prevState: unknown, formData: FormData) {
 
         revalidatePath("/invoices");
         revalidatePath("/");
+        // R-4: Revalidate project page when auto-approved invoice deducted custody
+        if (projectId) revalidatePath(`/projects/${projectId}`);
         return { success: true, invoiceId: result.id, autoApproved: autoApprove };
 
     } catch (error) {
@@ -705,6 +707,7 @@ export async function updateInvoiceStatus(
         revalidatePath("/invoices");
         revalidatePath(`/invoices/${id}`);
         revalidatePath("/debts");
+        revalidatePath("/my-custodies"); // R-3: Update employee custody view after approval/rejection
 
         // N-2: Notify invoice creator about the result (outside transaction — non-critical)
         try {
