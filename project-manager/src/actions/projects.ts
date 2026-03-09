@@ -346,7 +346,7 @@ export async function updateProject(projectId: string, prevState: unknown, formD
 
         // Only ADMIN or the Project's MANAGER can edit it
         if (session.role !== "ADMIN" && session.id !== existingProject.managerId) {
-            return { error: "عذراً، فقط مدير النظام أو منسق هذا المشروع يمكنه تعديله" };
+            return { error: "عذراً، فقط مدير النظام أو منسق المشتريات في هذا المشروع يمكنه تعديله" };
         }
 
         // تحديد الأعضاء الحاليين في قاعدة البيانات

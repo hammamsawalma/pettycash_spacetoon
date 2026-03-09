@@ -66,10 +66,10 @@ export function AuthProvider({
         };
     }, [initialMemberships]);
 
-    // Derive role name — coordinators see 'منسق مشروع' instead of 'موظف'
+    // Derive role name — purchase coordinators see 'منسق المشتريات' instead of 'موظف'
     const computedRoleNameAr = useMemo(() => {
         if (!user) return "";
-        if (user.role === "USER" && isCoordinatorInAny) return "منسق مشروع";
+        if (user.role === "USER" && isCoordinatorInAny) return "منسق المشتريات";
         return roleNameMap[user.role as UserRole] ?? "موظف";
     }, [user, isCoordinatorInAny]);
 

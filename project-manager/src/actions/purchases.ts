@@ -95,7 +95,7 @@ export async function createPurchase(prevState: unknown, formData: FormData) {
             }
         });
         if (!membership) {
-            return { error: "صلاحية مرفوضة: يجب أن تكون 'منسق' في هذا المشروع لإنشاء طلبات الشراء." };
+            return { error: "صلاحية مرفوضة: يجب أن تكون 'منسق المشتريات' في هذا المشروع لإنشاء طلبات الشراء." };
         }
     }
 

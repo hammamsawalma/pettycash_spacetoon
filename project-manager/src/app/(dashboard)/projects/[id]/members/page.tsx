@@ -12,7 +12,7 @@ import toast from "react-hot-toast";
 
 const ROLE_CONFIG = {
     PROJECT_EMPLOYEE: { label: "موظف", color: "bg-blue-100 text-blue-700", desc: "يستلم عهدة، يرفع فواتير" },
-    PROJECT_MANAGER: { label: "منسق", color: "bg-amber-100 text-amber-700", desc: "يضيف قوائم المشتريات" },
+    PROJECT_MANAGER: { label: "منسق المشتريات", color: "bg-amber-100 text-amber-700", desc: "يضيف قوائم المشتريات" },
 };
 
 type ProjectRole = "PROJECT_EMPLOYEE" | "PROJECT_MANAGER";

@@ -50,13 +50,18 @@ export async function issueCustody(prevState: unknown, formData: FormData) {
             return { error: "ليس لديك صلاحية لصرف عهدة في هذا المشروع" };
         }
 
-        // Check employee is a member of this project (skip for external)
-        let membership: { id: string } | null = null;
+        // Check employee is a member of this project WITH PROJECT_EMPLOYEE role (skip for external)
+        // منسق المشتريات (PROJECT_MANAGER) should NOT receive custodies — only PROJECT_EMPLOYEE
+        let membership: { id: string; projectRoles: string } | null = null;
         if (!isExternal) {
             membership = await prisma.projectMember.findUnique({
-                where: { projectId_userId: { projectId, userId: employeeId } }
+                where: { projectId_userId: { projectId, userId: employeeId } },
+                select: { id: true, projectRoles: true }
             });
             if (!membership) return { error: "الموظف المحدد ليس عضواً في هذا المشروع" };
+            if (!membership.projectRoles?.includes("PROJECT_EMPLOYEE")) {
+                return { error: "لا يمكن صرف عهدة لهذا العضو — فقط الموظفين (وليس منسقي المشتريات) يمكنهم استلام العهد" };
+            }
         }
 
         // E2 + C4: Budget check AND all writes are wrapped in one atomic transaction.

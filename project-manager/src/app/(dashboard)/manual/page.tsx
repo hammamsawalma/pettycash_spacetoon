@@ -34,7 +34,7 @@ function ManualContent() {
                     <p>يعتمد النظام على مسار مالي واضح يتدفق على ثلاثة مستويات:</p>
                     <Steps items={[
                         { n: "1", text: <><strong>خزنة الشركة ← المشاريع:</strong> يوافق المدير على تخصيص ميزانية من خزنة الشركة لكل مشروع.</> },
-                        { n: "2", text: <><strong>المشاريع ← الموظفون (عهدة):</strong> يصرف المنسق أو المدير مبالغ نقدية للموظفين تُسمى "العهدة" لتغطية مصروفات الميدان.</> },
+                        { n: "2", text: <><strong>المشاريع ← الموظفون (عهدة):</strong> يصرف المدير أو المحاسب مبالغ نقدية للموظفين تُسمى "العهدة" لتغطية مصروفات الميدان.</> },
                         { n: "3", text: <><strong>الموظفون ← فواتير:</strong> يرفع الموظف فواتير مصروفاته، يراجعها المحاسب ويعتمدها أو يرفضها.</> },
                     ]} />
                 </Section>
@@ -69,7 +69,7 @@ function ManualContent() {
                         ["رفع فاتورة جديدة", true, true, false, true],
                         ["رفع فاتورة مصاريف شركة", true, true, false, false],
                         ["اعتماد / رفض فاتورة", true, true, false, false],
-                        ["إنشاء قائمة مشتريات", true, false, true, "منسق مشروع"],
+                        ["إنشاء قائمة مشتريات", true, false, true, "منسق المشتريات"],
                         ["تسوية ديون الموظفين", true, true, false, false],
                         ["عرض الديون الشخصية", true, true, true, true],
                         ["إيداع في الخزنة", true, false, false, false],
@@ -205,7 +205,7 @@ function ManualContent() {
 
             {/* ── Chapter 8: Purchases ── */}
             <Chapter icon="🛒" num="الفصل الثامن" title="قائمة المشتريات">
-                <InfoBox type="warn" title="صلاحيات إنشاء الطلبات" text="إنشاء طلبات الشراء للمدير والمدير العام على المستوى العام، وللموظف المنسق (PROJECT_MANAGER) داخل مشاريعه. الموظف العادي يمكنه تنفيذ الطلبات فقط." />
+                <InfoBox type="warn" title="صلاحيات إنشاء الطلبات" text="إنشاء طلبات الشراء للمدير والمدير العام على المستوى العام، ولمنسق المشتريات (PROJECT_MANAGER) داخل مشاريعه. الموظف العادي يمكنه تنفيذ الطلبات فقط." />
                 <Section title="حالات طلب الشراء">
                     <div className="overflow-x-auto rounded-xl">
                         <table className="w-full text-sm border-collapse min-w-[320px]">
@@ -215,7 +215,7 @@ function ManualContent() {
                                     ["🟡 مطلوب", "طلب الشراء أُنشئ وينتظر التنفيذ"],
                                     ["🔵 قيد التنفيذ", "موظف بدأ بالتوجه للشراء"],
                                     ["🟢 تم الشراء", "اشترى الموظف الصنف وربطه بفاتورة"],
-                                    ["🔴 ملغى", "أُلغي الطلب من المنسق أو المدير"],
+                                    ["🔴 ملغى", "أُلغي الطلب من منسق المشتريات أو المدير"],
                                 ].map(([s, m], i) => (
                                     <tr key={i} className={i % 2 === 1 ? "bg-gray-50" : ""}><td className="p-3">{s}</td><td className="p-3 text-gray-600">{m}</td></tr>
                                 ))}
@@ -298,7 +298,7 @@ function ManualContent() {
                                 ["رفع فاتورة مشروع", true, true, false, true],
                                 ["رفع فاتورة مصاريف شركة", true, true, false, false],
                                 ["اعتماد / رفض فاتورة", true, true, false, false],
-                                ["إنشاء مشتريات", true, false, true, "منسق"],
+                                ["إنشاء مشتريات", true, false, true, "منسق المشتريات"],
                                 ["تسوية ديون", true, true, false, false],
                                 ["عرض ديوني الشخصية", true, true, true, true],
                                 ["إيداع في الخزنة", true, false, false, false],

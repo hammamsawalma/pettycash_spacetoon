@@ -187,7 +187,7 @@ export async function createInvoice(prevState: unknown, formData: FormData) {
             if (!projectIsManaged && memberRecord && memberRecord.projectRoles) {
                 const canAddInvoice = hasProjectPermission(memberRecord.projectRoles, ["PROJECT_EMPLOYEE"]);
                 if (!canAddInvoice) {
-                    return { error: "بصفتك منسقاً فقط في هذا المشروع، لا يمكنك إضافة فاتورة. العملية متاحة للموظفين ومدير المشروع." };
+                    return { error: "بصفتك منسق مشتريات فقط في هذا المشروع، لا يمكنك إضافة فاتورة. العملية متاحة للموظفين ومدير المشروع." };
                 }
             }
         } else {

@@ -253,7 +253,7 @@ export default function EditProjectPage({ params }: { params: Promise<{ id: stri
                                                             {['PROJECT_EMPLOYEE', 'PROJECT_MANAGER'].map(roleOption => {
                                                                 const labels: Record<string, string> = {
                                                                     'PROJECT_EMPLOYEE': 'موظف',
-                                                                    'PROJECT_MANAGER': 'منسق'
+                                                                    'PROJECT_MANAGER': 'منسق المشتريات'
                                                                 };
                                                                 const isActive = currentRoles.includes(roleOption);
                                                                 return (

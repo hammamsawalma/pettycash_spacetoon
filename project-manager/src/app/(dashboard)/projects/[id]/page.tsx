@@ -348,7 +348,7 @@ export default function ProjectDetailsPage({ params }: { params: Promise<{ id: s
                                         const memberTotal = projectCustodies.filter((c: any) => c.employeeId === m.userId).reduce((s: number, c: any) => s + c.amount, 0);
                                         const memberBalance = projectCustodies.filter((c: any) => c.employeeId === m.userId).reduce((s: number, c: any) => s + c.balance, 0);
                                         const roles = ((m as any).projectRoles || "PROJECT_EMPLOYEE").split(",");
-                                        const roleLabels: Record<string, string> = { PROJECT_EMPLOYEE: "موظف", PROJECT_MANAGER: "منسق" };
+                                        const roleLabels: Record<string, string> = { PROJECT_EMPLOYEE: "موظف", PROJECT_MANAGER: "منسق المشتريات" };
                                         return (
                                             <div key={m.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-xl gap-3">
                                                 <div className="flex items-center gap-3">
