@@ -526,6 +526,7 @@ export async function closeProject(projectId: string) {
         revalidatePath("/projects");
         revalidatePath(`/projects/${projectId}`);
         revalidatePath("/wallet");
+        revalidatePath("/deposits");
         return { success: true };
     } catch (error) {
         console.error("Project Closure Error:", error);

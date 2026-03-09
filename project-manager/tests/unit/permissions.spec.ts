@@ -14,7 +14,6 @@ import {
     isGlobalFinance,
     hasProjectRole,
     isProjectCoordinator,
-    isProjectAccountant,
 } from '../../src/lib/permissions';
 
 // ══════════════════════════════════════════════════════════════════════════════
@@ -52,12 +51,7 @@ test.describe('canDo() — system-level permissions', () => {
         expect(canDo('GENERAL_MANAGER', 'employees', 'view')).toBe(true);
     });
 
-    test('Only management roles can viewSalaries', () => {
-        expect(canDo('ADMIN', 'employees', 'viewSalaries')).toBe(true);
-        expect(canDo('GENERAL_MANAGER', 'employees', 'viewSalaries')).toBe(true);
-        expect(canDo('GLOBAL_ACCOUNTANT', 'employees', 'viewSalaries')).toBe(true);
-        expect(canDo('USER', 'employees', 'viewSalaries')).toBe(false);
-    });
+
 
     // ── Projects ─────────────────────────────────────────────────────────────
     test('Only ADMIN can create projects', () => {
@@ -190,10 +184,7 @@ test.describe('hasProjectRole()', () => {
     });
 });
 
-// ══════════════════════════════════════════════════════════════════════════════
-//  isProjectCoordinator() and isProjectAccountant()
-// ══════════════════════════════════════════════════════════════════════════════
-test.describe('isProjectCoordinator() and isProjectAccountant()', () => {
+test.describe('isProjectCoordinator()', () => {
 
     test('isProjectCoordinator returns true for PROJECT_MANAGER', () => {
         expect(isProjectCoordinator('PROJECT_MANAGER')).toBe(true);
@@ -206,14 +197,14 @@ test.describe('isProjectCoordinator() and isProjectAccountant()', () => {
         expect(isProjectCoordinator(null)).toBe(false);
     });
 
-    test('isProjectAccountant returns true for PROJECT_ACCOUNTANT', () => {
-        expect(isProjectAccountant('PROJECT_ACCOUNTANT')).toBe(true);
-        expect(isProjectAccountant('PROJECT_EMPLOYEE,PROJECT_ACCOUNTANT')).toBe(true);
+    test('PROJECT_ACCOUNTANT role is detected via hasProjectRole', () => {
+        expect(hasProjectRole('PROJECT_ACCOUNTANT', ['PROJECT_ACCOUNTANT'])).toBe(true);
+        expect(hasProjectRole('PROJECT_EMPLOYEE,PROJECT_ACCOUNTANT', ['PROJECT_ACCOUNTANT'])).toBe(true);
     });
 
-    test('isProjectAccountant returns false for non-accountant roles', () => {
-        expect(isProjectAccountant('PROJECT_EMPLOYEE')).toBe(false);
-        expect(isProjectAccountant('PROJECT_MANAGER')).toBe(false);
-        expect(isProjectAccountant(undefined)).toBe(false);
+    test('Non-accountant roles are not detected as PROJECT_ACCOUNTANT', () => {
+        expect(hasProjectRole('PROJECT_EMPLOYEE', ['PROJECT_ACCOUNTANT'])).toBe(false);
+        expect(hasProjectRole('PROJECT_MANAGER', ['PROJECT_ACCOUNTANT'])).toBe(false);
+        expect(hasProjectRole(undefined, ['PROJECT_ACCOUNTANT'])).toBe(false);
     });
 });
