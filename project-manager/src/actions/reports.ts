@@ -9,7 +9,8 @@ export async function getReportStats(period: string) {
         if (!session || session.role === "USER") {
             return {
                 netProfit: 0, totalProjects: 0, completedProjectsCount: 0,
-                pendingInvoices: 0, topProjects: [], projectBudgets: [], monthlyStats: [], categoryExpenses: []
+                pendingInvoices: 0, topProjects: [], projectBudgets: [], monthlyStats: [], categoryExpenses: [],
+                companyExpensesTotal: 0, projectExpensesTotal: 0
             };
         }
 
@@ -136,6 +137,24 @@ export async function getReportStats(period: string) {
         }).filter((item: any) => item.value > 0);
 
 
+        // v5: Company vs Project expenses separation
+        let companyExpensesTotal = 0;
+        let projectExpensesTotal = 0;
+        if (canSeeGlobalFinances) {
+            const [companyAgg, projectAgg] = await Promise.all([
+                (prisma.invoice as any).aggregate({
+                    _sum: { amount: true },
+                    where: { status: 'APPROVED', isDeleted: false, expenseScope: 'COMPANY', ...(dateCondition ? { date: dateCondition } : {}) }
+                }),
+                (prisma.invoice as any).aggregate({
+                    _sum: { amount: true },
+                    where: { status: 'APPROVED', isDeleted: false, expenseScope: 'PROJECT', ...(dateCondition ? { date: dateCondition } : {}) }
+                }),
+            ]);
+            companyExpensesTotal = companyAgg?._sum?.amount ?? 0;
+            projectExpensesTotal = projectAgg?._sum?.amount ?? 0;
+        }
+
         return {
             netProfit,
             totalProjects,
@@ -144,7 +163,9 @@ export async function getReportStats(period: string) {
             topProjects,
             projectBudgets,
             monthlyStats,
-            categoryExpenses
+            categoryExpenses,
+            companyExpensesTotal,
+            projectExpensesTotal
         };
     } catch (error) {
         console.error("Reports Fetch Error:", error);
@@ -156,7 +177,9 @@ export async function getReportStats(period: string) {
             topProjects: [],
             projectBudgets: [],
             monthlyStats: [],
-            categoryExpenses: []
+            categoryExpenses: [],
+            companyExpensesTotal: 0,
+            projectExpensesTotal: 0
         };
     }
 }

@@ -2,7 +2,7 @@
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
-import { FileBarChart2, Download, TrendingUp, Users, FolderKanban, Wallet, AlertCircle } from "lucide-react";
+import { FileBarChart2, Download, TrendingUp, Users, FolderKanban, Wallet, AlertCircle, Building2 } from "lucide-react";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { TableRowSkeleton } from "@/components/ui/Skeleton";
 import { useState, useEffect } from "react";
@@ -31,6 +31,8 @@ export default function ReportsPage() {
         projectBudgets: { name: string, value: number }[];
         monthlyStats: { name: string, revenue: number, expense: number }[];
         categoryExpenses: { name: string, icon: string, value: number }[];
+        companyExpensesTotal: number;
+        projectExpensesTotal: number;
     } | null>(null);
 
     // Redirect if not authorized — guard derived from permissions.ts
@@ -138,6 +140,34 @@ export default function ReportsPage() {
                         <div className="mt-4 md:mt-5 pt-4 border-t border-gray-50 flex items-center gap-2 text-[10px] md:text-xs font-bold text-gray-600 bg-gray-50 w-fit px-2.5 py-1 rounded-lg">
                             <span>جاري متابعتها</span>
                         </div>
+                    </Card>
+                </div>
+
+                {/* v5: Company vs Project Expenses */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6">
+                    <Card className="p-5 md:p-6 transition-all duration-300 shadow-sm border-purple-100 hover:shadow-md hover:border-purple-300 bg-gradient-to-br from-white to-purple-50/30">
+                        <div className="flex items-center gap-4">
+                            <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-purple-100 text-purple-600 flex items-center justify-center shrink-0 shadow-sm">
+                                <Building2 className="w-5 h-5 md:w-6 md:h-6" />
+                            </div>
+                            <div>
+                                <p className="text-[10px] md:text-sm text-gray-400 font-bold mb-1">مصاريف الشركة</p>
+                                <p className="text-xl md:text-2xl font-black text-purple-700">{stats ? stats.companyExpensesTotal.toLocaleString() : '...'} <span className="text-xs font-bold text-purple-400"><CurrencyDisplay /></span></p>
+                            </div>
+                        </div>
+                        <p className="mt-3 text-[10px] md:text-xs text-purple-500 font-bold">فواتير غير مرتبطة بمشاريع (معتمدة)</p>
+                    </Card>
+                    <Card className="p-5 md:p-6 transition-all duration-300 shadow-sm border-blue-100 hover:shadow-md hover:border-blue-300 bg-gradient-to-br from-white to-blue-50/30">
+                        <div className="flex items-center gap-4">
+                            <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-blue-100 text-blue-600 flex items-center justify-center shrink-0 shadow-sm">
+                                <FolderKanban className="w-5 h-5 md:w-6 md:h-6" />
+                            </div>
+                            <div>
+                                <p className="text-[10px] md:text-sm text-gray-400 font-bold mb-1">مصاريف المشاريع</p>
+                                <p className="text-xl md:text-2xl font-black text-blue-700">{stats ? stats.projectExpensesTotal.toLocaleString() : '...'} <span className="text-xs font-bold text-blue-400"><CurrencyDisplay /></span></p>
+                            </div>
+                        </div>
+                        <p className="mt-3 text-[10px] md:text-xs text-blue-500 font-bold">فواتير مرتبطة بالمشاريع (معتمدة)</p>
                     </Card>
                 </div>
 

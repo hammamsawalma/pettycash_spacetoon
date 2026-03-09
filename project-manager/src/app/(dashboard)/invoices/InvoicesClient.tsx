@@ -1,7 +1,7 @@
 "use client"
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import { Card } from "@/components/ui/Card";
-import { Search, Eye, QrCode, FileText } from "lucide-react";
+import { Search, Eye, QrCode, FileText, Building2 } from "lucide-react";
 import { useState } from "react";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { StatusBadge } from "@/components/ui/StatusBadge";
@@ -25,10 +25,12 @@ export default function InvoicesClient({ initialInvoices }: Props) {
     const debouncedSearchQuery = useDebounce(searchQuery, 300);
 
     const filteredInvoices = initialInvoices.filter(invoice => {
-        const matchesFilter = filter === "الكل" ||
-            (invoice.status === 'APPROVED' && filter === 'مقبولة') ||
-            (invoice.status === 'PENDING' && filter === 'معلقة') ||
-            (invoice.status === 'REJECTED' && filter === 'مرفوضة');
+        let matchesFilter = true;
+        if (filter === "مقبولة") matchesFilter = invoice.status === 'APPROVED';
+        else if (filter === "معلقة") matchesFilter = invoice.status === 'PENDING';
+        else if (filter === "مرفوضة") matchesFilter = invoice.status === 'REJECTED';
+        else if (filter === "مصاريف شركة") matchesFilter = invoice.expenseScope === 'COMPANY';
+        // "الكل" shows everything
 
         const clientName = invoice.project?.name || invoice.creator?.name;
         const matchesSearch = matchArabicText(debouncedSearchQuery, [
@@ -64,12 +66,12 @@ export default function InvoicesClient({ initialInvoices }: Props) {
 
                     {/* Filter Tabs — horizontal scroll on mobile */}
                     <div className="flex bg-white rounded-xl p-1 shadow-sm border border-gray-100 overflow-x-auto mobile-tabs-scroll whitespace-nowrap gap-1">
-                        {["الكل", "مقبولة", "معلقة", "مرفوضة"].map((tab) => (
+                        {["الكل", "مقبولة", "معلقة", "مرفوضة", "مصاريف شركة"].map((tab) => (
                             <button
                                 key={tab}
                                 onClick={() => setFilter(tab)}
                                 className={`px-4 py-2.5 flex-1 min-w-[68px] text-xs font-bold rounded-lg transition-all duration-150 active:scale-95 ${filter === tab
-                                    ? "bg-[#102550] text-white shadow-sm"
+                                    ? tab === "مصاريف شركة" ? "bg-purple-600 text-white shadow-sm" : "bg-[#102550] text-white shadow-sm"
                                     : "text-gray-500 hover:text-gray-900 hover:bg-gray-50"
                                     }`}
                             >
@@ -99,15 +101,16 @@ export default function InvoicesClient({ initialInvoices }: Props) {
                 ) : (
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-6">
                         {filteredInvoices.map((invoice: any) => {
-                            const clientName = invoice.project?.name || invoice.creator?.name || 'عميل';
+                            const isCompany = invoice.expenseScope === 'COMPANY';
+                            const clientName = isCompany ? 'مصاريف شركة' : (invoice.project?.name || invoice.creator?.name || 'عميل');
 
                             return (
                                 <Card key={invoice.id} className="p-3 md:p-5 flex flex-col hover:border-[#102550]/30 transition-colors relative overflow-hidden group shadow-sm border border-gray-100 rounded-2xl">
                                     {/* Top Section */}
                                     <div className="flex justify-between items-start mb-3 md:mb-4">
                                         <div className="flex items-center gap-2 md:gap-3">
-                                            <div className="w-9 h-9 md:w-12 md:h-12 bg-blue-50 rounded-lg flex items-center justify-center text-[#102550] font-bold shrink-0 text-sm md:text-base">
-                                                {clientName.charAt(0)}
+                                            <div className={`w-9 h-9 md:w-12 md:h-12 ${isCompany ? 'bg-purple-50' : 'bg-blue-50'} rounded-lg flex items-center justify-center ${isCompany ? 'text-purple-600' : 'text-[#102550]'} font-bold shrink-0 text-sm md:text-base`}>
+                                                {isCompany ? <Building2 className="w-5 h-5" /> : clientName.charAt(0)}
                                             </div>
                                             <div>
                                                 <h4 className="font-bold text-sm md:text-lg text-gray-900 line-clamp-1" title={clientName}>{clientName}</h4>

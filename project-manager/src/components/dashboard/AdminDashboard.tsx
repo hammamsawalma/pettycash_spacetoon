@@ -4,7 +4,7 @@ import ManagerFinancialOverview from "@/components/dashboard/ManagerFinancialOve
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { AnimatedNumber } from "@/components/ui/AnimatedNumber";
-import { FolderKanban, Wallet, Users, BellRing, TrendingUp, ArrowDownToLine, ArrowUpToLine } from 'lucide-react';
+import { FolderKanban, Wallet, Users, BellRing, TrendingUp, ArrowDownToLine, ArrowUpToLine, Building2 } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { getDashboardStats, getFlowStats } from '@/actions/dashboard';
@@ -41,6 +41,7 @@ export default function AdminDashboard() {
         custodyIssued: 0,
         custodyReturned: 0,
         invoicesApproved: 0,
+        companyExpenses: 0,
     });
 
     useEffect(() => {
@@ -56,6 +57,7 @@ export default function AdminDashboard() {
                     custodyIssued: (data as any).custodyIssued ?? 0,
                     custodyReturned: (data as any).custodyReturned ?? 0,
                     invoicesApproved: (data as any).invoicesApproved ?? 0,
+                    companyExpenses: (data as any).companyExpenses ?? 0,
                 });
             }
         });
@@ -73,7 +75,7 @@ export default function AdminDashboard() {
         { title: "عدد المشاريع", value: stats.totalProjects, icon: FolderKanban, color: "text-primary", bg: "bg-primary/10" },
         { title: "إجمالي الموظفين", value: stats.employees, icon: Users, color: "text-blue-500", bg: "bg-blue-500/10" },
         { title: "العُهد المصروفة للموظفين", value: flow.custodyIssued, icon: ArrowUpToLine, color: "text-rose-500", bg: "bg-rose-500/10", isCurrency: true },
-        { title: "العهد المرجعة", value: flow.custodyReturned, icon: ArrowDownToLine, color: "text-amber-500", bg: "bg-amber-500/10", isCurrency: true },
+        { title: "مصاريف الشركة", value: flow.companyExpenses, icon: Building2, color: "text-purple-600", bg: "bg-purple-100", isCurrency: true },
     ];
 
     const chartData = chartPeriod === "شهري"
