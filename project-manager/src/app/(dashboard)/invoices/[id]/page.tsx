@@ -5,9 +5,9 @@ import { Button } from "@/components/ui/Button";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { useAuth } from "@/context/AuthContext";
 import { useCanDo } from "@/components/auth/Protect";
-import { Download, FileText, CheckCircle, Printer, XCircle, AlertTriangle, Sparkles, Loader2 } from "lucide-react";
+import { Download, FileText, CheckCircle, Printer, XCircle, AlertTriangle, Sparkles, Loader2, Trash2 } from "lucide-react";
 import { useEffect, useState, use } from "react";
-import { getInvoiceById, updateInvoiceStatus } from "@/actions/invoices";
+import { getInvoiceById, updateInvoiceStatus, softDeleteInvoice } from "@/actions/invoices";
 import { getCategories } from "@/actions/categories";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
@@ -61,6 +61,7 @@ export default function InvoiceDetailsPage({ params }: { params: Promise<{ id: s
     const [rejectionReason, setRejectionReason] = useState("");
     const [selectedPreset, setSelectedPreset] = useState<string | null>(null);
     const [isUpdating, setIsUpdating] = useState(false);
+    const [isDeleting, setIsDeleting] = useState(false);
 
     // v5: Accountant mandatory fields
     const [externalNumber, setExternalNumber] = useState("");
@@ -190,6 +191,18 @@ export default function InvoiceDetailsPage({ params }: { params: Promise<{ id: s
             toast.error("فشل التحليل بالذكاء الاصطناعي");
         }
         setIsAnalyzing(false);
+    };
+
+    const handleDelete = async () => {
+        if (!confirm("هل أنت متأكد من نقل هذه الفاتورة إلى سلة المهملات؟")) return;
+        setIsDeleting(true);
+        const res = await softDeleteInvoice(id);
+        setIsDeleting(false);
+        if (res?.error) toast.error(res.error);
+        else {
+            toast.success("تم نقل الفاتورة إلى سلة المهملات");
+            router.push('/invoices');
+        }
     };
 
     if (isLoading) return <DashboardLayout title="تفاصيل الفاتورة"><div className="p-10 text-center">جاري التحميل...</div></DashboardLayout>;
@@ -443,6 +456,22 @@ export default function InvoiceDetailsPage({ params }: { params: Promise<{ id: s
                             تحميل نسخة PDF
                         </Button>
                     </Card>
+
+                    {/* Delete button — ADMIN only, non-approved */}
+                    {(role as UserRole) === "ADMIN" && invoice.status !== "APPROVED" && (
+                        <Card className="p-5 space-y-3 bg-red-50/50 border-red-100">
+                            <Button
+                                onClick={handleDelete}
+                                disabled={isDeleting}
+                                isLoading={isDeleting}
+                                variant="outline"
+                                className="w-full gap-2 text-red-600 border-red-200 hover:bg-red-50 py-3 font-bold"
+                            >
+                                <Trash2 className="w-4 h-4" />
+                                نقل إلى سلة المهملات
+                            </Button>
+                        </Card>
+                    )}
                 </div>
 
                 {/* Rejection Modal */}

@@ -164,6 +164,7 @@ export default function SettingsPage() {
                                         <label className="block text-[10px] md:text-xs font-bold text-gray-400 mb-1">اسم الموظف</label>
                                         <input
                                             type="text"
+                                            name="name"
                                             defaultValue={user?.name || ""}
                                             className="w-full bg-transparent font-bold text-gray-900 text-sm md:text-base outline-none pr-1 focus:ring-0"
                                         />
@@ -176,6 +177,7 @@ export default function SettingsPage() {
                                         <label className="block text-[10px] md:text-xs font-bold text-gray-400 mb-1">البريد الالكتروني</label>
                                         <input
                                             type="email"
+                                            name="email"
                                             defaultValue={user?.email || ""}
                                             className="w-full bg-transparent font-bold text-gray-900 text-sm md:text-base outline-none pr-1 flex-1 focus:ring-0"
                                         />
@@ -189,7 +191,7 @@ export default function SettingsPage() {
                                             <label className="block text-[10px] md:text-xs font-bold text-gray-400 mb-1">رقم الجوال</label>
                                             <input
                                                 type="tel"
-                                                defaultValue="+966 50 123 4567" // user phone logic placeholder
+                                                defaultValue={user?.phone || "لم يتم تسجيل رقم جوال"}
                                                 disabled
                                                 className="w-full bg-transparent font-bold text-gray-600 text-sm md:text-base outline-none pr-1 dir-ltr text-right cursor-not-allowed"
                                                 title="لتغيير رقم الجوال الرجاء الانتقال الى تبويب رقم الجوال"
@@ -200,17 +202,12 @@ export default function SettingsPage() {
                                         </button>
                                     </div>
 
-                                    {/* Mocking Address Field from design */}
-                                    <div className="relative group p-4 border border-gray-100 rounded-2xl bg-gray-50 focus-within:ring-2 focus-within:ring-[#102550]/50 focus-within:bg-white transition-all md:col-span-2">
-                                        <label className="block text-[10px] md:text-xs font-bold text-gray-400 mb-1">العنوان</label>
-                                        <input
-                                            type="text"
-                                            defaultValue="الرياض، المملكة العربية السعودية"
-                                            className="w-full bg-transparent font-bold text-gray-900 text-sm md:text-base outline-none pr-1 flex-1 focus:ring-0"
-                                        />
-                                        <div className="absolute left-4 top-1/2 -translate-y-1/2 text-[#102550] opacity-50 group-hover:opacity-100 transition-opacity">
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" /></svg>
-                                        </div>
+                                    {/* Role badge — read-only, shows user's system role */}
+                                    <div className="relative group p-4 border border-gray-100 rounded-2xl bg-gray-50 transition-all md:col-span-2">
+                                        <label className="block text-[10px] md:text-xs font-bold text-gray-400 mb-1">الدور في النظام</label>
+                                        <p className="font-bold text-gray-600 text-sm md:text-base">
+                                            {user?.role === 'ADMIN' ? 'مدير النظام' : user?.role === 'GENERAL_MANAGER' ? 'المدير العام' : user?.role === 'GLOBAL_ACCOUNTANT' ? 'المحاسب العام' : 'مستخدم'}
+                                        </p>
                                     </div>
 
                                 </div>

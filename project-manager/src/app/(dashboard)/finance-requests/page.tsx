@@ -3,8 +3,8 @@ import { useState, useEffect } from "react";
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
-import { CheckCircle, XCircle, Clock, BadgeDollarSign, ArrowUpRight } from "lucide-react";
-import { getPendingFinanceRequests, approveFinanceRequest, rejectFinanceRequest } from "@/actions/financeRequests";
+import { CheckCircle, XCircle, Clock, BadgeDollarSign, ArrowUpRight, PlusCircle } from "lucide-react";
+import { getPendingFinanceRequests, approveFinanceRequest, rejectFinanceRequest, createFinanceRequest } from "@/actions/financeRequests";
 import { useAuth } from "@/context/AuthContext";
 import { useCanDo } from "@/components/auth/Protect";
 import { useRouter } from "next/navigation";
@@ -37,6 +37,11 @@ export default function FinanceRequestsPage() {
     const [rejectModalId, setRejectModalId] = useState<string | null>(null);
     const [rejectReason, setRejectReason] = useState("");
     const [processingId, setProcessingId] = useState<string | null>(null);
+    const [showCreateModal, setShowCreateModal] = useState(false);
+    const [newReqType, setNewReqType] = useState("SETTLE_DEBT");
+    const [newReqAmount, setNewReqAmount] = useState("");
+    const [newReqNote, setNewReqNote] = useState("");
+    const [isCreating, setIsCreating] = useState(false);
 
     useEffect(() => {
         if (user && !isFinanceRole) {
@@ -51,6 +56,33 @@ export default function FinanceRequestsPage() {
     }, [user]);
 
     if (!user || !isFinanceRole) return null;
+
+    // ADMIN and GLOBAL_ACCOUNTANT can create finance requests
+    const canCreate = isAdmin || user.role === 'GLOBAL_ACCOUNTANT';
+
+    const handleCreate = async () => {
+        if (!newReqType) { toast.error("نوع الطلب مطلوب"); return; }
+        setIsCreating(true);
+        const result = await createFinanceRequest({
+            type: newReqType,
+            amount: newReqAmount ? Number(newReqAmount) : undefined,
+            note: newReqNote || undefined,
+        });
+        setIsCreating(false);
+        if ('error' in result && result.error) {
+            toast.error(result.error as string);
+        } else {
+            toast.success("تم إنشاء الطلب المالي ✅");
+            setShowCreateModal(false);
+            setNewReqType("SETTLE_DEBT");
+            setNewReqAmount("");
+            setNewReqNote("");
+            // Reload requests
+            getPendingFinanceRequests().then(data => {
+                setRequests(data as Request[]);
+            });
+        }
+    };
 
     const handleApprove = async (id: string) => {
         setProcessingId(id);
@@ -104,6 +136,15 @@ export default function FinanceRequestsPage() {
                         <span className="mr-auto bg-red-500 text-white text-xs font-bold px-2.5 py-1 rounded-full">
                             {pending.length} معلقة
                         </span>
+                    )}
+                    {canCreate && (
+                        <button
+                            onClick={() => setShowCreateModal(true)}
+                            className="flex items-center gap-1.5 bg-[#102550] hover:bg-[#1a3a7c] text-white text-sm font-bold px-4 py-2 rounded-xl transition-colors"
+                        >
+                            <PlusCircle className="w-4 h-4" />
+                            طلب مالي جديد
+                        </button>
                     )}
                 </div>
 
@@ -233,6 +274,64 @@ export default function FinanceRequestsPage() {
                                 className="bg-red-500 hover:bg-red-600 text-white"
                             >
                                 تأكيد الرفض
+                            </Button>
+                        </div>
+                    </Card>
+                </div>
+            )}
+
+            {/* Create Finance Request Modal */}
+            {showCreateModal && (
+                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+                    <Card className="w-full max-w-md p-6 space-y-5">
+                        <h3 className="text-lg font-bold text-gray-900">إنشاء طلب مالي جديد</h3>
+
+                        <div className="space-y-2">
+                            <label className="text-sm font-bold text-gray-700">نوع الطلب *</label>
+                            <select
+                                value={newReqType}
+                                onChange={e => setNewReqType(e.target.value)}
+                                className="w-full rounded-xl border border-gray-200 p-3 outline-none focus:ring-2 focus:ring-[#102550] text-sm bg-gray-50"
+                            >
+                                <option value="SETTLE_DEBT">تسوية دين موظف</option>
+                                <option value="ALLOCATE_BUDGET">تخصيص ميزانية</option>
+                                <option value="RETURN_CUSTODY">إرجاع عهدة</option>
+                                <option value="OTHER">أخرى</option>
+                            </select>
+                        </div>
+
+                        <div className="space-y-2">
+                            <label className="text-sm font-bold text-gray-700">المبلغ (اختياري)</label>
+                            <input
+                                type="number"
+                                value={newReqAmount}
+                                onChange={e => setNewReqAmount(e.target.value)}
+                                min="0"
+                                step="0.01"
+                                placeholder="0.00"
+                                className="w-full rounded-xl border border-gray-200 p-3 outline-none focus:ring-2 focus:ring-[#102550] text-sm bg-gray-50"
+                            />
+                        </div>
+
+                        <div className="space-y-2">
+                            <label className="text-sm font-bold text-gray-700">ملاحظات</label>
+                            <textarea
+                                value={newReqNote}
+                                onChange={e => setNewReqNote(e.target.value)}
+                                rows={3}
+                                placeholder="وصف الطلب بالتفصيل..."
+                                className="w-full rounded-xl border border-gray-200 p-3 outline-none focus:ring-2 focus:ring-[#102550] resize-none text-sm bg-gray-50"
+                            />
+                        </div>
+
+                        <div className="flex gap-3 justify-end pt-2">
+                            <Button variant="outline" onClick={() => setShowCreateModal(false)}>إلغاء</Button>
+                            <Button
+                                onClick={handleCreate}
+                                disabled={isCreating}
+                                className="bg-[#102550] hover:bg-[#1a3a7c] text-white"
+                            >
+                                {isCreating ? "جاري الإرسال..." : "إرسال الطلب"}
                             </Button>
                         </div>
                     </Card>

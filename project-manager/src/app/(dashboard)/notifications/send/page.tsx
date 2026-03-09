@@ -7,8 +7,14 @@ import { useState, useEffect, useActionState } from "react";
 import { getNotifications, createNotification } from "@/actions/notifications";
 import { Notification } from "@prisma/client";
 import toast from "react-hot-toast";
+import { useAuth } from "@/context/AuthContext";
+import { useCanDo } from "@/components/auth/Protect";
+import { useRouter } from "next/navigation";
 
 export default function SendNotificationPage() {
+    const { user } = useAuth();
+    const router = useRouter();
+    const canSend = useCanDo('notifications', 'send');
     const [notifications, setNotifications] = useState<Notification[]>([]);
     const [isLoading, setIsLoading] = useState(true);
 
@@ -21,9 +27,20 @@ export default function SendNotificationPage() {
         });
     };
 
+    // Redirect if not authorized
     useEffect(() => {
-        loadNotifications();
-    }, []);
+        if (user && !canSend) {
+            router.push("/");
+        }
+    }, [user, canSend, router]);
+
+    useEffect(() => {
+        if (user && canSend) {
+            loadNotifications();
+        }
+    }, [user, canSend]);
+
+    if (!user || !canSend) return null;
 
     useEffect(() => {
         if (state?.success) {

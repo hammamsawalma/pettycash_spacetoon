@@ -67,13 +67,13 @@ export const PERMISSIONS = {
          * GLOBAL_ACCOUNTANT: all projects (v4: handles all projects financially).
          */
         issue: ["ADMIN", "GLOBAL_ACCOUNTANT"] as UserRole[],
-        /** Can confirm receipt of a custody — only the receiving employee (or GLOBAL_ACCOUNTANT for company custody) */
-        confirmReceipt: ["USER", "GLOBAL_ACCOUNTANT"] as UserRole[],
+        /** Can confirm receipt of a custody — the receiving employee, ADMIN, or GLOBAL_ACCOUNTANT */
+        confirmReceipt: ["USER", "ADMIN", "GLOBAL_ACCOUNTANT"] as UserRole[],
         /**
          * Can record a custody return (إرجاع).
-         * v4: GLOBAL_ACCOUNTANT only — ADMIN no longer records returns.
+         * v4+M-1: ADMIN + GLOBAL_ACCOUNTANT can record returns.
          */
-        recordReturn: ["GLOBAL_ACCOUNTANT"] as UserRole[],
+        recordReturn: ["ADMIN", "GLOBAL_ACCOUNTANT"] as UserRole[],
         /** Can view custody records */
         view: ["ADMIN", "GENERAL_MANAGER", "GLOBAL_ACCOUNTANT", "USER"] as UserRole[],
     },
@@ -87,9 +87,9 @@ export const PERMISSIONS = {
         create: ["ADMIN", "GLOBAL_ACCOUNTANT", "USER"] as UserRole[],
         /**
          * Approve/reject invoices.
-         * v4: GLOBAL_ACCOUNTANT only — handles all projects.
+         * v4+M-2: ADMIN + GLOBAL_ACCOUNTANT can approve/reject.
          */
-        approve: ["GLOBAL_ACCOUNTANT"] as UserRole[],
+        approve: ["ADMIN", "GLOBAL_ACCOUNTANT"] as UserRole[],
         /**
          * Can delete an invoice.
          * v4: GLOBAL_ACCOUNTANT added.

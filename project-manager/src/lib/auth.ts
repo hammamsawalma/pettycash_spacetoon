@@ -8,6 +8,7 @@ export type SessionData = {
     name: string;
     email?: string | null;
     image?: string | null;
+    phone?: string | null;
     role: UserRole;
 };
 

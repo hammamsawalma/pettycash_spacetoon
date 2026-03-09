@@ -24,7 +24,6 @@ const HIDE_NAV_PATHS = [
     '/invoices/new',
     '/purchases/new',
     '/projects/new',
-    '/deposits/new',
 ];
 
 // ─── Management nav items ─────────────────────────────────────────────────────
@@ -73,13 +72,6 @@ const quickAddDefs: QuickAddDef[] = [
         color: 'bg-teal-100 text-teal-700',
         // Mirrors Sidebar: ADMIN/GM at system level; USER-coordinator via isCoordinatorInAny
         check: (r, isCoordinatorInAny) => canDo(r, 'purchases', 'createGlobal') || (r === 'USER' && !!isCoordinatorInAny),
-    },
-    {
-        name: 'تسجيل عهدة',
-        href: '/deposits/new',
-        icon: Wallet,
-        color: 'bg-orange-100 text-orange-700',
-        check: (r) => canDo(r, 'custodies', 'recordReturn'),
     },
 ];
 

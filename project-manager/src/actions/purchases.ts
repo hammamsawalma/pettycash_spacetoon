@@ -298,3 +298,32 @@ export async function togglePurchaseRedFlag(purchaseId: string, reason: string |
         return { error: "حدث خطأ أثناء تحديث حالة الراية الحمراء" };
     }
 }
+
+// ─── Soft Delete Purchase (ADMIN only — moves to trash) ──────────────────────
+export async function softDeletePurchase(purchaseId: string) {
+    try {
+        const session = await getSession();
+        if (!session || session.role !== "ADMIN") {
+            return { error: "فقط مدير النظام يمكنه حذف طلبات الشراء" };
+        }
+
+        const purchase = await prisma.purchase.findUnique({ where: { id: purchaseId } });
+        if (!purchase) return { error: "طلب الشراء غير موجود" };
+        if (purchase.isDeleted) return { error: "طلب الشراء محذوف بالفعل" };
+        if (purchase.status === "PURCHASED") {
+            return { error: "لا يمكن حذف طلب تم شراؤه بالفعل." };
+        }
+
+        await prisma.purchase.update({
+            where: { id: purchaseId },
+            data: { isDeleted: true, deletedAt: new Date() }
+        });
+
+        revalidatePath("/purchases");
+        revalidatePath("/trash");
+        return { success: true };
+    } catch (error) {
+        console.error("Soft Delete Purchase Error:", error);
+        return { error: "حدث خطأ أثناء حذف طلب الشراء" };
+    }
+}

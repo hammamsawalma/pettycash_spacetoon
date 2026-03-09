@@ -45,6 +45,7 @@ export async function login(prevState: unknown, formData: FormData) {
             name: user.name,
             role: user.role as UserRole,
             email: user.email,
+            phone: user.phone,
         };
 
         const cookieStore = await cookies();

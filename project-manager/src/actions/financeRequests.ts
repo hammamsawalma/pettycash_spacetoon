@@ -115,6 +115,54 @@ export async function getPendingFinanceRequests() {
     }
 }
 
+// ─── إنشاء طلب مالي جديد ──────────────────────────────────
+export async function createFinanceRequest(data: {
+    type: string;
+    amount?: number;
+    targetId?: string;
+    note?: string;
+}) {
+    try {
+        const session = await getSession();
+        // Only ADMIN and GLOBAL_ACCOUNTANT can create finance requests
+        if (!session || (session.role !== "ADMIN" && session.role !== "GLOBAL_ACCOUNTANT")) {
+            return { error: "ليس لديك صلاحية لإنشاء طلب مالي" };
+        }
+
+        if (!data.type) return { error: "نوع الطلب مطلوب" };
+
+        const validTypes = ["SETTLE_DEBT", "ALLOCATE_BUDGET", "RETURN_CUSTODY", "OTHER"];
+        if (!validTypes.includes(data.type)) return { error: "نوع الطلب غير صالح" };
+
+        if (data.amount !== undefined && data.amount <= 0) {
+            return { error: "المبلغ يجب أن يكون أكبر من صفر" };
+        }
+
+        const request = await prisma.financeRequest.create({
+            data: {
+                type: data.type,
+                amount: data.amount ?? null,
+                targetId: data.targetId ?? null,
+                note: data.note?.trim() || null,
+                requestedBy: session.id,
+                status: "PENDING",
+            }
+        });
+
+        // إشعار المدير بالطلب الجديد
+        await sendAdminNotification(
+            "طلب مالي جديد 📋",
+            `${session.name || 'مستخدم'} أنشأ طلب: ${getRequestTypeLabel(data.type)}${data.amount ? ` — المبلغ: ${data.amount.toLocaleString()}` : ''}`
+        );
+
+        revalidatePath("/finance-requests");
+        return { success: true, id: request.id };
+    } catch (error) {
+        console.error("Create Finance Request Error:", error);
+        return { error: "حدث خطأ أثناء إنشاء الطلب" };
+    }
+}
+
 // ─── Helper: تنفيذ العملية المالية الفعلية ────────────────
 // C4: Now wraps everything (execute + status update) in one transaction
 async function executeFinanceRequest(

@@ -80,7 +80,7 @@ export default function DebtsPage() {
                             <p className="text-xs md:text-sm font-bold text-gray-500 mb-1">
                                 {role === "USER" ? "إجمالي ديوني عند الشركة" : "إجمالي الديون المعلقة للموظفين"}
                             </p>
-                            <p className="text-2xl md:text-3xl font-black text-gray-900">{totalDebts.toLocaleString()} <span className="text-sm font-bold text-gray-400">QAR</span></p>
+                            <p className="text-2xl md:text-3xl font-black text-gray-900">{totalDebts.toLocaleString()} <span className="text-sm font-bold text-gray-400"><CurrencyDisplay /></span></p>
                         </div>
                     </Card>
 

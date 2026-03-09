@@ -75,7 +75,7 @@ export default function Header({ title, onMenuClick, isHidden = false }: { title
                     <div className="flex md:hidden items-center justify-between w-full relative h-12 gap-2">
                         {/* Left: back + menu */}
                         <div className="flex items-center shrink-0">
-                            <button onClick={() => router.back()} className="h-10 w-10 flex items-center justify-center text-gray-600 hover:bg-gray-100 rounded-full transition-colors active:scale-95">
+                            <button onClick={() => window.history.length > 2 ? router.back() : router.push('/')} className="h-10 w-10 flex items-center justify-center text-gray-600 hover:bg-gray-100 rounded-full transition-colors active:scale-95">
                                 <ChevronRight className="h-6 w-6 rtl:rotate-180" />
                             </button>
                             <button onClick={onMenuClick} className="h-10 w-10 flex items-center justify-center text-gray-500 hover:bg-gray-100 rounded-full transition-colors active:scale-95">

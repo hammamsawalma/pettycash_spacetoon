@@ -67,11 +67,16 @@ export default function TrashPage() {
     const handleClearAll = async () => {
         if (!confirm("هل أنت متأكد من إفراغ سلة المهملات بالكامل؟ لا يمكن التراجع عن هذا الإجراء.")) return;
         setIsClearing(true);
-        for (const item of items) {
-            await permanentlyDelete(item.type as "PROJECT" | "INVOICE" | "PURCHASE" | "USER", item.id);
-        }
+        const results = await Promise.all(
+            items.map(item => permanentlyDelete(item.type as "PROJECT" | "INVOICE" | "PURCHASE" | "USER", item.id))
+        );
+        const failures = results.filter(r => 'error' in r);
         setIsClearing(false);
-        toast.success("تم إفراغ سلة المهملات بنجاح");
+        if (failures.length > 0) {
+            toast.error(`فشل حذف ${failures.length} عنصر من أصل ${items.length}`);
+        } else {
+            toast.success("تم إفراغ سلة المهملات بنجاح");
+        }
         fetchTrash();
     };
 

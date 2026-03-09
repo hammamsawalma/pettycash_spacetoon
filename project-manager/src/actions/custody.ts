@@ -144,7 +144,10 @@ export async function confirmCustodyReceipt(custodyId: string, signatureBase64?:
             where: { id: custodyId }
         });
         if (!custody) return { error: "العهدة غير موجودة" };
-        if (custody.employeeId !== session.id) return { error: "لا يمكنك تأكيد استلام عهدة شخص آخر" };
+        // C-4 FIX: Allow ADMIN to force-confirm custody on behalf of the employee
+        const isOwner = custody.employeeId === session.id;
+        const isAdmin = session.role === "ADMIN";
+        if (!isOwner && !isAdmin) return { error: "لا يمكنك تأكيد استلام عهدة شخص آخر" };
         if (custody.isConfirmed) return { error: "تم تأكيد الاستلام مسبقاً" };
 
         await prisma.employeeCustody.update({
@@ -336,8 +339,8 @@ export async function returnCustodyBalance(
         });
         if (!custody) return { error: "العهدة غير موجودة" };
 
-        // v4: Authorization — only GLOBAL_ACCOUNTANT can record custody returns
-        const isAuthorized = session.role === "GLOBAL_ACCOUNTANT";
+        // v4+M-1 FIX: ADMIN + GLOBAL_ACCOUNTANT can record custody returns
+        const isAuthorized = session.role === "GLOBAL_ACCOUNTANT" || session.role === "ADMIN";
 
         if (!isAuthorized) {
             return { error: "ليس لديك صلاحية لتسجيل إرجاع العهدة" };

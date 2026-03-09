@@ -3,12 +3,13 @@ import DashboardLayout from "@/components/layout/DashboardLayout";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { StatusBadge } from "@/components/ui/StatusBadge";
-import { ArrowLeft, Flag, Info, ShoppingCart, User, Building, ExternalLink, RefreshCw, Paperclip } from "lucide-react";
+import { ArrowLeft, Flag, Info, ShoppingCart, User, Building, ExternalLink, RefreshCw, Paperclip, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import toast from "react-hot-toast";
-import { togglePurchaseRedFlag } from "@/actions/purchases";
+import { togglePurchaseRedFlag, softDeletePurchase } from "@/actions/purchases";
+import { useAuth } from "@/context/AuthContext";
 
 export default function PurchaseDetailsClient({ initialPurchase }: { initialPurchase: any }) {
     const router = useRouter();
@@ -17,6 +18,8 @@ export default function PurchaseDetailsClient({ initialPurchase }: { initialPurc
     const [isFlagging, setIsFlagging] = useState(false);
     const [flagReason, setFlagReason] = useState("");
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [isDeleting, setIsDeleting] = useState(false);
+    const { role } = useAuth();
 
     const handleToggleFlag = async (isRemoving: boolean) => {
         if (!isRemoving && !flagReason.trim()) {
@@ -35,6 +38,18 @@ export default function PurchaseDetailsClient({ initialPurchase }: { initialPurc
             router.refresh();
         } else {
             toast.error(res.error || "حدث خطأ");
+        }
+    };
+
+    const handleDelete = async () => {
+        if (!confirm("هل أنت متأكد من نقل هذا الطلب إلى سلة المهملات؟")) return;
+        setIsDeleting(true);
+        const res = await softDeletePurchase(purchase.id);
+        setIsDeleting(false);
+        if (res?.error) toast.error(res.error);
+        else {
+            toast.success("تم نقل طلب الشراء إلى سلة المهملات");
+            router.push('/purchases');
         }
     };
 
@@ -188,6 +203,18 @@ export default function PurchaseDetailsClient({ initialPurchase }: { initialPurc
                                             className="px-6 py-6 text-sm font-bold border-red-200 text-red-500 hover:bg-red-50 stroke-[3px]"
                                         >
                                             <Flag className="w-5 h-5 ml-2" /> غير متوفر
+                                        </Button>
+                                    )}
+
+                                    {role === "ADMIN" && purchase.status !== "PURCHASED" && (
+                                        <Button
+                                            variant="outline"
+                                            onClick={handleDelete}
+                                            disabled={isDeleting}
+                                            isLoading={isDeleting}
+                                            className="px-6 py-6 text-sm font-bold border-red-200 text-red-600 hover:bg-red-50"
+                                        >
+                                            <Trash2 className="w-4 h-4 ml-2" /> حذف
                                         </Button>
                                     )}
                                 </div>

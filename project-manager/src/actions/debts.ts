@@ -36,6 +36,8 @@ export async function getPendingDebts() {
 }
 
 // ─── Settle a debt (company pays the employee back from wallet) ─────────
+// C-2 FIX: Uses interactive transaction with Serializable isolation to prevent
+// race conditions where two concurrent settlements both pass the checks.
 export async function settleDebt(debtId: string) {
     try {
         const session = await getSession();
@@ -44,40 +46,44 @@ export async function settleDebt(debtId: string) {
             return { error: "غير مصرح لك بتسوية الديون، هذه الصلاحية للمحاسب العام أو مدير النظام فقط." };
         }
 
-        const debt = await prisma.outOfPocketDebt.findUnique({
-            where: { id: debtId },
-            include: { employee: { select: { name: true } } }
-        });
-        if (!debt) return { error: "الدين غير موجود" };
-        if (debt.isSettled) return { error: "هذا الدين تم تسويته مسبقاً" };
+        // C-2: All reads + writes inside a Serializable transaction
+        await prisma.$transaction(async (tx) => {
+            // Re-read debt inside transaction to get locked state
+            const debt = await tx.outOfPocketDebt.findUnique({
+                where: { id: debtId },
+                include: { employee: { select: { name: true } } }
+            });
+            if (!debt) throw new Error("الدين غير موجود");
+            if (debt.isSettled) throw new Error("هذا الدين تم تسويته مسبقاً");
 
-        // M2: Deduct from company wallet atomically
-        const wallet = await prisma.companyWallet.findFirst();
-        if (!wallet) return { error: "خزنة الشركة غير موجودة" };
-        if (wallet.balance < debt.amount) {
-            return { error: `رصيد الخزنة (${wallet.balance.toLocaleString()}) غير كافٍ لتسوية هذا الدين (${debt.amount.toLocaleString()})` };
-        }
+            // Re-read wallet inside transaction
+            const wallet = await tx.companyWallet.findFirst();
+            if (!wallet) throw new Error("خزنة الشركة غير موجودة");
+            if (wallet.balance < debt.amount) {
+                throw new Error(`رصيد الخزنة (${wallet.balance.toLocaleString()}) غير كافٍ لتسوية هذا الدين (${debt.amount.toLocaleString()})`);
+            }
 
-        await prisma.$transaction([
             // Mark debt as settled
-            prisma.outOfPocketDebt.update({
+            await tx.outOfPocketDebt.update({
                 where: { id: debtId },
                 data: {
                     isSettled: true,
                     settledAt: new Date(),
                     settledBy: session.id
                 }
-            }),
+            });
+
             // Deduct from company wallet
-            prisma.companyWallet.update({
+            await tx.companyWallet.update({
                 where: { id: wallet.id },
                 data: {
                     balance: { decrement: debt.amount },
                     totalOut: { increment: debt.amount }
                 }
-            }),
+            });
+
             // Audit trail entry
-            prisma.walletEntry.create({
+            await tx.walletEntry.create({
                 data: {
                     walletId: wallet.id,
                     type: "SETTLE_DEBT",
@@ -85,15 +91,18 @@ export async function settleDebt(debtId: string) {
                     note: `تسوية دين موظف: ${debt.employee?.name || debt.employeeId}`,
                     createdBy: session.id
                 }
-            })
-        ]);
+            });
+        }, {
+            isolationLevel: "Serializable"
+        });
 
         revalidatePath("/debts");
         revalidatePath("/wallet");
         return { success: true };
     } catch (error) {
         console.error("Settle Debt Error:", error);
-        return { error: "حدث خطأ أثناء تسوية الدين" };
+        const message = error instanceof Error ? error.message : "حدث خطأ أثناء تسوية الدين";
+        return { error: message };
     }
 }
 

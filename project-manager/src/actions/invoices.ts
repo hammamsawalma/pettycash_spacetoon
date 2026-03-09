@@ -520,13 +520,14 @@ export async function updateInvoiceStatus(
             return { error: `لا يمكن تحويل الفاتورة من "${existingInvoice.status}" إلى "${status}". التحويل غير مسموح به.` };
         }
 
-        // ─ Authorization: v4 rules ───────────────────────────────────────
-        // Only GLOBAL_ACCOUNTANT can approve/reject invoices (handles all projects)
-        // ADMIN, GENERAL_MANAGER are NOT allowed to approve
+        // ─ Authorization: v4+M-2 FIX ─────────────────────────────────────
+        // GLOBAL_ACCOUNTANT + ADMIN can approve/reject invoices
+        // GENERAL_MANAGER is NOT allowed to approve
         const isGlobalAccountant = session.role === "GLOBAL_ACCOUNTANT";
+        const isAdmin = session.role === "ADMIN";
 
-        if (!isGlobalAccountant) {
-            return { error: "غير مصرح لك بتغيير حالة الفاتورة — هذه الصلاحية للمحاسب العام فقط" };
+        if (!isGlobalAccountant && !isAdmin) {
+            return { error: "غير مصرح لك بتغيير حالة الفاتورة — هذه الصلاحية للمحاسب العام أو مدير النظام" };
         }
 
         // Mandatory rejection reason
@@ -711,3 +712,31 @@ export async function updateInvoiceStatus(
     }
 }
 
+// ─── Soft Delete Invoice (ADMIN only — moves to trash) ──────────────────────
+export async function softDeleteInvoice(invoiceId: string) {
+    try {
+        const session = await getSession();
+        if (!session || session.role !== "ADMIN") {
+            return { error: "فقط مدير النظام يمكنه حذف الفواتير" };
+        }
+
+        const invoice = await prisma.invoice.findUnique({ where: { id: invoiceId } });
+        if (!invoice) return { error: "الفاتورة غير موجودة" };
+        if (invoice.isDeleted) return { error: "الفاتورة محذوفة بالفعل" };
+        if (invoice.status === "APPROVED") {
+            return { error: "لا يمكن حذف فاتورة معتمدة. يجب رفضها أو إعادتها إلى المراجعة أولاً." };
+        }
+
+        await prisma.invoice.update({
+            where: { id: invoiceId },
+            data: { isDeleted: true, deletedAt: new Date() }
+        });
+
+        revalidatePath("/invoices");
+        revalidatePath("/trash");
+        return { success: true };
+    } catch (error) {
+        console.error("Soft Delete Invoice Error:", error);
+        return { error: "حدث خطأ أثناء حذف الفاتورة" };
+    }
+}

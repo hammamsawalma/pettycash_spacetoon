@@ -3,12 +3,12 @@ import DashboardLayout from "@/components/layout/DashboardLayout";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { StatusBadge } from "@/components/ui/StatusBadge";
-import { FolderKanban, FileText, Wallet, Landmark, Plus, Edit, Users, ArrowDownLeft, UserCheck, Send } from 'lucide-react';
+import { FolderKanban, FileText, Wallet, Landmark, Plus, Edit, Users, ArrowDownLeft, UserCheck, Send, Trash2, Undo2, CheckCheck } from 'lucide-react';
 import { useAuth } from "@/context/AuthContext";
 import { useCanDo } from "@/components/auth/Protect";
-import { getProjectById, closeProject } from "@/actions/projects";
+import { getProjectById, closeProject, softDeleteProject } from "@/actions/projects";
 import { allocateBudgetToProject } from "@/actions/wallet";
-import { getProjectCustodies, issueCustody } from "@/actions/custody";
+import { getProjectCustodies, issueCustody, returnCustodyBalance, confirmCustodyReceipt } from "@/actions/custody";
 import { useEffect, useState, use } from "react";
 import { Project, Invoice, Purchase, User, ProjectMember } from "@prisma/client";
 import { useRouter, useSearchParams as useNextSearchParams } from "next/navigation";
@@ -36,6 +36,7 @@ export default function ProjectDetailsPage({ params }: { params: Promise<{ id: s
     const [activeTab, setActiveTab] = useState("تفاصيل المشروع");
     const [project, setProject] = useState<any>(null);
     const [isClosing, setIsClosing] = useState(false);
+    const [isDeleting, setIsDeleting] = useState(false);
 
     // Allocate Budget Modal State
     const [showAllocateModal, setShowAllocateModal] = useState(false);
@@ -55,6 +56,12 @@ export default function ProjectDetailsPage({ params }: { params: Promise<{ id: s
     const [externalPhone, setExternalPhone] = useState("");
     const [externalPurpose, setExternalPurpose] = useState("");
     const [projectCustodies, setProjectCustodies] = useState<any[]>([]);
+
+    // F-1: Custody return modal
+    const [returnModal, setReturnModal] = useState<{ custodyId: string; balance: number; employeeName: string } | null>(null);
+    const [returnAmount, setReturnAmount] = useState("");
+    const [returnNote, setReturnNote] = useState("");
+    const [isReturning, setIsReturning] = useState(false);
 
 
 
@@ -115,6 +122,19 @@ export default function ProjectDetailsPage({ params }: { params: Promise<{ id: s
         } else {
             toast.success("تم إغلاق المشروع بنجاح");
             getProjectById(projectId).then(setProject); // Refresh
+        }
+    };
+
+    const handleDeleteProject = async () => {
+        if (!confirm("هل أنت متأكد من نقل هذا المشروع إلى سلة المهملات؟")) return;
+        setIsDeleting(true);
+        const res = await softDeleteProject(projectId);
+        setIsDeleting(false);
+        if (res?.error) {
+            toast.error(res.error);
+        } else {
+            toast.success("تم نقل المشروع إلى سلة المهملات");
+            router.push('/projects');
         }
     };
 
@@ -225,6 +245,12 @@ export default function ProjectDetailsPage({ params }: { params: Promise<{ id: s
                                     <span className={`px-3 py-1 text-[10px] md:text-xs font-bold rounded-lg ${project.status === 'COMPLETED' ? 'bg-emerald-50 text-emerald-600' : 'bg-amber-50 text-amber-600'}`}>
                                         {project.status === 'COMPLETED' ? 'مكتمل' : 'قيد التنفيذ'}
                                     </span>
+                                    {canCloseProject && (
+                                        <Button variant="outline" onClick={handleDeleteProject} disabled={isDeleting} isLoading={isDeleting} className="gap-1.5 h-7 md:h-8 px-2 md:px-3 text-[10px] md:text-xs text-red-600 border-red-200 hover:bg-red-50">
+                                            <Trash2 className="w-3 h-3 md:w-3.5 md:h-3.5" />
+                                            حذف
+                                        </Button>
+                                    )}
                                 </div>
                             </div>
 
@@ -355,6 +381,47 @@ export default function ProjectDetailsPage({ params }: { params: Promise<{ id: s
                                                             </span>
                                                         );
                                                     })()}
+                                                    {/* F-1 + F-6: Admin custody actions */}
+                                                    {canIssueCustody && (() => {
+                                                        const memberCustodies = projectCustodies.filter((c: any) => c.employeeId === m.userId);
+                                                        if (memberCustodies.length === 0) return null;
+                                                        const hasUnconfirmed = memberCustodies.some((c: any) => !c.isConfirmed);
+                                                        const hasBalance = memberBalance > 0;
+                                                        return (
+                                                            <div className="flex gap-1.5 mt-1">
+                                                                {hasBalance && (
+                                                                    <button
+                                                                        onClick={() => {
+                                                                            const activeCustody = memberCustodies.find((c: any) => c.balance > 0 && c.isConfirmed && !c.isClosed);
+                                                                            if (activeCustody) {
+                                                                                setReturnModal({ custodyId: activeCustody.id, balance: activeCustody.balance, employeeName: m.user.name });
+                                                                                setReturnAmount(activeCustody.balance.toString());
+                                                                                setReturnNote("");
+                                                                            }
+                                                                        }}
+                                                                        className="text-[9px] px-2 py-0.5 rounded-full bg-blue-100 text-blue-700 font-bold hover:bg-blue-200 transition-colors flex items-center gap-0.5"
+                                                                    >
+                                                                        <Undo2 className="w-2.5 h-2.5" /> إرجاع
+                                                                    </button>
+                                                                )}
+                                                                {hasUnconfirmed && (
+                                                                    <button
+                                                                        onClick={async () => {
+                                                                            const unconfirmed = memberCustodies.find((c: any) => !c.isConfirmed);
+                                                                            if (!unconfirmed) return;
+                                                                            if (!confirm(`هل تريد تأكيد استلام العهدة نيابة عن ${m.user.name}؟`)) return;
+                                                                            const res = await confirmCustodyReceipt(unconfirmed.id);
+                                                                            if (res?.error) toast.error(res.error);
+                                                                            else { toast.success("تم التأكيد ✅"); refreshCustodies(); }
+                                                                        }}
+                                                                        className="text-[9px] px-2 py-0.5 rounded-full bg-amber-100 text-amber-700 font-bold hover:bg-amber-200 transition-colors flex items-center gap-0.5"
+                                                                    >
+                                                                        <CheckCheck className="w-2.5 h-2.5" /> تأكيد
+                                                                    </button>
+                                                                )}
+                                                            </div>
+                                                        );
+                                                    })()}
                                                 </div>
                                             </div>
                                         );
@@ -374,7 +441,7 @@ export default function ProjectDetailsPage({ params }: { params: Promise<{ id: s
                                                         {c.externalPurpose && <p className="text-[10px] text-gray-500 truncate">{c.externalPurpose}</p>}
                                                     </div>
                                                     <div className="text-left shrink-0">
-                                                        <p className="text-xs font-black text-gray-900">{c.balance?.toLocaleString()} <span className="text-[10px] text-gray-400">QAR</span></p>
+                                                        <p className="text-xs font-black text-gray-900">{c.balance?.toLocaleString()} <span className="text-[10px] text-gray-400"><CurrencyDisplay /></span></p>
                                                         <span className="text-[9px] px-1.5 py-0.5 rounded-full font-bold bg-orange-100 text-orange-700 inline-block">خارجي</span>
                                                     </div>
                                                 </div>
@@ -511,7 +578,7 @@ export default function ProjectDetailsPage({ params }: { params: Promise<{ id: s
                                         )}
                                         <div className="grid grid-cols-2 gap-3">
                                             <div className="space-y-1">
-                                                <label className="text-xs font-bold text-gray-700">المبلغ (QAR)</label>
+                                                <label className="text-xs font-bold text-gray-700">المبلغ (<CurrencyDisplay />)</label>
                                                 <input
                                                     type="number" required min="1" step="0.01"
                                                     value={custodyAmount}
@@ -585,7 +652,7 @@ export default function ProjectDetailsPage({ params }: { params: Promise<{ id: s
                         {(project.invoices?.length > 0) ? (
                             <div className="space-y-4">
                                 {project.invoices.map((inv: Invoice) => (
-                                    <div key={inv.id} className="flex justify-between items-center p-4 bg-gray-50 rounded-xl">
+                                    <div key={inv.id} onClick={() => router.push(`/invoices/${inv.id}`)} className="flex justify-between items-center p-4 bg-gray-50 rounded-xl cursor-pointer hover:bg-gray-100/80 transition-colors border border-transparent hover:border-[#102550]/20">
                                         <div className="flex items-center gap-4">
                                             <div className="w-10 h-10 rounded-xl bg-blue-100 flex items-center justify-center text-primary">
                                                 <FileText className="w-5 h-5" />
@@ -596,7 +663,7 @@ export default function ProjectDetailsPage({ params }: { params: Promise<{ id: s
                                             </div>
                                         </div>
                                         <div className="text-left">
-                                            <p className="font-black text-gray-900">{inv.amount.toLocaleString()} QAR</p>
+                                            <p className="font-black text-gray-900">{inv.amount.toLocaleString()} <span className="text-xs"><CurrencyDisplay /></span></p>
                                             <p className={`text-[10px] md:text-xs font-bold ${inv.status === 'APPROVED' ? 'text-emerald-500' : inv.status === 'REJECTED' ? 'text-red-500' : 'text-amber-500'}`}>
                                                 {inv.status === 'APPROVED' ? 'معتمد' : inv.status === 'REJECTED' ? 'مرفوض' : 'قيد المراجعة'}
                                             </p>
@@ -676,6 +743,17 @@ export default function ProjectDetailsPage({ params }: { params: Promise<{ id: s
                 )}
 
                 {/* ─── Allocate Budget Modal ───────────────────────────── */}
+                {/* ─── Tab: شات المشروع ────────────────────────────── */}
+                {activeTab === "شات المشروع" && (
+                    <Card className="p-5 md:p-6 shadow-sm border-gray-100">
+                        <div className="text-center py-16">
+                            <Send className="w-12 h-12 text-gray-200 mx-auto mb-4" />
+                            <h3 className="text-lg font-bold text-gray-900 mb-2">شات المشروع</h3>
+                            <p className="text-sm text-gray-500 max-w-sm mx-auto">ميزة المحادثة داخل المشروع قيد التطوير. سيتم تفعيلها قريباً.</p>
+                        </div>
+                    </Card>
+                )}
+
                 {showAllocateModal && (
                     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
                         <Card className="w-full max-w-md p-6">
@@ -706,6 +784,58 @@ export default function ProjectDetailsPage({ params }: { params: Promise<{ id: s
                     </div>
                 )}
 
+
+                {/* F-1: Return Custody Modal */}
+                {returnModal && (
+                    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+                        <Card className="w-full max-w-md p-6">
+                            <h3 className="text-lg font-bold text-gray-900 mb-1">إرجاع رصيد عهدة</h3>
+                            <p className="text-sm text-gray-500 mb-4">إرجاع مبلغ من عهدة <strong>{returnModal.employeeName}</strong></p>
+                            <div className="space-y-4">
+                                <div className="bg-blue-50 p-3 rounded-xl text-sm">
+                                    <span className="font-bold text-blue-800">الرصيد المتاح: </span>
+                                    <span className="font-black text-blue-900">{returnModal.balance.toLocaleString()} <CurrencyDisplay /></span>
+                                </div>
+                                <div className="space-y-1">
+                                    <label className="text-sm font-bold text-gray-700">المبلغ المُرجَع</label>
+                                    <input type="number" required step="0.01" min="1" max={returnModal.balance}
+                                        value={returnAmount} onChange={e => setReturnAmount(e.target.value)}
+                                        className="w-full rounded-xl border border-gray-200 p-3 outline-none focus:ring-2 focus:ring-blue-400"
+                                        placeholder="0.00"
+                                    />
+                                </div>
+                                <div className="space-y-1">
+                                    <label className="text-sm font-bold text-gray-700">ملاحظات (اختياري)</label>
+                                    <input type="text"
+                                        value={returnNote} onChange={e => setReturnNote(e.target.value)}
+                                        className="w-full rounded-xl border border-gray-200 p-3 outline-none focus:ring-2 focus:ring-blue-400"
+                                        placeholder="سبب الإرجاع..."
+                                    />
+                                </div>
+                                <div className="flex gap-3 justify-end pt-2">
+                                    <Button type="button" variant="outline" onClick={() => setReturnModal(null)}>إلغاء</Button>
+                                    <Button type="button" variant="primary" disabled={isReturning} isLoading={isReturning}
+                                        onClick={async () => {
+                                            const amt = parseFloat(returnAmount);
+                                            if (!amt || amt <= 0) { toast.error("أدخل مبلغ صحيح"); return; }
+                                            if (amt > returnModal.balance) { toast.error("المبلغ أكبر من الرصيد المتاح"); return; }
+                                            setIsReturning(true);
+                                            const res = await returnCustodyBalance(returnModal.custodyId, amt, returnNote || undefined);
+                                            setIsReturning(false);
+                                            if (res?.error) toast.error(res.error);
+                                            else {
+                                                toast.success(res?.closed ? "تم إرجاع المبلغ وإغلاق العهدة ✅" : "تم إرجاع المبلغ بنجاح ✅");
+                                                setReturnModal(null);
+                                                refreshCustodies();
+                                                refreshProject();
+                                            }
+                                        }}
+                                    >تأكيد الإرجاع</Button>
+                                </div>
+                            </div>
+                        </Card>
+                    </div>
+                )}
 
             </div>
         </DashboardLayout>

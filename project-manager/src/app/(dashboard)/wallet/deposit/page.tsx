@@ -7,6 +7,7 @@ import { depositToCompanyWallet } from "@/actions/wallet";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import { Wallet, ArrowDownCircle } from "lucide-react";
+import { CurrencyDisplay } from "@/components/ui/CurrencyDisplay";
 import { useAuth } from "@/context/AuthContext";
 
 export default function DepositToWalletPage() {
@@ -62,9 +63,9 @@ export default function DepositToWalletPage() {
 
                     <form onSubmit={handleSubmit} className="space-y-6">
                         <div className="space-y-2">
-                            <label className="text-sm font-bold text-gray-700">مبلغ الإيداع (ريال) *</label>
+                            <label className="text-sm font-bold text-gray-700">مبلغ الإيداع (<CurrencyDisplay />) *</label>
                             <div className="relative">
-                                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 font-bold">QAR</span>
+                                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 font-bold"><CurrencyDisplay /></span>
                                 <input
                                     type="number"
                                     name="amount"

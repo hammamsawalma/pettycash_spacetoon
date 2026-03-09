@@ -70,9 +70,9 @@ export default function ReportsPage() {
                             <option value="العام الماضي">العام الماضي</option>
                             <option value="الكل">الكل</option>
                         </select>
-                        <Button variant="primary" className="gap-2 shrink-0 py-2.5 md:py-3 h-auto">
+                        <Button variant="primary" className="gap-2 shrink-0 py-2.5 md:py-3 h-auto" onClick={() => window.print()}>
                             <Download className="w-4 h-4 md:w-4 md:h-4" />
-                            <span className="text-xs md:text-sm font-bold">تصدير التقرير (PDF)</span>
+                            <span className="text-xs md:text-sm font-bold">طباعة التقرير</span>
                         </Button>
                     </div>
                 </div>
@@ -118,12 +118,12 @@ export default function ReportsPage() {
                             </div>
                             <div>
                                 <p className="text-[10px] md:text-sm text-gray-400 font-bold mb-1">كفاءة النظام</p>
-                                <p className="text-xl md:text-2xl font-black text-gray-900">92.5%</p>
+                                <p className="text-xl md:text-2xl font-black text-gray-900">{stats ? (stats.totalProjects > 0 ? Math.round((stats.completedProjectsCount / stats.totalProjects) * 100) : 0) : '...'}%</p>
                             </div>
                         </div>
                         <div className="mt-4 md:mt-5 pt-4 border-t border-gray-50 flex items-center gap-2 text-[10px] md:text-xs font-bold text-orange-600 bg-orange-50 w-fit px-2.5 py-1 rounded-lg">
                             <TrendingUp className="w-3.5 h-3.5" />
-                            <span>نسبة تسليم المهام في وقتها</span>
+                            <span>معدل إنجاز المشاريع</span>
                         </div>
                     </Card>
 

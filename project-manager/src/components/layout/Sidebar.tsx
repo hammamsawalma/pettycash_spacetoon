@@ -7,7 +7,7 @@ import {
     Home, FolderKanban, FileText, ShoppingCart,
     Archive, HeadphonesIcon, BarChart3, Users,
     Trash2, BellRing, Settings, LogOut, MessageSquare, PlusCircle, Wallet,
-    KanbanSquare, ChevronDown, X, Banknote
+    KanbanSquare, ChevronDown, X, Banknote, BadgeDollarSign, HandCoins
 } from 'lucide-react';
 
 import { useAuth } from '@/context/AuthContext';
@@ -127,7 +127,7 @@ const navigationGroups: NavGroup[] = [
             },
             {
                 name: 'الطلبات المالية',
-                icon: Wallet,
+                icon: BadgeDollarSign,
                 check: (r) => canDo(r, 'financialRequests', 'view'),
                 subItems: [
                     {
@@ -139,7 +139,7 @@ const navigationGroups: NavGroup[] = [
             },
             {
                 name: 'العهدة',
-                icon: Wallet,
+                icon: HandCoins,
                 // Visible to all who can view custodies (management) or specific USER custodies
                 check: (r) => canDo(r, 'custodies', 'view'),
                 subItems: [
@@ -147,11 +147,6 @@ const navigationGroups: NavGroup[] = [
                         name: 'سجل العهدة',
                         href: '/deposits',
                         check: (r) => r === 'ADMIN' || r === 'GLOBAL_ACCOUNTANT' || r === 'GENERAL_MANAGER',
-                    },
-                    {
-                        name: 'تسجيل معاملة',
-                        href: '/deposits/new',
-                        check: (r) => canDo(r, 'custodies', 'recordReturn'),
                     },
                     {
                         name: 'إدارة عهدي',
@@ -295,14 +290,7 @@ const QUICK_ADD_ITEMS: QuickAddItem[] = [
         color: 'bg-blue-50 text-blue-600 border-blue-100',
         check: (r) => canDo(r, 'employees', 'create'), // ADMIN only
     },
-    {
-        name: 'تسجيل عهدة',
-        icon: Wallet,
-        href: '/deposits/new',
-        desc: 'تسجيل معاملة مالية',
-        color: 'bg-orange-50 text-orange-600 border-orange-100',
-        check: (r) => canDo(r, 'custodies', 'recordReturn'), // ADMIN only
-    },
+
     {
         name: 'طلب شراء',
         icon: ShoppingCart,

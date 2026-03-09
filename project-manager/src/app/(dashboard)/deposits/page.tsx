@@ -23,6 +23,7 @@ const entryTypeLabel: Record<string, { label: string; icon: React.ElementType; c
     WITHDRAW: { label: "سحب من الخزنة", icon: ArrowUpRight, color: "text-red-600", bg: "bg-red-50", sign: '-' },
     ALLOCATE_TO_PROJECT: { label: "تخصيص لمشروع", icon: FolderKanban, color: "text-[#102550]", bg: "bg-blue-50", sign: '-' },
     RETURN_FROM_PROJECT: { label: "إرجاع من مشروع", icon: Building, color: "text-amber-600", bg: "bg-amber-50", sign: '+' },
+    SETTLE_DEBT: { label: "تسوية دين موظف", icon: Receipt, color: "text-rose-600", bg: "bg-rose-50", sign: '-' },
 };
 
 export default function DepositsPage() {

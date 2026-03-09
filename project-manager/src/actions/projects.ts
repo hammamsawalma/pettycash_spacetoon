@@ -626,3 +626,38 @@ export async function getManagerAvailableCustody(projectId: string) {
         return null;
     }
 }
+
+// ─── Soft Delete Project (ADMIN only — moves to trash) ──────────────────────
+export async function softDeleteProject(projectId: string) {
+    try {
+        const session = await getSession();
+        if (!session || session.role !== "ADMIN") {
+            return { error: "فقط مدير النظام يمكنه حذف المشاريع" };
+        }
+
+        const project = await prisma.project.findUnique({
+            where: { id: projectId },
+            include: { custodies: { where: { isClosed: false } } }
+        });
+        if (!project) return { error: "المشروع غير موجود" };
+        if (project.isDeleted) return { error: "المشروع محذوف بالفعل" };
+
+        // Safety: don't delete if there are open custodies with balance > 0
+        const openCustodies = project.custodies.filter((c: any) => c.balance > 0);
+        if (openCustodies.length > 0) {
+            return { error: `لا يمكن حذف المشروع. لا تزال هناك ${openCustodies.length} عهدة لم تُصفَّ. يرجى استرداد المبالغ أولاً.` };
+        }
+
+        await prisma.project.update({
+            where: { id: projectId },
+            data: { isDeleted: true, deletedAt: new Date() }
+        });
+
+        revalidatePath("/projects");
+        revalidatePath("/trash");
+        return { success: true };
+    } catch (error) {
+        console.error("Soft Delete Project Error:", error);
+        return { error: "حدث خطأ أثناء حذف المشروع" };
+    }
+}

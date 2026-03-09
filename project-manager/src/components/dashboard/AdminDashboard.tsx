@@ -4,7 +4,7 @@ import ManagerFinancialOverview from "@/components/dashboard/ManagerFinancialOve
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { AnimatedNumber } from "@/components/ui/AnimatedNumber";
-import { FolderKanban, Wallet, Users, BellRing, TrendingUp, ArrowDownToLine, ArrowUpToLine, Building2 } from 'lucide-react';
+import { FolderKanban, Users, BellRing, ArrowUpToLine, TrendingUp, Building2, RefreshCw } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { getDashboardStats, getFlowStats } from '@/actions/dashboard';
@@ -44,24 +44,36 @@ export default function AdminDashboard() {
         companyExpenses: 0,
     });
 
-    useEffect(() => {
-        setIsMounted(true);
+    const [isRefreshing, setIsRefreshing] = useState(false);
+
+    const loadData = () => {
         getDashboardStats().then(setStats);
         getFlowStats().then(data => {
             if (data && (data.role === "ADMIN" || data.role === "GLOBAL_ACCOUNTANT" || data.role === "GENERAL_MANAGER")) {
                 setFlow({
-                    walletReceived: (data as any).walletReceived ?? 0,
-                    walletSpent: (data as any).walletSpent ?? 0,
-                    walletRemaining: (data as any).walletRemaining ?? 0,
-                    projectsAllocated: (data as any).projectsAllocated ?? 0,
-                    custodyIssued: (data as any).custodyIssued ?? 0,
-                    custodyReturned: (data as any).custodyReturned ?? 0,
-                    invoicesApproved: (data as any).invoicesApproved ?? 0,
-                    companyExpenses: (data as any).companyExpenses ?? 0,
+                    walletReceived: data.walletReceived ?? 0,
+                    walletSpent: data.walletSpent ?? 0,
+                    walletRemaining: data.walletRemaining ?? 0,
+                    projectsAllocated: data.projectsAllocated ?? 0,
+                    custodyIssued: data.custodyIssued ?? 0,
+                    custodyReturned: data.custodyReturned ?? 0,
+                    invoicesApproved: data.invoicesApproved ?? 0,
+                    companyExpenses: data.companyExpenses ?? 0,
                 });
             }
         });
+    };
+
+    useEffect(() => {
+        setIsMounted(true);
+        loadData();
     }, []);
+
+    const handleRefresh = async () => {
+        setIsRefreshing(true);
+        loadData();
+        setTimeout(() => setIsRefreshing(false), 1000);
+    };
 
     if (!isMounted) {
         return (
@@ -92,6 +104,18 @@ export default function AdminDashboard() {
             <div className="space-y-6 md:space-y-8">
 
                 {/* الملخص المالي الموحد */}
+                <div className="flex justify-between items-center">
+                    <div />
+                    <Button
+                        variant="outline"
+                        onClick={handleRefresh}
+                        className="gap-2 text-xs h-8 px-3"
+                        disabled={isRefreshing}
+                    >
+                        <RefreshCw className={`w-3.5 h-3.5 ${isRefreshing ? 'animate-spin' : ''}`} />
+                        تحديث
+                    </Button>
+                </div>
                 <ManagerFinancialOverview />
 
                 {/* KPI Grid */}
@@ -158,8 +182,11 @@ export default function AdminDashboard() {
                                     <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-primary/20 to-primary-hover/20 flex items-center justify-center shrink-0 shadow-inner shadow-white/50 group-hover:scale-105 transition-transform duration-300">
                                         <BellRing className="w-6 h-6 text-primary" />
                                     </div>
-                                    <div className="pt-1">
+                                    <div className="pt-1 flex-1 min-w-0">
                                         <p className="text-sm md:text-base font-bold text-gray-800 leading-snug">{n.title}</p>
+                                        {(n as any).message && (
+                                            <p className="text-xs text-gray-500 mt-0.5 line-clamp-1">{(n as any).message}</p>
+                                        )}
                                         <p className="text-[11px] md:text-xs font-semibold text-gray-500 mt-1">{new Date(n.createdAt).toLocaleDateString('en-GB')}</p>
                                     </div>
                                 </div>
@@ -226,11 +253,11 @@ export default function AdminDashboard() {
                                 <div className="relative z-10 grid grid-cols-3 gap-2 text-center">
                                     <div className="bg-emerald-50 rounded-xl p-2">
                                         <p className="text-[10px] text-gray-500 font-semibold">الميزانية</p>
-                                        <p className="text-xs font-black text-emerald-700">{((project as any).budgetAllocated ?? 0).toLocaleString()}</p>
+                                        <p className="text-xs font-black text-emerald-700">{(project.budgetAllocated ?? 0).toLocaleString()}</p>
                                     </div>
                                     <div className="bg-rose-50 rounded-xl p-2">
                                         <p className="text-[10px] text-gray-500 font-semibold">العُهد</p>
-                                        <p className="text-xs font-black text-rose-700">{((project as any).custodyIssued ?? 0).toLocaleString()}</p>
+                                        <p className="text-xs font-black text-rose-700">{(project.custodyIssued ?? 0).toLocaleString()}</p>
                                     </div>
                                     <div className="bg-amber-50 rounded-xl p-2">
                                         <p className="text-[10px] text-gray-500 font-semibold">الأعضاء</p>
