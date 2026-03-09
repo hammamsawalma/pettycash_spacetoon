@@ -39,6 +39,8 @@ export async function approveFinanceRequest(requestId: string) {
 
         revalidatePath("/finance-requests");
         revalidatePath("/debts");
+        revalidatePath("/wallet"); // R-7: wallet changes when SETTLE_DEBT or ALLOCATE_BUDGET
+        revalidatePath("/deposits");
         return { success: true };
     } catch (error) {
         console.error("Approve Request Error:", error);
@@ -180,14 +182,42 @@ async function executeFinanceRequest(
             });
 
             if (type === "SETTLE_DEBT" && data.targetId) {
-                const debt = await tx.outOfPocketDebt.findUnique({ where: { id: data.targetId } });
+                const debt = await tx.outOfPocketDebt.findUnique({
+                    where: { id: data.targetId },
+                    include: { employee: { select: { name: true } } }
+                });
                 if (debt && !debt.isSettled) {
+                    // B-1 FIX: Deduct from wallet (matching direct settleDebt behavior)
+                    const wallet = await tx.companyWallet.findFirst();
+                    if (!wallet) throw new Error("خزنة الشركة غير موجودة");
+                    if (wallet.balance < debt.amount) {
+                        throw new Error(`رصيد الخزنة (${wallet.balance.toLocaleString()}) غير كافٍ لتسوية هذا الدين (${debt.amount.toLocaleString()})`);
+                    }
+
                     await tx.outOfPocketDebt.update({
                         where: { id: data.targetId },
                         data: {
                             isSettled: true,
                             settledAt: new Date(),
                             settledBy: approverId
+                        }
+                    });
+
+                    await tx.companyWallet.update({
+                        where: { id: wallet.id },
+                        data: {
+                            balance: { decrement: debt.amount },
+                            totalOut: { increment: debt.amount }
+                        }
+                    });
+
+                    await tx.walletEntry.create({
+                        data: {
+                            walletId: wallet.id,
+                            type: "SETTLE_DEBT",
+                            amount: debt.amount,
+                            note: `تسوية دين موظف: ${debt.employee?.name || debt.employeeId} (طلب مالي)`,
+                            createdBy: approverId
                         }
                     });
                 }

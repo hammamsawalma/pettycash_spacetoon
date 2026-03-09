@@ -51,7 +51,7 @@ export async function settleDebt(debtId: string) {
             // Re-read debt inside transaction to get locked state
             const debt = await tx.outOfPocketDebt.findUnique({
                 where: { id: debtId },
-                include: { employee: { select: { name: true } } }
+                include: { employee: { select: { id: true, name: true } } }
             });
             if (!debt) throw new Error("الدين غير موجود");
             if (debt.isSettled) throw new Error("هذا الدين تم تسويته مسبقاً");
@@ -96,8 +96,26 @@ export async function settleDebt(debtId: string) {
             isolationLevel: "Serializable"
         });
 
+        // N-6: Notify the employee that their debt was settled
+        try {
+            const debt = await prisma.outOfPocketDebt.findUnique({
+                where: { id: debtId },
+                select: { employeeId: true, amount: true }
+            });
+            if (debt && debt.employeeId !== session.id) {
+                await prisma.notification.create({
+                    data: {
+                        title: 'تمت تسوية دينك ✅',
+                        content: `تم تسوية مبلغ ${debt.amount.toLocaleString()} ريال مستحق لك من الشركة`,
+                        targetUserId: debt.employeeId
+                    }
+                });
+            }
+        } catch { /* non-critical */ }
+
         revalidatePath("/debts");
         revalidatePath("/wallet");
+        revalidatePath("/deposits"); // R-6
         return { success: true };
     } catch (error) {
         console.error("Settle Debt Error:", error);

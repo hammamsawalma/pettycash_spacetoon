@@ -194,6 +194,20 @@ export async function markPurchaseAsBought(purchaseId: string, invoiceId?: strin
             }
         });
 
+        // N-5: Notify the purchase creator that the item was bought
+        if (purchase.creatorId !== session.id) {
+            try {
+                await prisma.notification.create({
+                    data: {
+                        title: 'تم شراء عنصر من قائمة مشترياتك ✅',
+                        content: `تم شراء "${purchase.description}" (${purchase.orderNumber})`,
+                        targetUserId: purchase.creatorId,
+                        targetProjectId: purchase.projectId,
+                    }
+                });
+            } catch { /* non-critical */ }
+        }
+
         revalidatePath("/purchases");
         if (purchase.projectId) revalidatePath(`/projects/${purchase.projectId}`);
         return { success: true };
