@@ -5,6 +5,11 @@ import type { NextRequest } from 'next/server';
 // Order matters: more specific paths must come BEFORE generic ones.
 // First matching rule wins.
 const ROUTE_RULES: Array<{ prefix: string; exact?: boolean; allowed: string[] }> = [
+    // Settings categories — ADMIN + GLOBAL_ACCOUNTANT (more specific path first)
+    { prefix: '/settings/categories', allowed: ['ADMIN', 'GLOBAL_ACCOUNTANT'] },
+    // Settings — ADMIN only
+    { prefix: '/settings', allowed: ['ADMIN'] },
+
     // Trash — ADMIN only
     { prefix: '/trash', allowed: ['ADMIN'] },
 
@@ -36,6 +41,9 @@ const ROUTE_RULES: Array<{ prefix: string; exact?: boolean; allowed: string[] }>
 
     // Custody — finance roles
     { prefix: '/custody', allowed: ['ADMIN', 'GLOBAL_ACCOUNTANT', 'GENERAL_MANAGER'] },
+
+    // External custodies report — finance roles
+    { prefix: '/external-custodies', allowed: ['ADMIN', 'GLOBAL_ACCOUNTANT', 'GENERAL_MANAGER'] },
 
     // Notifications send — ADMIN only
     { prefix: '/notifications/send', allowed: ['ADMIN', 'GENERAL_MANAGER'] },

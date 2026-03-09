@@ -8,9 +8,17 @@
     "start": "next start",
     "lint": "eslint",
     "test": "playwright test",
+    "test:prod": "npm run build && TEST_PROD=1 npx playwright test",
     "test:ui": "playwright test --ui",
     "test:headed": "playwright test --headed",
     "test:unit": "playwright test --config=playwright.unit.config.ts",
+    "test:phase1": "npx playwright test tests/auth.setup.ts tests/phase-1/ --workers=2",
+    "test:phase2": "npx playwright test tests/auth.setup.ts tests/phase-2/ --workers=2",
+    "test:phase3": "npx playwright test tests/auth.setup.ts tests/phase-3/ --workers=2",
+    "test:phase4": "npx playwright test tests/auth.setup.ts tests/phase-4/ --workers=2",
+    "test:phase5": "npx playwright test tests/auth.setup.ts tests/phase-5/ --workers=2",
+    "test:regression": "npx playwright test tests/auth.setup.ts tests/phase-1/ tests/phase-2/ tests/phase-3/ tests/phase-4/ tests/phase-5/ --workers=2",
+    "test:regression:prod": "npm run build && TEST_PROD=1 npx playwright test tests/auth.setup.ts tests/phase-1/ tests/phase-2/ tests/phase-3/ tests/phase-4/ tests/phase-5/ --workers=2",
     "postinstall": "prisma generate"
   },
   "dependencies": {

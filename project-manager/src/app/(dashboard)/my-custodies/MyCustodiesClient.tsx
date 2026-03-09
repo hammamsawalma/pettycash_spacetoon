@@ -52,7 +52,7 @@ export default function MyCustodiesClient({ custodies }: { custodies: CustodyDat
             return;
         }
         setActionLoading(id);
-        const res = await confirmCustodyReceipt(id, signatureData || undefined);
+        const res = await confirmCustodyReceipt(id, signatureData!);
         if (res?.error) {
             toast.error(res.error);
         } else {

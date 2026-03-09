@@ -43,8 +43,8 @@ model User {
   approvedRequests    FinanceRequest[]     @relation("FinanceApprover")
   custodyReturnsMade  CustodyReturn[]      @relation("CustodyReturner")  // D2: audit trail
   custodyReturnsRecorded CustodyReturn[]   @relation("CustodyRecorder")  // D2: audit trail
+  custodyConfirmations CustodyConfirmation[] @relation("CustodyConfirmer") // v6: audit trail
 }
-
 // ─────────────────────────────────────────────
 // COMPANY WALLET (خزنة الشركة)
 // ─────────────────────────────────────────────
@@ -166,7 +166,9 @@ model CustodyConfirmation {
   confirmedAt   DateTime         @default(now())
   signatureFile String?          // v5: مسار ملف التوقيع PNG
   voucherFile   String?          // v5: مسار سند الصرف PDF
+  confirmedById String?          // v6: من أكّد الاستلام (للتدقيق)
   custody       EmployeeCustody  @relation(fields: [custodyId], references: [id])
+  confirmedBy   User?            @relation("CustodyConfirmer", fields: [confirmedById], references: [id])
 }
 
 // سجل عمليات إرجاع الكاش من الموظف

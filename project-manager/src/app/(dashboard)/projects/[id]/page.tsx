@@ -3,12 +3,12 @@ import DashboardLayout from "@/components/layout/DashboardLayout";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { StatusBadge } from "@/components/ui/StatusBadge";
-import { FolderKanban, FileText, Wallet, Landmark, Plus, Edit, Users, ArrowDownLeft, UserCheck, Send, Trash2, Undo2, CheckCheck } from 'lucide-react';
+import { FolderKanban, FileText, Wallet, Landmark, Plus, Edit, Users, ArrowDownLeft, UserCheck, Send, Trash2, Undo2, Bell } from 'lucide-react';
 import { useAuth } from "@/context/AuthContext";
 import { useCanDo } from "@/components/auth/Protect";
 import { getProjectById, closeProject, softDeleteProject } from "@/actions/projects";
 import { allocateBudgetToProject } from "@/actions/wallet";
-import { getProjectCustodies, issueCustody, returnCustodyBalance, confirmCustodyReceipt } from "@/actions/custody";
+import { getProjectCustodies, issueCustody, returnCustodyBalance, resendCustodyReminder } from "@/actions/custody";
 import { useEffect, useState, use } from "react";
 import { Project, Invoice, Purchase, User, ProjectMember } from "@prisma/client";
 import { useRouter, useSearchParams as useNextSearchParams } from "next/navigation";
@@ -409,14 +409,13 @@ export default function ProjectDetailsPage({ params }: { params: Promise<{ id: s
                                                                         onClick={async () => {
                                                                             const unconfirmed = memberCustodies.find((c: any) => !c.isConfirmed);
                                                                             if (!unconfirmed) return;
-                                                                            if (!confirm(`هل تريد تأكيد استلام العهدة نيابة عن ${m.user.name}؟`)) return;
-                                                                            const res = await confirmCustodyReceipt(unconfirmed.id);
+                                                                            const res = await resendCustodyReminder(unconfirmed.id);
                                                                             if (res?.error) toast.error(res.error);
-                                                                            else { toast.success("تم التأكيد ✅"); refreshCustodies(); }
+                                                                            else { toast.success("تم إرسال تذكير للموظف ✅"); }
                                                                         }}
                                                                         className="text-[9px] px-2 py-0.5 rounded-full bg-amber-100 text-amber-700 font-bold hover:bg-amber-200 transition-colors flex items-center gap-0.5"
                                                                     >
-                                                                        <CheckCheck className="w-2.5 h-2.5" /> تأكيد
+                                                                        <Bell className="w-2.5 h-2.5" /> تذكير
                                                                     </button>
                                                                 )}
                                                             </div>

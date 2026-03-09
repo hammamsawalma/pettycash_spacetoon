@@ -4,7 +4,7 @@ import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { StatusBadge } from "@/components/ui/StatusBadge";
-import { Plus, Search, ShoppingCart, CalendarDays, Hash } from "lucide-react";
+import { Plus, Search, ShoppingCart, CalendarDays, Hash, Flag, User as UserIcon, BarChart3 } from "lucide-react";
 import { useState } from "react";
 import { Purchase, Project, User } from "@prisma/client";
 import { useCanDo } from "@/components/auth/Protect";
@@ -12,16 +12,10 @@ import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
 import { useDebounce } from "@/hooks/useDebounce";
 import { matchArabicText } from "@/utils/arabic";
-import { Flag } from "lucide-react";
 
 type PurchaseWithRelations = Purchase & {
     project: Project | null;
     creator: Pick<User, "id" | "name">;
-    // Explicit fields from Prisma schema that may not be resolved by the IDE
-    deadline?: Date | null;
-    quantity?: string | null;
-    imageUrl?: string | null;
-    isRedFlagged?: boolean;
 };
 
 interface Props {
@@ -36,20 +30,28 @@ export default function PurchasesClient({ initialPurchases }: Props) {
     const [filter, setFilter] = useState("الكل");
     const debouncedSearchQuery = useDebounce(searchQuery, 300);
 
+    // ─── Summary Stats ─────────────────────────────────────────────────
+    const totalCount = initialPurchases.length;
+    const requestedCount = initialPurchases.filter(p => p.status === "REQUESTED" && !p.isRedFlagged).length;
+    const inProgressCount = initialPurchases.filter(p => p.status === "IN_PROGRESS" && !p.isRedFlagged).length;
+    const purchasedCount = initialPurchases.filter(p => p.status === "PURCHASED").length;
+    const flaggedCount = initialPurchases.filter(p => p.isRedFlagged).length;
+
     const filteredPurchases = initialPurchases.filter(purchase => {
         const matchesSearch = matchArabicText(debouncedSearchQuery, [
             purchase.project?.name,
             purchase.orderNumber,
-            purchase.description
+            purchase.description,
+            purchase.creator?.name
         ]);
 
         let matchesFilter = true;
         if (filter === "غير متوفر") {
-            matchesFilter = !!(purchase as any).isRedFlagged;
+            matchesFilter = !!purchase.isRedFlagged;
         } else if (filter === "بانتظار الشراء") {
-            matchesFilter = purchase.status === "REQUESTED" && !(purchase as any).isRedFlagged;
+            matchesFilter = purchase.status === "REQUESTED" && !purchase.isRedFlagged;
         } else if (filter === "قيد الشراء") {
-            matchesFilter = purchase.status === "IN_PROGRESS" && !(purchase as any).isRedFlagged;
+            matchesFilter = purchase.status === "IN_PROGRESS" && !purchase.isRedFlagged;
         } else if (filter === "مكتملة") {
             matchesFilter = purchase.status === "PURCHASED";
         }
@@ -60,6 +62,22 @@ export default function PurchasesClient({ initialPurchases }: Props) {
     return (
         <DashboardLayout title="المشتريات">
             <div className="space-y-4 pb-6">
+
+                {/* ─── Summary Stats ────────────────────────────────────────────── */}
+                <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 md:gap-3">
+                    {[
+                        { label: "الإجمالي", count: totalCount, color: "text-gray-700", bg: "bg-gray-50", border: "border-gray-100" },
+                        { label: "بانتظار الشراء", count: requestedCount, color: "text-blue-700", bg: "bg-blue-50", border: "border-blue-100" },
+                        { label: "قيد الشراء", count: inProgressCount, color: "text-amber-700", bg: "bg-amber-50", border: "border-amber-100" },
+                        { label: "مكتملة", count: purchasedCount, color: "text-emerald-700", bg: "bg-emerald-50", border: "border-emerald-100" },
+                        { label: "غير متوفر", count: flaggedCount, color: "text-red-700", bg: "bg-red-50", border: "border-red-100" },
+                    ].map((stat) => (
+                        <div key={stat.label} className={`${stat.bg} ${stat.border} border rounded-xl p-3 text-center`}>
+                            <p className={`text-lg md:text-xl font-black ${stat.color}`}>{stat.count}</p>
+                            <p className="text-[10px] md:text-xs font-bold text-gray-500 mt-0.5">{stat.label}</p>
+                        </div>
+                    ))}
+                </div>
 
                 {/* ─── Sticky Header: Search + Filters ─────────────────────────── */}
                 <div className="sticky top-16 md:top-20 z-20 bg-[#f8f9fa]/95 backdrop-blur-md pt-1 pb-3 -mx-4 px-4 md:-mx-8 md:px-8 space-y-3">
@@ -86,20 +104,29 @@ export default function PurchasesClient({ initialPurchases }: Props) {
 
                     {/* Filter Tabs — horizontal scroll, no squashing */}
                     <div className="flex bg-white rounded-xl p-1 shadow-sm border border-gray-100 overflow-x-auto mobile-tabs-scroll whitespace-nowrap gap-1">
-                        {["الكل", "بانتظار الشراء", "قيد الشراء", "مكتملة", "غير متوفر"].map((tab) => (
-                            <button
-                                key={tab}
-                                onClick={() => setFilter(tab)}
-                                className={`px-3 py-2.5 shrink-0 text-[11px] font-bold rounded-lg transition-all duration-150 active:scale-95 ${filter === tab
-                                    ? "bg-[#102550] text-white shadow-sm"
-                                    : tab === "غير متوفر"
-                                        ? "text-red-500 hover:text-red-700 hover:bg-red-50"
-                                        : "text-gray-500 hover:text-gray-900 hover:bg-gray-50"
-                                    }`}
-                            >
-                                {tab === "غير متوفر" ? <span className="flex items-center justify-center gap-1"><Flag className="w-3 h-3" /> {tab}</span> : tab}
-                            </button>
-                        ))}
+                        {["الكل", "بانتظار الشراء", "قيد الشراء", "مكتملة", "غير متوفر"].map((tab) => {
+                            const countForTab = tab === "الكل" ? totalCount
+                                : tab === "بانتظار الشراء" ? requestedCount
+                                    : tab === "قيد الشراء" ? inProgressCount
+                                        : tab === "مكتملة" ? purchasedCount
+                                            : flaggedCount;
+                            return (
+                                <button
+                                    key={tab}
+                                    onClick={() => setFilter(tab)}
+                                    className={`px-3 py-2.5 shrink-0 text-[11px] font-bold rounded-lg transition-all duration-150 active:scale-95 ${filter === tab
+                                        ? "bg-[#102550] text-white shadow-sm"
+                                        : tab === "غير متوفر"
+                                            ? "text-red-500 hover:text-red-700 hover:bg-red-50"
+                                            : "text-gray-500 hover:text-gray-900 hover:bg-gray-50"
+                                        }`}
+                                >
+                                    {tab === "غير متوفر"
+                                        ? <span className="flex items-center justify-center gap-1"><Flag className="w-3 h-3" /> {tab} ({countForTab})</span>
+                                        : `${tab} (${countForTab})`}
+                                </button>
+                            );
+                        })}
                     </div>
                 </div>
 
@@ -119,7 +146,7 @@ export default function PurchasesClient({ initialPurchases }: Props) {
                         {/* ─── Mobile Card View (< md) ─────────────────────────── */}
                         <div className="md:hidden space-y-3">
                             {filteredPurchases.map((purchase) => {
-                                const isFlagged = (purchase as any).isRedFlagged;
+                                const isFlagged = purchase.isRedFlagged;
                                 return (
                                     <Card
                                         key={purchase.id}
@@ -171,6 +198,12 @@ export default function PurchasesClient({ initialPurchases }: Props) {
                                             </span>
                                         </div>
 
+                                        {/* Creator */}
+                                        <div className="flex items-center gap-1.5 mb-3 text-xs text-gray-400">
+                                            <UserIcon className="w-3 h-3" />
+                                            <span className="font-medium">طالب الشراء: <span className="text-gray-600 font-bold">{purchase.creator?.name}</span></span>
+                                        </div>
+
                                         {/* Image preview */}
                                         {purchase.imageUrl && (
                                             <img
@@ -215,7 +248,7 @@ export default function PurchasesClient({ initialPurchases }: Props) {
                                     </thead>
                                     <tbody className="divide-y divide-gray-100 bg-white">
                                         {filteredPurchases.map((purchase) => {
-                                            const isFlagged = (purchase as any).isRedFlagged;
+                                            const isFlagged = purchase.isRedFlagged;
                                             return (
                                                 <tr
                                                     key={purchase.id}
@@ -241,9 +274,12 @@ export default function PurchasesClient({ initialPurchases }: Props) {
                                                         {purchase.deadline ? new Date(purchase.deadline).toLocaleDateString('en-GB') : "-"}
                                                     </td>
                                                     <td className="px-4 md:px-6 py-4 text-gray-700 min-w-[200px] whitespace-normal break-words text-[11px] md:text-sm font-medium" title={purchase.description || ""}>
-                                                        <div className="flex items-center gap-2">
-                                                            <span className={isFlagged ? 'text-red-800 font-bold' : ''}>{purchase.description || "-"}</span>
-                                                            {isFlagged && <Flag className="w-4 h-4 text-red-500 fill-current" />}
+                                                        <div className="flex flex-col gap-1">
+                                                            <div className="flex items-center gap-2">
+                                                                <span className={isFlagged ? 'text-red-800 font-bold' : ''}>{purchase.description || "-"}</span>
+                                                                {isFlagged && <Flag className="w-4 h-4 text-red-500 fill-current" />}
+                                                            </div>
+                                                            <span className="text-[10px] text-gray-400 font-medium">طالب الشراء: {purchase.creator?.name}</span>
                                                         </div>
                                                     </td>
                                                     <td className="px-4 md:px-6 py-4 font-bold text-[#102550] text-left" dir="ltr">

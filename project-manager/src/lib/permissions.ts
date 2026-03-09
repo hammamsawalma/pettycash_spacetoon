@@ -67,8 +67,10 @@ export const PERMISSIONS = {
          * GLOBAL_ACCOUNTANT: all projects (v4: handles all projects financially).
          */
         issue: ["ADMIN", "GLOBAL_ACCOUNTANT"] as UserRole[],
-        /** Can confirm receipt of a custody — the receiving employee, ADMIN, or GLOBAL_ACCOUNTANT */
-        confirmReceipt: ["USER", "ADMIN", "GLOBAL_ACCOUNTANT"] as UserRole[],
+        /** Can confirm receipt of a custody — v6: ONLY the receiving employee (requires digital signature) */
+        confirmReceipt: ["USER"] as UserRole[],
+        /** Can send a reminder notification to an employee to confirm their custody */
+        sendReminder: ["ADMIN", "GLOBAL_ACCOUNTANT"] as UserRole[],
         /**
          * Can record a custody return (إرجاع).
          * v4+M-1: ADMIN + GLOBAL_ACCOUNTANT can record returns.

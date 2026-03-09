@@ -1,44 +1,68 @@
 import { defineConfig, devices } from '@playwright/test';
-import path from 'path';
+
+const AUTH_DIR = './tests/.auth';
 
 /**
- * See https://playwright.dev/docs/test-configuration.
+ * Use production server when TEST_PROD=1 is set.
+ * Production mode eliminates on-the-fly compilation (0ms compile vs 10-75s in dev).
  */
+const isProd = process.env.TEST_PROD === '1';
+
 export default defineConfig({
     testDir: './tests',
-    /* Run tests in files in parallel */
     fullyParallel: true,
-    /* Fail the build on CI if you accidentally left test.only in the source code. */
     forbidOnly: !!process.env.CI,
-    /* Retry on CI only */
-    retries: process.env.CI ? 2 : 0,
-    /* Opt out of parallel tests on CI. */
-    workers: process.env.CI ? 1 : undefined,
-    /* Reporter to use. See https://playwright.dev/docs/test-reporters */
-    reporter: 'html',
-    /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
-    use: {
-        /* Base URL to use in actions like `await page.goto('/')`. */
-        baseURL: 'http://localhost:3000',
 
-        /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
-        trace: 'on-first-retry',
+    /* Retry once locally to handle intermittent timeouts, twice in CI */
+    retries: process.env.CI ? 2 : 1,
+
+    /* 2 workers optimal for 16GB RAM; 1 in CI for stability */
+    workers: process.env.CI ? 1 : 2,
+
+    reporter: [['html'], ['list']],
+
+    /* 60s default timeout — generous enough for slow dev server */
+    timeout: 60_000,
+
+    use: {
+        baseURL: 'http://localhost:3000',
+        screenshot: 'only-on-failure',
+        video: 'retain-on-failure',
+        trace: 'retain-on-failure',
+
+        /* Navigation & action timeouts */
+        navigationTimeout: 30_000,
+        actionTimeout: 15_000,
     },
 
-    /* Configure projects for major browsers */
+    expect: {
+        timeout: 15_000,
+    },
+
     projects: [
+        // ── Setup: login all 7 accounts and save sessions ──
+        { name: 'setup', testMatch: /auth\.setup\.ts/ },
+
+        // ── Main test suite (depends on setup) ──
         {
             name: 'chromium',
             use: { ...devices['Desktop Chrome'] },
+            dependencies: ['setup'],
+        },
+
+        // ── Mobile tests ──
+        {
+            name: 'mobile-safari',
+            use: { ...devices['iPhone 14'] },
+            dependencies: ['setup'],
+            testMatch: /phase-6\/.*/,
         },
     ],
 
-    /* Run your local dev server before starting the tests */
     webServer: {
-        command: 'npm run dev',
+        command: isProd ? 'npm run start' : 'npm run dev',
         url: 'http://localhost:3000',
-        reuseExistingServer: true, // Always reuse if already running
-        timeout: 120000,
+        reuseExistingServer: true,
+        timeout: 120_000,
     },
 });
-

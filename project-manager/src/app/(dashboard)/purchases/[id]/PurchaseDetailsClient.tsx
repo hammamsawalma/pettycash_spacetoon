@@ -3,7 +3,7 @@ import DashboardLayout from "@/components/layout/DashboardLayout";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { StatusBadge } from "@/components/ui/StatusBadge";
-import { ArrowLeft, Flag, Info, ShoppingCart, User, Building, ExternalLink, RefreshCw, Paperclip, Trash2 } from "lucide-react";
+import { ArrowLeft, Flag, Info, ShoppingCart, CalendarDays, Building, ExternalLink, RefreshCw, Paperclip, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
@@ -154,7 +154,7 @@ export default function PurchaseDetailsClient({ initialPurchase }: { initialPurc
                                         <p className="text-sm font-bold text-primary">{purchase.project?.name || "مشروع عام"}</p>
                                     </div>
                                     <div>
-                                        <p className="text-xs text-gray-500 font-bold mb-1 flex items-center gap-1.5"><User className="w-3.5 h-3.5" />الموعد المرجو المتوقع</p>
+                                        <p className="text-xs text-gray-500 font-bold mb-1 flex items-center gap-1.5"><CalendarDays className="w-3.5 h-3.5" />الموعد النهائي</p>
                                         <p className="text-sm font-bold text-gray-900">{purchase.deadline ? new Date(purchase.deadline).toLocaleDateString('en-GB') : "غير محدد"}</p>
                                     </div>
                                 </div>

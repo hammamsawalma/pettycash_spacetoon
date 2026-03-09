@@ -10,7 +10,9 @@ export async function getReportStats(period: string) {
             return {
                 netProfit: 0, totalProjects: 0, completedProjectsCount: 0,
                 pendingInvoices: 0, topProjects: [], projectBudgets: [], monthlyStats: [], categoryExpenses: [],
-                companyExpensesTotal: 0, projectExpensesTotal: 0
+                companyExpensesTotal: 0, projectExpensesTotal: 0,
+                internalCustodyTotal: 0, externalCustodyTotal: 0,
+                internalCustodyCount: 0, externalCustodyCount: 0, openExternalCustodies: 0
             };
         }
 
@@ -140,8 +142,15 @@ export async function getReportStats(period: string) {
         // v5: Company vs Project expenses separation
         let companyExpensesTotal = 0;
         let projectExpensesTotal = 0;
+        // v5.1: Custody stats (internal vs external)
+        let internalCustodyTotal = 0;
+        let externalCustodyTotal = 0;
+        let internalCustodyCount = 0;
+        let externalCustodyCount = 0;
+        let openExternalCustodies = 0;
+
         if (canSeeGlobalFinances) {
-            const [companyAgg, projectAgg] = await Promise.all([
+            const [companyAgg, projectAgg, intCustody, extCustody, openExtCount] = await Promise.all([
                 (prisma.invoice as any).aggregate({
                     _sum: { amount: true },
                     where: { status: 'APPROVED', isDeleted: false, expenseScope: 'COMPANY', ...(dateCondition ? { date: dateCondition } : {}) }
@@ -150,9 +159,30 @@ export async function getReportStats(period: string) {
                     _sum: { amount: true },
                     where: { status: 'APPROVED', isDeleted: false, expenseScope: 'PROJECT', ...(dateCondition ? { date: dateCondition } : {}) }
                 }),
+                // Internal custodies
+                (prisma.employeeCustody as any).aggregate({
+                    _sum: { amount: true },
+                    _count: true,
+                    where: { isExternal: false, ...(dateCondition ? { createdAt: dateCondition } : {}) }
+                }),
+                // External custodies
+                (prisma.employeeCustody as any).aggregate({
+                    _sum: { amount: true },
+                    _count: true,
+                    where: { isExternal: true, ...(dateCondition ? { createdAt: dateCondition } : {}) }
+                }),
+                // Open external custodies count
+                (prisma.employeeCustody as any).count({
+                    where: { isExternal: true, isClosed: false }
+                }),
             ]);
             companyExpensesTotal = companyAgg?._sum?.amount ?? 0;
             projectExpensesTotal = projectAgg?._sum?.amount ?? 0;
+            internalCustodyTotal = intCustody?._sum?.amount ?? 0;
+            internalCustodyCount = intCustody?._count ?? 0;
+            externalCustodyTotal = extCustody?._sum?.amount ?? 0;
+            externalCustodyCount = extCustody?._count ?? 0;
+            openExternalCustodies = openExtCount ?? 0;
         }
 
         return {
@@ -165,7 +195,12 @@ export async function getReportStats(period: string) {
             monthlyStats,
             categoryExpenses,
             companyExpensesTotal,
-            projectExpensesTotal
+            projectExpensesTotal,
+            internalCustodyTotal,
+            externalCustodyTotal,
+            internalCustodyCount,
+            externalCustodyCount,
+            openExternalCustodies,
         };
     } catch (error) {
         console.error("Reports Fetch Error:", error);
@@ -179,7 +214,12 @@ export async function getReportStats(period: string) {
             monthlyStats: [],
             categoryExpenses: [],
             companyExpensesTotal: 0,
-            projectExpensesTotal: 0
+            projectExpensesTotal: 0,
+            internalCustodyTotal: 0,
+            externalCustodyTotal: 0,
+            internalCustodyCount: 0,
+            externalCustodyCount: 0,
+            openExternalCustodies: 0
         };
     }
 }

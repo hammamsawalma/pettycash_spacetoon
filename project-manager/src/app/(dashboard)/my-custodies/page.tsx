@@ -1,5 +1,5 @@
 import { getSession } from "@/lib/auth";
-import { getMyCustodies, confirmCustodyReceipt, rejectCustody } from "@/actions/custody";
+import { getMyCustodies } from "@/actions/custody";
 import { redirect } from "next/navigation";
 import MyCustodiesClient from "./MyCustodiesClient";
 

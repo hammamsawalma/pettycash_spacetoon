@@ -2,7 +2,7 @@
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
-import { FileBarChart2, Download, TrendingUp, Users, FolderKanban, Wallet, AlertCircle, Building2 } from "lucide-react";
+import { FileBarChart2, Download, TrendingUp, Users, FolderKanban, Wallet, AlertCircle, Building2, HandCoins } from "lucide-react";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { TableRowSkeleton } from "@/components/ui/Skeleton";
 import { useState, useEffect } from "react";
@@ -33,6 +33,11 @@ export default function ReportsPage() {
         categoryExpenses: { name: string, icon: string, value: number }[];
         companyExpensesTotal: number;
         projectExpensesTotal: number;
+        internalCustodyTotal: number;
+        externalCustodyTotal: number;
+        internalCustodyCount: number;
+        externalCustodyCount: number;
+        openExternalCustodies: number;
     } | null>(null);
 
     // Redirect if not authorized — guard derived from permissions.ts
@@ -168,6 +173,43 @@ export default function ReportsPage() {
                             </div>
                         </div>
                         <p className="mt-3 text-[10px] md:text-xs text-blue-500 font-bold">فواتير مرتبطة بالمشاريع (معتمدة)</p>
+                    </Card>
+                </div>
+
+                {/* v5.1: Custody Stats — Internal vs External */}
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 md:gap-6">
+                    <Card className="p-5 md:p-6 transition-all duration-300 shadow-sm border-blue-100 hover:shadow-md hover:border-blue-300 bg-gradient-to-br from-white to-blue-50/20">
+                        <div className="flex items-center gap-4">
+                            <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-blue-100 text-blue-600 flex items-center justify-center shrink-0 shadow-sm">
+                                <HandCoins className="w-5 h-5 md:w-6 md:h-6" />
+                            </div>
+                            <div>
+                                <p className="text-[10px] md:text-sm text-gray-400 font-bold mb-1">عهد داخلية (موظفين)</p>
+                                <p className="text-xl md:text-2xl font-black text-blue-700">{stats ? stats.internalCustodyTotal.toLocaleString() : '...'} <span className="text-xs font-bold text-blue-400"><CurrencyDisplay /></span></p>
+                            </div>
+                        </div>
+                        <p className="mt-3 text-[10px] md:text-xs text-blue-500 font-bold">{stats ? stats.internalCustodyCount : 0} عهدة لموظفين مسجلين</p>
+                    </Card>
+                    <Card className="p-5 md:p-6 transition-all duration-300 shadow-sm border-orange-100 hover:shadow-md hover:border-orange-300 bg-gradient-to-br from-white to-orange-50/20">
+                        <div className="flex items-center gap-4">
+                            <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-orange-100 text-orange-600 flex items-center justify-center shrink-0 shadow-sm">
+                                <Building2 className="w-5 h-5 md:w-6 md:h-6" />
+                            </div>
+                            <div>
+                                <p className="text-[10px] md:text-sm text-gray-400 font-bold mb-1">عهد خارجية (أطراف خارجية)</p>
+                                <p className="text-xl md:text-2xl font-black text-orange-700">{stats ? stats.externalCustodyTotal.toLocaleString() : '...'} <span className="text-xs font-bold text-orange-400"><CurrencyDisplay /></span></p>
+                            </div>
+                        </div>
+                        <p className="mt-3 text-[10px] md:text-xs text-orange-500 font-bold">{stats ? stats.externalCustodyCount : 0} عهدة — {stats ? stats.openExternalCustodies : 0} مفتوحة</p>
+                    </Card>
+                    <Card className="p-5 md:p-6 transition-all duration-300 shadow-sm border-gray-100 hover:shadow-md hover:border-gray-300 bg-gradient-to-br from-white to-gray-50/20 flex items-center justify-center">
+                        <a href="/external-custodies" className="text-center group">
+                            <div className="w-12 h-12 rounded-xl bg-[#102550]/10 text-[#102550] flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform">
+                                <FileBarChart2 className="w-6 h-6" />
+                            </div>
+                            <p className="text-sm font-bold text-[#102550] group-hover:underline">عرض تقرير العهد الخارجية</p>
+                            <p className="text-[10px] text-gray-400 font-medium mt-1">جدول شامل عبر المشاريع</p>
+                        </a>
                     </Card>
                 </div>
 

@@ -139,20 +139,26 @@ export async function issueCustody(prevState: unknown, formData: FormData) {
     }
 }
 
-// ─── Employee confirms receiving custody ─────────────────
-export async function confirmCustodyReceipt(custodyId: string, signatureBase64?: string) {
+// ─── Employee confirms receiving custody (v6: signature MANDATORY) ────
+export async function confirmCustodyReceipt(custodyId: string, signatureBase64: string) {
     try {
         const session = await getSession();
         if (!session) return { error: "غير مصرح" };
+
+        // v6 FIX: Signature is MANDATORY — no confirmation without digital signature
+        if (!signatureBase64 || !signatureBase64.startsWith("data:image/")) {
+            return { error: "التوقيع الإلكتروني مطلوب لتأكيد الاستلام" };
+        }
 
         const custody = await prisma.employeeCustody.findUnique({
             where: { id: custodyId }
         });
         if (!custody) return { error: "العهدة غير موجودة" };
-        // C-4 FIX: Allow ADMIN + GLOBAL_ACCOUNTANT to force-confirm custody on behalf of the employee
-        const isOwner = custody.employeeId === session.id;
-        const isAdminOrAccountant = session.role === "ADMIN" || session.role === "GLOBAL_ACCOUNTANT";
-        if (!isOwner && !isAdminOrAccountant) return { error: "لا يمكنك تأكيد استلام عهدة شخص آخر" };
+
+        // v6 FIX: ONLY the custody owner can confirm — no proxy confirmation
+        if (custody.employeeId !== session.id) {
+            return { error: "تأكيد الاستلام يتطلب توقيع صاحب العهدة شخصياً" };
+        }
         if (custody.isConfirmed) return { error: "تم تأكيد الاستلام مسبقاً" };
 
         await prisma.employeeCustody.update({
@@ -162,7 +168,8 @@ export async function confirmCustodyReceipt(custodyId: string, signatureBase64?:
                 confirmedAt: new Date(),
                 confirmation: {
                     create: {
-                        signatureFile: signatureBase64 || null
+                        signatureFile: signatureBase64,
+                        confirmedById: session.id
                     }
                 }
             }
@@ -186,6 +193,40 @@ export async function confirmCustodyReceipt(custodyId: string, signatureBase64?:
     } catch (error) {
         console.error("Confirm Custody Error:", error);
         return { error: "حدث خطأ أثناء تأكيد الاستلام" };
+    }
+}
+
+// ─── Admin/Accountant sends a reminder to employee to confirm custody ─────
+export async function resendCustodyReminder(custodyId: string) {
+    try {
+        const session = await getSession();
+        if (!session) return { error: "غير مصرح" };
+
+        // Only ADMIN and GLOBAL_ACCOUNTANT can send reminders
+        if (session.role !== "ADMIN" && session.role !== "GLOBAL_ACCOUNTANT") {
+            return { error: "غير مصرح" };
+        }
+
+        const custody = await prisma.employeeCustody.findUnique({
+            where: { id: custodyId },
+            include: { project: { select: { name: true } } }
+        });
+        if (!custody) return { error: "العهدة غير موجودة" };
+        if (custody.isConfirmed) return { error: "تم تأكيد الاستلام مسبقاً" };
+
+        // Send a targeted notification to the employee
+        await prisma.notification.create({
+            data: {
+                title: '⏳ تذكير: تأكيد استلام عهدة',
+                content: `يرجى تأكيد استلام عهدة بقيمة ${custody.amount.toLocaleString()} ريال من مشروع "${custody.project?.name || ''}" — يتطلب توقيعك الإلكتروني`,
+                targetUserId: custody.employeeId,
+            }
+        });
+
+        return { success: true };
+    } catch (error) {
+        console.error("Resend Custody Reminder Error:", error);
+        return { error: "حدث خطأ أثناء إرسال التذكير" };
     }
 }
 
@@ -438,5 +479,34 @@ export async function returnCustodyBalance(
     } catch (error) {
         console.error("Return Custody Error:", error);
         return { error: "حدث خطأ أثناء تسجيل الإرجاع" };
+    }
+}
+
+// ─── External Custodies Report (all projects) ────────────
+export async function getExternalCustodiesReport() {
+    try {
+        const session = await getSession();
+        if (!session) return [];
+
+        // v5.1: Only ADMIN, GLOBAL_ACCOUNTANT, GENERAL_MANAGER
+        const canView = session.role === "ADMIN" || session.role === "GLOBAL_ACCOUNTANT" || session.role === "GENERAL_MANAGER";
+        if (!canView) return [];
+
+        const custodies = await (prisma.employeeCustody as any).findMany({
+            where: { isExternal: true },
+            include: {
+                project: { select: { id: true, name: true } },
+                returns: {
+                    orderBy: { createdAt: 'desc' },
+                    select: { id: true, amount: true, createdAt: true }
+                }
+            },
+            orderBy: { createdAt: "desc" }
+        });
+
+        return custodies;
+    } catch (error) {
+        console.error("External Custodies Report Error:", error);
+        return [];
     }
 }

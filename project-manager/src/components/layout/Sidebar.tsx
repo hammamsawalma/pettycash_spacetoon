@@ -154,6 +154,12 @@ const navigationGroups: NavGroup[] = [
                         // Only USER role has their own custody page — edge case: ADMIN/ACC do not
                         check: (r) => r === 'USER',
                     },
+                    {
+                        name: 'العهد الخارجية',
+                        href: '/external-custodies',
+                        // v5.1: ADMIN + GLOBAL_ACCOUNTANT + GENERAL_MANAGER
+                        check: (r) => r === 'ADMIN' || r === 'GLOBAL_ACCOUNTANT' || r === 'GENERAL_MANAGER',
+                    },
                 ],
             },
             {
