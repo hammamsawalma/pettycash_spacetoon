@@ -15,7 +15,6 @@ type EmployeeData = {
     role: string;
     phone?: string | null;
     email?: string | null;
-    salary?: number | null;
     memberships?: {
         id: string;
         project: {
@@ -78,10 +77,6 @@ export default function EmployeeDetailsPage({ params }: { params: Promise<{ id: 
                             <div>
                                 <p className="text-xs text-gray-500">البريد الالكتروني</p>
                                 <p className="font-medium text-gray-900 mt-1">{employee.email || "غير محدد"}</p>
-                            </div>
-                            <div>
-                                <p className="text-xs text-gray-500">الراتب المتفق عليه</p>
-                                <p className="font-bold text-[#102550] mt-1 text-lg">QAR {employee.salary?.toLocaleString() || "0"}</p>
                             </div>
                         </div>
 

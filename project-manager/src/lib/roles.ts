@@ -1,13 +1,15 @@
 /**
  * src/lib/roles.ts
  * 
- * Helper utilities for multi-role per-project system (V3)
+ * Helper utilities for multi-role per-project system (V4)
  * Roles are stored as CSV strings in ProjectMember.projectRoles
- * e.g. "EMPLOYEE,ACCOUNTANT" or "EMPLOYEE,COORDINATOR"
+ * e.g. "PROJECT_EMPLOYEE,PROJECT_MANAGER"
+ * 
+ * v4: PROJECT_ACCOUNTANT removed — GLOBAL_ACCOUNTANT handles all projects
  */
 import prisma from "@/lib/prisma";
 
-export type ProjectRole = "PROJECT_EMPLOYEE" | "PROJECT_ACCOUNTANT" | "PROJECT_MANAGER";
+export type ProjectRole = "PROJECT_EMPLOYEE" | "PROJECT_MANAGER";
 
 /**
  * Parse the CSV roles string into an array

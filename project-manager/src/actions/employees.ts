@@ -89,13 +89,9 @@ export async function getEmployees(excludeAdmins: boolean = false) {
             }
         });
 
-        // Remove salary data from non-management roles
-        if (!isGlobalFinance(session.role)) {
-            const filteredUsers = users.map((u: User) => ({ ...u, salary: null }));
-            return JSON.parse(JSON.stringify(filteredUsers));
-        }
-
-        return JSON.parse(JSON.stringify(users));
+        // v4: salary hidden from UI — always strip it
+        const filteredUsers = users.map((u: User) => ({ ...u, salary: null }));
+        return JSON.parse(JSON.stringify(filteredUsers));
     } catch (error) {
         console.error("Employees Fetch Error:", error);
         return [];
@@ -120,10 +116,8 @@ export async function getEmployeeById(id: string) {
 
         if (!employee) return null;
 
-        // Strip salary if not admin/accountant and not their own profile
-        if (!isGlobalFinance(session.role) && session.id !== id) {
-            employee.salary = null;
-        }
+        // v4: salary hidden from UI — always strip it
+        employee.salary = null;
 
         return employee;
     } catch (error) {
@@ -313,5 +307,46 @@ export async function updateEmployee(employeeId: string, prevState: unknown, for
     } catch (error) {
         console.error("Employee Update Error:", error);
         return { error: "حدث خطأ أثناء تعديل بيانات الموظف" };
+    }
+}
+
+// v5: GAP-6 — Save user signature persistently
+export async function saveUserSignature(signatureBase64: string) {
+    try {
+        const session = await getSession();
+        if (!session) return { error: "غير مصرح" };
+
+        if (!signatureBase64 || !signatureBase64.startsWith("data:image/")) {
+            return { error: "صيغة التوقيع غير صالحة" };
+        }
+
+        await prisma.user.update({
+            where: { id: session.id },
+            data: { savedSignature: signatureBase64 }
+        });
+
+        revalidatePath("/");
+        return { success: true };
+    } catch (error) {
+        console.error("Save Signature Error:", error);
+        return { error: "حدث خطأ أثناء حفظ التوقيع" };
+    }
+}
+
+// v5: GAP-6 — Get user's saved signature
+export async function getUserSignature() {
+    try {
+        const session = await getSession();
+        if (!session) return null;
+
+        const user = await prisma.user.findUnique({
+            where: { id: session.id },
+            select: { savedSignature: true }
+        });
+
+        return user?.savedSignature || null;
+    } catch (error) {
+        console.error("Get Signature Error:", error);
+        return null;
     }
 }

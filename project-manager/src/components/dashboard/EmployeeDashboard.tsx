@@ -5,7 +5,7 @@ import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import {
     FolderKanban, CheckCircle, ChevronLeft, AlertTriangle, Wallet, Receipt,
-    Camera, RefreshCw, ShoppingCart, FileCheck, PackageSearch
+    Camera, RefreshCw, ShoppingCart, FileCheck, PackageSearch, Banknote
 } from 'lucide-react';
 import { useState, useEffect, useCallback } from 'react';
 import { getDashboardStats, getFlowStats } from '@/actions/dashboard';
@@ -13,6 +13,7 @@ import { getMyCustodies } from '@/actions/custody';
 import { getPurchases } from '@/actions/purchases';
 import { getInvoices } from '@/actions/invoices';
 import { Project, User, ProjectMember, Notification } from '@prisma/client';
+import Link from 'next/link';
 import { AnimatedNumber } from "@/components/ui/AnimatedNumber";
 import { CurrencyDisplay } from "@/components/ui/CurrencyDisplay";
 import { usePullToRefresh } from "@/hooks/usePullToRefresh";
@@ -24,7 +25,6 @@ import { PullToRefreshIndicator } from "@/components/ui/PullToRefreshIndicator";
 // ─── Types ────────────────────────────────────────────────────────────────────
 interface ProjectRoleFlags {
     isProjectManager: boolean;
-    isProjectAccountant: boolean;
     isProjectEmployee: boolean;
     canAddInvoice: boolean;
     hasAnyProject: boolean;
@@ -55,7 +55,6 @@ export default function EmployeeDashboard() {
     // Project role flags — all false until loaded
     const [projectRoles, setProjectRoles] = useState<ProjectRoleFlags>({
         isProjectManager: false,
-        isProjectAccountant: false,
         isProjectEmployee: false,
         canAddInvoice: false,
         hasAnyProject: false,
@@ -87,7 +86,6 @@ export default function EmployeeDashboard() {
             // Set project role flags from same response (EC8: no extra round-trip → no flash)
             const flags = {
                 isProjectManager: fd.isProjectManager ?? false,
-                isProjectAccountant: fd.isProjectAccountant ?? false,
                 isProjectEmployee: fd.isProjectEmployee ?? false,
                 canAddInvoice: fd.canAddInvoice ?? false,
                 hasAnyProject: fd.hasAnyProject ?? false,
@@ -116,16 +114,8 @@ export default function EmployeeDashboard() {
             );
         }
 
-        if (roles.isProjectAccountant) {
-            promises.push(
-                getInvoices().then(data => {
-                    const items = Array.isArray(data) ? data : [];
-                    setPendingApprovals(
-                        items.filter((inv: any) => inv.status === "PENDING").slice(0, 5)
-                    );
-                })
-            );
-        }
+        // v4: Invoice approvals no longer happen at project level
+        // GLOBAL_ACCOUNTANT uses the global invoices page instead
 
         await Promise.all(promises);
     }, []);
@@ -252,44 +242,27 @@ export default function EmployeeDashboard() {
                             ))}
                         </div>
 
-                        {/* ── EC3: Accountant Widget — Invoices Pending Approval ─────── */}
-                        {projectRoles.isProjectAccountant && (
-                            <Card className="p-0 overflow-hidden shadow-sm border border-emerald-100">
-                                <div className="flex justify-between items-center p-4 md:p-5 border-b border-emerald-100/60 bg-emerald-50/50">
-                                    <div className="flex items-center gap-2">
-                                        <FileCheck className="w-5 h-5 text-emerald-600" />
-                                        <h3 className="font-bold text-base text-gray-900">فواتير بانتظار تدقيقك</h3>
+                        {/* ── Debt Alert — only when employee has personal debts ─────── */}
+                        {flow.remaining < 0 && (
+                            <div className="bg-red-50 border border-red-200 rounded-2xl p-4 flex items-center justify-between gap-4 flex-col sm:flex-row">
+                                <div className="flex gap-3 items-center">
+                                    <div className="w-10 h-10 bg-red-100 rounded-xl flex items-center justify-center shrink-0">
+                                        <Banknote className="w-5 h-5 text-red-600" />
                                     </div>
-                                    <Button
-                                        onClick={() => router.push('/invoices')}
-                                        variant="secondary"
-                                        className="text-[11px] h-8 px-3 font-bold bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border-none"
-                                    >
-                                        كل الفواتير <ChevronLeft className="w-3 h-3 ml-0.5" />
-                                    </Button>
+                                    <div>
+                                        <p className="text-sm font-bold text-red-900">لديك ديون شخصية بانتظار التعويض</p>
+                                        <p className="text-xs text-red-600 mt-0.5">مبالغ دفعتها من حسابك الشخصي — يرجى مراجعة التفاصيل</p>
+                                    </div>
                                 </div>
-                                <div className="p-4 md:p-5 space-y-3">
-                                    {pendingApprovals.length > 0 ? pendingApprovals.map((inv: any) => (
-                                        <div
-                                            key={inv.id}
-                                            className="flex justify-between items-center p-3 border border-gray-100 rounded-xl bg-gray-50/50 hover:bg-white transition-colors cursor-pointer"
-                                            onClick={() => router.push(`/invoices/${inv.id}`)}
-                                        >
-                                            <div>
-                                                <p className="text-sm font-bold text-gray-900">{inv.reference}</p>
-                                                <p className="text-xs text-gray-400 font-medium mt-0.5">{inv.project?.name || 'بدون مشروع'}</p>
-                                            </div>
-                                            <div className="text-right">
-                                                <p className="text-sm font-black text-emerald-700">{(inv.amount || 0).toLocaleString()} <CurrencyDisplay /></p>
-                                                <span className="text-[10px] bg-amber-50 text-amber-600 font-bold px-2 py-0.5 rounded-md">بانتظار التدقيق</span>
-                                            </div>
-                                        </div>
-                                    )) : (
-                                        <p className="text-sm text-gray-400 font-medium text-center py-4">لا توجد فواتير معلقة في مشاريعك. ✅</p>
-                                    )}
-                                </div>
-                            </Card>
+                                <Link
+                                    href="/debts"
+                                    className="text-xs font-bold text-red-700 bg-red-100 px-4 py-2 rounded-xl hover:bg-red-200 transition-colors shrink-0 w-full sm:w-auto text-center"
+                                >
+                                    عرض ديوني ←
+                                </Link>
+                            </div>
                         )}
+
 
                         {/* ── EC3: Coordinator Widget — Purchases Tracking ───────────── */}
                         {projectRoles.isProjectManager && (

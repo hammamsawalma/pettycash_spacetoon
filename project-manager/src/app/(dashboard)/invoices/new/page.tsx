@@ -349,6 +349,11 @@ function FullInvoiceForm() {
 
     const [currentStep, setCurrentStep] = useState<1 | 2 | 3>(1);
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const { role } = useAuth();
+    const canToggleCompanyExpense = role === 'ADMIN' || role === 'GLOBAL_ACCOUNTANT';
+
+    // v5: Company expense toggle
+    const [isCompanyExpense, setIsCompanyExpense] = useState(false);
 
     const [projects, setProjects] = useState<any[]>([]);
     const [categories, setCategories] = useState<any[]>([]);
@@ -369,16 +374,24 @@ function FullInvoiceForm() {
 
     useEffect(() => {
         getProjectsForInvoice().then(data => setProjects(data as unknown as Project[]));
-        getCategories().then(setCategories);
     }, []);
+
+    // v5: Reload categories when expense scope changes
+    useEffect(() => {
+        getCategories(isCompanyExpense ? "COMPANY" : "PROJECT").then(setCategories);
+    }, [isCompanyExpense]);
 
     const handleNextStep = () => {
         if (currentStep === 1) {
             if (!file) toast("لم يتم إرفاق صورة للفاتورة", { icon: "⚠️" });
             setCurrentStep(2);
         } else if (currentStep === 2) {
-            if (!formData.projectId || !formData.amount) {
+            if (!isCompanyExpense && (!formData.projectId || !formData.amount)) {
                 toast.error("يرجى تعبئة جميع الحقول الإلزامية (المشروع، المبلغ)");
+                return;
+            }
+            if (isCompanyExpense && (!formData.amount || !formData.categoryId)) {
+                toast.error("المبلغ والتصنيف إلزامي لمصاريف الشركة");
                 return;
             }
             if (!formData.reference.trim()) {
@@ -431,6 +444,8 @@ function FullInvoiceForm() {
         if (file) submitData.append("file", file);
         if (items.length > 0) submitData.append("items", JSON.stringify(items));
         if (purchaseId) submitData.append("purchaseId", purchaseId);
+        // v5: Company expense scope
+        if (isCompanyExpense) submitData.set("expenseScope", "COMPANY");
         // No paymentSource → backend auto-detects
 
         const res = await createInvoice(null, submitData);
@@ -511,64 +526,83 @@ function FullInvoiceForm() {
                             <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
                                 <h3 className="text-lg font-bold text-gray-900 border-b border-gray-100 pb-2">تفاصيل الفاتورة الأساسية</h3>
 
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
-                                    {/* Project selection — visual cards (mobile-friendly) */}
-                                    <div className="space-y-2 md:col-span-2">
-                                        <label className="text-sm font-bold text-gray-700">المشروع *</label>
-                                        {projects.length === 0 ? (
-                                            <div className="bg-gray-50 rounded-xl p-4 text-center text-gray-400 text-sm">لا توجد مشاريع</div>
-                                        ) : projects.length <= 6 ? (
-                                            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                                                {projects.map((p: any) => (
-                                                    <button
-                                                        key={p.id}
-                                                        type="button"
-                                                        onClick={() => setFormData({ ...formData, projectId: p.id })}
-                                                        className={`relative flex flex-col items-center gap-2 p-3 rounded-xl border-2 transition-all active:scale-95 text-center ${formData.projectId === p.id
-                                                            ? 'border-blue-500 bg-blue-50 shadow-md shadow-blue-100'
-                                                            : 'border-gray-100 bg-white shadow-sm hover:border-gray-200'
-                                                            }`}
-                                                    >
-                                                        {formData.projectId === p.id && (
-                                                            <div className="absolute top-1.5 left-1.5 w-4 h-4 bg-blue-600 rounded-full flex items-center justify-center">
-                                                                <CheckCircle className="w-2.5 h-2.5 text-white" />
-                                                            </div>
-                                                        )}
-                                                        {p.image ? (
-                                                            <Image src={p.image} alt={p.name} width={40} height={40} className="w-10 h-10 rounded-lg object-cover" />
-                                                        ) : (
-                                                            <div className={`w-10 h-10 rounded-lg flex items-center justify-center text-lg font-black ${formData.projectId === p.id ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-600'
-                                                                }`}>{p.name.charAt(0)}</div>
-                                                        )}
-                                                        <p className={`text-xs font-bold leading-tight line-clamp-2 ${formData.projectId === p.id ? 'text-blue-800' : 'text-gray-700'
-                                                            }`}>{p.name}</p>
-                                                    </button>
-                                                ))}
-                                            </div>
-                                        ) : (
-                                            // Fallback to select for large project lists
-                                            <select
-                                                value={formData.projectId}
-                                                onChange={e => setFormData({ ...formData, projectId: e.target.value })}
-                                                required
-                                                className="w-full rounded-xl border border-gray-200 p-3.5 min-h-[52px] outline-none focus:ring-2 focus:ring-blue-400 bg-white shadow-sm font-medium"
-                                            >
-                                                <option value="">اختر المشروع</option>
-                                                {projects.map((p: any) => (
-                                                    <option key={p.id} value={p.id}>{p.name}</option>
-                                                ))}
-                                            </select>
-                                        )}
+                                {/* v5: Company Expense Toggle — only for ADMIN + GLOBAL_ACCOUNTANT */}
+                                {canToggleCompanyExpense && (
+                                    <div className="flex items-center gap-3 bg-purple-50 rounded-xl px-4 py-3 border border-purple-100">
+                                        <label className="flex items-center gap-2 cursor-pointer flex-1">
+                                            <input
+                                                type="checkbox"
+                                                checked={isCompanyExpense}
+                                                onChange={e => { setIsCompanyExpense(e.target.checked); if (e.target.checked) setFormData(prev => ({ ...prev, projectId: "" })); }}
+                                                className="w-4 h-4 rounded accent-purple-600"
+                                            />
+                                            <span className="text-sm font-bold text-purple-900">مصاريف شركة</span>
+                                        </label>
+                                        <span className="text-xs text-purple-600">{isCompanyExpense ? "بلا مشروع — تصنيف إلزامي" : "فاتورة مشروع عادية"}</span>
                                     </div>
+                                )}
+
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+                                    {/* Project selection — hidden for company expenses */}
+                                    {!isCompanyExpense && (
+                                        <div className="space-y-2 md:col-span-2">
+                                            <label className="text-sm font-bold text-gray-700">المشروع *</label>
+                                            {projects.length === 0 ? (
+                                                <div className="bg-gray-50 rounded-xl p-4 text-center text-gray-400 text-sm">لا توجد مشاريع</div>
+                                            ) : projects.length <= 6 ? (
+                                                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                                                    {projects.map((p: any) => (
+                                                        <button
+                                                            key={p.id}
+                                                            type="button"
+                                                            onClick={() => setFormData({ ...formData, projectId: p.id })}
+                                                            className={`relative flex flex-col items-center gap-2 p-3 rounded-xl border-2 transition-all active:scale-95 text-center ${formData.projectId === p.id
+                                                                ? 'border-blue-500 bg-blue-50 shadow-md shadow-blue-100'
+                                                                : 'border-gray-100 bg-white shadow-sm hover:border-gray-200'
+                                                                }`}
+                                                        >
+                                                            {formData.projectId === p.id && (
+                                                                <div className="absolute top-1.5 left-1.5 w-4 h-4 bg-blue-600 rounded-full flex items-center justify-center">
+                                                                    <CheckCircle className="w-2.5 h-2.5 text-white" />
+                                                                </div>
+                                                            )}
+                                                            {p.image ? (
+                                                                <Image src={p.image} alt={p.name} width={40} height={40} className="w-10 h-10 rounded-lg object-cover" />
+                                                            ) : (
+                                                                <div className={`w-10 h-10 rounded-lg flex items-center justify-center text-lg font-black ${formData.projectId === p.id ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-600'
+                                                                    }`}>{p.name.charAt(0)}</div>
+                                                            )}
+                                                            <p className={`text-xs font-bold leading-tight line-clamp-2 ${formData.projectId === p.id ? 'text-blue-800' : 'text-gray-700'
+                                                                }`}>{p.name}</p>
+                                                        </button>
+                                                    ))}
+                                                </div>
+                                            ) : (
+                                                // Fallback to select for large project lists
+                                                <select
+                                                    value={formData.projectId}
+                                                    onChange={e => setFormData({ ...formData, projectId: e.target.value })}
+                                                    required
+                                                    className="w-full rounded-xl border border-gray-200 p-3.5 min-h-[52px] outline-none focus:ring-2 focus:ring-blue-400 bg-white shadow-sm font-medium"
+                                                >
+                                                    <option value="">اختر المشروع</option>
+                                                    {projects.map((p: any) => (
+                                                        <option key={p.id} value={p.id}>{p.name}</option>
+                                                    ))}
+                                                </select>
+                                            )}
+                                        </div>
+                                    )}
 
                                     <div className="space-y-2">
-                                        <label className="text-sm font-bold text-gray-700">تصنيف المصروف</label>
+                                        <label className="text-sm font-bold text-gray-700">تصنيف المصروف {isCompanyExpense ? '*' : ''}</label>
                                         <select
                                             value={formData.categoryId}
                                             onChange={e => setFormData({ ...formData, categoryId: e.target.value })}
+                                            required={isCompanyExpense}
                                             className="w-full rounded-xl border border-gray-200 p-3.5 outline-none focus:ring-2 focus:ring-blue-400 bg-white shadow-sm font-medium"
                                         >
-                                            <option value="">غير مصنف...</option>
+                                            <option value="">{isCompanyExpense ? 'اختر التصنيف (إلزامي)' : 'غير مصنف...'}</option>
                                             {categories.map(c => (
                                                 <option key={c.id} value={c.id}>{c.icon} {c.name}</option>
                                             ))}
@@ -717,7 +751,7 @@ function NewInvoicePageInner() {
 
     useEffect(() => {
         getProjectsForInvoice().then(data => setProjects(data as any[]));
-        getCategories().then(setCategories);
+        getCategories("PROJECT").then(setCategories);
     }, []);
 
     // USER gets the simplified mobile-first flow

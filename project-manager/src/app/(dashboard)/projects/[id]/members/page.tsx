@@ -12,11 +12,10 @@ import toast from "react-hot-toast";
 
 const ROLE_CONFIG = {
     PROJECT_EMPLOYEE: { label: "موظف", color: "bg-blue-100 text-blue-700", desc: "يستلم عهدة، يرفع فواتير" },
-    PROJECT_ACCOUNTANT: { label: "محاسب", color: "bg-blue-100 text-blue-700", desc: "يراجع ويعتمد الفواتير" },
     PROJECT_MANAGER: { label: "منسق", color: "bg-amber-100 text-amber-700", desc: "يضيف قوائم المشتريات" },
 };
 
-type ProjectRole = "PROJECT_EMPLOYEE" | "PROJECT_ACCOUNTANT" | "PROJECT_MANAGER";
+type ProjectRole = "PROJECT_EMPLOYEE" | "PROJECT_MANAGER";
 type Member = Awaited<ReturnType<typeof getProjectMembers>>[0];
 
 export default function ProjectMembersPage() {
@@ -100,7 +99,7 @@ export default function ProjectMembersPage() {
                         ))}
                     </div>
                     <p className="text-xs text-gray-400 mt-3 italic">
-                        ⚠️ المحاسب لا يمكنه اعتماد فاتورة أنشأها هو (فصل المهام)
+                        ⚠️ المحاسب العام هو المسؤول عن مراجعة واعتماد الفواتير لجميع المشاريع
                     </p>
                 </Card>
 

@@ -250,10 +250,9 @@ export default function EditProjectPage({ params }: { params: Promise<{ id: stri
                                                             </div>
                                                         </div>
                                                         <div className="flex flex-wrap gap-2">
-                                                            {['PROJECT_EMPLOYEE', 'PROJECT_ACCOUNTANT', 'PROJECT_MANAGER'].map(roleOption => {
+                                                            {['PROJECT_EMPLOYEE', 'PROJECT_MANAGER'].map(roleOption => {
                                                                 const labels: Record<string, string> = {
                                                                     'PROJECT_EMPLOYEE': 'موظف',
-                                                                    'PROJECT_ACCOUNTANT': 'محاسب',
                                                                     'PROJECT_MANAGER': 'منسق'
                                                                 };
                                                                 const isActive = currentRoles.includes(roleOption);

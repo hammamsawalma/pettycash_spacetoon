@@ -172,13 +172,14 @@ export default function GeneralManagerDashboard() {
                                 <h3 className="font-bold text-lg text-gray-900">التدفق المالي الشامل</h3>
                                 <TrendingUp className="w-5 h-5 text-[#102550]" />
                             </div>
-                            <div className="grid grid-cols-3 md:grid-cols-6 gap-3">
+                            <div className="grid grid-cols-3 md:grid-cols-4 gap-3">
                                 {[
                                     { label: "وارد الخزنة", value: walletFlow.walletReceived, color: "text-emerald-600", bg: "bg-emerald-50" },
                                     { label: "موزَّع للمشاريع", value: walletFlow.projectsAllocated, color: "text-blue-600", bg: "bg-blue-50" },
                                     { label: "عهد للموظفين", value: walletFlow.custodyIssued, color: "text-amber-600", bg: "bg-amber-50" },
                                     { label: "عهد مُرجَعة", value: walletFlow.custodyReturned, color: "text-blue-600", bg: "bg-blue-50" },
                                     { label: "فواتير معتمدة", value: walletFlow.invoicesApproved, color: "text-rose-600", bg: "bg-rose-50" },
+                                    { label: "مصاريف شركة", value: walletFlow.companyExpenses ?? 0, color: "text-purple-600", bg: "bg-purple-50" },
                                     { label: "رصيد الخزنة", value: walletFlow.walletRemaining, color: "text-emerald-700", bg: "bg-emerald-100 ring-1 ring-emerald-200" },
                                 ].map((item, i) => (
                                     <div key={i} className={`rounded-xl p-3 text-center ${item.bg}`}>

@@ -20,12 +20,8 @@ interface AuthContextType {
     projectMemberships: ProjectMembership[];
     /** True if the user is a PROJECT_MANAGER in at least one project */
     isCoordinatorInAny: boolean;
-    /** True if the user is a PROJECT_ACCOUNTANT in at least one project */
-    isAccountantInAny: boolean;
     /** True if the user is a PROJECT_MANAGER in the given project */
     isCoordinatorIn: (projectId: string) => boolean;
-    /** True if the user is a PROJECT_ACCOUNTANT in the given project */
-    isAccountantIn: (projectId: string) => boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -54,12 +50,8 @@ export function AuthProvider({
         }
     };
 
-    // Derive coordinator/accountant flags from memberships — memoized for performance
-    const { isCoordinatorInAny, isAccountantInAny, isCoordinatorIn, isAccountantIn } = useMemo(() => {
-        // For non-USER roles that always have access, GLOBAL_ACCOUNTANT is accountant in all
-        const role = user?.role as UserRole | undefined;
-
-        // GLOBAL_ACCOUNTANT: accountant in all projects (tracked via initialMemberships OR role)
+    // Derive coordinator flags from memberships — memoized for performance
+    const { isCoordinatorInAny, isCoordinatorIn } = useMemo(() => {
         const effectiveMemberships = initialMemberships;
 
         const coordinatorProjects = new Set(
@@ -68,23 +60,11 @@ export function AuthProvider({
                 .map(m => m.projectId)
         );
 
-        const accountantProjects = new Set(
-            effectiveMemberships
-                .filter(m => m.projectRoles.split(",").map(r => r.trim()).includes("PROJECT_ACCOUNTANT"))
-                .map(m => m.projectId)
-        );
-
-        // GLOBAL_ACCOUNTANT is always considered an accountant (for any project)
-        const isGlobalAccountant = role === "GLOBAL_ACCOUNTANT";
-        const isAdminRole = role === "ADMIN";
-
         return {
             isCoordinatorInAny: coordinatorProjects.size > 0,
-            isAccountantInAny: isGlobalAccountant || isAdminRole || accountantProjects.size > 0,
             isCoordinatorIn: (projectId: string) => coordinatorProjects.has(projectId),
-            isAccountantIn: (projectId: string) => isGlobalAccountant || isAdminRole || accountantProjects.has(projectId),
         };
-    }, [initialMemberships, user?.role]);
+    }, [initialMemberships]);
 
     return (
         <AuthContext.Provider value={{
@@ -95,9 +75,7 @@ export function AuthProvider({
             setRole: handleSetRole,
             projectMemberships: initialMemberships,
             isCoordinatorInAny,
-            isAccountantInAny,
             isCoordinatorIn,
-            isAccountantIn,
         }}>
             {children}
         </AuthContext.Provider>

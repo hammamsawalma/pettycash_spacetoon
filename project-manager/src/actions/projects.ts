@@ -116,7 +116,7 @@ export async function getProjectById(id: string) {
 }
 
 // ─── Projects available for Invoice creation ─────────────────────────────────
-// Filters: IN_PROGRESS + user has PROJECT_EMPLOYEE or PROJECT_ACCOUNTANT role
+// Filters: IN_PROGRESS + user has PROJECT_EMPLOYEE role
 // (or is a global role that can create invoices)
 export async function getProjectsForInvoice() {
     try {
@@ -132,7 +132,7 @@ export async function getProjectsForInvoice() {
             });
         }
 
-        // USER: only projects where user has PROJECT_EMPLOYEE or PROJECT_ACCOUNTANT role
+        // USER: only projects where user has PROJECT_EMPLOYEE role
         const memberships = await prisma.projectMember.findMany({
             where: {
                 userId: session.id,
@@ -144,7 +144,7 @@ export async function getProjectsForInvoice() {
         // Also include projects where user is the manager AND has employee role
         const eligible = memberships.filter(m => {
             const roles = (m.projectRoles || "").split(",").map((r: string) => r.trim());
-            return roles.includes("PROJECT_EMPLOYEE") || roles.includes("PROJECT_ACCOUNTANT");
+            return roles.includes("PROJECT_EMPLOYEE");
         });
 
         return eligible.map(m => m.project);
@@ -297,23 +297,7 @@ export async function createProject(prevState: unknown, formData: FormData) {
             }
         });
 
-        // ── Auto-accountant: if no PROJECT_ACCOUNTANT was assigned, add GLOBAL_ACCOUNTANT ──
-        const hasAccountant = membersData.some(m => m.roles.includes("PROJECT_ACCOUNTANT"));
-        if (!hasAccountant) {
-            const globalAccountant = await prisma.user.findFirst({
-                where: { role: "GLOBAL_ACCOUNTANT", isDeleted: false },
-                select: { id: true },
-            });
-            if (globalAccountant) {
-                await prisma.projectMember.create({
-                    data: {
-                        projectId: newProject.id,
-                        userId: globalAccountant.id,
-                        projectRoles: "PROJECT_EMPLOYEE,PROJECT_ACCOUNTANT",
-                    }
-                });
-            }
-        }
+        // v4: Auto-accountant removed — GLOBAL_ACCOUNTANT handles all projects
 
         revalidatePath("/projects");
         revalidatePath("/");

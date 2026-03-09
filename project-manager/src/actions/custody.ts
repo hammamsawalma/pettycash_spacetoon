@@ -17,8 +17,22 @@ export async function issueCustody(prevState: unknown, formData: FormData) {
         const method = (formData.get("method") as string) || "CASH";
         const note = formData.get("note") as string;
 
-        if (!projectId || !employeeId || isNaN(amount) || amount <= 0) {
+        // v5: External custody fields
+        const isExternal = formData.get("isExternal") === "true";
+        const externalName = formData.get("externalName") as string;
+        const externalPhone = formData.get("externalPhone") as string;
+        const externalPurpose = formData.get("externalPurpose") as string;
+        const externalSignature = formData.get("externalSignature") as string;
+
+        if (!projectId || isNaN(amount) || amount <= 0) {
             return { error: "جميع الحقول مطلوبة والمبلغ يجب أن يكون أكبر من صفر" };
+        }
+
+        // v5: External custody requires name
+        if (isExternal) {
+            if (!externalName?.trim()) return { error: "اسم الطرف الخارجي مطلوب" };
+        } else {
+            if (!employeeId) return { error: "يرجى اختيار الموظف" };
         }
 
         const project = await prisma.project.findUnique({ where: { id: projectId } });
@@ -29,74 +43,86 @@ export async function issueCustody(prevState: unknown, formData: FormData) {
             return { error: "لا يمكن صرف عهدة لمشروع مكتمل أو متوقف" };
         }
 
-        // v3: Only ADMIN (system-level) + PROJECT_ACCOUNTANT (project-level) can issue custody
-        // GLOBAL_ACCOUNTANT is also allowed (they are auto-added as project accountant)
-        let isAuthorized = session.role === "ADMIN" || session.role === "GLOBAL_ACCOUNTANT";
-
-        // Check if user is a PROJECT_ACCOUNTANT in this specific project
-        const projectRoles = await getUserRolesInProject(projectId, session.id);
-        if (hasProjectPermission(projectRoles, ["PROJECT_ACCOUNTANT"])) {
-            isAuthorized = true;
-        }
+        // v4: Only ADMIN + GLOBAL_ACCOUNTANT can issue custody (all projects)
+        const isAuthorized = session.role === "ADMIN" || session.role === "GLOBAL_ACCOUNTANT";
 
         if (!isAuthorized) {
             return { error: "ليس لديك صلاحية لصرف عهدة في هذا المشروع" };
         }
 
-        // Check employee is a member of this project
-        const membership = await prisma.projectMember.findUnique({
-            where: { projectId_userId: { projectId, userId: employeeId } }
-        });
-        if (!membership) return { error: "الموظف المحدد ليس عضواً في هذا المشروع" };
+        // Check employee is a member of this project (skip for external)
+        let membership: { id: string } | null = null;
+        if (!isExternal) {
+            membership = await prisma.projectMember.findUnique({
+                where: { projectId_userId: { projectId, userId: employeeId } }
+            });
+            if (!membership) return { error: "الموظف المحدد ليس عضواً في هذا المشروع" };
+        }
 
         // E2 + C4: Budget check AND all writes are wrapped in one atomic transaction.
-        // This prevents the race condition where two concurrent custody issuances both pass
-        // the pre-check and collectively exceed the project budget.
         let custody: { id: string };
         await prisma.$transaction(async (tx: any) => {
-            // Re-read project inside tx to get the locked, current budget figures
             const lockedProject = await tx.project.findUnique({ where: { id: projectId } });
             if (!lockedProject) throw new Error("المشروع غير موجود");
             if (lockedProject.status !== "IN_PROGRESS") throw new Error("لا يمكن صرف عهدة لمشروع مكتمل أو متوقف");
 
-            // C1: Include custodyReturned — returned cash frees up budget for re-issuance
             const available = (lockedProject.budgetAllocated ?? 0) - (lockedProject.custodyIssued ?? 0) + (lockedProject.custodyReturned ?? 0);
             if (amount > available) {
                 throw new Error(`ميزانية المشروع المتاحة (${available.toLocaleString()}) أقل من المبلغ المطلوب (${amount.toLocaleString()})`);
             }
 
-            // Create custody record — balance starts equal to amount
+            // Create custody record
             custody = await tx.employeeCustody.create({
                 data: {
                     projectId,
-                    employeeId,
-                    memberId: membership.id,
+                    employeeId: isExternal ? session.id : employeeId,  // v5: external uses creator as placeholder
+                    memberId: isExternal ? undefined : membership!.id,
                     amount,
                     balance: amount,
                     method,
                     note: note || null,
+                    // v5: External custody fields
+                    isExternal,
+                    externalName: isExternal ? externalName : null,
+                    externalPhone: isExternal ? externalPhone : null,
+                    externalPurpose: isExternal ? externalPurpose : null,
+                    externalSignature: isExternal ? externalSignature : null,
+                    // v5: Auto-confirm external custody (no employee confirmation needed)
+                    ...(isExternal ? {
+                        isConfirmed: true,
+                        confirmedAt: new Date(),
+                        confirmation: {
+                            create: { signatureFile: externalSignature || null }
+                        }
+                    } : {}),
                 }
             });
 
-            // Update project custodyIssued + member balance atomically
+            // Update project custodyIssued
             await tx.project.update({
                 where: { id: projectId },
                 data: { custodyIssued: { increment: amount } }
             });
-            await tx.projectMember.update({
-                where: { id: membership.id },
-                data: { custodyBalance: { increment: amount } }
-            });
-        });
 
-        // Notify employee outside transaction (non-critical, failure will not roll back custody)
-        await prisma.notification.create({
-            data: {
-                title: 'تم صرف عهدة لك ✅',
-                content: `تم صرف مبلغ ${amount.toLocaleString()} ريال — يرجى تأكيد الاستلام`,
-                targetUserId: employeeId
+            // Update member balance (only for internal)
+            if (!isExternal && membership) {
+                await tx.projectMember.update({
+                    where: { id: membership.id },
+                    data: { custodyBalance: { increment: amount } }
+                });
             }
         });
+
+        // Notify employee (only for internal)
+        if (!isExternal) {
+            await prisma.notification.create({
+                data: {
+                    title: 'تم صرف عهدة لك ✅',
+                    content: `تم صرف مبلغ ${amount.toLocaleString()} ريال — يرجى تأكيد الاستلام`,
+                    targetUserId: employeeId
+                }
+            });
+        }
 
         revalidatePath(`/projects/${projectId}`);
         revalidatePath("/projects");
@@ -109,7 +135,7 @@ export async function issueCustody(prevState: unknown, formData: FormData) {
 }
 
 // ─── Employee confirms receiving custody ─────────────────
-export async function confirmCustodyReceipt(custodyId: string) {
+export async function confirmCustodyReceipt(custodyId: string, signatureBase64?: string) {
     try {
         const session = await getSession();
         if (!session) return { error: "غير مصرح" };
@@ -128,7 +154,7 @@ export async function confirmCustodyReceipt(custodyId: string) {
                 confirmedAt: new Date(),
                 confirmation: {
                     create: {
-                        signature: `CONF-${Date.now()}`
+                        signatureFile: signatureBase64 || null
                     }
                 }
             }
@@ -206,7 +232,7 @@ export async function getProjectCustodies(projectId: string) {
         // M1: Authorization check — global finance roles, project manager, or project member
         const isGlobalAuth = isGlobalFinance(session.role) || session.role === "GENERAL_MANAGER";
         let isManager = false;
-        let isFinanceRole = false; // PROJECT_MANAGER or PROJECT_ACCOUNTANT
+        let isFinanceRole = false; // PROJECT_MANAGER
 
         if (!isGlobalAuth) {
             const project = await prisma.project.findUnique({ where: { id: projectId }, select: { managerId: true } });
@@ -219,9 +245,9 @@ export async function getProjectCustodies(projectId: string) {
             if (!isManager && !membership) {
                 return []; // not a member of this project
             }
-            // V2: Check if this member is a manager or accountant at project level
+            // v4: Check if this member is a manager at project level
             if (membership) {
-                isFinanceRole = hasProjectPermission(membership.projectRoles, ["PROJECT_MANAGER", "PROJECT_ACCOUNTANT"]);
+                isFinanceRole = hasProjectPermission(membership.projectRoles, ["PROJECT_MANAGER"]);
             }
         }
 
@@ -263,7 +289,10 @@ export async function getMyCustodies() {
         if (!session) return [];
 
         const custodies = await prisma.employeeCustody.findMany({
-            where: { employeeId: session.id },
+            where: {
+                employeeId: session.id,
+                isExternal: false,  // v5: EDGE-1 — don't show external custodies to the creator
+            },
             include: {
                 project: { select: { id: true, name: true, manager: { select: { name: true } } } },
                 confirmation: true,
@@ -290,11 +319,12 @@ export async function getMyCustodies() {
     }
 }
 
-// ─── Return Remaining Cash at Project Close ────────────────
+// ─── Return Remaining Cash at Project Close ──────────────
 export async function returnCustodyBalance(
     custodyId: string,
     returnedAmount: number,
-    note?: string
+    note?: string,
+    signatureBase64?: string // v5: accountant signature
 ) {
     try {
         const session = await getSession();
@@ -306,20 +336,8 @@ export async function returnCustodyBalance(
         });
         if (!custody) return { error: "العهدة غير موجودة" };
 
-        // Authorization: ADMIN (project manager), GLOBAL_ACCOUNTANT, GENERAL_MANAGER, or PROJECT_MANAGER/ACCOUNTANT
-        let isAuthorized = false;
-        if (session.role === "GENERAL_MANAGER" || session.role === "GLOBAL_ACCOUNTANT") {
-            isAuthorized = true;
-        } else if (session.role === "ADMIN" && custody.project.managerId === session.id) {
-            isAuthorized = true;
-        } else {
-            const memberRecord = await prisma.projectMember.findUnique({
-                where: { projectId_userId: { projectId: custody.projectId, userId: session.id } }
-            });
-            if (memberRecord && hasProjectPermission(memberRecord.projectRoles, ["PROJECT_MANAGER", "PROJECT_ACCOUNTANT"])) {
-                isAuthorized = true;
-            }
-        }
+        // v4: Authorization — only GLOBAL_ACCOUNTANT can record custody returns
+        const isAuthorized = session.role === "GLOBAL_ACCOUNTANT";
 
         if (!isAuthorized) {
             return { error: "ليس لديك صلاحية لتسجيل إرجاع العهدة" };
@@ -337,15 +355,17 @@ export async function returnCustodyBalance(
         // M1: Use tolerance instead of === 0 to handle float precision issues
         const willClose = Math.abs(newBalance) < 0.01;
 
-        await prisma.$transaction([
-            // تسجيل عملية الإرجاع
+        // v5: Build transaction operations
+        const txOps: any[] = [
+            // تسجيل عملية الإرجاع + v5: accountant signature
             prisma.custodyReturn.create({
                 data: {
                     custodyId,
                     amount: returnedAmount,
                     returnedBy: custody.employeeId,
                     recordedBy: session.id,
-                    note: note || null
+                    note: note || null,
+                    signatureFile: signatureBase64 || null,
                 }
             }),
             // تحديث رصيد العهدة
@@ -357,17 +377,24 @@ export async function returnCustodyBalance(
                     closedAt: willClose ? new Date() : null
                 }
             }),
-            // تحديث رصيد عضو المشروع
-            prisma.projectMember.updateMany({
-                where: { projectId: custody.projectId, userId: custody.employeeId },
-                data: { custodyBalance: { decrement: returnedAmount } }
-            }),
             // تحديث custodyReturned على المشروع
             prisma.project.update({
                 where: { id: custody.projectId },
                 data: { custodyReturned: { increment: returnedAmount } }
             })
-        ]);
+        ];
+
+        // EDGE-4: Only update projectMember for internal custodies
+        if (!custody.isExternal) {
+            txOps.push(
+                prisma.projectMember.updateMany({
+                    where: { projectId: custody.projectId, userId: custody.employeeId },
+                    data: { custodyBalance: { decrement: returnedAmount } }
+                })
+            );
+        }
+
+        await prisma.$transaction(txOps);
 
         revalidatePath(`/projects/${custody.projectId}`);
         revalidatePath(`/custody/${custodyId}`);

@@ -57,13 +57,12 @@ export default function LoginPage() {
                             <div className="grid grid-cols-2 gap-2">
                                 {[
                                     { label: "👑 مدير النظام", email: "admin@pocket.com", color: "bg-blue-50 hover:bg-blue-100 border-blue-200 text-blue-700" },
-                                    { label: "🌟 مدير عام", email: "gm@pocket.com", color: "bg-yellow-50 hover:bg-yellow-100 border-yellow-300 text-yellow-700" },
-                                    { label: "🧾 محاسب عام", email: "accountant@pocket.com", color: "bg-blue-50 hover:bg-blue-100 border-blue-200 text-blue-700" },
+                                    { label: "🌟 المدير العام", email: "gm@pocket.com", color: "bg-yellow-50 hover:bg-yellow-100 border-yellow-300 text-yellow-700" },
+                                    { label: "🧾 المحاسب العام", email: "accountant@pocket.com", color: "bg-purple-50 hover:bg-purple-100 border-purple-200 text-purple-700" },
                                     { label: "🗂️ منسق — خالد", email: "coordinator@pocket.com", color: "bg-green-50 hover:bg-green-100 border-green-200 text-green-700" },
-                                    { label: "👤 موظف — محمد", email: "emp1@pocket.com", color: "bg-orange-50 hover:bg-orange-100 border-orange-200 text-orange-700" },
-                                    { label: "👤 موظف — سارة 💸", email: "emp2@pocket.com", color: "bg-rose-50 hover:bg-rose-100 border-rose-200 text-rose-700" },
-                                    { label: "👤 موظف — فيصل 🚨", email: "emp3@pocket.com", color: "bg-amber-50 hover:bg-amber-100 border-amber-200 text-amber-700" },
-                                    { label: "📊 محاسبة مشروع", email: "proj-acc@pocket.com", color: "bg-teal-50 hover:bg-teal-100 border-teal-200 text-teal-700" },
+                                    { label: "👤 محمد — عهدة ✅", email: "emp1@pocket.com", color: "bg-orange-50 hover:bg-orange-100 border-orange-200 text-orange-700" },
+                                    { label: "👤 سارة — عهدة ⏳", email: "emp2@pocket.com", color: "bg-rose-50 hover:bg-rose-100 border-rose-200 text-rose-700" },
+                                    { label: "👤 فيصل — طلب 🚨", email: "emp3@pocket.com", color: "bg-amber-50 hover:bg-amber-100 border-amber-200 text-amber-700" },
                                 ].map(({ label, email, color }) => (
                                     <Button
                                         key={email}
@@ -86,7 +85,7 @@ export default function LoginPage() {
                                     </Button>
                                 ))}
                             </div>
-                            <p className="text-[9px] text-center text-gray-300 mt-1">💸 سارة: لديها دين شخصي معلق &nbsp;|&nbsp; 🚨 فيصل: طلب شراء URGENT</p>
+                            <p className="text-[9px] text-center text-gray-300 mt-1">✅ عهدة مؤكدة &nbsp;|&nbsp; ⏳ عهدة تنتظر توقيع + دين &nbsp;|&nbsp; 🚨 طلب شراء عاجل</p>
                         </div>
 
                         <div>

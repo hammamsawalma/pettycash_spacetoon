@@ -155,18 +155,23 @@ export async function getFlowStats() {
         const walletTotalOut = wallet?.totalOut ?? 0;
 
         // P2: Run these aggregations in parallel
-        const [projectBudgetAgg, approvedInvoicesAgg, pendingInvoicesAgg] = await Promise.all([
+        const [projectBudgetAgg, approvedInvoicesAgg, pendingInvoicesAgg, companyExpensesAgg] = await Promise.all([
             prisma.project.aggregate({
                 _sum: { budgetAllocated: true, custodyIssued: true, custodyReturned: true },
                 where: { isDeleted: false, ...(role === "ADMIN" ? { managerId: session.id } : {}) }
             }),
             prisma.invoice.aggregate({
                 _sum: { amount: true },
-                where: { status: "APPROVED", isDeleted: false, ...(role === "ADMIN" ? { project: { managerId: session.id } } : {}) }
+                where: { status: "APPROVED", isDeleted: false, expenseScope: "PROJECT", ...(role === "ADMIN" ? { project: { managerId: session.id } } : {}) }
             }),
             prisma.invoice.aggregate({
                 _sum: { amount: true },
-                where: { status: "PENDING", isDeleted: false, ...(role === "ADMIN" ? { project: { managerId: session.id } } : {}) }
+                where: { status: "PENDING", isDeleted: false, expenseScope: "PROJECT", ...(role === "ADMIN" ? { project: { managerId: session.id } } : {}) }
+            }),
+            // v5: Company expenses total (separate from project stats)
+            prisma.invoice.aggregate({
+                _sum: { amount: true },
+                where: { status: "APPROVED", isDeleted: false, expenseScope: "COMPANY" }
             }),
         ]);
 
@@ -180,6 +185,7 @@ export async function getFlowStats() {
             custodyReturned: projectBudgetAgg._sum.custodyReturned ?? 0,
             invoicesApproved: approvedInvoicesAgg._sum.amount ?? 0,
             invoicesPending: pendingInvoicesAgg._sum.amount ?? 0,
+            companyExpenses: companyExpensesAgg._sum.amount ?? 0,  // v5
         };
     }
 
@@ -208,9 +214,8 @@ export async function getFlowStats() {
         // Step C: Project-level role flags
         const isProjectManager = managedProjectIds.length > 0
             || memberMemberships.some(m => m.projectRoles?.includes("PROJECT_MANAGER"));
-        const isProjectAccountant = memberMemberships.some(m => m.projectRoles?.includes("PROJECT_ACCOUNTANT"));
         const isProjectEmployee = memberMemberships.some(m => m.projectRoles?.includes("PROJECT_EMPLOYEE"));
-        const canAddInvoice = isProjectEmployee || isProjectAccountant || managedProjectIds.length > 0;
+        const canAddInvoice = isProjectEmployee || managedProjectIds.length > 0;
 
         // Step D: Financial aggregations
         const managedBudget = managedProjects.reduce((s, p) => s + (p.budgetAllocated ?? 0), 0);
@@ -231,7 +236,7 @@ export async function getFlowStats() {
             allProjectIds.length > 0
                 ? prisma.invoice.aggregate({
                     _sum: { amount: true },
-                    where: { projectId: { in: allProjectIds }, status: "APPROVED", isDeleted: false }
+                    where: { projectId: { in: allProjectIds }, status: "APPROVED", isDeleted: false, expenseScope: "PROJECT" }
                 })
                 : Promise.resolve({ _sum: { amount: 0 } }),
             prisma.employeeCustody.findMany({
@@ -249,7 +254,6 @@ export async function getFlowStats() {
         return {
             role,
             isProjectManager,
-            isProjectAccountant,
             isProjectEmployee,
             canAddInvoice,
             hasAnyProject: allProjectIds.length > 0,

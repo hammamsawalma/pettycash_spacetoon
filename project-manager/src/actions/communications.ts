@@ -11,18 +11,23 @@ export async function getMessages() {
 
         const isRestricted = !isGlobalFinance(session.role);
 
+        // v5: Project chat only — no personal messages
         const messages = await prisma.message.findMany({
-            where: isRestricted
-                ? {
-                    OR: [
-                        { senderId: session.id },
-                        { receiverId: session.id },
-                        { project: { OR: [{ managerId: session.id }, { members: { some: { userId: session.id } } }] } }
-                    ]
-                }
-                : {},
+            where: {
+                isProjectChat: true,  // v5: only project chats
+                ...(isRestricted
+                    ? {
+                        project: {
+                            OR: [
+                                { managerId: session.id },
+                                { members: { some: { userId: session.id } } }
+                            ]
+                        }
+                    }
+                    : {})
+            },
             orderBy: { createdAt: 'desc' },
-            take: 100, // A3: Prevent unbounded payload
+            take: 200, // A3: Prevent unbounded payload
             include: {
                 sender: true,
                 receiver: true,
@@ -42,7 +47,28 @@ export async function sendMessage(content: string, receiverId?: string, projectI
             return { error: "غير مصرح لك بإرسال رسائل" };
         }
 
-        const validatedFields = sendMessageSchema.safeParse({ content, receiverId, projectId });
+        // v5: Require projectId — no personal chats
+        if (!projectId) {
+            return { error: "المحادثات الشخصية غير متاحة — يرجى استخدام شات المشروع" };
+        }
+
+        // v5: Verify user has access to this project
+        if (!isGlobalFinance(session.role)) {
+            const isMember = await prisma.project.findFirst({
+                where: {
+                    id: projectId,
+                    OR: [
+                        { managerId: session.id },
+                        { members: { some: { userId: session.id } } }
+                    ]
+                }
+            });
+            if (!isMember) {
+                return { error: "غير مصرح لك بالمشاركة في هذا المشروع" };
+            }
+        }
+
+        const validatedFields = sendMessageSchema.safeParse({ content, receiverId: undefined, projectId });
 
         if (!validatedFields.success) {
             return { error: validatedFields.error.issues[0].message };
@@ -52,9 +78,9 @@ export async function sendMessage(content: string, receiverId?: string, projectI
             data: {
                 content,
                 senderId: session.id,
-                receiverId: receiverId || null,
-                projectId: projectId || null,
-                isProjectChat: !!projectId
+                receiverId: null,
+                projectId,
+                isProjectChat: true
             },
             include: {
                 sender: true,

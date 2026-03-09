@@ -7,7 +7,7 @@ import {
     Home, FolderKanban, FileText, ShoppingCart,
     Archive, HeadphonesIcon, BarChart3, Users,
     Trash2, BellRing, Settings, LogOut, MessageSquare, PlusCircle, Wallet,
-    KanbanSquare, ChevronDown, X
+    KanbanSquare, ChevronDown, X, Banknote
 } from 'lucide-react';
 
 import { useAuth } from '@/context/AuthContext';
@@ -178,6 +178,13 @@ const navigationGroups: NavGroup[] = [
                     },
                 ],
             },
+            {
+                name: 'الديون',
+                href: '/debts',
+                icon: Banknote,
+                // All roles can view debts — USER sees own debts only (server-filtered)
+                check: (r) => canDo(r, 'debts', 'view'),
+            },
         ],
     },
     {
@@ -186,23 +193,18 @@ const navigationGroups: NavGroup[] = [
             {
                 name: 'الموظفين',
                 icon: Users,
-                // Users with view access see the parent item
-                check: (r) => canDo(r, 'employees', 'viewSalaries'), // ADMIN, GM, ACC — not plain USER
+                // Only management roles see this section — USER has no access to employees list
+                check: (r) => canDo(r, 'employees', 'viewAll'),
                 subItems: [
                     {
                         name: 'قائمة الموظفين',
                         href: '/employees',
-                        check: (r) => canDo(r, 'employees', 'viewSalaries'),
+                        check: (r) => canDo(r, 'employees', 'viewAll'),
                     },
                     {
                         name: 'إضافة موظف جديد',
                         href: '/employees/new',
                         check: (r) => canDo(r, 'employees', 'create'),
-                    },
-                    {
-                        name: 'ديون الموظفين',
-                        href: '/debts',
-                        check: (r) => canDo(r, 'debts', 'view'),
                     },
                 ],
             },
@@ -223,6 +225,13 @@ const navigationGroups: NavGroup[] = [
     {
         section: 'النظام',
         items: [
+            {
+                name: 'إدارة التصنيفات',
+                href: '/settings/categories',
+                icon: FolderKanban,
+                // v5: Only ADMIN + GLOBAL_ACCOUNTANT
+                check: (r) => r === 'ADMIN' || r === 'GLOBAL_ACCOUNTANT',
+            },
             {
                 name: 'الدعم الفني',
                 href: '/support',

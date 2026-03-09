@@ -118,17 +118,6 @@ export default function NewEmployeePage() {
                                     </div>
 
                                     <div className="space-y-2">
-                                        <label className="text-xs md:text-sm font-bold text-gray-700">الراتب المتفق عليه (QAR)</label>
-                                        <input
-                                            type="number"
-                                            name="salary"
-                                            step="0.01"
-                                            placeholder="مثال: 5000"
-                                            className="w-full rounded-xl border border-gray-200 p-3.5 md:p-4 outline-none focus:ring-2 focus:ring-[#102550] text-xs md:text-sm shadow-sm font-medium"
-                                        />
-                                    </div>
-
-                                    <div className="space-y-2">
                                         <label className="text-xs md:text-sm font-bold text-gray-700">البريد الالكتروني (اختياري)</label>
                                         <input
                                             type="email"

@@ -2,7 +2,7 @@
 
 /**
  * ════════════════════════════════════════════════════════════════════════
- *  <Protect> — Conditional UI rendering based on RBAC permissions v3
+ *  <Protect> — Conditional UI rendering based on RBAC permissions v4
  *
  *  Automatically reads system role + project memberships from AuthContext.
  *  No need to manually pass projectRoles anywhere.
@@ -12,7 +12,7 @@
  *      <button>إغلاق المشروع</button>
  *    </Protect>
  *
- *  Usage (project-scoped — coordinator / accountant):
+ *  Usage (project-scoped — coordinator):
  *    <Protect resource="purchases" action="create" projectId={projectId}>
  *      <button>إضافة شراء</button>
  *    </Protect>
@@ -33,17 +33,7 @@ type Action<R extends Resource> = keyof typeof PERMISSIONS[R];
 
 // ─── Coordinator-gated actions (need PROJECT_MANAGER in specified/any project) ─
 const COORDINATOR_GATED: Partial<Record<Resource, string[]>> = {
-    // Only purchase creation is coordinator-gated
-    // projects.create/edit = ADMIN only (NOT coordinator)
-    // purchases.cancel = ADMIN only
-    // custodies.transfer = ADMIN only
-    purchases: ["create", "createGlobal"],
-};
-
-// ─── Accountant-gated actions (need PROJECT_ACCOUNTANT in specified/any project) ─
-const ACCOUNTANT_GATED: Partial<Record<Resource, string[]>> = {
-    invoices: ["approve"],
-    custodies: ["issue"],
+    purchases: ["create", "createGlobal", "cancel"],
 };
 
 // ─── Main Component ───────────────────────────────────────────────────────────
@@ -89,9 +79,7 @@ export function useCanDo<R extends Resource>(
     const {
         user,
         isCoordinatorInAny,
-        isAccountantInAny,
         isCoordinatorIn,
-        isAccountantIn,
     } = useAuth();
 
     if (!user) return false;
@@ -103,12 +91,6 @@ export function useCanDo<R extends Resource>(
     // 2. Coordinator-gated: needs PROJECT_MANAGER in the given (or any) project
     if (COORDINATOR_GATED[resource]?.includes(action as string)) {
         return projectId ? isCoordinatorIn(projectId) : isCoordinatorInAny;
-    }
-
-    // 3. Accountant-gated: needs PROJECT_ACCOUNTANT in the given (or any) project
-    //    Also granted to GLOBAL_ACCOUNTANT + ADMIN via AuthContext helpers
-    if (ACCOUNTANT_GATED[resource]?.includes(action as string)) {
-        return projectId ? isAccountantIn(projectId) : isAccountantInAny;
     }
 
     return false;

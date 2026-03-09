@@ -35,13 +35,12 @@ export async function getPurchases(projectId?: string) {
                                     }
                                 }
                             },
-                            // All purchases in projects where user holds PROJECT_ACCOUNTANT role
+                            // All purchases in projects where user is a member
                             {
                                 project: {
                                     members: {
                                         some: {
-                                            userId: session.id,
-                                            projectRoles: { contains: "PROJECT_ACCOUNTANT" }
+                                            userId: session.id
                                         }
                                     }
                                 }
@@ -230,7 +229,7 @@ export async function getPurchaseById(id: string) {
             const member = await prisma.projectMember.findUnique({
                 where: { projectId_userId: { projectId: purchase.projectId, userId: session.id } }
             });
-            if (member && (member.projectRoles.includes("PROJECT_MANAGER") || member.projectRoles.includes("PROJECT_ACCOUNTANT") || member.projectRoles.includes("PROJECT_EMPLOYEE"))) {
+            if (member && (member.projectRoles.includes("PROJECT_MANAGER") || member.projectRoles.includes("PROJECT_EMPLOYEE"))) {
                 return purchase;
             }
         }

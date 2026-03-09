@@ -27,10 +27,10 @@ export default function ProjectDetailsPage({ params }: { params: Promise<{ id: s
     const router = useRouter();
     const searchParams = useNextSearchParams();
     const { role, user } = useAuth();
-    // v3: Project-scoped permission checks using AuthContext memberships
+    // v4: Project-scoped permission checks using AuthContext memberships
     const canEditProject = useCanDo('projects', 'edit');                          // ADMIN only
     const canCloseProject = useCanDo('projects', 'close');                        // ADMIN only
-    const canIssueCustody = useCanDo('custodies', 'issue', projectId);            // ADMIN + PROJECT_ACCOUNTANT of this project
+    const canIssueCustody = useCanDo('custodies', 'issue');                       // ADMIN + GLOBAL_ACCOUNTANT
     const canAddPurchase = useCanDo('purchases', 'create', projectId);            // ADMIN + GM + PROJECT_MANAGER of this project
     const canManageMembers = useCanDo('employees', 'create');                     // ADMIN only
     const [activeTab, setActiveTab] = useState("تفاصيل المشروع");
@@ -49,6 +49,11 @@ export default function ProjectDetailsPage({ params }: { params: Promise<{ id: s
     const [custodyMethod, setCustodyMethod] = useState("CASH");
     const [custodyNote, setCustodyNote] = useState("");
     const [isIssuingCustody, setIsIssuingCustody] = useState(false);
+    // v5: External custody
+    const [isExternalCustody, setIsExternalCustody] = useState(false);
+    const [externalName, setExternalName] = useState("");
+    const [externalPhone, setExternalPhone] = useState("");
+    const [externalPurpose, setExternalPurpose] = useState("");
     const [projectCustodies, setProjectCustodies] = useState<any[]>([]);
 
 
@@ -89,17 +94,15 @@ export default function ProjectDetailsPage({ params }: { params: Promise<{ id: s
     const userMember = project.members?.find((m: any) => m.userId === user?.id);
     const userProjectRoles = userMember ? (userMember.projectRoles || "PROJECT_EMPLOYEE").split(",") : [];
     const isProjectCoordinator = userProjectRoles.includes("PROJECT_MANAGER");
-    const isProjectAccountant = role === "GLOBAL_ACCOUNTANT" || role === "GENERAL_MANAGER" || userProjectRoles.includes("PROJECT_ACCOUNTANT");
+    // v4: GLOBAL_ACCOUNTANT handles all projects directly
+    const isFinancialViewer = role === "GLOBAL_ACCOUNTANT" || role === "GENERAL_MANAGER";
 
     // Dynamic tabs based on role
     const tabs = ["تفاصيل المشروع"];
-    if (role === "ADMIN" || isProjectCoordinator || isProjectAccountant) {
+    if (role === "ADMIN" || isProjectCoordinator || isFinancialViewer) {
         tabs.push("فريق المشروع والعُهد");
     }
     tabs.push("الفواتير", "المشتريات");
-    if (role === "ADMIN" || role === "GLOBAL_ACCOUNTANT" || role === "GENERAL_MANAGER" || isProjectAccountant) {
-        tabs.push("رواتب الموظفين");
-    }
     tabs.push("شات المشروع");
 
     const handleCloseProject = async () => {
@@ -148,7 +151,7 @@ export default function ProjectDetailsPage({ params }: { params: Promise<{ id: s
             <div className="space-y-6 md:space-y-8 pb-6">
 
                 {/* KPI Grid — hidden for pure employees (USER with no coordinator/accountant role) */}
-                {(role !== "USER" || isProjectCoordinator || isProjectAccountant) && (
+                {(role !== "USER" || isProjectCoordinator || isFinancialViewer) && (
                     <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
                         {kpis.map((kpi, i) => (
                             <Card key={i} className="flex flex-col md:flex-row items-start md:items-center gap-3 md:gap-4 p-4 md:p-6 group cursor-default shadow-sm border-gray-100">
@@ -293,7 +296,7 @@ export default function ProjectDetailsPage({ params }: { params: Promise<{ id: s
                 )}
 
                 {/* ─── Tab: فريق المشروع والعُهد (ADMIN + COORDINATOR + ACCOUNTANT) ─── */}
-                {activeTab === "فريق المشروع والعُهد" && (role === "ADMIN" || role === "GENERAL_MANAGER" || isProjectCoordinator || isProjectAccountant) && (
+                {activeTab === "فريق المشروع والعُهد" && (role === "ADMIN" || role === "GENERAL_MANAGER" || isProjectCoordinator || isFinancialViewer) && (
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                         {/* قائمة الأعضاء */}
                         <Card className="p-5 md:p-6 shadow-sm border-gray-100 space-y-4">
@@ -319,11 +322,11 @@ export default function ProjectDetailsPage({ params }: { params: Promise<{ id: s
                                         const memberTotal = projectCustodies.filter((c: any) => c.employeeId === m.userId).reduce((s: number, c: any) => s + c.amount, 0);
                                         const memberBalance = projectCustodies.filter((c: any) => c.employeeId === m.userId).reduce((s: number, c: any) => s + c.balance, 0);
                                         const roles = ((m as any).projectRoles || "PROJECT_EMPLOYEE").split(",");
-                                        const roleLabels: Record<string, string> = { PROJECT_EMPLOYEE: "موظف", PROJECT_ACCOUNTANT: "محاسب", PROJECT_MANAGER: "منسق" };
+                                        const roleLabels: Record<string, string> = { PROJECT_EMPLOYEE: "موظف", PROJECT_MANAGER: "منسق" };
                                         return (
                                             <div key={m.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-xl gap-3">
                                                 <div className="flex items-center gap-3">
-                                                    <div className="w-10 h-10 rounded-full bg-[#102550]/10 flex items-center justify-center text-[#102550] font-black shrink-0 text-sm">
+                                                    <div className="w-10 h-10 rounded-full bg-[#102550]/10 flex items-center justify-center text-[#102550] shrink-0 text-sm">
                                                         {m.user.name.charAt(0)}
                                                     </div>
                                                     <div>
@@ -356,6 +359,28 @@ export default function ProjectDetailsPage({ params }: { params: Promise<{ id: s
                                             </div>
                                         );
                                     })}
+
+                                    {/* v5: GAP-5 — External custodies badge */}
+                                    {projectCustodies.filter((c: any) => c.isExternal).length > 0 && (
+                                        <div className="mt-3 pt-3 border-t border-orange-100">
+                                            <p className="text-xs font-bold text-orange-700 mb-2">🏢 عهد خارجية</p>
+                                            {projectCustodies.filter((c: any) => c.isExternal).map((c: any) => (
+                                                <div key={c.id} className="flex items-center gap-3 p-2.5 rounded-xl bg-orange-50/50 border border-orange-100 mb-2">
+                                                    <div className="w-7 h-7 rounded-full bg-orange-100 flex items-center justify-center shrink-0">
+                                                        <span className="text-xs font-bold text-orange-600">خ</span>
+                                                    </div>
+                                                    <div className="flex-1 min-w-0">
+                                                        <p className="text-xs font-bold text-gray-900 truncate">{c.externalName || "طرف خارجي"}</p>
+                                                        {c.externalPurpose && <p className="text-[10px] text-gray-500 truncate">{c.externalPurpose}</p>}
+                                                    </div>
+                                                    <div className="text-left shrink-0">
+                                                        <p className="text-xs font-black text-gray-900">{c.balance?.toLocaleString()} <span className="text-[10px] text-gray-400">QAR</span></p>
+                                                        <span className="text-[9px] px-1.5 py-0.5 rounded-full font-bold bg-orange-100 text-orange-700 inline-block">خارجي</span>
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    )}
                                 </div>
                             )}
                         </Card>
@@ -396,44 +421,94 @@ export default function ProjectDetailsPage({ params }: { params: Promise<{ id: s
                                 ) : (
                                     <form className="space-y-3" onSubmit={async (e) => {
                                         e.preventDefault();
-                                        if (!custodyEmployeeId || !custodyAmount || Number(custodyAmount) <= 0) {
+                                        if (!isExternalCustody && (!custodyEmployeeId || !custodyAmount || Number(custodyAmount) <= 0)) {
                                             toast.error("يرجى اختيار الموظف وإدخال مبلغ صحيح");
+                                            return;
+                                        }
+                                        if (isExternalCustody && (!externalName.trim() || !custodyAmount || Number(custodyAmount) <= 0)) {
+                                            toast.error("يرجى إدخال اسم الطرف الخارجي والمبلغ");
                                             return;
                                         }
                                         setIsIssuingCustody(true);
                                         const fd = new FormData();
                                         fd.append("projectId", project.id);
-                                        fd.append("employeeId", custodyEmployeeId);
                                         fd.append("amount", custodyAmount);
                                         fd.append("method", custodyMethod);
                                         fd.append("note", custodyNote);
+                                        if (isExternalCustody) {
+                                            fd.append("isExternal", "true");
+                                            fd.append("externalName", externalName);
+                                            fd.append("externalPhone", externalPhone);
+                                            fd.append("externalPurpose", externalPurpose);
+                                        } else {
+                                            fd.append("employeeId", custodyEmployeeId);
+                                        }
                                         const res = await issueCustody(null, fd);
                                         setIsIssuingCustody(false);
                                         if (res?.error) {
                                             toast.error(res.error);
                                         } else {
-                                            toast.success("تم صرف العهدة بنجاح ✅");
+                                            toast.success(isExternalCustody ? "تم صرف العهدة الخارجية بنجاح ✅" : "تم صرف العهدة بنجاح ✅");
                                             setCustodyEmployeeId("");
                                             setCustodyAmount("");
                                             setCustodyNote("");
+                                            setExternalName("");
+                                            setExternalPhone("");
+                                            setExternalPurpose("");
+                                            setIsExternalCustody(false);
                                             refreshProject();
                                             refreshCustodies();
                                         }
                                     }}>
-                                        <div className="space-y-1">
-                                            <label className="text-xs font-bold text-gray-700">اختر موظفاً</label>
-                                            <select
-                                                value={custodyEmployeeId}
-                                                onChange={e => setCustodyEmployeeId(e.target.value)}
-                                                required
-                                                className="w-full rounded-xl border border-gray-200 p-3 outline-none focus:ring-2 focus:ring-[#102550] text-sm bg-white"
-                                            >
-                                                <option value="">— اختر من القائمة —</option>
-                                                {project.members?.map((m: ProjectMember & { user: User }) => (
-                                                    <option key={m.userId} value={m.userId}>{m.user.name}</option>
-                                                ))}
-                                            </select>
+                                        {/* v5: External custody toggle */}
+                                        <div className="flex items-center gap-3 bg-orange-50 rounded-xl px-4 py-2.5 border border-orange-100">
+                                            <label className="flex items-center gap-2 cursor-pointer flex-1">
+                                                <input
+                                                    type="checkbox"
+                                                    checked={isExternalCustody}
+                                                    onChange={e => { setIsExternalCustody(e.target.checked); setCustodyEmployeeId(""); }}
+                                                    className="w-4 h-4 rounded accent-orange-600"
+                                                />
+                                                <span className="text-sm font-bold text-orange-900">عهدة خارجية</span>
+                                            </label>
+                                            <span className="text-[10px] text-orange-600">{isExternalCustody ? "طرف خارجي — تأكيد تلقائي" : "موظف داخلي"}</span>
                                         </div>
+
+                                        {isExternalCustody ? (
+                                            /* v5: External party fields */
+                                            <div className="space-y-3 bg-orange-50/30 rounded-xl p-3 border border-orange-100">
+                                                <div className="space-y-1">
+                                                    <label className="text-xs font-bold text-gray-700">اسم الطرف الخارجي *</label>
+                                                    <input type="text" required value={externalName} onChange={e => setExternalName(e.target.value)} className="w-full rounded-xl border border-gray-200 p-3 outline-none focus:ring-2 focus:ring-orange-400 text-sm" placeholder="اسم الشخص أو المؤسسة..." />
+                                                </div>
+                                                <div className="grid grid-cols-2 gap-3">
+                                                    <div className="space-y-1">
+                                                        <label className="text-xs font-bold text-gray-700">رقم الهاتف</label>
+                                                        <input type="tel" value={externalPhone} onChange={e => setExternalPhone(e.target.value)} className="w-full rounded-xl border border-gray-200 p-3 outline-none focus:ring-2 focus:ring-orange-400 text-sm" placeholder="05XXXXXXXX" />
+                                                    </div>
+                                                    <div className="space-y-1">
+                                                        <label className="text-xs font-bold text-gray-700">الغرض</label>
+                                                        <input type="text" value={externalPurpose} onChange={e => setExternalPurpose(e.target.value)} className="w-full rounded-xl border border-gray-200 p-3 outline-none focus:ring-2 focus:ring-orange-400 text-sm" placeholder="سبب العهدة..." />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        ) : (
+                                            /* Internal employee selector */
+                                            <div className="space-y-1">
+                                                <label className="text-xs font-bold text-gray-700">اختر موظفاً</label>
+                                                <select
+                                                    value={custodyEmployeeId}
+                                                    onChange={e => setCustodyEmployeeId(e.target.value)}
+                                                    required={!isExternalCustody}
+                                                    className="w-full rounded-xl border border-gray-200 p-3 outline-none focus:ring-2 focus:ring-[#102550] text-sm bg-white"
+                                                >
+                                                    <option value="">— اختر من القائمة —</option>
+                                                    {project.members?.map((m: ProjectMember & { user: User }) => (
+                                                        <option key={m.userId} value={m.userId}>{m.user.name}</option>
+                                                    ))}
+                                                </select>
+                                            </div>
+                                        )}
                                         <div className="grid grid-cols-2 gap-3">
                                             <div className="space-y-1">
                                                 <label className="text-xs font-bold text-gray-700">المبلغ (QAR)</label>
@@ -494,7 +569,7 @@ export default function ProjectDetailsPage({ params }: { params: Promise<{ id: s
                                 const isManager = project.managerId === user?.id;
                                 const memberRecord = project.members?.find((m: any) => m.userId === user?.id);
                                 const memberRoles = memberRecord?.projectRoles ? memberRecord.projectRoles.split(",") : [];
-                                const canAddInvoice = role === "ADMIN" || role === "GLOBAL_ACCOUNTANT" || isManager || memberRoles.includes("PROJECT_EMPLOYEE") || memberRoles.includes("PROJECT_ACCOUNTANT");
+                                const canAddInvoice = role === "ADMIN" || role === "GLOBAL_ACCOUNTANT" || isManager || memberRoles.includes("PROJECT_EMPLOYEE");
                                 return canAddInvoice && (
                                     <Button
                                         variant="primary"

@@ -1,15 +1,17 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { CurrencyDisplay } from "@/components/ui/CurrencyDisplay";
 import { confirmCustodyReceipt, rejectCustody, returnCustodyBalance } from "@/actions/custody";
+import { getUserSignature, saveUserSignature } from "@/actions/employees";
 import toast from "react-hot-toast";
-import { AlertTriangle, CheckCircle, XCircle, Wallet, Clock, Check, Briefcase, FileText, ArrowDownLeft } from "lucide-react";
+import { AlertTriangle, CheckCircle, XCircle, Wallet, Clock, Check, Briefcase, FileText, ArrowDownLeft, Pen } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { AnimatedNumber } from "@/components/ui/AnimatedNumber";
+import { SignaturePad } from "@/components/ui/SignaturePad";
 
 interface CustodyData {
     id: string;
@@ -40,13 +42,29 @@ export default function MyCustodiesClient({ custodies }: { custodies: CustodyDat
     const [returnNote, setReturnNote] = useState("");
     const [isReturning, setIsReturning] = useState(false);
 
+    // v5: Signature modal for confirmation
+    const [signingCustodyId, setSigningCustodyId] = useState<string | null>(null);
+    const [signatureData, setSignatureData] = useState<string | null>(null);
+    const [userSavedSignature, setUserSavedSignature] = useState<string | null>(null);
+
+    // v5: Load saved signature on mount
+    useEffect(() => {
+        getUserSignature().then(sig => setUserSavedSignature(sig));
+    }, []);
+
     const handleConfirm = async (id: string) => {
+        if (!signatureData) {
+            toast.error("يرجى التوقيع أولاً");
+            return;
+        }
         setActionLoading(id);
-        const res = await confirmCustodyReceipt(id);
+        const res = await confirmCustodyReceipt(id, signatureData || undefined);
         if (res?.error) {
             toast.error(res.error);
         } else {
             toast.success("تم تأكيد الاستلام بنجاح ✅");
+            setSigningCustodyId(null);
+            setSignatureData(null);
             router.refresh();
         }
         setActionLoading(null);
@@ -175,11 +193,11 @@ export default function MyCustodiesClient({ custodies }: { custodies: CustodyDat
                                     ) : (
                                         <div className="mt-auto flex gap-2">
                                             <Button
-                                                onClick={() => handleConfirm(custody.id)}
+                                                onClick={() => { setSigningCustodyId(custody.id); setSignatureData(null); }}
                                                 disabled={!!actionLoading}
                                                 className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white text-xs h-9 font-bold rounded-xl shadow-sm transition-transform active:scale-95"
                                             >
-                                                <CheckCircle className="w-4 h-4 ml-1.5" /> استلام
+                                                <Pen className="w-4 h-4 ml-1.5" /> توقيع واستلام
                                             </Button>
                                             <Button
                                                 onClick={() => setRejectingId(custody.id)}
@@ -314,6 +332,51 @@ export default function MyCustodiesClient({ custodies }: { custodies: CustodyDat
                             </div>
                         </div>
                     </section>
+                )}
+
+                {/* v5: Signature Modal */}
+                {signingCustodyId && (
+                    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/50 backdrop-blur-sm">
+                        <div className="bg-white rounded-2xl w-full max-w-md p-6 shadow-xl animate-in fade-in zoom-in-95 duration-200">
+                            <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+                                <Pen className="w-5 h-5 text-emerald-600" />
+                                توقيع استلام العهدة
+                            </h3>
+                            <p className="text-sm text-gray-500 mb-4">يرجى التوقيع أدناه لتأكيد استلام العهدة.</p>
+                            <SignaturePad
+                                label="وقّع هنا"
+                                savedSignature={userSavedSignature}
+                                onSave={(dataUrl) => {
+                                    setSignatureData(dataUrl);
+                                    // v5: Save for future reuse if not already saved
+                                    if (!userSavedSignature) {
+                                        saveUserSignature(dataUrl).then(() => setUserSavedSignature(dataUrl));
+                                    }
+                                }}
+                            />
+                            {signatureData && (
+                                <div className="mt-3 p-2 bg-green-50 rounded-lg border border-green-100 text-xs text-green-700 font-bold text-center">
+                                    ✅ تم حفظ التوقيع
+                                </div>
+                            )}
+                            <div className="flex gap-3 mt-4">
+                                <Button
+                                    onClick={() => handleConfirm(signingCustodyId)}
+                                    disabled={!signatureData || actionLoading === signingCustodyId}
+                                    className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white py-3 font-bold"
+                                >
+                                    {actionLoading === signingCustodyId ? "جاري..." : "تأكيد الاستلام"}
+                                </Button>
+                                <Button
+                                    onClick={() => { setSigningCustodyId(null); setSignatureData(null); }}
+                                    variant="outline"
+                                    className="flex-1 py-3 text-gray-700"
+                                >
+                                    إلغاء
+                                </Button>
+                            </div>
+                        </div>
+                    </div>
                 )}
 
             </div>

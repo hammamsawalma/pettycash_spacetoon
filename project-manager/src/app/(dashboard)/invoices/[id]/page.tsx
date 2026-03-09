@@ -5,9 +5,10 @@ import { Button } from "@/components/ui/Button";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { useAuth } from "@/context/AuthContext";
 import { useCanDo } from "@/components/auth/Protect";
-import { Download, FileText, CheckCircle, Printer, XCircle, AlertTriangle } from "lucide-react";
+import { Download, FileText, CheckCircle, Printer, XCircle, AlertTriangle, Sparkles, Loader2 } from "lucide-react";
 import { useEffect, useState, use } from "react";
 import { getInvoiceById, updateInvoiceStatus } from "@/actions/invoices";
+import { getCategories } from "@/actions/categories";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import { UserRole } from "@/context/AuthContext";
@@ -48,7 +49,7 @@ type FullInvoice = {
 
 export default function InvoiceDetailsPage({ params }: { params: Promise<{ id: string }> }) {
     const { id } = use(params);
-    const { role, user, isAccountantIn } = useAuth();
+    const { role, user } = useAuth();
     const router = useRouter();
     // Only GLOBAL_ACCOUNTANT can settle debts (v3 rule)
     const canViewDebtWarning = useCanDo('debts', 'settle');
@@ -60,6 +61,13 @@ export default function InvoiceDetailsPage({ params }: { params: Promise<{ id: s
     const [rejectionReason, setRejectionReason] = useState("");
     const [selectedPreset, setSelectedPreset] = useState<string | null>(null);
     const [isUpdating, setIsUpdating] = useState(false);
+
+    // v5: Accountant mandatory fields
+    const [externalNumber, setExternalNumber] = useState("");
+    const [spendDate, setSpendDate] = useState("");
+    const [selectedCategoryId, setSelectedCategoryId] = useState("");
+    const [categories, setCategories] = useState<{ id: string; name: string; icon: string | null }[]>([]);
+    const [isAnalyzing, setIsAnalyzing] = useState(false);
 
     const REJECTION_PRESETS = [
         { id: "unclear_image", label: "الصورة المرفقة غير واضحة أو تالفة", icon: "🖼️" },
@@ -91,7 +99,16 @@ export default function InvoiceDetailsPage({ params }: { params: Promise<{ id: s
         getInvoiceById(id).then(data => {
             setInvoice(data as unknown as FullInvoice);
             setIsLoading(false);
+            // Pre-fill accountant fields if already set (re-open scenario)
+            if (data) {
+                const d = data as unknown as FullInvoice & { externalNumber?: string; spendDate?: string; categoryId?: string };
+                if (d.externalNumber) setExternalNumber(d.externalNumber);
+                if (d.spendDate) setSpendDate(new Date(d.spendDate).toISOString().split('T')[0]);
+                if (d.categoryId) setSelectedCategoryId(d.categoryId);
+            }
         });
+        // Load categories for accountant
+        getCategories().then(cats => setCategories(cats as { id: string; name: string; icon: string | null }[]));
     }, [id]);
 
     // ── Animated checkmark state ────────────────────────────────────────────
@@ -118,9 +135,16 @@ export default function InvoiceDetailsPage({ params }: { params: Promise<{ id: s
     };
 
     const handleApprove = async () => {
+        if (!externalNumber.trim()) { toast.error("رقم الفاتورة الخارجي إلزامي"); return; }
+        if (!spendDate) { toast.error("تاريخ الصرف إلزامي"); return; }
+        if (!selectedCategoryId) { toast.error("تصنيف المصروف إلزامي"); return; }
         if (!confirm("هل أنت متأكد من اعتماد وصرف هذه الفاتورة؟")) return;
         setIsUpdating(true);
-        const res = await updateInvoiceStatus(id, "APPROVED");
+        const res = await updateInvoiceStatus(id, "APPROVED", {
+            externalNumber,
+            spendDate,
+            categoryId: selectedCategoryId,
+        });
         setIsUpdating(false);
         if (res?.error) toast.error(res.error);
         else {
@@ -135,7 +159,7 @@ export default function InvoiceDetailsPage({ params }: { params: Promise<{ id: s
             return;
         }
         setIsUpdating(true);
-        const res = await updateInvoiceStatus(id, "REJECTED", rejectionReason);
+        const res = await updateInvoiceStatus(id, "REJECTED", { rejectionReason });
         setIsUpdating(false);
         if (res?.error) toast.error(res.error);
         else {
@@ -145,21 +169,41 @@ export default function InvoiceDetailsPage({ params }: { params: Promise<{ id: s
         }
     };
 
+    // v5: AI Analysis handler
+    const handleAIAnalysis = async () => {
+        if (!invoice?.filePath) { toast.error("لا توجد صورة للتحليل"); return; }
+        setIsAnalyzing(true);
+        try {
+            const res = await fetch('/api/ai/analyze-invoice', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ imagePath: invoice.filePath })
+            });
+            const data = await res.json();
+            if (data.error) { toast.error(data.error); }
+            else {
+                if (data.suggestedNumber) setExternalNumber(data.suggestedNumber);
+                if (data.suggestedDate) setSpendDate(data.suggestedDate);
+                toast.success("تم التحليل — راجع الاقتراحات");
+            }
+        } catch {
+            toast.error("فشل التحليل بالذكاء الاصطناعي");
+        }
+        setIsAnalyzing(false);
+    };
+
     if (isLoading) return <DashboardLayout title="تفاصيل الفاتورة"><div className="p-10 text-center">جاري التحميل...</div></DashboardLayout>;
     if (!invoice) return <DashboardLayout title="خطأ"><div className="p-10 text-center text-red-500">الفاتورة غير موجودة</div></DashboardLayout>;
 
-    // v3 Rules:
+    // v4 Rules:
     // - ADMIN does NOT approve invoices
-    // - GLOBAL_ACCOUNTANT can approve invoices they are assigned to as project accountant
-    // - PROJECT_ACCOUNTANT (USER role) can approve invoices in their specific project
-    // - canReview is determined by isAccountantIn(projectId) which covers both cases
+    // - GLOBAL_ACCOUNTANT approves all invoices directly (no project-level accountant)
+    // - canReview: only GLOBAL_ACCOUNTANT, and not the creator of the invoice
     const projectId = invoice.project?.id ?? null;
-    const isApprover = projectId
-        ? isAccountantIn(projectId)              // project-specific accountant check
-        : (role as UserRole) === "GLOBAL_ACCOUNTANT"; // no project → global accountant only
+    const isApprover = (role as UserRole) === "GLOBAL_ACCOUNTANT";
     const notTheCreator = invoice.creator.id !== user?.id;
     const canReview = isApprover && notTheCreator && invoice.status === "PENDING";
-    // Re-open: same set as approve (accountant of the project)
+    // Re-open: same set as approve (GLOBAL_ACCOUNTANT)
     const canReopen = isApprover && notTheCreator &&
         (invoice.status === "APPROVED" || invoice.status === "REJECTED");
 
@@ -293,21 +337,71 @@ export default function InvoiceDetailsPage({ params }: { params: Promise<{ id: s
                 <div className="w-full lg:w-80 space-y-4">
                     {/* Approve/Reject panel — PENDING invoices only */}
                     {canReview && (
-                        <Card className="p-5 space-y-3 bg-blue-50/50 border-blue-100 shadow-md">
+                        <Card className="p-5 space-y-4 bg-blue-50/50 border-blue-100 shadow-md">
                             <h3 className="font-bold text-blue-900 flex items-center gap-2 mb-2">
                                 <CheckCircle className="w-5 h-5 text-blue-600" />
                                 مراجعة المحاسب
                             </h3>
-                            <p className="text-xs text-blue-700 leading-relaxed mb-4">هذه الفاتورة تتطلب تدقيق واعتماد قبل أن تُخصم من الرصيد.</p>
+                            <p className="text-xs text-blue-700 leading-relaxed">الحقول التالية إلزامية قبل الاعتماد.</p>
 
-                            <Button onClick={handleApprove} disabled={isUpdating} variant="primary" className="w-full gap-2 bg-green-600 hover:bg-green-700 py-3 shadow-sm font-bold border-green-700">
-                                <CheckCircle className="w-5 h-5" />
-                                اعتماد وتأكيد
-                            </Button>
-                            <Button onClick={() => { setIsRejectModalOpen(true); setSelectedPreset(null); setRejectionReason(""); }} disabled={isUpdating} variant="outline" className="w-full gap-2 text-red-600 border-red-200 hover:bg-red-50 hover:text-red-700 py-3 font-bold bg-white">
-                                <XCircle className="w-5 h-5" />
-                                رفض الفاتورة
-                            </Button>
+                            {/* v5: Accountant mandatory fields */}
+                            <div className="space-y-3">
+                                <div>
+                                    <label className="text-xs font-bold text-gray-700 mb-1 block">رقم الفاتورة الخارجي *</label>
+                                    <input
+                                        type="text"
+                                        value={externalNumber}
+                                        onChange={e => setExternalNumber(e.target.value)}
+                                        placeholder="رقم الفاتورة الحقيقي"
+                                        className="w-full border border-gray-300 rounded-xl px-3 py-2 text-sm focus:ring-2 focus:ring-blue-300 outline-none"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="text-xs font-bold text-gray-700 mb-1 block">تاريخ الصرف *</label>
+                                    <input
+                                        type="date"
+                                        value={spendDate}
+                                        onChange={e => setSpendDate(e.target.value)}
+                                        className="w-full border border-gray-300 rounded-xl px-3 py-2 text-sm focus:ring-2 focus:ring-blue-300 outline-none"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="text-xs font-bold text-gray-700 mb-1 block">تصنيف المصروف *</label>
+                                    <select
+                                        value={selectedCategoryId}
+                                        onChange={e => setSelectedCategoryId(e.target.value)}
+                                        className="w-full border border-gray-300 rounded-xl px-3 py-2 text-sm focus:ring-2 focus:ring-blue-300 outline-none"
+                                    >
+                                        <option value="">اختر التصنيف</option>
+                                        {categories.map(c => (
+                                            <option key={c.id} value={c.id}>{c.icon ? `${c.icon} ` : ''}{c.name}</option>
+                                        ))}
+                                    </select>
+                                </div>
+                            </div>
+
+                            {/* AI Analysis Button */}
+                            {invoice.filePath && (
+                                <button
+                                    onClick={handleAIAnalysis}
+                                    disabled={isAnalyzing}
+                                    className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl bg-gradient-to-r from-purple-500 to-blue-500 text-white text-sm font-bold hover:from-purple-600 hover:to-blue-600 transition-all disabled:opacity-50"
+                                >
+                                    {isAnalyzing ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
+                                    {isAnalyzing ? "جاري التحليل..." : "🤖 تحليل بالذكاء الاصطناعي"}
+                                </button>
+                            )}
+
+                            <div className="space-y-2 pt-2 border-t border-blue-100">
+                                <Button onClick={handleApprove} disabled={isUpdating} variant="primary" className="w-full gap-2 bg-green-600 hover:bg-green-700 py-3 shadow-sm font-bold border-green-700">
+                                    <CheckCircle className="w-5 h-5" />
+                                    اعتماد وتأكيد
+                                </Button>
+                                <Button onClick={() => { setIsRejectModalOpen(true); setSelectedPreset(null); setRejectionReason(""); }} disabled={isUpdating} variant="outline" className="w-full gap-2 text-red-600 border-red-200 hover:bg-red-50 hover:text-red-700 py-3 font-bold bg-white">
+                                    <XCircle className="w-5 h-5" />
+                                    رفض الفاتورة
+                                </Button>
+                            </div>
                         </Card>
                     )}
 

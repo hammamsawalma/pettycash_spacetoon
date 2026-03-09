@@ -10,6 +10,7 @@ async function main() {
     }
 
     console.log('🧹 Clearing old data...');
+    await prisma.voucherCounter.deleteMany();
     await prisma.custodyReturn.deleteMany();
     await prisma.custodyConfirmation.deleteMany();
     await prisma.outOfPocketDebt.deleteMany();
@@ -32,7 +33,9 @@ async function main() {
 
     const hashed = await bcrypt.hash('123456', 10);
 
-    // ─── USERS — كل دور موجود في النظام ───────────────────────────────
+    // ─── USERS ───────────────────────────────────────────────────────────
+    // v5 Roles: ADMIN, GENERAL_MANAGER, GLOBAL_ACCOUNTANT, USER
+    // No PROJECT_ACCOUNTANT, no salary
     console.log('👤 Creating users...');
 
     const admin = await prisma.user.create({
@@ -43,7 +46,6 @@ async function main() {
             password: hashed,
             role: 'ADMIN',
             jobTitle: 'مدير النظام',
-            salary: 22000,
         },
     });
 
@@ -55,7 +57,6 @@ async function main() {
             password: hashed,
             role: 'GENERAL_MANAGER',
             jobTitle: 'المدير العام',
-            salary: 35000,
         },
     });
 
@@ -66,12 +67,11 @@ async function main() {
             phone: '0500000003',
             password: hashed,
             role: 'GLOBAL_ACCOUNTANT',
-            jobTitle: 'محاسب أول',
-            salary: 9500,
+            jobTitle: 'المحاسب العام',
         },
     });
 
-    // منسق (USER + PROJECT_MANAGER role في مشاريع)
+    // منسق (USER + PROJECT_MANAGER في المشاريع)
     const coordinator = await prisma.user.create({
         data: {
             name: 'خالد يوسف',
@@ -80,11 +80,9 @@ async function main() {
             password: hashed,
             role: 'USER',
             jobTitle: 'منسق مشاريع',
-            salary: 8200,
         },
     });
 
-    // موظفون عاديون
     const emp1 = await prisma.user.create({
         data: {
             name: 'محمد طارق',
@@ -93,7 +91,6 @@ async function main() {
             password: hashed,
             role: 'USER',
             jobTitle: 'مطور برمجيات',
-            salary: 7000,
         },
     });
 
@@ -105,7 +102,6 @@ async function main() {
             password: hashed,
             role: 'USER',
             jobTitle: 'مصممة جرافيك',
-            salary: 6500,
         },
     });
 
@@ -116,46 +112,36 @@ async function main() {
             phone: '0500000007',
             password: hashed,
             role: 'USER',
-            jobTitle: 'مدير موقع',
-            salary: 5800,
+            jobTitle: 'مدير موقع ميداني',
         },
     });
 
-    // محاسب مشروع (USER + PROJECT_ACCOUNTANT في مشروع معين)
-    const projAccountant = await prisma.user.create({
-        data: {
-            name: 'ريم المطيري',
-            email: 'proj-acc@pocket.com',
-            phone: '0500000008',
-            password: hashed,
-            role: 'USER',
-            jobTitle: 'محاسبة مشروع',
-            salary: 6800,
-        },
-    });
-
-    console.log('✔ 8 users created\n');
+    console.log('✔ 7 users created\n');
 
     // ─── COMPANY WALLET ────────────────────────────────────────────────
     console.log('💰 Setting up company wallet...');
     const wallet = await prisma.companyWallet.create({
-        data: { balance: 380000, totalIn: 500000, totalOut: 120000 },
+        data: { balance: 350000, totalIn: 500000, totalOut: 150000 },
     });
     await prisma.walletEntry.create({
-        data: { walletId: wallet.id, type: 'DEPOSIT', amount: 500000, note: 'إيداع رأس المال الابتدائي', createdBy: admin.id },
+        data: { walletId: wallet.id, type: 'DEPOSIT', amount: 500000, note: 'إيداع رأس المال الابتدائي — الربع الأول 2026', createdBy: admin.id },
     });
     await prisma.walletEntry.create({
-        data: { walletId: wallet.id, type: 'WITHDRAW', amount: 120000, note: 'مصاريف تشغيل سنوية', createdBy: admin.id },
+        data: { walletId: wallet.id, type: 'WITHDRAW', amount: 150000, note: 'تخصيصات مشاريع + مصاريف شركة', createdBy: admin.id },
     });
-    console.log('✔ Wallet: 380,000 QAR\n');
+    console.log('✔ Wallet: 350,000 QAR\n');
 
     // ─── CATEGORIES ────────────────────────────────────────────────────
-    const catTravel = await prisma.category.create({ data: { name: 'تنقل ومواصلات', icon: '🚗' } });
-    const catSupplies = await prisma.category.create({ data: { name: 'مستلزمات وأدوات', icon: '🧰' } });
-    const catFood = await prisma.category.create({ data: { name: 'طعام وضيافة', icon: '🍽️' } });
-    const catPrint = await prisma.category.create({ data: { name: 'طباعة وتصميم', icon: '🖨️' } });
-    const catOther = await prisma.category.create({ data: { name: 'أخرى', icon: '📁' } });
-    console.log('✔ 5 categories created\n');
+    console.log('📂 Creating categories...');
+    const catTravel = await prisma.category.create({ data: { name: 'تنقل ومواصلات', icon: '🚗', scope: 'BOTH' } });
+    const catSupplies = await prisma.category.create({ data: { name: 'مستلزمات وأدوات', icon: '🧰', scope: 'PROJECT' } });
+    const catFood = await prisma.category.create({ data: { name: 'طعام وضيافة', icon: '🍽️', scope: 'BOTH' } });
+    const catPrint = await prisma.category.create({ data: { name: 'طباعة وتصميم', icon: '🖨️', scope: 'PROJECT' } });
+    const catOther = await prisma.category.create({ data: { name: 'أخرى', icon: '📁', scope: 'BOTH' } });
+    const catRent = await prisma.category.create({ data: { name: 'إيجار ومرافق', icon: '🏢', scope: 'COMPANY' } });
+    const catLegal = await prisma.category.create({ data: { name: 'قانونية وتراخيص', icon: '⚖️', scope: 'COMPANY' } });
+    const catIT = await prisma.category.create({ data: { name: 'بنية تحتية وتقنية', icon: '💻', scope: 'COMPANY' } });
+    console.log('✔ 8 categories created (PROJECT / COMPANY / BOTH)\n');
 
     // ─── AUTO APPROVAL RULE ────────────────────────────────────────────
     await prisma.autoApprovalRule.create({
@@ -165,24 +151,23 @@ async function main() {
 
     // ═══════════════════════════════════════════════════════════════════
     // PROJECT 1: IN_PROGRESS — نظام إدارة عقارات
-    // الحالات: عهدة مؤكدة + عهدة غير مؤكدة، فواتير في كل حالة، طلب شراء
+    // يختبر: عهدة مؤكدة + غير مؤكدة، فواتير بكل الحالات، عهدة خارجية
     // ═══════════════════════════════════════════════════════════════════
     console.log('🏗️  Project 1: نظام إدارة عقارات...');
     const proj1 = await prisma.project.create({
         data: {
             name: 'نظام إدارة عقارات',
-            description: 'تطوير منصة إلكترونية لإدارة العقارات والإيجارات مع لوحة تحكم للمالك وتطبيق جوال للمستأجرين. المشروع في مرحلته الثانية.',
+            description: 'تطوير منصة إلكترونية لإدارة العقارات والإيجارات مع لوحة تحكم للمالك وتطبيق جوال للمستأجرين.',
             status: 'IN_PROGRESS',
             startDate: new Date('2026-01-10'),
             endDate: new Date('2026-07-30'),
             managerId: admin.id,
             budgetAllocated: 90000,
-            custodyIssued: 15500,
+            custodyIssued: 18000,
             custodyReturned: 2000,
         },
     });
     await prisma.walletEntry.create({ data: { walletId: wallet.id, type: 'ALLOCATE_TO_PROJECT', amount: 90000, note: `ميزانية: ${proj1.name}`, createdBy: admin.id } });
-    await prisma.companyWallet.update({ where: { id: wallet.id }, data: { balance: { decrement: 90000 }, totalOut: { increment: 90000 } } });
 
     // الأعضاء
     const mem_coord_p1 = await prisma.projectMember.create({
@@ -194,11 +179,8 @@ async function main() {
     const mem_emp2_p1 = await prisma.projectMember.create({
         data: { projectId: proj1.id, userId: emp2.id, projectRoles: 'PROJECT_EMPLOYEE', custodyBalance: 5000 },
     });
-    const mem_acc_p1 = await prisma.projectMember.create({
-        data: { projectId: proj1.id, userId: projAccountant.id, projectRoles: 'PROJECT_ACCOUNTANT', custodyBalance: 0 },
-    });
 
-    // عهدة 1 — محمد طارق (مؤكدة + إرجاع جزئي)
+    // عهدة 1 — محمد طارق (مؤكدة بتوقيع + إرجاع جزئي)
     const cust1 = await prisma.employeeCustody.create({
         data: {
             projectId: proj1.id, employeeId: emp1.id, memberId: mem_emp1_p1.id,
@@ -207,28 +189,58 @@ async function main() {
             note: 'عهدة المرحلة الثانية — مصاريف الموقع الميداني',
         },
     });
-    await prisma.custodyConfirmation.create({ data: { custodyId: cust1.id, signature: `CONF-EMP1-${Date.now()}` } });
-    await prisma.custodyReturn.create({ data: { custodyId: cust1.id, amount: 1500, returnedBy: emp1.id, recordedBy: admin.id, note: 'إرجاع فائض الأسبوع الماضي' } });
+    await prisma.custodyConfirmation.create({ data: { custodyId: cust1.id, signatureFile: null } });
+    await prisma.custodyReturn.create({ data: { custodyId: cust1.id, amount: 1500, returnedBy: emp1.id, recordedBy: accountant.id, note: 'إرجاع فائض الأسبوع الماضي' } });
 
-    // عهدة 2 — سارة أحمد (مؤكدة، لم يُرجع منها شيء)
+    // عهدة 2 — سارة أحمد (غير مؤكدة — تنتظر التوقيع)
     const cust2 = await prisma.employeeCustody.create({
         data: {
             projectId: proj1.id, employeeId: emp2.id, memberId: mem_emp2_p1.id,
             amount: 5000, balance: 5000, method: 'BANK', isConfirmed: false,
-            note: 'عهدة بنكية لمستلزمات التصميم — لم تؤكد بعد',
+            note: 'عهدة بنكية لمستلزمات التصميم — لم تؤكد الاستلام بعد',
+        },
+    });
+
+    // عهدة 3 — خارجية (مقاول كهربائي)
+    await prisma.employeeCustody.create({
+        data: {
+            projectId: proj1.id, employeeId: admin.id, memberId: mem_coord_p1.id,
+            amount: 3000, balance: 3000, method: 'CASH', isConfirmed: true,
+            confirmedAt: new Date('2026-02-01'),
+            isExternal: true,
+            externalName: 'مؤسسة التقنية للكهرباء',
+            externalPhone: '0551234567',
+            externalPurpose: 'أعمال كهربائية للموقع — تسليم جزئي',
+            note: 'عهدة خارجية لمقاول كهرباء',
         },
     });
 
     // فواتير المشروع 1
-    // ✅ معتمدة (< 500 — auto-approved)
+    // ✅ معتمدة (< 500 — auto-approved) مع حقول المحاسب
     const inv1 = await prisma.invoice.create({
-        data: { reference: 'INV-001', type: 'تنقل', amount: 340, status: 'APPROVED', date: new Date('2026-01-18'), notes: 'تكسي للقاء العميل', projectId: proj1.id, creatorId: emp1.id, custodyId: cust1.id, paymentSource: 'CUSTODY', categoryId: catTravel.id, approvedBy: accountant.id, approvedAt: new Date('2026-01-18') },
+        data: {
+            reference: 'INV-001', type: 'تنقل', amount: 340, status: 'APPROVED',
+            date: new Date('2026-01-18'), notes: 'تكسي للقاء العميل — ذهاب وإياب',
+            projectId: proj1.id, creatorId: emp1.id, custodyId: cust1.id,
+            paymentSource: 'CUSTODY', categoryId: catTravel.id,
+            externalNumber: 'EXT-2026-001', spendDate: new Date('2026-01-18'),
+            approvedBy: accountant.id, approvedAt: new Date('2026-01-18'),
+            expenseScope: 'PROJECT',
+        },
     });
     await prisma.invoiceItem.create({ data: { invoiceId: inv1.id, name: 'تكسي ذهاب وإياب', quantity: 2, unitPrice: 170, totalPrice: 340 } });
 
     // ✅ معتمدة (> 500 — manual)
     const inv2 = await prisma.invoice.create({
-        data: { reference: 'INV-002', type: 'مستلزمات', amount: 1200, status: 'APPROVED', date: new Date('2026-01-22'), notes: 'أدوات ومعدات الموقع', projectId: proj1.id, creatorId: emp1.id, custodyId: cust1.id, paymentSource: 'CUSTODY', categoryId: catSupplies.id, approvedBy: accountant.id, approvedAt: new Date('2026-01-23') },
+        data: {
+            reference: 'INV-002', type: 'مستلزمات', amount: 1200, status: 'APPROVED',
+            date: new Date('2026-01-22'), notes: 'أدوات ومعدات الموقع',
+            projectId: proj1.id, creatorId: emp1.id, custodyId: cust1.id,
+            paymentSource: 'CUSTODY', categoryId: catSupplies.id,
+            externalNumber: 'EXT-2026-002', spendDate: new Date('2026-01-22'),
+            approvedBy: accountant.id, approvedAt: new Date('2026-01-23'),
+            expenseScope: 'PROJECT',
+        },
     });
     await prisma.invoiceItem.createMany({
         data: [
@@ -237,24 +249,45 @@ async function main() {
         ]
     });
 
-    // ⏳ معلقة — تنتظر اعتماد المحاسب
+    // ⏳ معلقة — من الجيب الشخصي (تنتظر اعتماد المحاسب)
     const inv3 = await prisma.invoice.create({
-        data: { reference: 'INV-003', type: 'طعام', amount: 480, status: 'PENDING', date: new Date('2026-02-02'), notes: 'وجبات فريق العمل في الموقع', projectId: proj1.id, creatorId: emp2.id, paymentSource: 'PERSONAL', categoryId: catFood.id },
+        data: {
+            reference: 'INV-003', type: 'طعام', amount: 480, status: 'PENDING',
+            date: new Date('2026-02-02'), notes: 'وجبات فريق العمل في الموقع — دفع شخصي',
+            projectId: proj1.id, creatorId: emp2.id,
+            paymentSource: 'PERSONAL', categoryId: catFood.id,
+            expenseScope: 'PROJECT',
+        },
     });
     await prisma.outOfPocketDebt.create({ data: { invoiceId: inv3.id, employeeId: emp2.id, amount: 480 } });
 
     // ❌ مرفوضة
     await prisma.invoice.create({
-        data: { reference: 'INV-004', type: 'مصروف عام', amount: 890, status: 'REJECTED', date: new Date('2026-02-05'), notes: 'مصروف بدون إيصال', rejectionReason: 'يرجى إرفاق الإيصال الأصلي', projectId: proj1.id, creatorId: emp1.id, paymentSource: 'CUSTODY', categoryId: catOther.id, rejectedBy: accountant.id, rejectedAt: new Date('2026-02-06') },
+        data: {
+            reference: 'INV-004', type: 'مصروف عام', amount: 890, status: 'REJECTED',
+            date: new Date('2026-02-05'), notes: 'مصروف بدون إيصال',
+            rejectionReason: 'يرجى إرفاق الإيصال الأصلي — لا يمكن اعتماد فاتورة بلا مستند',
+            projectId: proj1.id, creatorId: emp1.id,
+            paymentSource: 'CUSTODY', categoryId: catOther.id,
+            rejectedBy: accountant.id, rejectedAt: new Date('2026-02-06'),
+            expenseScope: 'PROJECT',
+        },
     });
 
-    // ⏳ معلقة ثانية — مصروف شخصي بدفع مختلط
+    // ⏳ معلقة (دفع مختلط — SPLIT)
     const inv5 = await prisma.invoice.create({
-        data: { reference: 'INV-005', type: 'مستلزمات', amount: 750, status: 'PENDING', date: new Date('2026-02-10'), notes: 'مواد مكتبية دفع مختلط', projectId: proj1.id, creatorId: emp2.id, paymentSource: 'SPLIT', custodyAmount: 400, pocketAmount: 350, categoryId: catSupplies.id },
+        data: {
+            reference: 'INV-005', type: 'مستلزمات', amount: 750, status: 'PENDING',
+            date: new Date('2026-02-10'), notes: 'مواد مكتبية — 400 من العهدة + 350 من الجيب',
+            projectId: proj1.id, creatorId: emp2.id,
+            paymentSource: 'SPLIT', custodyAmount: 400, pocketAmount: 350,
+            categoryId: catSupplies.id,
+            expenseScope: 'PROJECT',
+        },
     });
     await prisma.outOfPocketDebt.create({ data: { invoiceId: inv5.id, employeeId: emp2.id, amount: 350 } });
 
-    // طلبات شراء للمشروع 1
+    // طلبات شراء
     await prisma.purchase.create({
         data: { orderNumber: 'PO-001', description: 'شراء سيرفر للاستضافة المحلية', amount: 8500, status: 'REQUESTED', projectId: proj1.id, creatorId: coordinator.id, priority: 'HIGH', notes: 'يرجى مقارنة 3 عروض أسعار' },
     });
@@ -262,11 +295,11 @@ async function main() {
         data: { orderNumber: 'PO-002', description: 'كاميرا مراقبة للمشروع (4 قطع)', amount: 2400, status: 'IN_PROGRESS', projectId: proj1.id, creatorId: coordinator.id, purchasedBy: emp1.id, priority: 'NORMAL', notes: 'محمد بالطريق لشرائها' },
     });
 
-    console.log('✔ Project 1 done\n');
+    console.log('✔ Project 1 done (عهد + خارجية + فواتير + مشتريات)\n');
 
     // ═══════════════════════════════════════════════════════════════════
     // PROJECT 2: IN_PROGRESS — حملة تسويق رمضان
-    // الحالات: ميزانية كافية، فواتير، مشتريات مكتملة
+    // يختبر: ميزانية كافية، فواتير متنوعة، مشتريات بكل الحالات
     // ═══════════════════════════════════════════════════════════════════
     console.log('🏗️  Project 2: حملة تسويق رمضان...');
     const proj2 = await prisma.project.create({
@@ -283,7 +316,6 @@ async function main() {
         },
     });
     await prisma.walletEntry.create({ data: { walletId: wallet.id, type: 'ALLOCATE_TO_PROJECT', amount: 50000, note: `ميزانية: ${proj2.name}`, createdBy: admin.id } });
-    await prisma.companyWallet.update({ where: { id: wallet.id }, data: { balance: { decrement: 50000 }, totalOut: { increment: 50000 } } });
 
     const mem_coord_p2 = await prisma.projectMember.create({
         data: { projectId: proj2.id, userId: coordinator.id, projectRoles: 'PROJECT_MANAGER', custodyBalance: 0 },
@@ -302,11 +334,18 @@ async function main() {
             confirmedAt: new Date('2026-02-19'), note: 'ميزانية التصوير والإنتاج الرمضاني',
         },
     });
-    await prisma.custodyConfirmation.create({ data: { custodyId: cust3.id, signature: `CONF-EMP3-${Date.now()}` } });
+    await prisma.custodyConfirmation.create({ data: { custodyId: cust3.id, signatureFile: null } });
 
-    // فواتير معتمدة
     const inv6 = await prisma.invoice.create({
-        data: { reference: 'INV-006', type: 'طباعة وتصميم', amount: 3500, status: 'APPROVED', date: new Date('2026-02-22'), notes: 'طباعة بنرات الحملة', projectId: proj2.id, creatorId: emp3.id, custodyId: cust3.id, paymentSource: 'CUSTODY', categoryId: catPrint.id, approvedBy: accountant.id, approvedAt: new Date('2026-02-23') },
+        data: {
+            reference: 'INV-006', type: 'طباعة وتصميم', amount: 3500, status: 'APPROVED',
+            date: new Date('2026-02-22'), notes: 'طباعة بنرات الحملة',
+            projectId: proj2.id, creatorId: emp3.id, custodyId: cust3.id,
+            paymentSource: 'CUSTODY', categoryId: catPrint.id,
+            externalNumber: 'EXT-2026-003', spendDate: new Date('2026-02-22'),
+            approvedBy: accountant.id, approvedAt: new Date('2026-02-23'),
+            expenseScope: 'PROJECT',
+        },
     });
     await prisma.invoiceItem.createMany({
         data: [
@@ -317,7 +356,13 @@ async function main() {
 
     // فاتورة معلقة
     await prisma.invoice.create({
-        data: { reference: 'INV-007', type: 'تصوير', amount: 4200, status: 'PENDING', date: new Date('2026-03-01'), notes: 'جلسة تصوير المنتجات الرمضانية', projectId: proj2.id, creatorId: emp3.id, custodyId: cust3.id, paymentSource: 'CUSTODY', categoryId: catPrint.id },
+        data: {
+            reference: 'INV-007', type: 'تصوير', amount: 4200, status: 'PENDING',
+            date: new Date('2026-03-01'), notes: 'جلسة تصوير المنتجات الرمضانية — تنتظر الاعتماد',
+            projectId: proj2.id, creatorId: emp3.id, custodyId: cust3.id,
+            paymentSource: 'CUSTODY', categoryId: catPrint.id,
+            expenseScope: 'PROJECT',
+        },
     });
 
     // مشتريات بكل الحالات
@@ -329,10 +374,10 @@ async function main() {
     console.log('✔ Project 2 done\n');
 
     // ═══════════════════════════════════════════════════════════════════
-    // PROJECT 3: PENDING (لا ميزانية) — اختبار عرض مشروع بدون تمويل
+    // PROJECT 3: PENDING — بدون ميزانية
     // ═══════════════════════════════════════════════════════════════════
     console.log('🏗️  Project 3: منصة تعليم (PENDING)...');
-    const proj3 = await prisma.project.create({
+    await prisma.project.create({
         data: {
             name: 'منصة تعليم إلكتروني',
             description: 'بناء منصة تعليمية سحابية تدعم الكورسات المباشرة والمسجلة مع نظام اختبارات وشهادات إلكترونية.',
@@ -344,18 +389,16 @@ async function main() {
             custodyIssued: 0,
         },
     });
-    await prisma.projectMember.create({ data: { projectId: proj3.id, userId: emp1.id, projectRoles: 'PROJECT_EMPLOYEE', custodyBalance: 0 } });
-    await prisma.projectMember.create({ data: { projectId: proj3.id, userId: emp2.id, projectRoles: 'PROJECT_EMPLOYEE', custodyBalance: 0 } });
-    console.log('✔ Project 3 done (no budget — tests allocate CTA)\n');
+    console.log('✔ Project 3 done (PENDING — no budget)\n');
 
     // ═══════════════════════════════════════════════════════════════════
-    // PROJECT 4: COMPLETED (أرشيف) — اختبار صفحة الأرشيف وزر إعادة فتح
+    // PROJECT 4: COMPLETED — أرشيف
     // ═══════════════════════════════════════════════════════════════════
     console.log('🏗️  Project 4: متجر إلكتروني (COMPLETED)...');
     const proj4 = await prisma.project.create({
         data: {
             name: 'موقع متجر إلكتروني',
-            description: 'متجر لبيع المنتجات الرياضية مع بوابة دفع إلكترونية وتتبع الطلبات — تم تسليمه بنجاح.',
+            description: 'متجر لبيع المنتجات الرياضية مع بوابة دفع إلكترونية وتتبع الطلبات — تم تسليمه.',
             status: 'COMPLETED',
             startDate: new Date('2025-06-01'),
             endDate: new Date('2025-12-31'),
@@ -367,85 +410,114 @@ async function main() {
         },
     });
     await prisma.projectMember.create({ data: { projectId: proj4.id, userId: emp1.id, projectRoles: 'PROJECT_EMPLOYEE', custodyBalance: 0 } });
-    await prisma.projectMember.create({ data: { projectId: proj4.id, userId: emp3.id, projectRoles: 'PROJECT_EMPLOYEE', custodyBalance: 0 } });
-    // بعض الفواتير المعتمدة للأرشيف
     const inv_arch = await prisma.invoice.create({
-        data: { reference: 'INV-ARCH-01', type: 'تطوير', amount: 12000, status: 'APPROVED', date: new Date('2025-11-15'), notes: 'دفعة تطوير المرحلة الأخيرة', projectId: proj4.id, creatorId: emp1.id, paymentSource: 'CUSTODY', categoryId: catOther.id, approvedBy: accountant.id, approvedAt: new Date('2025-11-16') },
+        data: {
+            reference: 'INV-ARCH-01', type: 'تطوير', amount: 12000, status: 'APPROVED',
+            date: new Date('2025-11-15'), notes: 'دفعة تطوير المرحلة الأخيرة',
+            projectId: proj4.id, creatorId: emp1.id,
+            paymentSource: 'CUSTODY', categoryId: catOther.id,
+            externalNumber: 'EXT-2025-099', spendDate: new Date('2025-11-15'),
+            approvedBy: accountant.id, approvedAt: new Date('2025-11-16'),
+            expenseScope: 'PROJECT',
+        },
     });
     await prisma.invoiceItem.create({ data: { invoiceId: inv_arch.id, name: 'تطوير واجهة المتجر النهائية', quantity: 1, unitPrice: 12000, totalPrice: 12000 } });
-    console.log('✔ Project 4 done (archived)\n');
+    console.log('✔ Project 4 done (COMPLETED)\n');
 
     // ═══════════════════════════════════════════════════════════════════
-    // FINANCE REQUESTS — طلبات مالية في كل الحالات
+    // COMPANY EXPENSES — مصاريف شركة (بلا مشروع)
+    // يختبر: expenseScope=COMPANY, paymentSource=COMPANY_DIRECT
     // ═══════════════════════════════════════════════════════════════════
-    // ⏳ طلب تسوية دين — اختبار صفحة الطلبات المالية
+    console.log('🏢 Creating company expenses...');
+    const compInv1 = await prisma.invoice.create({
+        data: {
+            reference: 'COMP-001', type: 'إيجار', amount: 8500, status: 'APPROVED',
+            date: new Date('2026-01-05'), notes: 'إيجار المكتب الرئيسي — يناير 2026',
+            creatorId: accountant.id,
+            paymentSource: 'COMPANY_DIRECT', categoryId: catRent.id,
+            externalNumber: 'COMP-EXT-001', spendDate: new Date('2026-01-05'),
+            approvedBy: accountant.id, approvedAt: new Date('2026-01-05'),
+            expenseScope: 'COMPANY',
+        },
+    });
+    await prisma.invoiceItem.create({ data: { invoiceId: compInv1.id, name: 'إيجار شهر يناير', quantity: 1, unitPrice: 8500, totalPrice: 8500 } });
+
+    await prisma.invoice.create({
+        data: {
+            reference: 'COMP-002', type: 'تراخيص', amount: 2200, status: 'APPROVED',
+            date: new Date('2026-02-15'), notes: 'تجديد رخصة تجارية سنوية',
+            creatorId: accountant.id,
+            paymentSource: 'COMPANY_DIRECT', categoryId: catLegal.id,
+            externalNumber: 'COMP-EXT-002', spendDate: new Date('2026-02-15'),
+            approvedBy: accountant.id, approvedAt: new Date('2026-02-15'),
+            expenseScope: 'COMPANY',
+        },
+    });
+
+    await prisma.invoice.create({
+        data: {
+            reference: 'COMP-003', type: 'بنية تحتية', amount: 4500, status: 'PENDING',
+            date: new Date('2026-03-01'), notes: 'اشتراك خوادم سحابية — تنتظر الاعتماد',
+            creatorId: accountant.id,
+            paymentSource: 'COMPANY_DIRECT', categoryId: catIT.id,
+            expenseScope: 'COMPANY',
+        },
+    });
+    console.log('✔ 3 company expenses (2 approved, 1 pending)\n');
+
+    // ═══════════════════════════════════════════════════════════════════
+    // FINANCE REQUESTS
+    // ═══════════════════════════════════════════════════════════════════
     await prisma.financeRequest.create({
         data: { type: 'SETTLE_DEBT', requestedBy: accountant.id, status: 'PENDING', amount: 480, note: 'تسوية الدين الشخصي لسارة أحمد — فاتورة INV-003' },
     });
-    // ✅ طلب معتمد
     await prisma.financeRequest.create({
         data: { type: 'ALLOCATE_BUDGET', requestedBy: accountant.id, status: 'APPROVED', approvedBy: admin.id, amount: 50000, targetId: proj2.id, note: 'تخصيص ميزانية الحملة التسويقية' },
     });
-    // ❌ طلب مرفوض
-    await prisma.financeRequest.create({
-        data: { type: 'SETTLE_DEBT', requestedBy: accountant.id, status: 'REJECTED', approvedBy: admin.id, amount: 350, note: 'تسوية دين مزدوجة', rejectReason: 'الدين تمت تسويته مسبقاً' },
-    });
-    // ⏳ طلب إرجاع عهدة
     await prisma.financeRequest.create({
         data: { type: 'RETURN_CUSTODY', requestedBy: accountant.id, status: 'PENDING', amount: 2000, note: 'إرجاع فائض عهدة محمد طارق للخزنة' },
     });
-    console.log('✔ 4 finance requests created\n');
+    console.log('✔ 3 finance requests\n');
 
     // ═══════════════════════════════════════════════════════════════════
-    // MESSAGES — محادثات في مشاريع ومباشرة
+    // MESSAGES — محادثات مشاريع فقط (v5: لا رسائل شخصية)
     // ═══════════════════════════════════════════════════════════════════
     await prisma.message.create({ data: { content: 'السلام عليكم فريق العمل 👋 — يرجى رفع الإيصالات خلال 24 ساعة من صرف أي مبلغ.', isProjectChat: true, senderId: coordinator.id, projectId: proj1.id } });
     await prisma.message.create({ data: { content: 'تمام يا مهندس، سأرفع إيصال التنقل الآن.', isProjectChat: true, senderId: emp1.id, projectId: proj1.id } });
-    await prisma.message.create({ data: { content: 'الفاتورة INV-005 معلقة بسبب الدفع المختلط، هل تحتاج توضيح؟', isProjectChat: true, senderId: emp2.id, projectId: proj1.id } });
+    await prisma.message.create({ data: { content: 'هل يوجد تحديث على عهدة المقاول الخارجي؟ أحتاج الفاتورة لتسجيلها.', isProjectChat: true, senderId: accountant.id, projectId: proj1.id } });
     await prisma.message.create({ data: { content: 'تم رفع فاتورة التصوير، أبلغوني عند الاعتماد.', isProjectChat: true, senderId: emp3.id, projectId: proj2.id } });
-    // رسالة مباشرة
-    await prisma.message.create({ data: { content: 'أحمد، هل يمكنك مراجعة الفواتير المعلقة لمشروع العقارات؟', senderId: admin.id, receiverId: accountant.id } });
-    await prisma.message.create({ data: { content: 'بالطبع، سأراجعها خلال ساعة.', senderId: accountant.id, receiverId: admin.id } });
-    console.log('✔ Messages created\n');
+    await prisma.message.create({ data: { content: 'الهدايا الترويجية بأولوية عاجلة — نحتاج تنسيق سريع.', isProjectChat: true, senderId: coordinator.id, projectId: proj2.id } });
+    console.log('✔ 5 project messages (no personal chats)\n');
 
     // ═══════════════════════════════════════════════════════════════════
-    // NOTIFICATIONS — إشعارات مستهدفة لكل دور
+    // NOTIFICATIONS
     // ═══════════════════════════════════════════════════════════════════
-    await prisma.notification.create({ data: { title: 'مرحباً بكم في النظام 🎉', content: 'يمكنكم الآن إدارة المشاريع والعهدات والفواتير بسهولة.', targetRole: 'ALL' } });
-    await prisma.notification.create({ data: { title: 'فواتير تنتظر المراجعة', content: 'يوجد 3 فواتير معلقة تنتظر اعتمادك يا أحمد.', targetUserId: accountant.id } });
-    await prisma.notification.create({ data: { title: 'تذكير: تأكيد استلام العهدة', content: 'لم تؤكدي استلام العهدة البنكية بعد يا سارة. يرجى المراجعة والتأكيد.', targetUserId: emp2.id } });
-    await prisma.notification.create({ data: { title: 'طلب شراء عاجل', content: 'طلب شراء هدايا ترويجية بأولوية URGENT — يرجى التنسيق.', targetUserId: emp3.id } });
-    await prisma.notification.create({ data: { title: 'تحديث مشروع العقارات', content: 'تم رفع فاتورة جديدة من فريق المشروع.', targetProjectId: proj1.id } });
-    console.log('✔ Notifications created\n');
+    await prisma.notification.create({ data: { title: 'مرحباً بكم في Pocket v5 🎉', content: 'تم تحديث النظام بميزات جديدة: مصاريف الشركة، التوقيع الإلكتروني، وسندات الصرف.', targetRole: 'ALL' } });
+    await prisma.notification.create({ data: { title: 'فواتير تنتظر المراجعة', content: 'يوجد 4 فواتير معلقة تنتظر اعتمادك (مشاريع + شركة).', targetUserId: accountant.id } });
+    await prisma.notification.create({ data: { title: 'تأكيد استلام العهدة', content: 'لم تؤكدي استلام العهدة البنكية بعد يا سارة. يرجى التوقيع من صفحة "عهدي".', targetUserId: emp2.id } });
+    await prisma.notification.create({ data: { title: 'طلب شراء عاجل ⚡', content: 'طلب شراء هدايا ترويجية بأولوية URGENT — يرجى التنسيق.', targetUserId: emp3.id } });
+    console.log('✔ 4 notifications\n');
 
     // ═══════════════════════════════════════════════════════════════════
     // SUMMARY
     // ═══════════════════════════════════════════════════════════════════
     console.log('══════════════════════════════════════════════════════');
-    console.log('✅  Seeding complete! بيانات الاختبار جاهزة\n');
-    console.log('🔐  بيانات الدخول (كلمة المرور للجميع: 123456)');
+    console.log('✅  Seeding complete! Pocket v5 test data ready\n');
+    console.log('🔐  كلمة المرور للجميع: 123456');
     console.log('──────────────────────────────────────────────────────');
-    console.log('  الدور              الإيميل                  الصلاحيات');
-    console.log('  ─────────────────────────────────────────────────────');
-    console.log('  ADMIN            admin@pocket.com          كل الصلاحيات');
-    console.log('  GENERAL_MANAGER  gm@pocket.com             عرض فقط (بدون إضافة)');
-    console.log('  GLOBAL_ACCOUNTANT accountant@pocket.com    محاسبة + اعتماد فواتير');
-    console.log('  منسق (USER)      coordinator@pocket.com    إدارة مشاريعه + مشتريات');
-    console.log('  موظف 1 (USER)    emp1@pocket.com           رفع فواتير + تأكيد عهدة');
-    console.log('  موظف 2 (USER)    emp2@pocket.com           رفع فواتير (دين معلق عنده)');
-    console.log('  موظف 3 (USER)    emp3@pocket.com           رفع فواتير + طلب شراء عاجل');
-    console.log('  محاسبة مشروع    proj-acc@pocket.com        محاسب داخل مشروع العقارات');
+    console.log('  👑 ADMIN             admin@pocket.com        كل الصلاحيات + مدير مشاريع');
+    console.log('  🌟 المدير العام      gm@pocket.com           مشاهدة فقط بدون تدخل');
+    console.log('  🧾 المحاسب العام     accountant@pocket.com   اعتماد فواتير + مصاريف شركة');
+    console.log('  🗂️ منسق مشاريع      coordinator@pocket.com  إدارة فرق + مشتريات');
+    console.log('  👤 موظف ١ محمد       emp1@pocket.com         عهدة مؤكدة + فواتير');
+    console.log('  👤 موظف ٢ سارة       emp2@pocket.com         عهدة تنتظر توقيع + دين');
+    console.log('  👤 موظف ٣ فيصل       emp3@pocket.com         عهدة + طلب شراء عاجل');
     console.log('──────────────────────────────────────────────────────');
-    console.log('📁  المشاريع:');
-    console.log('  1. نظام إدارة عقارات    IN_PROGRESS  90,000 ر.ق  — فواتير متنوعة');
-    console.log('  2. حملة تسويق رمضان    IN_PROGRESS  50,000 ر.ق  — مشتريات بكل الحالات');
-    console.log('  3. منصة تعليم إلكتروني PENDING      لا ميزانية   — لاختبار التخصيص');
-    console.log('  4. موقع متجر إلكتروني  COMPLETED    في الأرشيف   — لاختبار إعادة الفتح');
-    console.log('──────────────────────────────────────────────────────');
-    console.log('📄  الفواتير: 8 فواتير (3 معتمدة، 3 معلقة، 1 مرفوضة، 1 أرشيف)');
-    console.log('🛒  المشتريات: 6 طلبات (REQUESTED, IN_PROGRESS, PURCHASED, CANCELLED)');
-    console.log('💰  رصيد الخزنة: ~240,000 ر.ق (بعد تخصيص المشاريع)');
-    console.log('📋  الطلبات المالية: 4 (PENDING, APPROVED, REJECTED, PENDING)');
+    console.log('  📁 مشروع ١  IN_PROGRESS  90K  عهد + خارجية + فواتير متنوعة');
+    console.log('  📁 مشروع ٢  IN_PROGRESS  50K  حملة رمضان + مشتريات');
+    console.log('  📁 مشروع ٣  PENDING      0    بدون ميزانية');
+    console.log('  📁 مشروع ٤  COMPLETED    65K  أرشيف');
+    console.log('  🏢 مصاريف شركة: 3 فواتير (إيجار + تراخيص + بنية تحتية)');
     console.log('══════════════════════════════════════════════════════\n');
 }
 

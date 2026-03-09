@@ -19,8 +19,9 @@ model User {
   password            String
   role                String               @default("USER") // ADMIN | GENERAL_MANAGER | GLOBAL_ACCOUNTANT | USER
   jobTitle            String?
-  salary              Float?
+  salary              Float?              // v4: hidden from UI but kept in DB
   image               String?
+  savedSignature      String?              // v5: توقيع محفوظ (base64 PNG)
   createdAt           DateTime             @default(now())
   updatedAt           DateTime             @updatedAt
   isDeleted           Boolean              @default(false)
@@ -109,8 +110,8 @@ model ProjectMember {
   projectId       String
   userId          String
   role            String            @default("MEMBER")        // Legacy — kept for backward compat
-  // V3: أدوار متعددة مخزنة كـ CSV — مثال: "PROJECT_EMPLOYEE,PROJECT_ACCOUNTANT"
-  // القيم المتاحة: PROJECT_EMPLOYEE | PROJECT_ACCOUNTANT | PROJECT_MANAGER
+  // V4: أدوار متعددة مخزنة كـ CSV — مثال: "PROJECT_EMPLOYEE,PROJECT_MANAGER"
+  // القيم المتاحة: PROJECT_EMPLOYEE | PROJECT_MANAGER
   projectRoles    String            @default("PROJECT_EMPLOYEE")
   custodyBalance  Float             @default(0)               // رصيد عهدة الموظف الإجمالي في هذا المشروع
   project         Project           @relation(fields: [projectId], references: [id], onDelete: Cascade)
@@ -141,6 +142,13 @@ model EmployeeCustody {
   createdAt     DateTime              @default(now())
   updatedAt     DateTime              @updatedAt
 
+  // v5: External payee fields
+  isExternal       Boolean            @default(false)
+  externalName     String?            // اسم الشخص الخارجي
+  externalPhone    String?            // رقم هاتف للتواصل
+  externalPurpose  String?            // الغرض من الصرف
+  externalSignature String?           // صورة توقيع مرفوعة
+
   project       Project               @relation(fields: [projectId], references: [id])
   employee      User                  @relation(fields: [employeeId], references: [id])
   member        ProjectMember?        @relation(fields: [memberId], references: [id])
@@ -153,25 +161,28 @@ model EmployeeCustody {
 }
 
 model CustodyConfirmation {
-  id          String           @id @default(uuid())
-  custodyId   String           @unique
-  confirmedAt DateTime         @default(now())
-  signature   String?          // رقم توقيع/تأكيد مرجعي
-  custody     EmployeeCustody  @relation(fields: [custodyId], references: [id])
+  id            String           @id @default(uuid())
+  custodyId     String           @unique
+  confirmedAt   DateTime         @default(now())
+  signatureFile String?          // v5: مسار ملف التوقيع PNG
+  voucherFile   String?          // v5: مسار سند الصرف PDF
+  custody       EmployeeCustody  @relation(fields: [custodyId], references: [id])
 }
 
 // سجل عمليات إرجاع الكاش من الموظف
 model CustodyReturn {
-  id          String          @id @default(uuid())
-  custodyId   String
-  amount      Float           // المبلغ المُرجَع
-  returnedBy  String          // الموظف الذي أرجع
-  recordedBy  String          // المدير/المنسق الذي سجّل
-  note        String?
-  createdAt   DateTime        @default(now())
-  custody     EmployeeCustody @relation(fields: [custodyId], references: [id])
-  returner    User            @relation("CustodyReturner", fields: [returnedBy], references: [id])
-  recorder    User            @relation("CustodyRecorder", fields: [recordedBy], references: [id])
+  id            String          @id @default(uuid())
+  custodyId     String
+  amount        Float           // المبلغ المُرجَع
+  returnedBy    String          // الموظف الذي أرجع
+  recordedBy    String          // المدير/المنسق الذي سجّل
+  note          String?
+  signatureFile String?         // v5: توقيع المحاسب PNG
+  voucherFile   String?         // v5: مسار سند القبض PDF
+  createdAt     DateTime        @default(now())
+  custody       EmployeeCustody @relation(fields: [custodyId], references: [id])
+  returner      User            @relation("CustodyReturner", fields: [returnedBy], references: [id])
+  recorder      User            @relation("CustodyRecorder", fields: [recordedBy], references: [id])
 }
 
 // ─────────────────────────────────────────────
@@ -181,6 +192,7 @@ model Category {
   id        String    @id @default(uuid())
   name      String    // "طعام" | "نقل" | "مستلزمات" | "أخرى"
   icon      String?
+  scope     String    @default("PROJECT")  // v5: PROJECT | COMPANY | BOTH
   isActive  Boolean   @default(true)
   createdAt DateTime  @default(now())
   invoices  Invoice[]
@@ -207,11 +219,12 @@ model Invoice {
 
   // V2 additions
   rejectionReason String?           // إجباري عند الرفض
-  // V3: paymentSource يدعم 3 قيم:
+  // V3: paymentSource يدعم 4 قيم:
   // CUSTODY = كل المبلغ من العهدة
   // PERSONAL = كل المبلغ من الجيب
   // SPLIT = جزء من العهدة + جزء من الجيب
-  paymentSource   String            @default("CUSTODY")  // CUSTODY | PERSONAL | SPLIT
+  // COMPANY_DIRECT = v5: مصاريف شركة مباشرة (بلا custody)
+  paymentSource   String            @default("CUSTODY")  // CUSTODY | PERSONAL | SPLIT | COMPANY_DIRECT
   custodyAmount   Float?            // V3: جزء من العهدة (في حالة SPLIT)
   pocketAmount    Float?            // V3: جزء من الجيب (في حالة SPLIT)
   custodyId       String?           // مرتبطة بعهدة الموظف
@@ -220,6 +233,11 @@ model Invoice {
   approvedAt      DateTime?         // I10: وقت الاعتماد
   rejectedBy      String?           // V3: من رفض الفاتورة
   rejectedAt      DateTime?         // I10: وقت الرفض
+
+  // v5 additions
+  expenseScope    String            @default("PROJECT")   // PROJECT | COMPANY
+  externalNumber  String?           // v5: رقم الفاتورة الحقيقي (فريد — يُفحص server-side)
+  spendDate       DateTime?         // v5: تاريخ الصرف الفعلي
 
   // Relations
   creator         User              @relation("InvoiceCreator", fields: [creatorId], references: [id])
@@ -233,6 +251,7 @@ model Invoice {
   @@index([creatorId, status])    // P1: user's own invoices filtered by status
   @@index([projectId, status])    // P1: project invoices filtered by status
   @@index([createdAt])            // P1: order by createdAt on large tables
+  @@index([expenseScope])         // v5: filter by scope
 }
 
 // ─────────────────────────────────────────────
@@ -397,4 +416,13 @@ model Notification {
   @@index([targetUserId, createdAt])  // P1: user-specific notifications sorted by date
   @@index([targetRole, createdAt])    // P1: role-based notifications
   @@index([isRead])                   // P1: unread count queries
+}
+
+// ─────────────────────────────────────────────
+// VOUCHER COUNTER (عداد السندات)
+// ─────────────────────────────────────────────
+model VoucherCounter {
+  id          String @id @default("global")
+  lastIssue   Int    @default(0)   // آخر رقم سند صرف
+  lastReceipt Int    @default(0)   // آخر رقم سند قبض
 }

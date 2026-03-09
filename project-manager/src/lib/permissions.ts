@@ -1,24 +1,27 @@
 /**
  * ════════════════════════════════════════════════════════════════════════
  *  CENTRALIZED ROLE-BASED ACCESS CONTROL (RBAC)
- *  Single Source of Truth — v3 Final (2026-03-07)
+ *  Single Source of Truth — v4 (2026-03-09)
  *
  *  System Roles  (session.role / User.role in DB):
  *    ADMIN             – Superuser: create projects/employees, manage trash
  *    GENERAL_MANAGER   – Executive: view everything + create purchase orders
- *    GLOBAL_ACCOUNTANT – Financial: settle debts, approve invoices, view wallet
+ *    GLOBAL_ACCOUNTANT – Financial: approve invoices, issue custody, settle debts, manage all projects financially
  *    USER              – Project-scoped; further differentiated by projectRoles
  *
  *  Project-level Roles (ProjectMember.projectRoles — comma-separated CSV):
- *    PROJECT_MANAGER   – Coordinator: creates purchase orders for their project
- *    PROJECT_ACCOUNTANT – Approves invoices & issues custody in their project
+ *    PROJECT_MANAGER   – Coordinator: creates purchase orders, can cancel purchases
  *    PROJECT_EMPLOYEE  – Base role: submits invoices, receives custody
  *
- *  Key design decisions:
- *  - invoices.approve is EMPTY here — approval is gated via project role (accountant)
- *  - custodies.issue is ADMIN-only here — USER + PROJECT_ACCOUNTANT gated via context
- *  - projects.create/edit is ADMIN-only — COORDINATORs no longer create projects globally
- *  - debts.settle is GLOBAL_ACCOUNTANT only — ADMIN is view/manage, not settle
+ *  Key design decisions (v4):
+ *  - PROJECT_ACCOUNTANT removed — GLOBAL_ACCOUNTANT handles all projects
+ *  - Salary feature removed from UI
+ *  - custodies.issue: ADMIN + GLOBAL_ACCOUNTANT (all projects)
+ *  - custodies.recordReturn: GLOBAL_ACCOUNTANT only
+ *  - invoices.approve: GLOBAL_ACCOUNTANT only (system-level)
+ *  - invoices.delete: ADMIN + GLOBAL_ACCOUNTANT
+ *  - purchases.cancel: ADMIN + USER (PROJECT_MANAGER — gated via context)
+ *  - debts.view: all roles (USER sees own debts only)
  * ════════════════════════════════════════════════════════════════════════
  */
 
@@ -32,7 +35,7 @@ export const PERMISSIONS = {
     employees: {
         /** Can create a new employee account */
         create: ["ADMIN"] as UserRole[],
-        /** Can edit employee details (name, role, salary, password, image) */
+        /** Can edit employee details (name, role, password, image) */
         edit: ["ADMIN"] as UserRole[],
         /** Can soft-delete an employee (move to trash) */
         delete: ["ADMIN"] as UserRole[],
@@ -40,16 +43,11 @@ export const PERMISSIONS = {
         viewAll: ["ADMIN", "GENERAL_MANAGER", "GLOBAL_ACCOUNTANT"] as UserRole[],
         /** Can view a single employee profile (all authenticated roles) */
         view: ["ADMIN", "GENERAL_MANAGER", "GLOBAL_ACCOUNTANT", "USER"] as UserRole[],
-        /** Can see salary figures for all employees */
-        viewSalaries: ["ADMIN", "GENERAL_MANAGER", "GLOBAL_ACCOUNTANT"] as UserRole[],
     },
 
     // ── Projects ────────────────────────────────────────────────────────────────
     projects: {
-        /**
-         * Can create a new project — ADMIN only.
-         * Coordinators (PROJECT_MANAGER) manage existing projects but cannot create new ones.
-         */
+        /** Can create a new project — ADMIN only */
         create: ["ADMIN"] as UserRole[],
         /** Can edit ANY project — ADMIN only */
         edit: ["ADMIN"] as UserRole[],
@@ -66,15 +64,16 @@ export const PERMISSIONS = {
         /**
          * Can issue (صرف) a new custody to an employee.
          * ADMIN: any project.
-         * GLOBAL_ACCOUNTANT + PROJECT_ACCOUNTANT: only their assigned projects — gated in context.
-         * NOTE: this permission allows ADMIN only at system level.
-         *       PROJECT_ACCOUNTANT access is handled via AuthContext.isAccountantInAny.
+         * GLOBAL_ACCOUNTANT: all projects (v4: handles all projects financially).
          */
-        issue: ["ADMIN"] as UserRole[],
-        /** Can confirm receipt of a custody — only the receiving employee */
-        confirmReceipt: ["USER"] as UserRole[],
-        /** Can record a custody return (إرجاع) */
-        recordReturn: ["ADMIN"] as UserRole[],
+        issue: ["ADMIN", "GLOBAL_ACCOUNTANT"] as UserRole[],
+        /** Can confirm receipt of a custody — only the receiving employee (or GLOBAL_ACCOUNTANT for company custody) */
+        confirmReceipt: ["USER", "GLOBAL_ACCOUNTANT"] as UserRole[],
+        /**
+         * Can record a custody return (إرجاع).
+         * v4: GLOBAL_ACCOUNTANT only — ADMIN no longer records returns.
+         */
+        recordReturn: ["GLOBAL_ACCOUNTANT"] as UserRole[],
         /** Can view custody records */
         view: ["ADMIN", "GENERAL_MANAGER", "GLOBAL_ACCOUNTANT", "USER"] as UserRole[],
     },
@@ -88,13 +87,14 @@ export const PERMISSIONS = {
         create: ["ADMIN", "GLOBAL_ACCOUNTANT", "USER"] as UserRole[],
         /**
          * Approve/reject invoices.
-         * EMPTY at system level — only PROJECT_ACCOUNTANT (and GLOBAL_ACCOUNTANT acting as one)
-         * can approve invoices, gated via AuthContext.isAccountantIn(projectId).
-         * ADMIN does NOT approve invoices per business rules.
+         * v4: GLOBAL_ACCOUNTANT only — handles all projects.
          */
-        approve: [] as UserRole[],
-        /** Can hard-delete an invoice */
-        delete: ["ADMIN"] as UserRole[],
+        approve: ["GLOBAL_ACCOUNTANT"] as UserRole[],
+        /**
+         * Can delete an invoice.
+         * v4: GLOBAL_ACCOUNTANT added.
+         */
+        delete: ["ADMIN", "GLOBAL_ACCOUNTANT"] as UserRole[],
         /** Can view all invoices regardless of project */
         viewAll: ["ADMIN", "GENERAL_MANAGER", "GLOBAL_ACCOUNTANT"] as UserRole[],
     },
@@ -117,19 +117,25 @@ export const PERMISSIONS = {
         create: ["ADMIN", "GENERAL_MANAGER"] as UserRole[],
         /** Can update purchase status (IN_PROGRESS / PURCHASED) */
         updateStatus: ["ADMIN", "GENERAL_MANAGER", "GLOBAL_ACCOUNTANT", "USER"] as UserRole[],
-        /** Can cancel a purchase order */
-        cancel: ["ADMIN"] as UserRole[],
+        /**
+         * Can cancel a purchase order.
+         * v4: USER added — PROJECT_MANAGER can cancel (gated via context).
+         */
+        cancel: ["ADMIN", "USER"] as UserRole[],
     },
 
     // ── Debts (الديون الشخصية) ───────────────────────────────────────────────────
     debts: {
         /**
          * Can settle employee personal debts.
-         * GLOBAL_ACCOUNTANT only — ADMIN manages the system but does not settle debts.
+         * GLOBAL_ACCOUNTANT + ADMIN.
          */
         settle: ["GLOBAL_ACCOUNTANT", "ADMIN"] as UserRole[],
-        /** Can view the debts list */
-        view: ["ADMIN", "GENERAL_MANAGER", "GLOBAL_ACCOUNTANT"] as UserRole[],
+        /**
+         * Can view debts.
+         * v4: USER added — can see own personal debts only.
+         */
+        view: ["ADMIN", "GENERAL_MANAGER", "GLOBAL_ACCOUNTANT", "USER"] as UserRole[],
     },
 
     // ── Company Wallet / Safe (خزنة الشركة) ──────────────────────────────────────
@@ -239,11 +245,4 @@ export function hasProjectRole(
  */
 export function isProjectCoordinator(projectRoles: string | null | undefined): boolean {
     return hasProjectRole(projectRoles, ["PROJECT_MANAGER"]);
-}
-
-/**
- * Determine if a USER-role user is an accountant (PROJECT_ACCOUNTANT) in a given project context.
- */
-export function isProjectAccountant(projectRoles: string | null | undefined): boolean {
-    return hasProjectRole(projectRoles, ["PROJECT_ACCOUNTANT"]);
 }

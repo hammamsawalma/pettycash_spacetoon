@@ -36,13 +36,12 @@ export async function getInvoices() {
                                     }
                                 }
                             },
-                            // All invoices in projects where user holds PROJECT_ACCOUNTANT role
+                            // All invoices in projects where user is a member
                             {
                                 project: {
                                     members: {
                                         some: {
-                                            userId: session.id,
-                                            projectRoles: { contains: "PROJECT_ACCOUNTANT" }
+                                            userId: session.id
                                         }
                                     }
                                 }
@@ -125,8 +124,26 @@ export async function createInvoice(prevState: unknown, formData: FormData) {
         // JSON-encoded array of invoice items
         const itemsJson = formData.get("items") as string | null;
 
-        if (!projectId || !amountStr) {
-            return { error: "جميع الحقول الإلزامية مطلوبة" };
+        // v5: Company expense scope
+        const expenseScope = (formData.get("expenseScope") as string) || "PROJECT";
+        const isCompanyExpense = expenseScope === "COMPANY";
+
+        // v5: Company expenses — only ADMIN + GLOBAL_ACCOUNTANT
+        if (isCompanyExpense) {
+            if (session.role !== "ADMIN" && session.role !== "GLOBAL_ACCOUNTANT") {
+                return { error: "مصاريف الشركة متاحة للمحاسب العام ومدير النظام فقط" };
+            }
+            if (!categoryId) {
+                return { error: "تصنيف المصروف إلزامي لمصاريف الشركة" };
+            }
+            if (!amountStr) {
+                return { error: "المبلغ إلزامي" };
+            }
+        } else {
+            // Project expenses require projectId
+            if (!projectId || !amountStr) {
+                return { error: "جميع الحقول الإلزامية مطلوبة" };
+            }
         }
 
         // ─ Detect Manager Implicit Custody flow ─────────────────────────────────
@@ -134,9 +151,13 @@ export async function createInvoice(prevState: unknown, formData: FormData) {
         const isManagerImplicit = custodyId === "MANAGER_IMPLICIT";
         if (isManagerImplicit) custodyId = null;
 
-        // ─ Project access check ───────────────────────────────────────────────
+        // ─ Project access check (skip for company expenses) ────────────────────
         let projectIsManaged = false; // true when the session user IS the project manager
-        if (!isGlobalFinance(session.role)) {
+        if (isCompanyExpense) {
+            // Company expenses: no project required, set paymentSource
+            paymentSource = "COMPANY_DIRECT";
+            custodyId = null;
+        } else if (!isGlobalFinance(session.role)) {
             const project = await prisma.project.findFirst({
                 where: {
                     id: projectId,
@@ -162,11 +183,11 @@ export async function createInvoice(prevState: unknown, formData: FormData) {
             projectIsManaged = project.managerId === session.id;
             const memberRecord = project.members[0];
 
-            // Coordinators with no EMPLOYEE/ACCOUNTANT role cannot add invoices
+            // Coordinators with no EMPLOYEE role cannot add invoices
             if (!projectIsManaged && memberRecord && memberRecord.projectRoles) {
-                const canAddInvoice = hasProjectPermission(memberRecord.projectRoles, ["PROJECT_EMPLOYEE", "PROJECT_ACCOUNTANT"]);
+                const canAddInvoice = hasProjectPermission(memberRecord.projectRoles, ["PROJECT_EMPLOYEE"]);
                 if (!canAddInvoice) {
-                    return { error: "بصفتك منسقاً فقط في هذا المشروع، لا يمكنك إضافة فاتورة. العملية متاحة للموظفين والمحاسبين ومدير المشروع." };
+                    return { error: "بصفتك منسقاً فقط في هذا المشروع، لا يمكنك إضافة فاتورة. العملية متاحة للموظفين ومدير المشروع." };
                 }
             }
         } else {
@@ -207,7 +228,8 @@ export async function createInvoice(prevState: unknown, formData: FormData) {
 
         // ─ Auto-detect paymentSource for EMPLOYEE simplified flow ─────────────────────────────────
         // When paymentSource is not provided (employee simplified UI), auto-detect based on custody balance
-        const isSimplifiedFlow = !paymentSource && !isManagerImplicit;
+        // Skip for company expenses (already set to COMPANY_DIRECT above)
+        const isSimplifiedFlow = !paymentSource && !isManagerImplicit && !isCompanyExpense;
 
         if (isSimplifiedFlow && projectId) {
             // Find the best active custody for this employee in this project
@@ -326,20 +348,23 @@ export async function createInvoice(prevState: unknown, formData: FormData) {
 
         // ─ Check AutoApprovalRule ─────────────────────────────────────────────
         // If an active rule exists and the invoice amount qualifies, auto-approve
+        // v5: Company expenses are NEVER auto-approved
         let autoApprove = false;
-        try {
-            const autoRule = await prisma.autoApprovalRule.findFirst({ where: { isActive: true } });
-            if (autoRule && amount <= autoRule.maxAmount) {
-                // requiresManager: only auto-approve if the creator is the project manager
-                if (autoRule.requiresManager) {
-                    autoApprove = projectIsManaged; // only true when creator === project.managerId
-                } else {
-                    autoApprove = true;
+        if (!isCompanyExpense) {
+            try {
+                const autoRule = await prisma.autoApprovalRule.findFirst({ where: { isActive: true } });
+                if (autoRule && amount <= autoRule.maxAmount) {
+                    // requiresManager: only auto-approve if the creator is the project manager
+                    if (autoRule.requiresManager) {
+                        autoApprove = projectIsManaged; // only true when creator === project.managerId
+                    } else {
+                        autoApprove = true;
+                    }
                 }
+            } catch {
+                // If the rule lookup fails, fall back to manual review
+                autoApprove = false;
             }
-        } catch {
-            // If the rule lookup fails, fall back to manual review
-            autoApprove = false;
         }
         const initialStatus = autoApprove ? "APPROVED" : "PENDING";
 
@@ -347,7 +372,7 @@ export async function createInvoice(prevState: unknown, formData: FormData) {
         const result = await prisma.$transaction(async (tx) => {
             const newInvoice = await tx.invoice.create({
                 data: {
-                    projectId,
+                    projectId: isCompanyExpense ? null : projectId,
                     reference,
                     type,
                     amount,
@@ -360,6 +385,7 @@ export async function createInvoice(prevState: unknown, formData: FormData) {
                     pocketAmount: pocketAmount ?? null,
                     custodyId: custodyId || null,
                     categoryId: categoryId || null,
+                    expenseScope: isCompanyExpense ? "COMPANY" : "PROJECT",
                     ...(filePathDb && { filePath: filePathDb }),
                     items: items.length > 0 ? {
                         create: items.map(item => ({
@@ -432,34 +458,16 @@ export async function createInvoice(prevState: unknown, formData: FormData) {
         });
 
         // ─ Non-critical: Notifications (outside transaction — failure won't corrupt data) ───
-        if (initialStatus === "PENDING" && projectId) {
-            const accountantMembers = await prisma.projectMember.findMany({
-                where: { projectId }
+        // v4+v5: Notify GLOBAL_ACCOUNTANT, but skip if the creator IS the accountant (UI-6)
+        if (initialStatus === "PENDING" && session.role !== "GLOBAL_ACCOUNTANT") {
+            const scopeLabel = isCompanyExpense ? "مصاريف شركة" : "مشاريع";
+            await prisma.notification.create({
+                data: {
+                    title: `فاتورة جديدة تنتظر المراجعة 📄 (${scopeLabel})`,
+                    content: `مرفوعة بواسطة ${session.name || session.id} — المبلغ: ${amount.toLocaleString()} ريال`,
+                    targetRole: "GLOBAL_ACCOUNTANT"
+                }
             });
-            const accountantIds = accountantMembers
-                .filter(m => hasProjectPermission(m.projectRoles, ["PROJECT_ACCOUNTANT"]))
-                .map(m => m.userId);
-
-            for (const accountantId of accountantIds) {
-                await prisma.notification.create({
-                    data: {
-                        title: 'فاتورة جديدة تنتظر مراجعتك 📄',
-                        content: `مرفوعة بواسطة ${session.name || session.id} — المبلغ: ${amount.toLocaleString()} ريال`,
-                        targetUserId: accountantId
-                    }
-                });
-            }
-
-            // Also notify global accountants if none assigned at project level
-            if (accountantIds.length === 0) {
-                await prisma.notification.create({
-                    data: {
-                        title: 'فاتورة جديدة تنتظر المراجعة',
-                        content: `مرفوعة بواسطة ${session.name || session.id} — المبلغ: ${amount.toLocaleString()} ريال`,
-                        targetRole: "GLOBAL_ACCOUNTANT"
-                    }
-                });
-            }
         }
 
         if (purchaseId) {
@@ -477,11 +485,16 @@ export async function createInvoice(prevState: unknown, formData: FormData) {
     }
 }
 
-// ─── Update Invoice Status (with mandatory rejectionReason) ───────────────
+// ─── Update Invoice Status (with mandatory rejectionReason + v5 accountant fields) ───────────
 export async function updateInvoiceStatus(
     id: string,
     status: "APPROVED" | "REJECTED" | "PENDING",
-    rejectionReason?: string
+    options?: {
+        rejectionReason?: string;
+        externalNumber?: string;
+        spendDate?: string;     // ISO date string
+        categoryId?: string;
+    }
 ) {
     try {
         const session = await getSession();
@@ -507,39 +520,51 @@ export async function updateInvoiceStatus(
             return { error: `لا يمكن تحويل الفاتورة من "${existingInvoice.status}" إلى "${status}". التحويل غير مسموح به.` };
         }
 
-        // ─ Authorization: v3 rules ──────────────────────────────────────
-        // ADMIN does NOT approve invoices
-        // GLOBAL_ACCOUNTANT can approve (they are automatically a project accountant)
-        // PROJECT_ACCOUNTANT of the specific project can approve
-        // GENERAL_MANAGER is view-only and cannot approve
+        // ─ Authorization: v4 rules ───────────────────────────────────────
+        // Only GLOBAL_ACCOUNTANT can approve/reject invoices (handles all projects)
+        // ADMIN, GENERAL_MANAGER are NOT allowed to approve
         const isGlobalAccountant = session.role === "GLOBAL_ACCOUNTANT";
-        let isProjectAuth = false;
 
-        if (existingInvoice.projectId) {
-            const memberRecord = await prisma.projectMember.findUnique({
-                where: { projectId_userId: { projectId: existingInvoice.projectId, userId: session.id } }
-            });
-            if (memberRecord) {
-                isProjectAuth = hasProjectPermission(memberRecord.projectRoles, ["PROJECT_ACCOUNTANT"]);
-            }
-        }
-
-        const canApprove = isGlobalAccountant || isProjectAuth;
-
-        if (!canApprove) {
-            return { error: "غير مصرح لك بتغيير حالة الفاتورة — هذه الصلاحية للمحاسبين فقط" };
-        }
-
-        // Separation of Duties: accountant cannot approve their own invoices
-        // Exception: PROJECT_ACCOUNTANT and GLOBAL_ACCOUNTANT may self-approve
-        if (existingInvoice.creatorId === session.id && !isGlobalAccountant && !isProjectAuth) {
-            return { error: "لا يمكن اعتماد أو رفض فاتورة قمت بإنشائها (فصل المهام)" };
+        if (!isGlobalAccountant) {
+            return { error: "غير مصرح لك بتغيير حالة الفاتورة — هذه الصلاحية للمحاسب العام فقط" };
         }
 
         // Mandatory rejection reason
         if (status === "REJECTED") {
-            if (!rejectionReason?.trim()) {
+            if (!options?.rejectionReason?.trim()) {
                 return { error: "سبب الرفض إجباري عند رفض الفاتورة" };
+            }
+        }
+
+        // v5: Mandatory accountant fields when APPROVING
+        if (status === "APPROVED") {
+            if (!options?.externalNumber?.trim()) {
+                return { error: "رقم الفاتورة الخارجي إلزامي عند الاعتماد" };
+            }
+            if (!options?.spendDate) {
+                return { error: "تاريخ الصرف إلزامي عند الاعتماد" };
+            }
+            if (!options?.categoryId) {
+                return { error: "تصنيف المصروف إلزامي عند الاعتماد" };
+            }
+
+            // v5: Check externalNumber uniqueness (exclude soft-deleted)
+            const duplicate = await prisma.invoice.findFirst({
+                where: {
+                    externalNumber: options.externalNumber.trim(),
+                    isDeleted: false,
+                    NOT: { id }
+                }
+            });
+            if (duplicate) {
+                return { error: `رقم الفاتورة "${options.externalNumber}" مستخدم بالفعل في فاتورة أخرى (${duplicate.reference})` };
+            }
+
+            // EC-7: Check project is still active (if project-based)
+            if (existingInvoice.projectId && existingInvoice.project) {
+                if (existingInvoice.project.status !== "IN_PROGRESS") {
+                    return { error: "لا يمكن اعتماد فاتورة لمشروع مغلق أو متوقف" };
+                }
             }
         }
 
@@ -566,13 +591,22 @@ export async function updateInvoiceStatus(
                 throw new Error(`لا يمكن تحويل الفاتورة من "${lockedInvoice.status}" إلى "${status}". التحويل غير مسموح به.`);
             }
 
-            // Update invoice status — I10: write timestamps
+            // Update invoice status — I10: write timestamps + v5: accountant fields
             await tx.invoice.update({
                 where: { id },
                 data: {
                     status,
-                    rejectionReason: status === "REJECTED" ? rejectionReason : null,
-                    ...(status === "APPROVED" ? { approvedBy: session.id, approvedAt: new Date(), rejectedBy: null, rejectedAt: null } : {}),
+                    rejectionReason: status === "REJECTED" ? (options?.rejectionReason || null) : null,
+                    ...(status === "APPROVED" ? {
+                        approvedBy: session.id,
+                        approvedAt: new Date(),
+                        rejectedBy: null,
+                        rejectedAt: null,
+                        // v5: Save accountant fields
+                        externalNumber: options?.externalNumber?.trim() || null,
+                        spendDate: options?.spendDate ? new Date(options.spendDate) : null,
+                        categoryId: options?.categoryId || null,
+                    } : {}),
                     ...(status === "REJECTED" ? { rejectedBy: session.id, rejectedAt: new Date(), approvedBy: null, approvedAt: null } : {}),
                     ...(status === "PENDING" ? { approvedBy: null, approvedAt: null, rejectedBy: null, rejectedAt: null } : {}),
                 }
