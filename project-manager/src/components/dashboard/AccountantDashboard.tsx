@@ -3,9 +3,10 @@ import DashboardLayout from "@/components/layout/DashboardLayout";
 import ManagerFinancialOverview from "@/components/dashboard/ManagerFinancialOverview";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
-import { FileText, Wallet, ArrowDownToLine, ArrowUpToLine, ChevronLeft, FolderKanban } from 'lucide-react';
+import { FileText, Wallet, ArrowUpToLine, ChevronLeft, FolderKanban, Banknote, BadgeDollarSign, Building2, HandCoins } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { getDashboardStats, getFlowStats } from '@/actions/dashboard';
+import { getPendingDebts } from '@/actions/debts';
 import { Project, User, Notification, Invoice, ProjectMember } from '@prisma/client';
 import { AnimatedNumber } from "@/components/ui/AnimatedNumber";
 import { useRouter } from "next/navigation";
@@ -33,22 +34,28 @@ export default function AccountantDashboard() {
         custodyIssued: 0,
         custodyReturned: 0,
         invoicesApproved: 0,
+        companyExpenses: 0,
     });
 
+    const [pendingDebtsCount, setPendingDebtsCount] = useState(0);
     const [isMounted, setIsMounted] = useState(false);
 
     useEffect(() => {
         setIsMounted(true);
         getDashboardStats().then(setStats);
         getFlowStats().then(data => {
-            if (data && (data.role === "ADMIN" || data.role === "GLOBAL_ACCOUNTANT" || data.role === "GENERAL_MANAGER")) {
+            if (data && "projectsAllocated" in data) {
                 setFlow({
-                    projectsAllocated: (data as any).projectsAllocated ?? 0,
-                    custodyIssued: (data as any).custodyIssued ?? 0,
-                    custodyReturned: (data as any).custodyReturned ?? 0,
-                    invoicesApproved: (data as any).invoicesApproved ?? 0,
+                    projectsAllocated: data.projectsAllocated ?? 0,
+                    custodyIssued: data.custodyIssued ?? 0,
+                    custodyReturned: data.custodyReturned ?? 0,
+                    invoicesApproved: data.invoicesApproved ?? 0,
+                    companyExpenses: data.companyExpenses ?? 0,
                 });
             }
+        });
+        getPendingDebts().then(debts => {
+            setPendingDebtsCount(Array.isArray(debts) ? debts.length : 0);
         });
     }, []);
 
@@ -61,8 +68,19 @@ export default function AccountantDashboard() {
     }
 
     const kpis = [
-        { title: "إجمالي العُهد المصروفة", value: flow.custodyIssued, icon: Wallet, color: "text-rose-500", bg: "bg-rose-500/10", isCurrency: true },
-        { title: "مُبالغ مُرجَعة من العُهد", value: flow.custodyReturned, icon: ArrowUpToLine, color: "text-amber-500", bg: "bg-amber-500/10", isCurrency: true },
+        { title: "فواتير معلقة", value: stats.pendingInvoices.length, icon: FileText, color: "text-amber-500", bg: "bg-amber-500/10", isCurrency: false },
+        { title: "ديون معلقة", value: pendingDebtsCount, icon: Banknote, color: "text-red-500", bg: "bg-red-500/10", isCurrency: false },
+        { title: "إجمالي العُهد المصروفة", value: flow.custodyIssued, icon: HandCoins, color: "text-rose-500", bg: "bg-rose-500/10", isCurrency: true },
+        { title: "مُبالغ مُرجَعة من العُهد", value: flow.custodyReturned, icon: ArrowUpToLine, color: "text-emerald-500", bg: "bg-emerald-500/10", isCurrency: true },
+        { title: "مصاريف الشركة", value: flow.companyExpenses, icon: Building2, color: "text-purple-500", bg: "bg-purple-500/10", isCurrency: true },
+        { title: "فواتير معتمدة", value: flow.invoicesApproved, icon: FileText, color: "text-blue-500", bg: "bg-blue-500/10", isCurrency: true },
+    ];
+
+    const quickActions = [
+        { label: "فاتورة جديدة", href: "/invoices/new", icon: FileText, color: "bg-green-50 text-green-700 border-green-100" },
+        { label: "سجل العهدة", href: "/deposits", icon: Wallet, color: "bg-blue-50 text-blue-700 border-blue-100" },
+        { label: "الديون", href: "/debts", icon: Banknote, color: "bg-red-50 text-red-700 border-red-100" },
+        { label: "طلب مالي", href: "/finance-requests", icon: BadgeDollarSign, color: "bg-amber-50 text-amber-700 border-amber-100" },
     ];
 
     return (
@@ -71,8 +89,22 @@ export default function AccountantDashboard() {
                 {/* الملخص المالي الموحد */}
                 <ManagerFinancialOverview />
 
+                {/* Quick Actions */}
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 md:gap-3">
+                    {quickActions.map((action, i) => (
+                        <button
+                            key={i}
+                            onClick={() => router.push(action.href)}
+                            className={`flex items-center gap-2 px-3 py-2.5 rounded-xl border text-xs md:text-sm font-bold transition-all duration-200 hover:shadow-md hover:-translate-y-0.5 active:scale-95 ${action.color}`}
+                        >
+                            <action.icon className="w-4 h-4 shrink-0" />
+                            {action.label}
+                        </button>
+                    ))}
+                </div>
+
                 {/* KPI Grid */}
-                <div className="grid grid-cols-2 gap-3 md:gap-4">
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4">
                     {kpis.map((kpi, i) => (
                         <Card key={i} className="flex flex-col md:flex-row items-start md:items-center gap-3 md:gap-4 p-4 md:p-6 group cursor-default shadow-sm border-gray-100">
                             <div className={`flex h-10 w-10 md:h-12 md:w-12 items-center justify-center rounded-xl transition-transform duration-300 md:group-hover:scale-110 shrink-0 ${kpi.bg}`}>
@@ -107,8 +139,8 @@ export default function AccountantDashboard() {
                                     <div>
                                         <p className="text-sm font-bold text-gray-900">{p.name}</p>
                                         <p className="text-xs text-gray-400 font-medium mt-0.5">
-                                            ميزانية: {((p as any).budgetAllocated ?? 0).toLocaleString()} <CurrencyDisplay />
-                                            {" • "}عُهد: {((p as any).custodyIssued ?? 0).toLocaleString()} <CurrencyDisplay />
+                                            ميزانية: {"budgetAllocated" in p ? ((p as any).budgetAllocated ?? 0).toLocaleString() : '0'} <CurrencyDisplay />
+                                            {" • "}عُهد: {"custodyIssued" in p ? ((p as any).custodyIssued ?? 0).toLocaleString() : '0'} <CurrencyDisplay />
                                         </p>
                                     </div>
                                     <span className={`px-2 py-1 text-[10px] font-bold rounded-lg ${p.status === 'COMPLETED' ? 'bg-emerald-50 text-emerald-600' : 'bg-amber-50 text-amber-600'}`}>

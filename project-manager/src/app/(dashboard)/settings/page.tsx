@@ -15,7 +15,7 @@ import { useCurrency } from "@/context/CurrencyContext";
 import { updateGlobalCurrency } from "@/actions/settings";
 
 export default function SettingsPage() {
-    const { user } = useAuth();
+    const { user, roleNameAr } = useAuth();
     const { currency, setCurrency } = useCurrency();
     const [activeTab, setActiveTab] = useState("profile");
     const [isPending, startTransition] = useTransition();
@@ -206,7 +206,7 @@ export default function SettingsPage() {
                                     <div className="relative group p-4 border border-gray-100 rounded-2xl bg-gray-50 transition-all md:col-span-2">
                                         <label className="block text-[10px] md:text-xs font-bold text-gray-400 mb-1">الدور في النظام</label>
                                         <p className="font-bold text-gray-600 text-sm md:text-base">
-                                            {user?.role === 'ADMIN' ? 'مدير النظام' : user?.role === 'GENERAL_MANAGER' ? 'المدير العام' : user?.role === 'GLOBAL_ACCOUNTANT' ? 'المحاسب العام' : 'مستخدم'}
+                                            {roleNameAr}
                                         </p>
                                     </div>
 

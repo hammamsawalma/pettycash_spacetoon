@@ -6,6 +6,7 @@ import { StatusBadge } from "@/components/ui/StatusBadge";
 import { useAuth } from "@/context/AuthContext";
 import { useCanDo } from "@/components/auth/Protect";
 import { Download, FileText, CheckCircle, Printer, XCircle, AlertTriangle, Sparkles, Loader2, Trash2 } from "lucide-react";
+import { CurrencyDisplay } from "@/components/ui/CurrencyDisplay";
 import { useEffect, useState, use } from "react";
 import { getInvoiceById, updateInvoiceStatus, softDeleteInvoice } from "@/actions/invoices";
 import { getCategories } from "@/actions/categories";
@@ -279,7 +280,7 @@ export default function InvoiceDetailsPage({ params }: { params: Promise<{ id: s
                         {invoice.items.length === 0 ? (
                             <div className="bg-gray-50 p-6 rounded-xl text-center text-gray-500 text-sm border border-gray-100 border-dashed">
                                 لم يتم إدراج بنود وتنسيقات مفصلة. الفاتورة مسجلة كمبلغ إجمالي واحد.
-                                <div className="mt-4 text-2xl font-bold text-gray-900">{invoice.amount.toLocaleString("en-GB")} <span className="text-sm text-gray-500">QAR</span></div>
+                                <div className="mt-4 text-2xl font-bold text-gray-900">{invoice.amount.toLocaleString("en-GB")} <span className="text-sm text-gray-500"><CurrencyDisplay /></span></div>
                             </div>
                         ) : (
                             <div className="border border-gray-200 rounded-xl overflow-hidden overflow-x-auto">
@@ -301,14 +302,14 @@ export default function InvoiceDetailsPage({ params }: { params: Promise<{ id: s
                                                     {item.itemNumber && <span className="block text-xs text-gray-400 mt-0.5">كود: {item.itemNumber}</span>}
                                                 </td>
                                                 <td className="p-3 text-center text-gray-600">{item.quantity}</td>
-                                                <td className="p-3 text-left font-bold text-blue-700">{item.totalPrice.toLocaleString("en-GB")} ﷼</td>
+                                                <td className="p-3 text-left font-bold text-blue-700">{item.totalPrice.toLocaleString("en-GB")} <CurrencyDisplay /></td>
                                             </tr>
                                         ))}
                                     </tbody>
                                     <tfoot className="bg-blue-50/50 border-t border-blue-100">
                                         <tr>
                                             <td colSpan={3} className="p-4 text-left font-bold text-gray-700">الإجمالي الكلي:</td>
-                                            <td className="p-4 text-left font-bold text-xl text-blue-800">{invoice.amount.toLocaleString("en-GB")} ﷼</td>
+                                            <td className="p-4 text-left font-bold text-xl text-blue-800">{invoice.amount.toLocaleString("en-GB")} <CurrencyDisplay /></td>
                                         </tr>
                                     </tfoot>
                                 </table>
@@ -457,8 +458,8 @@ export default function InvoiceDetailsPage({ params }: { params: Promise<{ id: s
                         </Button>
                     </Card>
 
-                    {/* Delete button — ADMIN only, non-approved */}
-                    {(role as UserRole) === "ADMIN" && invoice.status !== "APPROVED" && (
+                    {/* Delete button — ADMIN + GLOBAL_ACCOUNTANT, non-approved */}
+                    {((role as UserRole) === "ADMIN" || (role as UserRole) === "GLOBAL_ACCOUNTANT") && invoice.status !== "APPROVED" && (
                         <Card className="p-5 space-y-3 bg-red-50/50 border-red-100">
                             <Button
                                 onClick={handleDelete}

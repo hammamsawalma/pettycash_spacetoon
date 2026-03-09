@@ -12,6 +12,7 @@ import { FileUpload } from "@/components/ui/FileUpload";
 import toast from "react-hot-toast";
 import { Suspense } from "react";
 import { Camera, FileText, CheckCircle, Trash2, Plus, ImageIcon, FolderOpen } from "lucide-react";
+import { CurrencyDisplay } from "@/components/ui/CurrencyDisplay";
 import { getProjectsForInvoice, getManagerAvailableCustody } from "@/actions/projects";
 import { useAuth } from "@/context/AuthContext";
 import Image from "next/image";
@@ -199,7 +200,7 @@ function EmployeeInvoiceFlow({ projects, categories, defaultProjectId, defaultAm
                                     placeholder="0.00"
                                     className="flex-1 text-5xl font-black text-blue-700 bg-transparent outline-none border-b-2 border-blue-200 focus:border-blue-500 pb-1 transition-colors placeholder-gray-200"
                                 />
-                                <span className="text-xl font-bold text-gray-400">ريال</span>
+                                <span className="text-xl font-bold text-gray-400"><CurrencyDisplay /></span>
                             </div>
                         </Card>
                     </div>
@@ -621,7 +622,7 @@ function FullInvoiceForm() {
                                                 inputMode="decimal"
                                                 className="flex-1 text-3xl font-black text-blue-700 bg-transparent outline-none placeholder-gray-200"
                                             />
-                                            <span className="text-lg font-bold text-gray-400">ريال</span>
+                                            <span className="text-lg font-bold text-gray-400"><CurrencyDisplay /></span>
                                         </div>
                                     </div>
 
@@ -703,7 +704,7 @@ function FullInvoiceForm() {
 
                                         <div className="flex justify-between items-center bg-gray-50 p-3 rounded-lg border border-gray-200 mt-2">
                                             <span className="text-sm font-bold text-gray-600">مجموع التنسيقات:</span>
-                                            <span className="font-bold text-lg text-gray-900">{items.reduce((s, i) => s + Number(i.totalPrice), 0).toLocaleString("en-GB")} ﷼</span>
+                                            <span className="font-bold text-lg text-gray-900">{items.reduce((s, i) => s + Number(i.totalPrice), 0).toLocaleString("en-GB")} <CurrencyDisplay /></span>
                                         </div>
                                     </div>
                                 )}

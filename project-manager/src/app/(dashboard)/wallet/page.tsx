@@ -57,7 +57,7 @@ export default async function WalletPage() {
                         </div>
                         <div>
                             <p className="text-xs md:text-sm font-bold text-gray-500 mb-1">الرصيد المتاح والمتبقي</p>
-                            <p className="text-2xl md:text-3xl font-black text-gray-900">{balance.toLocaleString()} <span className="text-sm font-bold text-gray-400">QAR</span></p>
+                            <p className="text-2xl md:text-3xl font-black text-gray-900">{balance.toLocaleString()} <span className="text-sm font-bold text-gray-400"><CurrencyDisplay /></span></p>
                         </div>
                     </Card>
 
@@ -67,7 +67,7 @@ export default async function WalletPage() {
                         </div>
                         <div>
                             <p className="text-xs md:text-sm font-bold text-gray-500 mb-1">إجمالي الإيداعات (دخول)</p>
-                            <p className="text-xl md:text-2xl font-bold text-gray-900">{totalIn.toLocaleString()} <span className="text-xs font-bold text-gray-400">QAR</span></p>
+                            <p className="text-xl md:text-2xl font-bold text-gray-900">{totalIn.toLocaleString()} <span className="text-xs font-bold text-gray-400"><CurrencyDisplay /></span></p>
                         </div>
                     </Card>
 
@@ -77,7 +77,7 @@ export default async function WalletPage() {
                         </div>
                         <div>
                             <p className="text-xs md:text-sm font-bold text-gray-500 mb-1">المخصص للمشاريع (خروج)</p>
-                            <p className="text-xl md:text-2xl font-bold text-gray-900">{totalOut.toLocaleString()} <span className="text-xs font-bold text-gray-400">QAR</span></p>
+                            <p className="text-xl md:text-2xl font-bold text-gray-900">{totalOut.toLocaleString()} <span className="text-xs font-bold text-gray-400"><CurrencyDisplay /></span></p>
                         </div>
                     </Card>
                 </div>

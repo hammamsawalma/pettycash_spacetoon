@@ -1,7 +1,7 @@
 "use client";
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { Home, FolderKanban, FileText, User, Wallet, Camera, Plus, X, ShoppingCart } from 'lucide-react';
+import { Home, FolderKanban, FileText, User, Wallet, Camera, Plus, X, ShoppingCart, BadgeDollarSign, Banknote } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { UserRole } from '@/context/AuthContext';
 import { canDo } from '@/lib/permissions';
@@ -14,6 +14,7 @@ import { useProjectRoles } from '@/context/ProjectRolesContext';
 const employeeNavItems = [
     { name: 'حسابي', href: '/settings', icon: User },
     { name: 'عهدي', href: '/my-custodies', icon: Wallet },
+    { name: 'الديون', href: '/debts', icon: Banknote },
     { name: 'المشاريع', href: '/projects', icon: FolderKanban },
     { name: 'الرئيسية', href: '/', icon: Home },
 ];
@@ -73,6 +74,13 @@ const quickAddDefs: QuickAddDef[] = [
         // Mirrors Sidebar: ADMIN/GM at system level; USER-coordinator via isCoordinatorInAny
         check: (r, isCoordinatorInAny) => canDo(r, 'purchases', 'createGlobal') || (r === 'USER' && !!isCoordinatorInAny),
     },
+    {
+        name: 'طلب مالي',
+        href: '/finance-requests',
+        icon: BadgeDollarSign,
+        color: 'bg-amber-100 text-amber-700',
+        check: (r) => canDo(r, 'financialRequests', 'create') && r !== 'ADMIN',
+    },
 ];
 
 export default function MobileBottomNav({ hiddenBySidebar = false }: { hiddenBySidebar?: boolean }) {
@@ -106,7 +114,8 @@ export default function MobileBottomNav({ hiddenBySidebar = false }: { hiddenByS
 
     // ── Employee (USER) view ──────────────────────────────────────────────────
     if (role === 'USER') {
-        const canAddInvoice = !flags.loaded || flags.canAddInvoice;
+        const canAddInvoice = flags.loaded ? flags.canAddInvoice : true;
+        const isReady = flags.loaded;
         const ctaHref = canAddInvoice ? '/invoices/new' : '/purchases/new';
         const CtaIcon = canAddInvoice ? Camera : ShoppingCart;
         const ctaLabel = canAddInvoice ? 'رفع فاتورة' : 'طلب شراء';
@@ -115,7 +124,7 @@ export default function MobileBottomNav({ hiddenBySidebar = false }: { hiddenByS
             /* Outer wrapper — position:relative so the floating CTA can anchor to it */
             <nav aria-label="التنقل الرئيسي" className="fixed bottom-0 inset-x-0 z-50 w-full md:hidden pb-[calc(0.5rem+env(safe-area-inset-bottom))]">
                 {/* ── Floating CTA — floats above the bar, centered ─────────────── */}
-                <div className="absolute -top-5 left-1/2 -translate-x-1/2 z-10">
+                <div className={`absolute -top-5 left-1/2 -translate-x-1/2 z-10 transition-opacity duration-300 ${isReady ? 'opacity-100' : 'opacity-0'}`}>
                     <button
                         onClick={() => router.push(ctaHref)}
                         aria-label={ctaLabel}

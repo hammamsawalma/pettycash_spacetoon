@@ -31,8 +31,14 @@ const ROUTE_RULES: Array<{ prefix: string; exact?: boolean; allowed: string[] }>
     // Archives — completed projects, management roles only
     { prefix: '/archives', allowed: ['ADMIN', 'GLOBAL_ACCOUNTANT', 'GENERAL_MANAGER'] },
 
+    // Debts — finance roles + employees can see their own debts (filtered server-side)
+    { prefix: '/debts', allowed: ['ADMIN', 'GLOBAL_ACCOUNTANT', 'GENERAL_MANAGER', 'USER'] },
+
+    // Custody — finance roles
+    { prefix: '/custody', allowed: ['ADMIN', 'GLOBAL_ACCOUNTANT', 'GENERAL_MANAGER'] },
+
     // Notifications send — ADMIN only
-    { prefix: '/notifications/send', allowed: ['ADMIN'] },
+    { prefix: '/notifications/send', allowed: ['ADMIN', 'GENERAL_MANAGER'] },
 
     // Invoices + purchases — all authenticated users (filtered server-side)
     { prefix: '/invoices', allowed: ['ADMIN', 'GLOBAL_ACCOUNTANT', 'USER', 'GENERAL_MANAGER'] },
@@ -41,7 +47,7 @@ const ROUTE_RULES: Array<{ prefix: string; exact?: boolean; allowed: string[] }>
     // USER is included because coordinators (USER + PROJECT_MANAGER) need access.
     // Fine-grained check (isCoordinatorInAny) happens in the page via useCanDo,
     // and server-side in createPurchase() via projectMember lookup.
-    { prefix: '/purchases/new', allowed: ['ADMIN', 'GLOBAL_ACCOUNTANT', 'GENERAL_MANAGER', 'USER'] },
+    { prefix: '/purchases/new', allowed: ['ADMIN', 'GENERAL_MANAGER', 'USER'] },
     // Purchases list
     { prefix: '/purchases', allowed: ['ADMIN', 'GLOBAL_ACCOUNTANT', 'USER', 'GENERAL_MANAGER'] },
 ];

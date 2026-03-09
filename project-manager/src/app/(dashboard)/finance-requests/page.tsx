@@ -9,6 +9,7 @@ import { useAuth } from "@/context/AuthContext";
 import { useCanDo } from "@/components/auth/Protect";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
+import { CurrencyDisplay } from "@/components/ui/CurrencyDisplay";
 
 type Request = Awaited<ReturnType<typeof getPendingFinanceRequests>>[0];
 
@@ -175,7 +176,7 @@ export default function FinanceRequestsPage() {
                                                         <p className="text-sm font-bold text-gray-900">{req.requester?.name}</p>
                                                         {req.amount && (
                                                             <p className="text-sm text-amber-700 font-bold mt-1">
-                                                                المبلغ: {req.amount.toLocaleString()} ريال
+                                                                المبلغ: {req.amount.toLocaleString()} <CurrencyDisplay />
                                                             </p>
                                                         )}
                                                         {req.note && (
@@ -229,7 +230,7 @@ export default function FinanceRequestsPage() {
                                                     </div>
                                                     {req.amount && (
                                                         <p className="text-sm font-bold text-gray-600">
-                                                            {req.amount.toLocaleString()} ر
+                                                            {req.amount.toLocaleString()} <CurrencyDisplay />
                                                         </p>
                                                     )}
                                                     <span className={`flex items-center gap-1 text-xs font-semibold px-2 py-1 rounded-full ${statusInfo.color}`}>

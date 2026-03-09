@@ -41,7 +41,7 @@ export function AuthProvider({
         ADMIN: "الادمن",
         GENERAL_MANAGER: "المدير العام",
         GLOBAL_ACCOUNTANT: "المحاسب العام",
-        USER: "مستخدم",
+        USER: "موظف",
     };
 
     const handleSetRole = (role: UserRole) => {
@@ -66,11 +66,18 @@ export function AuthProvider({
         };
     }, [initialMemberships]);
 
+    // Derive role name — coordinators see 'منسق مشروع' instead of 'موظف'
+    const computedRoleNameAr = useMemo(() => {
+        if (!user) return "";
+        if (user.role === "USER" && isCoordinatorInAny) return "منسق مشروع";
+        return roleNameMap[user.role as UserRole] ?? "موظف";
+    }, [user, isCoordinatorInAny]);
+
     return (
         <AuthContext.Provider value={{
             user,
             setUser,
-            roleNameAr: user ? roleNameMap[user.role as UserRole] ?? "مستخدم" : "",
+            roleNameAr: computedRoleNameAr,
             role: user?.role as UserRole | undefined,
             setRole: handleSetRole,
             projectMemberships: initialMemberships,

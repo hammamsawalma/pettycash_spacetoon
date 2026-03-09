@@ -160,7 +160,7 @@ export default function DebtsPage() {
                                                     </Button>
                                                 ) : (
                                                     <span className="text-xs font-bold text-orange-500 bg-orange-50 px-3 py-1.5 rounded-lg border border-orange-100">
-                                                        {role === "GENERAL_MANAGER" ? "بانتظار الإدارة المالية" : "بانتظار التعويض"}
+                                                        {role === "GENERAL_MANAGER" ? "بانتظار المحاسب العام" : "بانتظار التعويض"}
                                                     </span>
                                                 )}
                                             </td>

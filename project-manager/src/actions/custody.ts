@@ -144,10 +144,10 @@ export async function confirmCustodyReceipt(custodyId: string, signatureBase64?:
             where: { id: custodyId }
         });
         if (!custody) return { error: "العهدة غير موجودة" };
-        // C-4 FIX: Allow ADMIN to force-confirm custody on behalf of the employee
+        // C-4 FIX: Allow ADMIN + GLOBAL_ACCOUNTANT to force-confirm custody on behalf of the employee
         const isOwner = custody.employeeId === session.id;
-        const isAdmin = session.role === "ADMIN";
-        if (!isOwner && !isAdmin) return { error: "لا يمكنك تأكيد استلام عهدة شخص آخر" };
+        const isAdminOrAccountant = session.role === "ADMIN" || session.role === "GLOBAL_ACCOUNTANT";
+        if (!isOwner && !isAdminOrAccountant) return { error: "لا يمكنك تأكيد استلام عهدة شخص آخر" };
         if (custody.isConfirmed) return { error: "تم تأكيد الاستلام مسبقاً" };
 
         await prisma.employeeCustody.update({
@@ -163,7 +163,20 @@ export async function confirmCustodyReceipt(custodyId: string, signatureBase64?:
             }
         });
 
+        // N-1: Notify GLOBAL_ACCOUNTANT that employee confirmed receipt
+        try {
+            await prisma.notification.create({
+                data: {
+                    title: 'تأكيد استلام عهدة ✅',
+                    content: `قام ${session.name || 'موظف'} بتأكيد استلام عهدة بقيمة ${custody.amount.toLocaleString()} ريال`,
+                    targetRole: 'GLOBAL_ACCOUNTANT'
+                }
+            });
+        } catch { /* non-critical */ }
+
         revalidatePath("/");
+        revalidatePath("/my-custodies");
+        revalidatePath(`/projects/${custody.projectId}`);
         return { success: true };
     } catch (error) {
         console.error("Confirm Custody Error:", error);
@@ -399,8 +412,23 @@ export async function returnCustodyBalance(
 
         await prisma.$transaction(txOps);
 
+        // N-3: Notify employee that their custody balance was returned
+        try {
+            const msg = willClose
+                ? `تم إرجاع ${returnedAmount.toLocaleString()} ريال وإغلاق عهدتك في مشروع "${custody.project.name}"`
+                : `تم إرجاع ${returnedAmount.toLocaleString()} ريال من عهدتك في مشروع "${custody.project.name}". المتبقي: ${newBalance.toLocaleString()}`;
+            await prisma.notification.create({
+                data: {
+                    title: willClose ? 'تم إغلاق عهدتك 🔒' : 'تم إرجاع جزء من عهدتك 💰',
+                    content: msg,
+                    targetUserId: custody.employeeId
+                }
+            });
+        } catch { /* non-critical */ }
+
         revalidatePath(`/projects/${custody.projectId}`);
         revalidatePath(`/custody/${custodyId}`);
+        revalidatePath("/my-custodies");
         return { success: true, closed: willClose, remainingBalance: newBalance };
     } catch (error) {
         console.error("Return Custody Error:", error);

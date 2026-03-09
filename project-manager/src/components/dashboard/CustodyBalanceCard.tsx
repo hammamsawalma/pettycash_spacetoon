@@ -5,6 +5,7 @@ import { useState, useEffect } from "react";
 import { getFlowStats } from "@/actions/dashboard";
 import { useAuth } from "@/context/AuthContext";
 import { AnimatedNumber } from "@/components/ui/AnimatedNumber";
+import { CurrencyDisplay } from "@/components/ui/CurrencyDisplay";
 
 type FlowData = {
     role: string;
@@ -113,7 +114,7 @@ export default function CustodyBalanceCard({ className = "" }: { className?: str
                                 ) : (
                                     <p className="text-white font-black text-base md:text-xl leading-none" dir="ltr">
                                         <AnimatedNumber value={s.value} />
-                                        <span className="text-[10px] md:text-xs font-bold opacity-70 mr-1"> QAR</span>
+                                        <span className="text-[10px] md:text-xs font-bold opacity-70 mr-1"><CurrencyDisplay /></span>
                                     </p>
                                 )}
                             </div>

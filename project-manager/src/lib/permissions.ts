@@ -162,8 +162,6 @@ export const PERMISSIONS = {
     reports: {
         /** Can view system-wide analytics and reports */
         viewAll: ["ADMIN", "GENERAL_MANAGER", "GLOBAL_ACCOUNTANT"] as UserRole[],
-        /** USER can view reports scoped to their own projects only */
-        viewOwn: ["USER"] as UserRole[],
     },
 
     // ── Trash (سلة المهملات) ──────────────────────────────────────────────────────

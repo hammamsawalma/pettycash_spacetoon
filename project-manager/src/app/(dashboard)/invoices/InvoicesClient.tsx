@@ -3,6 +3,7 @@ import DashboardLayout from "@/components/layout/DashboardLayout";
 import { Card } from "@/components/ui/Card";
 import { Search, Eye, QrCode, FileText, Building2 } from "lucide-react";
 import { useState } from "react";
+import { getInvoices } from "@/actions/invoices";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { useAuth } from "@/context/AuthContext";
@@ -11,7 +12,7 @@ import { useDebounce } from "@/hooks/useDebounce";
 import { matchArabicText } from "@/utils/arabic";
 import { CurrencyDisplay } from "@/components/ui/CurrencyDisplay";
 
-type InvoiceWithRelations = any;
+type InvoiceWithRelations = Awaited<ReturnType<typeof getInvoices>>[number];
 
 interface Props {
     initialInvoices: InvoiceWithRelations[];
@@ -29,7 +30,7 @@ export default function InvoicesClient({ initialInvoices }: Props) {
         if (filter === "مقبولة") matchesFilter = invoice.status === 'APPROVED';
         else if (filter === "معلقة") matchesFilter = invoice.status === 'PENDING';
         else if (filter === "مرفوضة") matchesFilter = invoice.status === 'REJECTED';
-        else if (filter === "مصاريف شركة") matchesFilter = invoice.expenseScope === 'COMPANY';
+        else if (filter === "مصاريف شركة") matchesFilter = (invoice as Record<string, unknown>).expenseScope === 'COMPANY';
         // "الكل" shows everything
 
         const clientName = invoice.project?.name || invoice.creator?.name;
@@ -100,8 +101,8 @@ export default function InvoicesClient({ initialInvoices }: Props) {
                     </div>
                 ) : (
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-6">
-                        {filteredInvoices.map((invoice: any) => {
-                            const isCompany = invoice.expenseScope === 'COMPANY';
+                        {filteredInvoices.map((invoice) => {
+                            const isCompany = (invoice as Record<string, unknown>).expenseScope === 'COMPANY';
                             const clientName = isCompany ? 'مصاريف شركة' : (invoice.project?.name || invoice.creator?.name || 'عميل');
 
                             return (

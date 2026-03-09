@@ -17,6 +17,48 @@ import { GeneralManagerDashboardSkeleton } from "@/components/ui/SkeletonCard";
 type GMStats = Awaited<ReturnType<typeof getGMDashboardStats>>;
 type FlowStats = Awaited<ReturnType<typeof getFlowStats>>;
 
+// Narrowed type for wallet flow (returned when role is ADMIN/ACC/GM)
+type WalletFlow = NonNullable<FlowStats> & {
+    walletRemaining: number;
+    walletReceived: number;
+    projectsAllocated: number;
+    custodyIssued: number;
+    custodyReturned: number;
+    invoicesApproved: number;
+    companyExpenses: number;
+};
+
+// Types for pending invoices with included relations
+type PendingInvoice = {
+    id: string;
+    reference: string;
+    amount: number;
+    status: string;
+    creator?: { id: string; name: string } | null;
+    project?: { id: string; name: string } | null;
+};
+
+// Types for urgent purchases with included relations
+type UrgentPurchase = {
+    id: string;
+    description: string;
+    amount: number;
+    status: string;
+    orderNumber: string;
+    project?: { id: string; name: string } | null;
+};
+
+// Types for recent projects with included relations
+type RecentProject = {
+    id: string;
+    name: string;
+    status: string;
+    budgetAllocated?: number | null;
+    custodyIssued?: number | null;
+    manager?: { id: string; name: string } | null;
+    members: { id?: string }[];
+};
+
 const stagger = {
     hidden: { opacity: 0 },
     show: { opacity: 1, transition: { staggerChildren: 0.08 } }
@@ -66,7 +108,7 @@ export default function GeneralManagerDashboard() {
         );
     }
 
-    const walletFlow = (flow && 'walletRemaining' in flow) ? flow as any : null;
+    const walletFlow: WalletFlow | null = (flow && 'walletRemaining' in flow) ? flow as WalletFlow : null;
 
     const kpis = [
         {
@@ -231,7 +273,7 @@ export default function GeneralManagerDashboard() {
                                             </div>
                                             <div className="flex-1 min-w-0">
                                                 <p className="text-sm font-bold text-gray-800 truncate">{inv.reference}</p>
-                                                <p className="text-xs text-gray-500">{(inv as any).creator?.name ?? '—'} · {(inv as any).project?.name ?? 'بدون مشروع'}</p>
+                                                <p className="text-xs text-gray-500">{(inv as PendingInvoice).creator?.name ?? '—'} · {(inv as PendingInvoice).project?.name ?? 'بدون مشروع'}</p>
                                             </div>
                                             <div className="text-right shrink-0">
                                                 <p className="text-sm font-black text-gray-900">{inv.amount.toLocaleString()}</p>
@@ -376,7 +418,7 @@ export default function GeneralManagerDashboard() {
                                         </div>
                                         <div className="flex-1 min-w-0">
                                             <p className="text-sm font-bold text-gray-800 truncate">{p.description}</p>
-                                            <p className="text-xs text-gray-400">{(p as any).project?.name ?? 'بدون مشروع'} · {p.orderNumber}</p>
+                                            <p className="text-xs text-gray-400">{(p as UrgentPurchase).project?.name ?? 'بدون مشروع'} · {p.orderNumber}</p>
                                         </div>
                                         <div className="text-right shrink-0">
                                             <p className="text-sm font-black text-gray-900">{p.amount > 0 ? `${p.amount.toLocaleString()}` : '—'}</p>
@@ -412,18 +454,18 @@ export default function GeneralManagerDashboard() {
                                     <div className="flex justify-between items-start">
                                         <div>
                                             <h4 className="font-bold text-gray-900 group-hover:text-[#102550] transition-colors">{project.name}</h4>
-                                            <p className="text-xs text-gray-500 mt-0.5">{(project as any).manager?.name ?? 'بلا مدير'}</p>
+                                            <p className="text-xs text-gray-500 mt-0.5">{(project as RecentProject).manager?.name ?? 'بلا مدير'}</p>
                                         </div>
                                         <StatusBadge status={project.status} />
                                     </div>
                                     <div className="grid grid-cols-3 gap-2 text-center">
                                         <div className="bg-blue-50 rounded-lg p-2">
                                             <p className="text-[10px] text-gray-500 font-semibold">الميزانية</p>
-                                            <p className="text-xs font-black text-blue-700">{((project as any).budgetAllocated ?? 0).toLocaleString()}</p>
+                                            <p className="text-xs font-black text-blue-700">{((project as RecentProject).budgetAllocated ?? 0).toLocaleString()}</p>
                                         </div>
                                         <div className="bg-rose-50 rounded-lg p-2">
                                             <p className="text-[10px] text-gray-500 font-semibold">العُهد</p>
-                                            <p className="text-xs font-black text-rose-700">{((project as any).custodyIssued ?? 0).toLocaleString()}</p>
+                                            <p className="text-xs font-black text-rose-700">{((project as RecentProject).custodyIssued ?? 0).toLocaleString()}</p>
                                         </div>
                                         <div className="bg-emerald-50 rounded-lg p-2">
                                             <p className="text-[10px] text-gray-500 font-semibold">الأعضاء</p>

@@ -705,6 +705,29 @@ export async function updateInvoiceStatus(
         revalidatePath("/invoices");
         revalidatePath(`/invoices/${id}`);
         revalidatePath("/debts");
+
+        // N-2: Notify invoice creator about the result (outside transaction — non-critical)
+        try {
+            if (existingInvoice.creatorId !== session.id) {
+                const statusLabels: Record<string, string> = {
+                    APPROVED: "تم اعتماد فاتورتك ✅",
+                    REJECTED: "تم رفض فاتورتك ❌",
+                    PENDING: "تمت إعادة فاتورتك للمراجعة 🔄",
+                };
+                const contentParts = [`الفاتورة ${existingInvoice.reference} — المبلغ: ${existingInvoice.amount.toLocaleString()} ريال`];
+                if (status === "REJECTED" && options?.rejectionReason) {
+                    contentParts.push(`السبب: ${options.rejectionReason}`);
+                }
+                await prisma.notification.create({
+                    data: {
+                        title: statusLabels[status] || `تحديث حالة فاتورة`,
+                        content: contentParts.join('\n'),
+                        targetUserId: existingInvoice.creatorId
+                    }
+                });
+            }
+        } catch { /* non-critical */ }
+
         return { success: true };
     } catch (error) {
         console.error("Update Invoice Status Error:", error);
@@ -716,8 +739,8 @@ export async function updateInvoiceStatus(
 export async function softDeleteInvoice(invoiceId: string) {
     try {
         const session = await getSession();
-        if (!session || session.role !== "ADMIN") {
-            return { error: "فقط مدير النظام يمكنه حذف الفواتير" };
+        if (!session || (session.role !== "ADMIN" && session.role !== "GLOBAL_ACCOUNTANT")) {
+            return { error: "فقط مدير النظام أو المحاسب العام يمكنه حذف الفواتير" };
         }
 
         const invoice = await prisma.invoice.findUnique({ where: { id: invoiceId } });

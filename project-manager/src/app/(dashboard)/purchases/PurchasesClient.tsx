@@ -8,6 +8,7 @@ import { Plus, Search, ShoppingCart, CalendarDays, Hash } from "lucide-react";
 import { useState } from "react";
 import { Purchase, Project, User } from "@prisma/client";
 import { useCanDo } from "@/components/auth/Protect";
+import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
 import { useDebounce } from "@/hooks/useDebounce";
 import { matchArabicText } from "@/utils/arabic";
@@ -28,7 +29,8 @@ interface Props {
 }
 
 export default function PurchasesClient({ initialPurchases }: Props) {
-    const canCreatePurchase = useCanDo('purchases', 'createGlobal');
+    const { isCoordinatorInAny, role } = useAuth();
+    const canCreatePurchase = useCanDo('purchases', 'createGlobal') || (role === 'USER' && isCoordinatorInAny);
     const router = useRouter();
     const [searchQuery, setSearchQuery] = useState("");
     const [filter, setFilter] = useState("الكل");

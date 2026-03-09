@@ -30,6 +30,40 @@ interface ProjectRoleFlags {
     hasAnyProject: boolean;
 }
 
+/** Shape returned by getFlowStats() for USER role */
+interface UserFlowStats {
+    role: string;
+    isProjectManager: boolean;
+    isProjectEmployee: boolean;
+    canAddInvoice: boolean;
+    hasAnyProject: boolean;
+    projectReceived: number;
+    projectIssued: number;
+    projectReturned: number;
+    projectSpent: number;
+    projectRemaining: number;
+    personalReceived: number;
+    personalSpent: number;
+    personalRemaining: number;
+}
+
+interface CustodyItem {
+    id: string;
+    amount: number;
+    balance: number;
+    isConfirmed: boolean;
+    isClosed: boolean;
+    project: { id: string; name: string; manager: { name: string } | null };
+}
+
+interface PurchaseItem {
+    id: string;
+    status: string;
+    description: string;
+    orderNumber: string;
+    project: { id: string; name: string } | null;
+}
+
 // ─── Main Component ───────────────────────────────────────────────────────────
 export default function EmployeeDashboard() {
     const router = useRouter();
@@ -44,10 +78,10 @@ export default function EmployeeDashboard() {
         totalExpenses: 0,
         todayRevenue: 0,
         todayWithdrawals: 0,
-        pendingInvoices: [] as any[],
+        pendingInvoices: [] as Array<{ id: string; amount: number; project: { name: string } | null }>,
         recentProjects: [] as Array<Project & { manager: User | null, members: ProjectMember[] }>,
         recentNotifications: [] as Notification[],
-        chartData: { monthly: [] as any[], yearly: [] as any[] }
+        chartData: { monthly: [] as Array<{ name: string; value: number }>, yearly: [] as Array<{ name: string; value: number }> }
     });
 
     const [flow, setFlow] = useState({ received: 0, spent: 0, remaining: 0 });
@@ -61,9 +95,9 @@ export default function EmployeeDashboard() {
     });
     const [rolesLoaded, setRolesLoaded] = useState(false);
 
-    const [unconfirmedCustodies, setUnconfirmedCustodies] = useState<any[]>([]);
-    const [pendingPurchases, setPendingPurchases] = useState<any[]>([]);
-    const [pendingApprovals, setPendingApprovals] = useState<any[]>([]);
+    const [unconfirmedCustodies, setUnconfirmedCustodies] = useState<CustodyItem[]>([]);
+    const [pendingPurchases, setPendingPurchases] = useState<PurchaseItem[]>([]);
+    const [pendingApprovals, setPendingApprovals] = useState<PurchaseItem[]>([]);
 
     const [isRefreshing, setIsRefreshing] = useState(false);
 
@@ -77,7 +111,7 @@ export default function EmployeeDashboard() {
         setStats(statsData);
 
         if (flowData && flowData.role === "USER") {
-            const fd = flowData as any;
+            const fd = flowData as UserFlowStats;
             setFlow({
                 received: fd.personalReceived ?? 0,
                 spent: fd.personalSpent ?? 0,
@@ -96,19 +130,19 @@ export default function EmployeeDashboard() {
         }
         setRolesLoaded(true);
 
-        setUnconfirmedCustodies((custodiesData as any[]).filter((c: any) => !c.isConfirmed && !c.isClosed));
+        setUnconfirmedCustodies((custodiesData as unknown as CustodyItem[]).filter(c => !c.isConfirmed && !c.isClosed));
     }, []);
 
     // Load purchases for coordinator widget & invoices for accountant widget
     const loadRoleData = useCallback(async (roles: ProjectRoleFlags) => {
-        const promises: Promise<any>[] = [];
+        const promises: Promise<void>[] = [];
 
         if (roles.isProjectManager) {
             promises.push(
                 getPurchases().then(data => {
                     const items = Array.isArray(data) ? data : [];
                     setPendingPurchases(
-                        items.filter((p: any) => p.status === "REQUESTED" || p.status === "IN_PROGRESS").slice(0, 5)
+                        items.filter((p: PurchaseItem) => p.status === "REQUESTED" || p.status === "IN_PROGRESS").slice(0, 5)
                     );
                 })
             );

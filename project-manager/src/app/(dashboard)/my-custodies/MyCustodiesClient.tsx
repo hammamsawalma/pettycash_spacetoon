@@ -5,10 +5,10 @@ import DashboardLayout from "@/components/layout/DashboardLayout";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { CurrencyDisplay } from "@/components/ui/CurrencyDisplay";
-import { confirmCustodyReceipt, rejectCustody, returnCustodyBalance } from "@/actions/custody";
+import { confirmCustodyReceipt, rejectCustody } from "@/actions/custody";
 import { getUserSignature, saveUserSignature } from "@/actions/employees";
 import toast from "react-hot-toast";
-import { AlertTriangle, CheckCircle, XCircle, Wallet, Clock, Check, Briefcase, FileText, ArrowDownLeft, Pen, FileOutput } from "lucide-react";
+import { AlertTriangle, CheckCircle, XCircle, Wallet, Clock, Check, Briefcase, FileText, Pen, FileOutput } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { AnimatedNumber } from "@/components/ui/AnimatedNumber";
 import { SignaturePad } from "@/components/ui/SignaturePad";
@@ -35,12 +35,6 @@ export default function MyCustodiesClient({ custodies }: { custodies: CustodyDat
     const [rejectReason, setRejectReason] = useState<string>("");
     const [rejectingId, setRejectingId] = useState<string | null>(null);
 
-    // Custody Return Modal State
-    const [showReturnModal, setShowReturnModal] = useState(false);
-    const [returnCustody, setReturnCustody] = useState<CustodyData | null>(null);
-    const [returnAmount, setReturnAmount] = useState("");
-    const [returnNote, setReturnNote] = useState("");
-    const [isReturning, setIsReturning] = useState(false);
 
     // v5: Signature modal for confirmation
     const [signingCustodyId, setSigningCustodyId] = useState<string | null>(null);
@@ -88,30 +82,7 @@ export default function MyCustodiesClient({ custodies }: { custodies: CustodyDat
         setActionLoading(null);
     };
 
-    const handleCustodyReturn = async (e: React.FormEvent) => {
-        e.preventDefault();
-        if (!returnCustody || !returnAmount || Number(returnAmount) <= 0) {
-            toast.error("المبلغ يجب أن يكون أكبر من صفر");
-            return;
-        }
-        if (Number(returnAmount) > returnCustody.balance) {
-            toast.error(`المبلغ أكبر من رصيد العهدة (${returnCustody.balance.toLocaleString()} ريال)`);
-            return;
-        }
-        setIsReturning(true);
-        const res = await returnCustodyBalance(returnCustody.id, Number(returnAmount), returnNote || undefined);
-        setIsReturning(false);
-        if (res?.error) {
-            toast.error(res.error);
-        } else {
-            toast.success("تم تسجيل إرجاع العهدة ✅");
-            setShowReturnModal(false);
-            setReturnAmount("");
-            setReturnNote("");
-            setReturnCustody(null);
-            router.refresh();
-        }
-    };
+
 
     const unconfirmed = custodies.filter(c => !c.isConfirmed && !c.isClosed);
     const active = custodies.filter(c => c.isConfirmed && !c.isClosed);
@@ -275,40 +246,17 @@ export default function MyCustodiesClient({ custodies }: { custodies: CustodyDat
                                             )}
                                         </div>
 
-                                        {custody.balance > 0 && (
-                                            <div className="mt-4 pt-3 border-t border-gray-50 flex justify-end gap-2">
-                                                <a
-                                                    href={`/api/vouchers/${custody.id}`}
-                                                    target="_blank"
-                                                    rel="noopener noreferrer"
-                                                    className="inline-flex items-center gap-1.5 h-8 px-3 text-xs font-bold text-[#102550] border border-[#102550]/20 hover:bg-blue-50 rounded-xl transition-colors"
-                                                >
-                                                    <FileOutput className="w-3.5 h-3.5" />
-                                                    سند الصرف
-                                                </a>
-                                                <Button
-                                                    variant="outline"
-                                                    onClick={() => { setReturnCustody(custody); setShowReturnModal(true); }}
-                                                    className="gap-2 h-8 px-3 text-xs text-amber-600 border-amber-200 hover:bg-amber-50"
-                                                >
-                                                    <ArrowDownLeft className="w-3.5 h-3.5" />
-                                                    إرجاع كاش ({custody.balance.toLocaleString()} ر)
-                                                </Button>
-                                            </div>
-                                        )}
-                                        {custody.balance <= 0 && (
-                                            <div className="mt-4 pt-3 border-t border-gray-50 flex justify-end">
-                                                <a
-                                                    href={`/api/vouchers/${custody.id}`}
-                                                    target="_blank"
-                                                    rel="noopener noreferrer"
-                                                    className="inline-flex items-center gap-1.5 h-8 px-3 text-xs font-bold text-[#102550] border border-[#102550]/20 hover:bg-blue-50 rounded-xl transition-colors"
-                                                >
-                                                    <FileOutput className="w-3.5 h-3.5" />
-                                                    سند الصرف
-                                                </a>
-                                            </div>
-                                        )}
+                                        <div className="mt-4 pt-3 border-t border-gray-50 flex justify-end">
+                                            <a
+                                                href={`/api/vouchers/${custody.id}`}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="inline-flex items-center gap-1.5 h-8 px-3 text-xs font-bold text-[#102550] border border-[#102550]/20 hover:bg-blue-50 rounded-xl transition-colors"
+                                            >
+                                                <FileOutput className="w-3.5 h-3.5" />
+                                                سند الصرف
+                                            </a>
+                                        </div>
                                     </Card>
                                 );
                             })}

@@ -3,5 +3,5 @@ import InvoicesClient from "./InvoicesClient";
 
 export default async function InvoicesPage() {
     const invoices = await getInvoices();
-    return <InvoicesClient initialInvoices={invoices as any} />;
+    return <InvoicesClient initialInvoices={invoices} />;
 }

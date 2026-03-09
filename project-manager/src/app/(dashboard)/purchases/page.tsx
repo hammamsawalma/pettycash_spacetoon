@@ -3,5 +3,5 @@ import PurchasesClient from "./PurchasesClient";
 
 export default async function PurchasesPage() {
     const purchases = await getPurchases();
-    return <PurchasesClient initialPurchases={purchases as any} />;
+    return <PurchasesClient initialPurchases={purchases} />;
 }

@@ -300,6 +300,14 @@ const QUICK_ADD_ITEMS: QuickAddItem[] = [
         // ADMIN + GM at system level; USER-coordinator via isCoordinatorInAny
         check: (r: UserRole, isCoordinatorInAny?: boolean) => canDo(r, 'purchases', 'createGlobal') || (r === 'USER' && !!isCoordinatorInAny),
     },
+    {
+        name: 'طلب مالي',
+        icon: BadgeDollarSign,
+        href: '/finance-requests',
+        desc: 'إنشاء طلب مالي للمدير',
+        color: 'bg-amber-50 text-amber-600 border-amber-100',
+        check: (r) => canDo(r, 'financialRequests', 'create') && r !== 'ADMIN',
+    },
 ] satisfies QuickAddItem[];
 
 
