@@ -95,47 +95,69 @@ export async function allocateBudgetToProject(prevState: unknown, formData: Form
             return { error: "بيانات غير صالحة" };
         }
 
-        const wallet = await getOrCreateWallet();
-        if (wallet.balance < amount) {
-            return { error: `رصيد خزنة الشركة (${wallet.balance}) أقل من المبلغ المطلوب (${amount})` };
-        }
+        // RC-1 FIX: Interactive transaction with balance check INSIDE
+        let projectName = "";
+        let managerId: string | null = null;
 
-        const project = await prisma.project.findUnique({ where: { id: projectId } });
-        if (!project) return { error: "المشروع غير موجود" };
-        if (project.status !== "IN_PROGRESS") {
-            return { error: "لا يمكن تخصيص ميزانية لمشروع مكتمل أو متوقف" };
-        }
+        await prisma.$transaction(async (tx) => {
+            const wallet = await tx.companyWallet.findFirst();
+            if (!wallet) throw new Error("خزنة الشركة غير موجودة");
+            if (wallet.balance < amount) {
+                throw new Error(`رصيد خزنة الشركة (${wallet.balance.toLocaleString()}) أقل من المبلغ المطلوب (${amount.toLocaleString()})`);
+            }
 
+            const project = await tx.project.findUnique({ where: { id: projectId } });
+            if (!project) throw new Error("المشروع غير موجود");
+            if (project.status !== "IN_PROGRESS") {
+                throw new Error("لا يمكن تخصيص ميزانية لمشروع مكتمل أو متوقف");
+            }
+            projectName = project.name;
+            managerId = project.managerId;
 
-        await prisma.$transaction([
-            prisma.companyWallet.update({
+            await tx.companyWallet.update({
                 where: { id: wallet.id },
                 data: {
                     balance: { decrement: amount },
                     totalOut: { increment: amount }
                 }
-            }),
-            prisma.walletEntry.create({
+            });
+            await tx.walletEntry.create({
                 data: {
                     walletId: wallet.id,
                     type: "ALLOCATE_TO_PROJECT",
                     amount,
-                    note: note || `تخصيص ميزانية للمشروع: ${project.name}`,
+                    note: note || `تخصيص ميزانية للمشروع: ${projectName}`,
                     createdBy: session.id
                 }
-            }),
-            prisma.project.update({
+            });
+            await tx.project.update({
                 where: { id: projectId },
                 data: { budgetAllocated: { increment: amount } }
-            })
-        ]);
+            });
+        }, { isolationLevel: "Serializable" });
+
+        // N-4: Notify project manager about new budget allocation
+        if (managerId && managerId !== session.id) {
+            try {
+                await prisma.notification.create({
+                    data: {
+                        title: 'تم تخصيص ميزانية جديدة لمشروعك 💰',
+                        content: `تم تخصيص ${amount.toLocaleString()} ريال لمشروع "${projectName}"`,
+                        targetUserId: managerId
+                    }
+                });
+            } catch { /* non-critical */ }
+        }
 
         revalidatePath("/wallet");
+        revalidatePath("/deposits"); // R-5
         revalidatePath(`/projects/${projectId}`);
+        revalidatePath("/");
         return { success: true };
     } catch (error) {
         console.error("Allocate Budget Error:", error);
-        return { error: "حدث خطأ أثناء تخصيص الميزانية" };
+        const message = error instanceof Error ? error.message : "حدث خطأ أثناء تخصيص الميزانية";
+        return { error: message };
     }
 }
 

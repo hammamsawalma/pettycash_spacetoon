@@ -101,47 +101,45 @@ export default async function WalletPage() {
                                     </tr>
                                 </thead>
                                 <tbody className="bg-white divide-y divide-gray-50">
-                                    {entries.map((entry: any) => (
-                                        <tr key={entry.id} className="hover:bg-gray-50/50 transition-colors">
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 font-medium">
-                                                <div className="flex flex-col">
-                                                    <span>{new Date(entry.createdAt).toLocaleDateString('en-GB')}</span>
-                                                    <span className="text-[10px] text-gray-400">{new Date(entry.createdAt).toLocaleTimeString('en-GB')}</span>
-                                                </div>
-                                            </td>
-                                            <td className="px-6 py-4 whitespace-nowrap">
-                                                {entry.type === 'DEPOSIT' && (
-                                                    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-bold bg-green-50 text-green-700">
-                                                        <ArrowDownCircle className="w-3.5 h-3.5" /> إيداع
+                                    {entries.map((entry: any) => {
+                                        const typeConfig: Record<string, { label: string; icon: React.ElementType; color: string; bg: string; isOutgoing: boolean }> = {
+                                            DEPOSIT: { label: "إيداع", icon: ArrowDownCircle, color: "text-green-700", bg: "bg-green-50", isOutgoing: false },
+                                            ALLOCATE_TO_PROJECT: { label: "تخصيص لمشروع", icon: FolderKanban, color: "text-amber-700", bg: "bg-amber-50", isOutgoing: true },
+                                            SETTLE_DEBT: { label: "تسوية دين موظف", icon: ArrowUpCircle, color: "text-rose-700", bg: "bg-rose-50", isOutgoing: true },
+                                            RETURN_FROM_PROJECT: { label: "استرجاع رصيد", icon: RefreshCw, color: "text-blue-700", bg: "bg-blue-50", isOutgoing: false },
+                                            RETURN: { label: "استرجاع رصيد", icon: RefreshCw, color: "text-blue-700", bg: "bg-blue-50", isOutgoing: false },
+                                        };
+                                        const config = typeConfig[entry.type] || { label: entry.type, icon: Wallet, color: "text-gray-700", bg: "bg-gray-50", isOutgoing: false };
+                                        const EntryIcon = config.icon;
+                                        return (
+                                            <tr key={entry.id} className="hover:bg-gray-50/50 transition-colors">
+                                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 font-medium">
+                                                    <div className="flex flex-col">
+                                                        <span>{new Date(entry.createdAt).toLocaleDateString('en-GB')}</span>
+                                                        <span className="text-[10px] text-gray-400">{new Date(entry.createdAt).toLocaleTimeString('en-GB')}</span>
+                                                    </div>
+                                                </td>
+                                                <td className="px-6 py-4 whitespace-nowrap">
+                                                    <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-bold ${config.bg} ${config.color}`}>
+                                                        <EntryIcon className="w-3.5 h-3.5" /> {config.label}
                                                     </span>
-                                                )}
-                                                {entry.type === 'ALLOCATE_TO_PROJECT' && (
-                                                    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-bold bg-amber-50 text-amber-700">
-                                                        <FolderKanban className="w-3.5 h-3.5" /> تخصيص لمشروع
+                                                </td>
+                                                <td className="px-6 py-4 whitespace-nowrap">
+                                                    <span className={`font-black text-sm ${config.isOutgoing ? 'text-red-500' : 'text-green-600'}`}>
+                                                        {config.isOutgoing ? '-' : '+'} {entry.amount.toLocaleString()} <span className="text-[10px] font-bold"><CurrencyDisplay /></span>
                                                     </span>
-                                                )}
-                                                {entry.type === 'RETURN' || entry.type === 'RETURN_FROM_PROJECT' ? (
-                                                    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-bold bg-blue-50 text-blue-700">
-                                                        <RefreshCw className="w-3.5 h-3.5" /> استرجاع رصيد
-                                                    </span>
-                                                ) : null}
-                                            </td>
-                                            <td className="px-6 py-4 whitespace-nowrap">
-                                                <span className={`font-black text-sm ${entry.type === 'ALLOCATE_TO_PROJECT' ? 'text-red-500' : 'text-green-600'
-                                                    }`}>
-                                                    {entry.type === 'ALLOCATE_TO_PROJECT' ? '-' : '+'} {entry.amount.toLocaleString()} <span className="text-[10px] font-bold"><CurrencyDisplay /></span>
-                                                </span>
-                                            </td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 font-bold">
-                                                {entry.creator?.name || '-'}
-                                            </td>
-                                            <td className="px-6 py-4 text-sm text-gray-500">
-                                                <p className="line-clamp-2 max-w-xs" title={entry.note || '-'}>
-                                                    {entry.note || '-'}
-                                                </p>
-                                            </td>
-                                        </tr>
-                                    ))}
+                                                </td>
+                                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 font-bold">
+                                                    {entry.creator?.name || '-'}
+                                                </td>
+                                                <td className="px-6 py-4 text-sm text-gray-500">
+                                                    <p className="line-clamp-2 max-w-xs" title={entry.note || '-'}>
+                                                        {entry.note || '-'}
+                                                    </p>
+                                                </td>
+                                            </tr>
+                                        );
+                                    })}
                                 </tbody>
                             </table>
                         </div>
