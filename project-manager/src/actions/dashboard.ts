@@ -283,7 +283,7 @@ export async function getGMDashboardStats() {
         prisma.companyWallet.findFirst(),
         prisma.project.count({ where: { isDeleted: false } }),
         prisma.project.count({ where: { status: "IN_PROGRESS", isDeleted: false } }),
-        prisma.project.count({ where: { status: "CLOSED", isDeleted: false } }),
+        prisma.project.count({ where: { status: "COMPLETED", isDeleted: false } }),
         prisma.user.count({ where: { isDeleted: false, role: { notIn: ["ADMIN", "GENERAL_MANAGER"] } } }),
     ]);
 
