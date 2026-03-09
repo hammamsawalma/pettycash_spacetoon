@@ -570,7 +570,9 @@ export default function ProjectDetailsPage({ params }: { params: Promise<{ id: s
                                                     className="w-full rounded-xl border border-gray-200 p-3 outline-none focus:ring-2 focus:ring-[#102550] text-sm bg-white"
                                                 >
                                                     <option value="">— اختر من القائمة —</option>
-                                                    {project.members?.map((m: ProjectMember & { user: User }) => (
+                                                    {project.members?.filter((m: any) =>
+                                                        (m.projectRoles || "PROJECT_EMPLOYEE").includes("PROJECT_EMPLOYEE")
+                                                    ).map((m: ProjectMember & { user: User }) => (
                                                         <option key={m.userId} value={m.userId}>{m.user.name}</option>
                                                     ))}
                                                 </select>
