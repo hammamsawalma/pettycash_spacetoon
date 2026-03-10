@@ -54,6 +54,7 @@ export async function restoreItem(type: "PROJECT" | "INVOICE" | "PURCHASE" | "US
         revalidatePath("/trash");
         revalidatePath(`/${type.toLowerCase()}s`);
         return { success: true };
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
         return { error: "حدث خطأ أثناء استعادة العنصر" };
     }
@@ -82,6 +83,7 @@ export async function permanentlyDelete(type: "PROJECT" | "INVOICE" | "PURCHASE"
 
         revalidatePath("/trash");
         return { success: true };
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
         return { error: "حدث خطأ أثناء الحذف النهائي" };
     }

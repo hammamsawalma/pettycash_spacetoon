@@ -2,7 +2,7 @@
 import prisma from "@/lib/prisma"
 import { revalidatePath } from "next/cache";
 import { getSession, getBranchFilter } from "@/lib/auth";
-import { Prisma } from "@prisma/client";
+
 import { isGlobalFinance, hasProjectPermission } from "@/lib/rbac";
 import { sendPushNotification } from "@/lib/push";
 import fs from "fs";
@@ -286,8 +286,8 @@ export async function createInvoice(prevState: unknown, formData: FormData) {
             }
         }
 
-        let custodyAmount = custodyAmountRaw ? parseFloat(custodyAmountRaw) : null;
-        let pocketAmount = pocketAmountRaw ? parseFloat(pocketAmountRaw) : null;
+        const custodyAmount = custodyAmountRaw ? parseFloat(custodyAmountRaw) : null;
+        const pocketAmount = pocketAmountRaw ? parseFloat(pocketAmountRaw) : null;
 
         // ─ Employee Custody validation (skip for manager implicit) ────────────
         if (!isManagerImplicit && (paymentSource === "CUSTODY" || paymentSource === "SPLIT") && custodyId) {

@@ -97,6 +97,7 @@ export async function getWalletExportData() {
 
 export async function getDebtsExportData() {
     const session = await verifyExportAccess();
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const bf = getBranchFilter(session);
 
     const debts = await prisma.outOfPocketDebt.findMany({

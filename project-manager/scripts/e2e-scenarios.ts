@@ -107,6 +107,7 @@ async function testCustodyScenarios() {
             assert(c1.id !== c2.id, "U5: Two separate custodies created for same employee/project");
 
             // Check total custodyBalance
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
             const memberAfter = await prisma.projectMember.findUnique({ where: { id: member.id } });
             // Note: We didn't increment custodyBalance because we bypassed the action.
             // The point is to verify the DB allows multiple open custodies.
@@ -293,6 +294,7 @@ async function testInvoiceScenarios() {
 
 async function testWalletScenarios() {
     console.log("\n═══ C: WALLET & FINANCE ═══");
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { wallet, activeProject, admin } = await getTestData();
 
     // --- U24: Deposit → allocate → verify ---
