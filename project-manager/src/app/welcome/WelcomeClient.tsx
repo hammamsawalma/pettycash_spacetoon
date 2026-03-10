@@ -104,7 +104,7 @@ export default function WelcomeClient({ branches }: { branches: Branch[] }) {
                             className="welcome-root-btn"
                             onClick={() => router.push("/login?branch=ROOT")}
                         >
-                            🔑 دخول المدير التنفيذي
+                            🔑 دخول IT
                         </button>
                     </div>
                 </div>

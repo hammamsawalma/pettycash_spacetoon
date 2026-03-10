@@ -64,12 +64,12 @@ async function migrateBranches() {
         const hashed = await bcrypt.hash('root@spacetoon2026', 10);
         await prisma.user.create({
             data: {
-                name: 'المدير التنفيذي',
+                name: 'IT',
                 email: 'root@pocket.com',
                 phone: '0500000000',
                 password: hashed,
                 role: 'ROOT',
-                jobTitle: 'المدير التنفيذي',
+                jobTitle: 'IT',
             },
         });
         console.log(`  🔑 ROOT user created (root@pocket.com)`);

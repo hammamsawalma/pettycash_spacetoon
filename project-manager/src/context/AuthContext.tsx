@@ -38,7 +38,7 @@ export function AuthProvider({
     const [user, setUser] = useState<SessionData | null>(initialUser);
 
     const roleNameMap: Record<UserRole, string> = {
-        ROOT: "المدير التنفيذي",
+        ROOT: "IT",
         ADMIN: "مدير النظام",
         GENERAL_MANAGER: "المدير العام",
         GLOBAL_ACCOUNTANT: "المحاسب العام",

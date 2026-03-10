@@ -47,12 +47,12 @@ async function main() {
     console.log('🔑 Creating ROOT user...');
     await prisma.user.create({
         data: {
-            name: 'المدير التنفيذي',
+            name: 'IT',
             email: 'root@pocket.com',
             phone: '0500000000',
             password: hashed,
             role: 'ROOT',
-            jobTitle: 'المدير التنفيذي',
+            jobTitle: 'IT',
             // ROOT has no branchId — controls all branches
         },
     });
