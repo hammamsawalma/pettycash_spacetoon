@@ -144,8 +144,8 @@ const navigationGroups: NavGroup[] = [
                 check: (r) => canDo(r, 'custodies', 'view'),
                 subItems: [
                     {
-                        name: 'سجل العهدة',
-                        href: '/deposits',
+                        name: 'عهد الموظفين',
+                        href: '/employee-custodies',
                         check: (r) => r === 'ADMIN' || r === 'GLOBAL_ACCOUNTANT' || r === 'GENERAL_MANAGER',
                     },
                     {

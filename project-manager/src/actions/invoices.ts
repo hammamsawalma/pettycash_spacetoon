@@ -117,6 +117,12 @@ export async function createInvoice(prevState: unknown, formData: FormData) {
         const dateStr = formData.get("date") as string;
         const type = (formData.get("type") as string) || "SALES";
         const file = formData.get("file") as File | null;
+
+        // ─ Mandatory file attachment ─────────────────────────────────
+        if (!file || file.size === 0) {
+            return { error: "صورة / ملف الفاتورة إلزامي. لا يمكن إنشاء فاتورة بدون مرفق" };
+        }
+
         let paymentSource = (formData.get("paymentSource") as string) || "";
         let custodyId = formData.get("custodyId") as string | null;
         const categoryId = formData.get("categoryId") as string | null;

@@ -103,7 +103,7 @@ function EmployeeInvoiceFlow({ projects, categories, defaultProjectId, defaultAm
 
     return (
         <DashboardLayout title="رفع فاتورة">
-            <div className="pb-32 px-4 max-w-lg mx-auto" dir="rtl">
+            <div className="pb-40 px-4 max-w-lg mx-auto" dir="rtl">
 
                 {/* Progress dots */}
                 <div className="flex items-center justify-center gap-2 pt-4 pb-6">
@@ -161,7 +161,7 @@ function EmployeeInvoiceFlow({ projects, categories, defaultProjectId, defaultAm
                     <div className="space-y-5 animate-in fade-in slide-in-from-bottom-4 duration-300">
                         {/* thumbnail */}
                         {preview ? (
-                            <div className="relative w-full h-44 rounded-2xl overflow-hidden shadow-sm border border-gray-100">
+                            <div className="relative w-full aspect-[4/3] max-h-44 rounded-2xl overflow-hidden shadow-sm border border-gray-100">
                                 <Image src={preview} alt="فاتورة" fill className="object-cover" />
                                 <button onClick={() => { setFile(null); setPreview(null); setCurrentStep(1); }}
                                     className="absolute top-2 left-2 bg-red-500 text-white rounded-full p-1.5 shadow-md">
@@ -191,16 +191,16 @@ function EmployeeInvoiceFlow({ projects, categories, defaultProjectId, defaultAm
 
                         <Card className="p-5 border-gray-100 shadow-sm rounded-2xl">
                             <label className="text-xs font-black text-gray-500 uppercase tracking-wider block mb-3">المبلغ الإجمالي *</label>
-                            <div className="flex items-baseline gap-2">
+                            <div className="flex items-baseline gap-2 overflow-hidden">
                                 <input
                                     autoFocus
                                     type="number" inputMode="decimal" required step="0.01" min="0.01"
                                     value={amount}
                                     onChange={e => setAmount(e.target.value)}
                                     placeholder="0.00"
-                                    className="flex-1 text-5xl font-black text-blue-700 bg-transparent outline-none border-b-2 border-blue-200 focus:border-blue-500 pb-1 transition-colors placeholder-gray-200"
+                                    className="flex-1 min-w-0 text-3xl md:text-5xl font-black text-blue-700 bg-transparent outline-none border-b-2 border-blue-200 focus:border-blue-500 pb-1 transition-colors placeholder-gray-200"
                                 />
-                                <span className="text-xl font-bold text-gray-400"><CurrencyDisplay /></span>
+                                <span className="text-base md:text-xl font-bold text-gray-400 shrink-0 whitespace-nowrap"><CurrencyDisplay /></span>
                             </div>
                         </Card>
                     </div>
@@ -384,7 +384,10 @@ function FullInvoiceForm() {
 
     const handleNextStep = () => {
         if (currentStep === 1) {
-            if (!file) toast("لم يتم إرفاق صورة للفاتورة", { icon: "⚠️" });
+            if (!file) {
+                toast.error("صورة الفاتورة إلزامية — لا يمكن المتابعة بدون إرفاق صورة أو ملف");
+                return;
+            }
             setCurrentStep(2);
         } else if (currentStep === 2) {
             if (!isCompanyExpense && (!formData.projectId || !formData.amount)) {
@@ -429,6 +432,12 @@ function FullInvoiceForm() {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+
+        if (!file) {
+            toast.error("صورة الفاتورة إلزامية");
+            setCurrentStep(1);
+            return;
+        }
 
         const totalItemsPrice = items.reduce((sum, item) => sum + Number(item.totalPrice), 0);
         const invoiceAmount = Number(formData.amount);
@@ -515,7 +524,7 @@ function FullInvoiceForm() {
                                     onChange={(uploadedFile) => setFile(uploadedFile)}
                                 />
                                 <div className="flex justify-end pt-4">
-                                    <Button type="button" onClick={handleNextStep} variant="primary" className="px-8 py-3 rounded-xl font-bold">
+                                    <Button type="button" onClick={handleNextStep} variant="primary" disabled={!file} className="px-8 py-3 rounded-xl font-bold">
                                         التالي ←
                                     </Button>
                                 </div>
@@ -524,7 +533,7 @@ function FullInvoiceForm() {
 
                         {/* STEP 2: INVOICE DATA */}
                         {currentStep === 2 && (
-                            <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                            <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500 pb-24 md:pb-0">
                                 <h3 className="text-lg font-bold text-gray-900 border-b border-gray-100 pb-2">تفاصيل الفاتورة الأساسية</h3>
 
                                 {/* v5: Company Expense Toggle — only for ADMIN + GLOBAL_ACCOUNTANT */}
@@ -612,7 +621,7 @@ function FullInvoiceForm() {
 
                                     <div className="space-y-2">
                                         <label className="text-sm font-bold text-gray-700">المبلغ الإجمالي *</label>
-                                        <div className="flex items-baseline gap-2 border-b-2 border-blue-200 focus-within:border-blue-500 transition-colors pb-1">
+                                        <div className="flex items-baseline gap-2 border-b-2 border-blue-200 focus-within:border-blue-500 transition-colors pb-1 overflow-hidden">
                                             <input
                                                 type="number"
                                                 required step="0.01" min="0.1"
@@ -620,9 +629,9 @@ function FullInvoiceForm() {
                                                 onChange={e => setFormData({ ...formData, amount: e.target.value })}
                                                 placeholder="0.00"
                                                 inputMode="decimal"
-                                                className="flex-1 text-3xl font-black text-blue-700 bg-transparent outline-none placeholder-gray-200"
+                                                className="flex-1 min-w-0 text-xl md:text-3xl font-black text-blue-700 bg-transparent outline-none placeholder-gray-200"
                                             />
-                                            <span className="text-lg font-bold text-gray-400"><CurrencyDisplay /></span>
+                                            <span className="text-sm md:text-lg font-bold text-gray-400 shrink-0 whitespace-nowrap"><CurrencyDisplay /></span>
                                         </div>
                                     </div>
 

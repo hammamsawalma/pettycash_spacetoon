@@ -683,3 +683,40 @@ export async function getCompanyCustodies() {
         return [];
     }
 }
+
+// ─── Get ALL Employee Custodies (across all projects) ────────────────────
+// Used by the /employee-custodies page for ADMIN / GLOBAL_ACCOUNTANT / GM
+export async function getAllEmployeeCustodies() {
+    try {
+        const session = await getSession();
+        if (!session) return [];
+
+        const canView =
+            session.role === "ADMIN" ||
+            session.role === "GLOBAL_ACCOUNTANT" ||
+            session.role === "GENERAL_MANAGER";
+        if (!canView) return [];
+
+        const custodies = await prisma.employeeCustody.findMany({
+            where: {
+                isExternal: false,
+                isCompanyExpense: false,
+            },
+            include: {
+                employee: { select: { id: true, name: true, image: true } },
+                project: { select: { id: true, name: true } },
+                confirmation: true,
+                returns: {
+                    orderBy: { createdAt: "desc" },
+                    select: { id: true, amount: true, createdAt: true },
+                },
+            },
+            orderBy: { createdAt: "desc" },
+        });
+
+        return custodies;
+    } catch (error) {
+        console.error("Get All Employee Custodies Error:", error);
+        return [];
+    }
+}

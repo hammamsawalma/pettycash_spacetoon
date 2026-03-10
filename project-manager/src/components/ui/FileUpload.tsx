@@ -181,7 +181,7 @@ export function FileUpload({
     const isImagePreview = preview || (file && file.type.startsWith('image/'));
 
     return (
-        <div className="w-full">
+        <div className="w-full overflow-hidden">
             <input
                 ref={inputRef}
                 type="file"
@@ -215,9 +215,9 @@ export function FileUpload({
 
                 {/* File Selected State */}
                 {file || preview ? (
-                    <div className="relative group w-full h-full flex flex-col items-center justify-center">
+                    <div className="relative group w-full flex flex-col items-center justify-center">
                         {isImagePreview && preview ? (
-                            <div className={`relative overflow-hidden shadow-sm ${variant === 'avatar' ? 'w-24 h-24 rounded-full ring-4 ring-white' : 'w-full h-32 md:h-40 rounded-xl'}`}>
+                            <div className={`relative overflow-hidden shadow-sm ${variant === 'avatar' ? 'w-24 h-24 rounded-full ring-4 ring-white' : 'w-full aspect-[4/3] max-h-48 rounded-xl'}`}>
                                 <Image
                                     src={preview}
                                     alt="Preview"
