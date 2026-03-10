@@ -2,7 +2,6 @@
 import prisma from "@/lib/prisma"
 import { revalidatePath } from "next/cache";
 import { getSession, getBranchFilter } from "@/lib/auth";
-import { getUserRolesInProject } from "@/lib/roles";
 import { isGlobalFinance, hasProjectPermission } from "@/lib/rbac";
 import { sendPushNotification } from "@/lib/push";
 
@@ -67,6 +66,7 @@ export async function issueCustody(prevState: unknown, formData: FormData) {
 
         // E2 + C4: Budget check AND all writes are wrapped in one atomic transaction.
         let custody: { id: string };
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         await prisma.$transaction(async (tx: any) => {
             const lockedProject = await tx.project.findUnique({ where: { id: projectId } });
             if (!lockedProject) throw new Error("المشروع غير موجود");
@@ -460,6 +460,7 @@ export async function returnCustodyBalance(
         const willClose = Math.abs(newBalance) < 0.01;
 
         // v5: Build transaction operations
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const txOps: any[] = [
             // تسجيل عملية الإرجاع + v5: accountant signature
             prisma.custodyReturn.create({
@@ -558,6 +559,7 @@ export async function getExternalCustodiesReport() {
         const bf = getBranchFilter(session);
         const branchWhere = bf.branchId ? { project: { branchId: bf.branchId } } : {};
 
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const custodies = await (prisma.employeeCustody as any).findMany({
             where: { isExternal: true, ...branchWhere },
             include: {
@@ -603,6 +605,7 @@ export async function issueCompanyCustody(prevState: unknown, formData: FormData
 
         let custodyId: string;
         // H5 FIX: Serializable isolation to prevent race conditions
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         await prisma.$transaction(async (tx: any) => {
             // Check wallet balance — branch-scoped
             const wallet = await tx.companyWallet.findFirst({ where: { branchId: session.branchId } });
@@ -658,9 +661,10 @@ export async function issueCompanyCustody(prevState: unknown, formData: FormData
         revalidatePath("/company-custodies");
         revalidatePath("/wallet");
         return { success: true, custodyId: custodyId! };
-    } catch (error: any) {
+    } catch (error: unknown) {
         console.error("Issue Company Custody Error:", error);
-        return { error: error.message || "حدث خطأ أثناء صرف عهدة الشركة" };
+        const message = error instanceof Error ? error.message : "حدث خطأ أثناء صرف عهدة الشركة";
+        return { error: message };
     }
 }
 

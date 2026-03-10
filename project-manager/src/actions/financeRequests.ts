@@ -23,7 +23,7 @@ export async function approveFinanceRequest(requestId: string) {
         // C4: ATOMIC — execute financial operation + update status in one transaction
         const execResult = await executeFinanceRequest(
             requestId,
-            req.type as any,
+            req.type as string,
             { amount: req.amount ?? undefined, targetId: req.targetId ?? undefined, note: req.note ?? undefined },
             session.id,
             session.branchId

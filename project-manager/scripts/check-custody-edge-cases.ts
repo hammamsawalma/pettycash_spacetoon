@@ -33,6 +33,7 @@ async function checkCustodyEdgeCases() {
 
     for (const custody of allCustodies) {
         // Skip external custodies
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         if ((custody as any).isExternal) continue;
         // Skip company custodies (no projectId)
         if (!custody.projectId) continue;

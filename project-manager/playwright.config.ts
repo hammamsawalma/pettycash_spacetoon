@@ -1,5 +1,6 @@
 import { defineConfig, devices } from '@playwright/test';
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const AUTH_DIR = './tests/.auth';
 
 /**

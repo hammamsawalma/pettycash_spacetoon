@@ -1,9 +1,9 @@
 "use server"
 import prisma from "@/lib/prisma"
 import { revalidatePath } from "next/cache";
-import { SessionData, getSession, getBranchFilter } from "@/lib/auth";
+import { getSession, getBranchFilter } from "@/lib/auth";
 import { User } from "@prisma/client";
-import { isGlobalFinance } from "@/lib/rbac";
+
 import path from "path";
 import fs from "fs";
 import { createEmployeeSchema } from "@/lib/validations/employees";
@@ -20,7 +20,8 @@ export async function getEmployees(excludeAdmins: boolean = false) {
         const isGlobalRole = allowedGlobalRoles.includes(session.role);
         const bf = getBranchFilter(session);
 
-        let whereClause: any = { ...bf, isDeleted: false };
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        let whereClause: Record<string, any> = { ...bf, isDeleted: false };
 
         if (isGlobalRole) {
             // Global roles: full list within branch, with optional admin exclusion
@@ -285,7 +286,8 @@ export async function updateEmployee(employeeId: string, prevState: unknown, for
             imagePath = `/uploads/${fileName}`;
         }
 
-        const dataToUpdate: any = {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const dataToUpdate: Record<string, any> = {
             name,
             email: email || null,
             phone,

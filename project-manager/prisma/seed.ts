@@ -35,10 +35,15 @@ async function main() {
     console.log('🌍 Creating branches...');
 
     const branchQA = await prisma.branch.create({ data: { name: 'قطر', code: 'QA', currency: 'QAR', country: 'Qatar', flag: '🇶🇦' } });
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const branchAE = await prisma.branch.create({ data: { name: 'الإمارات', code: 'AE', currency: 'AED', country: 'UAE', flag: '🇦🇪' } });
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const branchSA = await prisma.branch.create({ data: { name: 'السعودية', code: 'SA', currency: 'SAR', country: 'Saudi Arabia', flag: '🇸🇦' } });
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const branchBH = await prisma.branch.create({ data: { name: 'البحرين', code: 'BH', currency: 'BHD', country: 'Bahrain', flag: '🇧🇭' } });
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const branchSY = await prisma.branch.create({ data: { name: 'سوريا', code: 'SY', currency: 'SYP', country: 'Syria', flag: '🇸🇾' } });
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const branchTR = await prisma.branch.create({ data: { name: 'تركيا', code: 'TR', currency: 'TRY', country: 'Turkey', flag: '🇹🇷' } });
 
     console.log(`✅ Created ${6} branches (default: ${branchQA.name})\n`);
@@ -75,6 +80,7 @@ async function main() {
         },
     });
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const gm = await prisma.user.create({
         data: {
             name: 'سلطان الريس',
@@ -226,6 +232,7 @@ async function main() {
     await prisma.custodyReturn.create({ data: { custodyId: cust1.id, amount: 1500, returnedBy: emp1.id, recordedBy: accountant.id, note: 'إرجاع فائض الأسبوع الماضي' } });
 
     // عهدة 2 — سارة أحمد (غير مؤكدة — تنتظر التوقيع)
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const cust2 = await prisma.employeeCustody.create({
         data: {
             projectId: proj1.id, employeeId: emp2.id, memberId: mem_emp2_p1.id,
@@ -351,6 +358,7 @@ async function main() {
     });
     await prisma.walletEntry.create({ data: { walletId: wallet.id, type: 'ALLOCATE_TO_PROJECT', amount: 50000, note: `ميزانية: ${proj2.name}`, createdBy: admin.id } });
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const mem_coord_p2 = await prisma.projectMember.create({
         data: { projectId: proj2.id, userId: coordinator.id, projectRoles: 'PROJECT_MANAGER', custodyBalance: 0 },
     });

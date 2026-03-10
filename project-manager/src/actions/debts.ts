@@ -12,7 +12,8 @@ export async function getPendingDebts() {
 
         const bf = getBranchFilter(session);
         // Employees see only their own debts; admins/accountants see all within branch
-        const where: any = !isGlobalFinance(session.role)
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const where: Record<string, any> = !isGlobalFinance(session.role)
             ? { employeeId: session.id, isSettled: false }
             : { isSettled: false, ...(bf.branchId ? { invoice: { project: { is: { branchId: bf.branchId } } } } : {}) };
 
