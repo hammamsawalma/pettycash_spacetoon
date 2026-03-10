@@ -69,12 +69,12 @@ test.describe('M6-01: Employee Bottom Nav', () => {
         expect(count).toBeGreaterThan(0);
     });
 
-    test('MBE8: CTA button visible', async ({ pePage }) => {
+    test('MBE8: CTA button visible inside navbar', async ({ pePage }) => {
         await pePage.goto('/', { waitUntil: 'domcontentloaded' });
         await pePage.waitForLoadState('networkidle').catch(() => { });
         await pePage.waitForTimeout(2000);
-        // CTA is either "رفع فاتورة" or "طلب شراء"
-        const cta = pePage.locator('button[aria-label="رفع فاتورة"], button[aria-label="طلب شراء"]');
+        // CTA is inside the nav element (not floating above it)
+        const cta = pePage.locator('nav[aria-label="التنقل الرئيسي"] button[aria-label="رفع فاتورة"], nav[aria-label="التنقل الرئيسي"] button[aria-label="طلب شراء"]');
         const count = await cta.count();
         expect(count).toBeGreaterThan(0);
     });
@@ -129,13 +129,14 @@ test.describe('M6-01: Employee Bottom Nav', () => {
         }
     });
 
-    test('MBE13: Nav items show icons', async ({ pePage }) => {
+    test('MBE13: Nav items show icons (including CTA)', async ({ pePage }) => {
         await pePage.goto('/', { waitUntil: 'domcontentloaded' });
         await pePage.waitForLoadState('networkidle').catch(() => { });
         await pePage.waitForTimeout(2000);
+        // 5 nav item icons + 1 CTA icon = 6 total
         const icons = pePage.locator('nav[aria-label="التنقل الرئيسي"] svg[aria-hidden="true"]');
         const count = await icons.count();
-        expect(count).toBeGreaterThanOrEqual(4);
+        expect(count).toBeGreaterThanOrEqual(5);
     });
 
     test('MBE14: Nav bar has glassmorphism style', async ({ pePage }) => {
@@ -147,5 +148,47 @@ test.describe('M6-01: Employee Bottom Nav', () => {
         // Check it has the backdrop-blur class
         const navHtml = await nav.innerHTML();
         expect(navHtml).toContain('backdrop-blur');
+    });
+
+    test('MBE15: CTA button is within navbar bounds (not floating above)', async ({ pePage }) => {
+        await pePage.goto('/', { waitUntil: 'domcontentloaded' });
+        await pePage.waitForLoadState('networkidle').catch(() => { });
+        await pePage.waitForTimeout(2000);
+        const nav = pePage.locator('nav[aria-label="التنقل الرئيسي"]');
+        const cta = pePage.locator('nav[aria-label="التنقل الرئيسي"] button[aria-label="رفع فاتورة"], nav[aria-label="التنقل الرئيسي"] button[aria-label="طلب شراء"]');
+        const navBox = await nav.boundingBox();
+        const ctaBox = await cta.first().boundingBox();
+        if (navBox && ctaBox) {
+            // CTA top must be at or below the nav top (not floating above)
+            expect(ctaBox.y).toBeGreaterThanOrEqual(navBox.y);
+            // CTA bottom must be at or above the nav bottom
+            expect(ctaBox.y + ctaBox.height).toBeLessThanOrEqual(navBox.y + navBox.height + 1);
+        }
+    });
+
+    test('MBE16: CTA has distinct styled background', async ({ pePage }) => {
+        await pePage.goto('/', { waitUntil: 'domcontentloaded' });
+        await pePage.waitForLoadState('networkidle').catch(() => { });
+        await pePage.waitForTimeout(2000);
+        const cta = pePage.locator('nav[aria-label="التنقل الرئيسي"] button[aria-label="رفع فاتورة"], nav[aria-label="التنقل الرئيسي"] button[aria-label="طلب شراء"]');
+        if (await cta.count() > 0) {
+            const ctaHtml = await cta.first().evaluate(el => el.className);
+            expect(ctaHtml).toContain('bg-[#102550]');
+        }
+    });
+
+    test('MBE17: CTA button has adequate touch target', async ({ pePage }) => {
+        await pePage.goto('/', { waitUntil: 'domcontentloaded' });
+        await pePage.waitForLoadState('networkidle').catch(() => { });
+        await pePage.waitForTimeout(2000);
+        const cta = pePage.locator('nav[aria-label="التنقل الرئيسي"] button[aria-label="رفع فاتورة"], nav[aria-label="التنقل الرئيسي"] button[aria-label="طلب شراء"]');
+        if (await cta.count() > 0) {
+            const box = await cta.first().boundingBox();
+            expect(box).not.toBeNull();
+            if (box) {
+                expect(box.width).toBeGreaterThanOrEqual(44);
+                expect(box.height).toBeGreaterThanOrEqual(44);
+            }
+        }
     });
 });

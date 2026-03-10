@@ -120,25 +120,50 @@ export default function MobileBottomNav({ hiddenBySidebar = false }: { hiddenByS
         const CtaIcon = canAddInvoice ? Camera : ShoppingCart;
         const ctaLabel = canAddInvoice ? 'رفع فاتورة' : 'طلب شراء';
 
-        return (
-            /* Outer wrapper — position:relative so the floating CTA can anchor to it */
-            <nav aria-label="التنقل الرئيسي" className="fixed bottom-0 inset-x-0 z-50 w-full md:hidden pb-[calc(0.5rem+env(safe-area-inset-bottom))]">
-                {/* ── Floating CTA — floats above the bar, centered ─────────────── */}
-                <div className={`absolute -top-5 left-1/2 -translate-x-1/2 z-10 transition-opacity duration-300 ${isReady ? 'opacity-100' : 'opacity-0'}`}>
-                    <button
-                        onClick={() => router.push(ctaHref)}
-                        aria-label={ctaLabel}
-                        className="flex flex-col items-center justify-center gap-0.5 bg-[#102550] text-white w-14 h-14 rounded-full shadow-xl shadow-[#102550]/40 active:scale-95 transition-transform border-4 border-white"
-                    >
-                        <CtaIcon className="w-5 h-5" />
-                        <span className="text-[8px] font-black leading-none">{ctaLabel}</span>
-                    </button>
-                </div>
+        // Split nav items around the center CTA
+        // Order (RTL): حسابي | عهدي | الديون | [CTA] | المشاريع | الرئيسية
+        const leftItems = employeeNavItems.slice(0, 3);   // حسابي، عهدي، الديون
+        const rightItems = employeeNavItems.slice(3);      // المشاريع، الرئيسية
 
-                {/* ── Floating Bar ──────────────────────────────────────────────── */}
+        return (
+            <nav aria-label="التنقل الرئيسي" className="fixed bottom-0 inset-x-0 z-50 w-full md:hidden pb-[calc(0.5rem+env(safe-area-inset-bottom))]">
                 <div className="mx-3 bg-white/90 backdrop-blur-xl rounded-2xl border border-gray-200/60 shadow-[0_8px_32px_rgba(0,0,0,0.14),0_2px_8px_rgba(0,0,0,0.06)]">
                     <div className="flex items-center h-16 max-w-lg mx-auto px-2 font-medium" dir="rtl">
-                        {employeeNavItems.map((item) => {
+                        {/* ── Right side nav items ─────────────────────────────── */}
+                        {leftItems.map((item) => {
+                            const isActive = pathname === item.href || (pathname.startsWith(item.href) && item.href !== '/');
+                            return (
+                                <Link
+                                    href={item.href}
+                                    key={item.href}
+                                    aria-current={isActive ? 'page' : undefined}
+                                    className="flex-1 inline-flex flex-col items-center justify-center py-2 hover:bg-gray-50 group transition-all duration-200 rounded-xl min-h-[48px] active:scale-95"
+                                >
+                                    <item.icon
+                                        aria-hidden="true"
+                                        className={`w-5 h-5 mb-0.5 transition-all duration-200 ${isActive ? 'text-[#102550] scale-110' : 'text-gray-400 group-hover:text-gray-600'}`}
+                                    />
+                                    <span className={`text-[10px] transition-colors duration-200 ${isActive ? 'text-[#102550] font-bold' : 'text-gray-400 group-hover:text-gray-600'}`}>
+                                        {item.name}
+                                    </span>
+                                </Link>
+                            );
+                        })}
+
+                        {/* ── Center CTA (Invoice / Purchase) ──────────────────── */}
+                        <div className={`flex items-center justify-center px-1 transition-opacity duration-300 ${isReady ? 'opacity-100' : 'opacity-0'}`}>
+                            <button
+                                onClick={() => router.push(ctaHref)}
+                                aria-label={ctaLabel}
+                                className="flex flex-col items-center justify-center gap-0.5 w-12 h-12 rounded-xl bg-[#102550] text-white shadow-lg shadow-[#102550]/30 active:scale-90 transition-all duration-200"
+                            >
+                                <CtaIcon className="w-5 h-5" aria-hidden="true" />
+                                <span className="text-[7px] font-black leading-none">{ctaLabel}</span>
+                            </button>
+                        </div>
+
+                        {/* ── Left side nav items ──────────────────────────────── */}
+                        {rightItems.map((item) => {
                             const isActive = pathname === item.href || (pathname.startsWith(item.href) && item.href !== '/');
                             return (
                                 <Link
