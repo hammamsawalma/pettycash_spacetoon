@@ -241,10 +241,22 @@ const navigationGroups: NavGroup[] = [
             },
             {
                 name: 'الدعم الفني',
-                href: '/support',
                 icon: HeadphonesIcon,
                 // All roles get support access
-                check: (r) => true,
+                check: () => true,
+                subItems: [
+                    {
+                        name: 'تذاكر الدعم',
+                        href: '/support',
+                        check: () => true,
+                    },
+                    {
+                        name: 'محادثات الدعم',
+                        href: '/support/admin',
+                        // Only ADMIN can manage support conversations
+                        check: (r) => r === 'ADMIN',
+                    },
+                ],
             },
             {
                 name: 'المؤرشفات',
