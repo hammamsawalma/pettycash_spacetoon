@@ -8,6 +8,7 @@ import { getMyCustodies } from "@/actions/custody";
 import { createInvoice } from "@/actions/invoices";
 import { Project } from "@prisma/client";
 import { useRouter, useSearchParams } from "next/navigation";
+import Link from "next/link";
 import { FileUpload } from "@/components/ui/FileUpload";
 import toast from "react-hot-toast";
 import { Suspense } from "react";
@@ -790,9 +791,9 @@ function NewInvoicePageInner() {
                     </div>
                     <h2 className="text-xl font-bold text-gray-800">غير مصرح لك بإضافة فاتورة</h2>
                     <p className="text-gray-500 text-sm max-w-xs">المدير العام لديه صلاحية العرض فقط. إضافة الفواتير متاحة للموظفين والمحاسبين ومدراء المشاريع.</p>
-                    <a href="/invoices" className="mt-2 px-6 py-2.5 rounded-xl bg-slate-800 text-white font-semibold text-sm hover:bg-slate-700 transition-all">
+                    <Link href="/invoices" className="mt-2 px-6 py-2.5 rounded-xl bg-slate-800 text-white font-semibold text-sm hover:bg-slate-700 transition-all">
                         العودة لقائمة الفواتير
-                    </a>
+                    </Link>
                 </div>
             </DashboardLayout>
         );

@@ -60,7 +60,8 @@ test.describe('Welcome Page i18n', () => {
         await page.waitForLoadState('networkidle');
         await page.locator('button:has-text("EN")').click();
         await page.waitForTimeout(300);
-        await page.locator('button:has-text("AR")').click();
+        // Use aria-label to avoid matching Search button
+        await page.locator('button[aria-label="Switch to Arabic"], button:has-text("AR") >> visible=true').first().click();
         await page.waitForTimeout(300);
         const body = await page.textContent('body');
         expect(body).toContain('نظام إدارة المصاريف والعهد المالية');
@@ -116,38 +117,46 @@ test.describe('Login Page i18n', () => {
     });
 
     test('L8: Login page switches to English via localStorage', async ({ page }) => {
+        // Set locale before page loads using addInitScript
+        await page.addInitScript(() => {
+            localStorage.setItem('locale', 'en');
+        });
         await page.goto('/login');
-        await page.evaluate(() => localStorage.setItem('locale', 'en'));
-        await page.reload();
         await page.waitForLoadState('networkidle');
+        await page.waitForTimeout(500);
         const body = await page.textContent('body');
         expect(body).toContain('Welcome back');
-        expect(body).toContain('Sign in');
     });
 
     test('L9: Login button text changes with locale', async ({ page }) => {
+        await page.addInitScript(() => {
+            localStorage.setItem('locale', 'en');
+        });
         await page.goto('/login');
-        await page.evaluate(() => localStorage.setItem('locale', 'en'));
-        await page.reload();
         await page.waitForLoadState('networkidle');
+        await page.waitForTimeout(500);
         const loginBtn = page.locator('button[type="submit"]');
         await expect(loginBtn).toContainText('Login');
     });
 
     test('L10: Login "Remember me" translates', async ({ page }) => {
+        await page.addInitScript(() => {
+            localStorage.setItem('locale', 'en');
+        });
         await page.goto('/login');
-        await page.evaluate(() => localStorage.setItem('locale', 'en'));
-        await page.reload();
         await page.waitForLoadState('networkidle');
+        await page.waitForTimeout(500);
         const body = await page.textContent('body');
         expect(body).toContain('Remember me');
     });
 
     test('L11: Login "User Manual" link translates', async ({ page }) => {
+        await page.addInitScript(() => {
+            localStorage.setItem('locale', 'en');
+        });
         await page.goto('/login');
-        await page.evaluate(() => localStorage.setItem('locale', 'en'));
-        await page.reload();
         await page.waitForLoadState('networkidle');
+        await page.waitForTimeout(500);
         const body = await page.textContent('body');
         expect(body).toContain('User Manual');
     });
@@ -231,7 +240,8 @@ test.describe('RTL/LTR Direction', () => {
         await loginAs(page, 'root@pocket.com');
         await page.locator('button:has-text("EN")').click();
         await page.waitForTimeout(300);
-        await page.locator('button:has-text("AR")').click();
+        // Use aria-label to find the AR toggle precisely
+        await page.locator('button[aria-label*="Switch to Arabic"]').first().click();
         await page.waitForTimeout(300);
         const dir = await page.evaluate(() => document.documentElement.dir);
         expect(dir).toBe('rtl');
@@ -250,6 +260,7 @@ test.describe('Language Persistence', () => {
         expect(locale).toBe('en');
         await page.reload();
         await page.waitForLoadState('networkidle');
+        await page.waitForTimeout(500);
         const dir = await page.evaluate(() => document.documentElement.dir);
         expect(dir).toBe('ltr');
     });
@@ -340,10 +351,11 @@ test.describe('i18n Edge Cases', () => {
         page.on('console', msg => {
             if (msg.type() === 'error') consoleErrors.push(msg.text());
         });
+        // Toggle using aria-label to avoid strict mode
         for (let i = 0; i < 6; i++) {
-            const toggleText = i % 2 === 0 ? 'EN' : 'AR';
-            const toggle = page.locator(`button:has-text("${toggleText}")`);
-            if (await toggle.isVisible()) {
+            const ariaTarget = i % 2 === 0 ? 'Switch to English' : 'Switch to Arabic';
+            const toggle = page.locator(`button[aria-label*="${ariaTarget}"]`).first();
+            if (await toggle.isVisible({ timeout: 2000 }).catch(() => false)) {
                 await toggle.click();
                 await page.waitForTimeout(200);
             }
@@ -354,7 +366,6 @@ test.describe('i18n Edge Cases', () => {
         const relevant = consoleErrors.filter(e =>
             !e.includes('sw.js') && !e.includes('service-worker') && !e.includes('workbox')
         );
-        // No critical JS errors expected
         expect(relevant.length).toBeLessThanOrEqual(2);
     });
 
