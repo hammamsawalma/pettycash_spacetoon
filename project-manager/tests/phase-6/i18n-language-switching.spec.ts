@@ -119,7 +119,7 @@ test.describe('Login Page i18n', () => {
     test('L8: Login page switches to English via localStorage', async ({ page }) => {
         // Set locale before page loads using addInitScript
         await page.addInitScript(() => {
-            localStorage.setItem('locale', 'en');
+            localStorage.setItem('app-locale', 'en');
         });
         await page.goto('/login');
         await page.waitForLoadState('networkidle');
@@ -130,7 +130,7 @@ test.describe('Login Page i18n', () => {
 
     test('L9: Login button text changes with locale', async ({ page }) => {
         await page.addInitScript(() => {
-            localStorage.setItem('locale', 'en');
+            localStorage.setItem('app-locale', 'en');
         });
         await page.goto('/login');
         await page.waitForLoadState('networkidle');
@@ -141,7 +141,7 @@ test.describe('Login Page i18n', () => {
 
     test('L10: Login "Remember me" translates', async ({ page }) => {
         await page.addInitScript(() => {
-            localStorage.setItem('locale', 'en');
+            localStorage.setItem('app-locale', 'en');
         });
         await page.goto('/login');
         await page.waitForLoadState('networkidle');
@@ -152,7 +152,7 @@ test.describe('Login Page i18n', () => {
 
     test('L11: Login "User Manual" link translates', async ({ page }) => {
         await page.addInitScript(() => {
-            localStorage.setItem('locale', 'en');
+            localStorage.setItem('app-locale', 'en');
         });
         await page.goto('/login');
         await page.waitForLoadState('networkidle');
@@ -256,7 +256,7 @@ test.describe('Language Persistence', () => {
         await loginAs(page, 'root@pocket.com');
         await page.locator('button:has-text("EN")').click();
         await page.waitForTimeout(500);
-        const locale = await page.evaluate(() => localStorage.getItem('locale'));
+        const locale = await page.evaluate(() => localStorage.getItem('app-locale'));
         expect(locale).toBe('en');
         await page.reload();
         await page.waitForLoadState('networkidle');
@@ -277,10 +277,10 @@ test.describe('Language Persistence', () => {
 
     test('L22: Clearing localStorage resets to Arabic', async ({ page }) => {
         await loginAs(page, 'root@pocket.com');
-        await page.evaluate(() => localStorage.setItem('locale', 'en'));
+        await page.evaluate(() => localStorage.setItem('app-locale', 'en'));
         await page.reload();
         await page.waitForLoadState('networkidle');
-        await page.evaluate(() => localStorage.removeItem('locale'));
+        await page.evaluate(() => localStorage.removeItem('app-locale'));
         await page.reload();
         await page.waitForLoadState('networkidle');
         const dir = await page.evaluate(() => document.documentElement.dir);
@@ -371,7 +371,7 @@ test.describe('i18n Edge Cases', () => {
 
     test('L29: Invalid locale in localStorage defaults to Arabic', async ({ page }) => {
         await page.goto('/login');
-        await page.evaluate(() => localStorage.setItem('locale', 'invalid_locale'));
+        await page.evaluate(() => localStorage.setItem('app-locale', 'invalid_locale'));
         await page.reload();
         await page.waitForLoadState('networkidle');
         const dir = await page.evaluate(() => document.documentElement.dir);
