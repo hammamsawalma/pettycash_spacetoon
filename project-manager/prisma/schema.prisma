@@ -9,6 +9,27 @@ datasource db {
 }
 
 // ─────────────────────────────────────────────
+// BRANCH (الفرع)
+// ─────────────────────────────────────────────
+model Branch {
+  id        String   @id @default(uuid())
+  name      String   // "قطر" | "الإمارات" ...
+  code      String   @unique // "QA" | "AE" | "SA" | "BH" | "SY" | "TR"
+  currency  String   @default("QAR")
+  country   String
+  flag      String   // 🇶🇦 emoji
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+
+  // Relations
+  users          User[]
+  projects       Project[]
+  wallets        CompanyWallet[]
+  categories     Category[]
+  voucherCounters VoucherCounter[]
+}
+
+// ─────────────────────────────────────────────
 // USER
 // ─────────────────────────────────────────────
 model User {
@@ -17,17 +38,19 @@ model User {
   email               String?              @unique
   phone               String               @unique
   password            String
-  role                String               @default("USER") // ADMIN | GENERAL_MANAGER | GLOBAL_ACCOUNTANT | USER
+  role                String               @default("USER") // ROOT | ADMIN | GENERAL_MANAGER | GLOBAL_ACCOUNTANT | USER
   jobTitle            String?
   salary              Float?              // v4: hidden from UI but kept in DB
   image               String?
   savedSignature      String?              // v5: توقيع محفوظ (base64 PNG)
+  branchId            String?              // v8: الفرع — اختياري (ROOT و GM بدون فرع)
   createdAt           DateTime             @default(now())
   updatedAt           DateTime             @updatedAt
   isDeleted           Boolean              @default(false)
   deletedAt           DateTime?
 
   // Relations
+  branch              Branch?              @relation(fields: [branchId], references: [id])
   deposits            Deposit[]
   invoicesCreated     Invoice[]            @relation("InvoiceCreator")
   receivedMessages    Message[]            @relation("MessageReceiver")
@@ -44,17 +67,23 @@ model User {
   custodyReturnsMade  CustodyReturn[]      @relation("CustodyReturner")  // D2: audit trail
   custodyReturnsRecorded CustodyReturn[]   @relation("CustodyRecorder")  // D2: audit trail
   custodyConfirmations CustodyConfirmation[] @relation("CustodyConfirmer") // v6: audit trail
+
+  @@index([branchId])
 }
 // ─────────────────────────────────────────────
 // COMPANY WALLET (خزنة الشركة)
 // ─────────────────────────────────────────────
 model CompanyWallet {
   id        String        @id @default(uuid())
+  branchId  String?       // v8: خزنة لكل فرع
   balance   Float         @default(0)
   totalIn   Float         @default(0)
   totalOut  Float         @default(0)
   updatedAt DateTime      @updatedAt
   entries   WalletEntry[]
+  branch    Branch?       @relation(fields: [branchId], references: [id])
+
+  @@index([branchId])
 }
 
 model WalletEntry {
@@ -88,18 +117,22 @@ model Project {
   endDate          DateTime?
   closedAt         DateTime?
   managerId        String?
+  branchId         String?           // v8: المشروع يتبع فرع
   createdAt        DateTime          @default(now())
   updatedAt        DateTime          @updatedAt
   isDeleted        Boolean           @default(false)
   deletedAt        DateTime?
 
   // Relations
+  branch           Branch?           @relation(fields: [branchId], references: [id])
   invoices         Invoice[]
   messages         Message[]
   manager          User?             @relation("ProjectManager", fields: [managerId], references: [id])
   members          ProjectMember[]
   purchases        Purchase[]
   custodies        EmployeeCustody[]
+
+  @@index([branchId])
 }
 
 // ─────────────────────────────────────────────
@@ -204,9 +237,13 @@ model Category {
   name      String    // "طعام" | "نقل" | "مستلزمات" | "أخرى"
   icon      String?
   scope     String    @default("PROJECT")  // v5: PROJECT | COMPANY | BOTH
+  branchId  String?   // v8: تصنيف خاص بفرع (null = مشترك لكل الفروع)
   isActive  Boolean   @default(true)
   createdAt DateTime  @default(now())
   invoices  Invoice[]
+  branch    Branch?   @relation(fields: [branchId], references: [id])
+
+  @@index([branchId])
 }
 
 // ─────────────────────────────────────────────
@@ -433,9 +470,13 @@ model Notification {
 // VOUCHER COUNTER (عداد السندات)
 // ─────────────────────────────────────────────
 model VoucherCounter {
-  id          String @id @default("global")
-  lastIssue   Int    @default(0)   // آخر رقم سند صرف
-  lastReceipt Int    @default(0)   // آخر رقم سند قبض
+  id          String  @id @default(uuid())
+  branchId    String? // v8: عداد لكل فرع
+  lastIssue   Int     @default(0)   // آخر رقم سند صرف
+  lastReceipt Int     @default(0)   // آخر رقم سند قبض
+  branch      Branch? @relation(fields: [branchId], references: [id])
+
+  @@index([branchId])
 }
 
 // ─────────────────────────────────────────────

@@ -240,3 +240,340 @@ body {
     display: block !important;
   }
 }
+
+/* ═══════════════════════════════════════════════════════════
+   Welcome Page Styles (v8: Multi-Branch)
+   ═══════════════════════════════════════════════════════════ */
+
+.welcome-container {
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
+  position: relative;
+  overflow: hidden;
+  padding: 1rem;
+}
+
+/* Animated background orbs */
+.welcome-bg-orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0.3;
+  animation: orb-float 8s ease-in-out infinite;
+}
+
+.welcome-bg-orb-1 {
+  width: 300px;
+  height: 300px;
+  background: #6366f1;
+  top: -100px;
+  left: -50px;
+  animation-delay: 0s;
+}
+
+.welcome-bg-orb-2 {
+  width: 250px;
+  height: 250px;
+  background: #06b6d4;
+  bottom: -80px;
+  right: -40px;
+  animation-delay: -3s;
+}
+
+.welcome-bg-orb-3 {
+  width: 200px;
+  height: 200px;
+  background: #a855f7;
+  top: 40%;
+  left: 50%;
+  animation-delay: -5s;
+}
+
+@keyframes orb-float {
+
+  0%,
+  100% {
+    transform: translateY(0) scale(1);
+  }
+
+  50% {
+    transform: translateY(-30px) scale(1.1);
+  }
+}
+
+/* Step container */
+.welcome-step {
+  text-align: center;
+  max-width: 500px;
+  width: 100%;
+  animation: step-in 0.5s ease-out;
+  position: relative;
+  z-index: 1;
+}
+
+@keyframes step-in {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Logo */
+.welcome-logo-wrap {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 1.5rem;
+}
+
+.welcome-logo-icon {
+  width: 80px;
+  height: 80px;
+  background: linear-gradient(135deg, #6366f1, #a855f7);
+  border-radius: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.5rem;
+  box-shadow: 0 8px 32px rgba(99, 102, 241, 0.3);
+  animation: logo-pulse 3s ease-in-out infinite;
+}
+
+@keyframes logo-pulse {
+
+  0%,
+  100% {
+    box-shadow: 0 8px 32px rgba(99, 102, 241, 0.3);
+  }
+
+  50% {
+    box-shadow: 0 12px 48px rgba(99, 102, 241, 0.5);
+  }
+}
+
+/* Typography */
+.welcome-title {
+  font-size: 2rem;
+  font-weight: 800;
+  margin-bottom: 0.5rem;
+  letter-spacing: -0.5px;
+}
+
+.welcome-title-gradient {
+  background: linear-gradient(135deg, #e0e7ff, #c7d2fe 40%, #a5b4fc);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.welcome-subtitle {
+  color: #94a3b8;
+  font-size: 1.1rem;
+  margin-bottom: 0.5rem;
+}
+
+.welcome-desc {
+  color: #64748b;
+  font-size: 0.9rem;
+  line-height: 1.6;
+  margin-bottom: 1.5rem;
+  max-width: 400px;
+  margin-inline: auto;
+}
+
+/* Feature chips */
+.welcome-features {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-bottom: 2rem;
+}
+
+.welcome-feature {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 100px;
+  padding: 0.4rem 0.8rem;
+  color: #cbd5e1;
+  font-size: 0.8rem;
+}
+
+.welcome-feature-icon {
+  font-size: 1rem;
+}
+
+/* CTA Button */
+.welcome-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  padding: 0.85rem 2.5rem;
+  font-size: 1.05rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 20px rgba(99, 102, 241, 0.4);
+  font-family: inherit;
+}
+
+.welcome-cta:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 32px rgba(99, 102, 241, 0.5);
+}
+
+.welcome-cta-arrow {
+  transition: transform 0.3s;
+}
+
+.welcome-cta:hover .welcome-cta-arrow {
+  transform: translateX(-4px);
+}
+
+/* Branch selection */
+.welcome-back {
+  background: none;
+  border: none;
+  color: #94a3b8;
+  font-size: 0.9rem;
+  cursor: pointer;
+  margin-bottom: 1.5rem;
+  font-family: inherit;
+  transition: color 0.2s;
+}
+
+.welcome-back:hover {
+  color: white;
+}
+
+.welcome-branch-title {
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: #e2e8f0;
+  margin-bottom: 0.3rem;
+}
+
+.welcome-branch-subtitle {
+  color: #64748b;
+  font-size: 0.9rem;
+  margin-bottom: 1.5rem;
+}
+
+.welcome-branches-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+
+.welcome-branch-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 1.25rem 0.75rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-family: inherit;
+  animation: card-in 0.4s ease-out both;
+  color: white;
+}
+
+@keyframes card-in {
+  from {
+    opacity: 0;
+    transform: scale(0.9) translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.welcome-branch-card:hover {
+  background: rgba(99, 102, 241, 0.15);
+  border-color: rgba(99, 102, 241, 0.4);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+}
+
+.welcome-branch-card-selected {
+  background: rgba(99, 102, 241, 0.25) !important;
+  border-color: #6366f1 !important;
+  transform: scale(0.95) !important;
+}
+
+.welcome-branch-flag {
+  font-size: 2rem;
+}
+
+.welcome-branch-name {
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.welcome-branch-currency {
+  font-size: 0.75rem;
+  color: #94a3b8;
+}
+
+/* ROOT link */
+.welcome-root-link {
+  margin-top: 0.5rem;
+}
+
+.welcome-root-btn {
+  background: none;
+  border: 1px dashed rgba(255, 255, 255, 0.15);
+  color: #64748b;
+  padding: 0.5rem 1.5rem;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 0.8rem;
+  font-family: inherit;
+  transition: all 0.2s;
+}
+
+.welcome-root-btn:hover {
+  color: #a5b4fc;
+  border-color: rgba(99, 102, 241, 0.3);
+}
+
+/* Mobile responsive */
+@media (max-width: 480px) {
+  .welcome-title {
+    font-size: 1.6rem;
+  }
+
+  .welcome-branches-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.6rem;
+  }
+
+  .welcome-branch-card {
+    padding: 1rem 0.5rem;
+  }
+
+  .welcome-branch-flag {
+    font-size: 1.6rem;
+  }
+}

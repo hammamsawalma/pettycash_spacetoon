@@ -24,7 +24,8 @@ export async function login(prevState: unknown, formData: FormData) {
 
     try {
         const user = await prisma.user.findUnique({
-            where: { email }
+            where: { email },
+            include: { branch: true },
         });
 
         if (!user) {
@@ -51,6 +52,8 @@ export async function login(prevState: unknown, formData: FormData) {
             role: user.role as UserRole,
             email: user.email,
             phone: user.phone,
+            branchId: user.branchId,
+            branchCode: user.branch?.code || null,
         };
 
         const cookieStore = await cookies();

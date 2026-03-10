@@ -5,65 +5,65 @@ import type { NextRequest } from 'next/server';
 // Order matters: more specific paths must come BEFORE generic ones.
 // First matching rule wins.
 const ROUTE_RULES: Array<{ prefix: string; exact?: boolean; allowed: string[] }> = [
-    // Settings categories — ADMIN + GLOBAL_ACCOUNTANT (more specific path first)
-    { prefix: '/settings/categories', allowed: ['ADMIN', 'GLOBAL_ACCOUNTANT'] },
+    // Settings categories — ROOT + ADMIN + GLOBAL_ACCOUNTANT
+    { prefix: '/settings/categories', allowed: ['ROOT', 'ADMIN', 'GLOBAL_ACCOUNTANT'] },
     // Settings (profile page) — all authenticated roles
-    { prefix: '/settings', allowed: ['ADMIN', 'GLOBAL_ACCOUNTANT', 'GENERAL_MANAGER', 'USER'] },
+    { prefix: '/settings', allowed: ['ROOT', 'ADMIN', 'GLOBAL_ACCOUNTANT', 'GENERAL_MANAGER', 'USER'] },
 
-    // Trash — ADMIN only
-    { prefix: '/trash', allowed: ['ADMIN'] },
+    // Trash — ROOT + ADMIN only
+    { prefix: '/trash', allowed: ['ROOT', 'ADMIN'] },
 
-    // Employees create — ADMIN only
-    { prefix: '/employees/new', allowed: ['ADMIN'] },
-    // Employees list — ADMIN, GLOBAL_ACCOUNTANT, GENERAL_MANAGER
-    { prefix: '/employees', allowed: ['ADMIN', 'GLOBAL_ACCOUNTANT', 'GENERAL_MANAGER'] },
+    // Employees create — ROOT + ADMIN only
+    { prefix: '/employees/new', allowed: ['ROOT', 'ADMIN'] },
+    // Employees list
+    { prefix: '/employees', allowed: ['ROOT', 'ADMIN', 'GLOBAL_ACCOUNTANT', 'GENERAL_MANAGER'] },
 
-    // Projects create — ADMIN only
-    { prefix: '/projects/new', allowed: ['ADMIN'] },
+    // Projects create — ROOT + ADMIN only
+    { prefix: '/projects/new', allowed: ['ROOT', 'ADMIN'] },
 
     // Wallet — finance roles
-    { prefix: '/wallet', allowed: ['ADMIN', 'GLOBAL_ACCOUNTANT', 'GENERAL_MANAGER'] },
+    { prefix: '/wallet', allowed: ['ROOT', 'ADMIN', 'GLOBAL_ACCOUNTANT', 'GENERAL_MANAGER'] },
 
-    // Finance Requests — finance roles
-    { prefix: '/finance-requests', allowed: ['ADMIN', 'GLOBAL_ACCOUNTANT', 'GENERAL_MANAGER'] },
+    // Finance Requests
+    { prefix: '/finance-requests', allowed: ['ROOT', 'ADMIN', 'GLOBAL_ACCOUNTANT', 'GENERAL_MANAGER'] },
 
-    // Deposits — finance roles
-    { prefix: '/deposits', allowed: ['ADMIN', 'GLOBAL_ACCOUNTANT', 'GENERAL_MANAGER'] },
+    // Deposits
+    { prefix: '/deposits', allowed: ['ROOT', 'ADMIN', 'GLOBAL_ACCOUNTANT', 'GENERAL_MANAGER'] },
 
-    // Reports — finance + management
-    { prefix: '/reports', allowed: ['ADMIN', 'GLOBAL_ACCOUNTANT', 'GENERAL_MANAGER'] },
+    // Reports
+    { prefix: '/reports', allowed: ['ROOT', 'ADMIN', 'GLOBAL_ACCOUNTANT', 'GENERAL_MANAGER'] },
 
-    // Archives — completed projects, management roles only
-    { prefix: '/archives', allowed: ['ADMIN', 'GLOBAL_ACCOUNTANT', 'GENERAL_MANAGER'] },
+    // Archives
+    { prefix: '/archives', allowed: ['ROOT', 'ADMIN', 'GLOBAL_ACCOUNTANT', 'GENERAL_MANAGER'] },
 
-    // Debts — finance roles + employees can see their own debts (filtered server-side)
-    { prefix: '/debts', allowed: ['ADMIN', 'GLOBAL_ACCOUNTANT', 'GENERAL_MANAGER', 'USER'] },
+    // Debts
+    { prefix: '/debts', allowed: ['ROOT', 'ADMIN', 'GLOBAL_ACCOUNTANT', 'GENERAL_MANAGER', 'USER'] },
 
-    // Custody — finance roles
-    { prefix: '/custody', allowed: ['ADMIN', 'GLOBAL_ACCOUNTANT', 'GENERAL_MANAGER'] },
+    // Custody
+    { prefix: '/custody', allowed: ['ROOT', 'ADMIN', 'GLOBAL_ACCOUNTANT', 'GENERAL_MANAGER'] },
 
-    // External custodies report — finance roles
-    { prefix: '/external-custodies', allowed: ['ADMIN', 'GLOBAL_ACCOUNTANT', 'GENERAL_MANAGER'] },
+    // External custodies report
+    { prefix: '/external-custodies', allowed: ['ROOT', 'ADMIN', 'GLOBAL_ACCOUNTANT', 'GENERAL_MANAGER'] },
 
-    // Employee custodies report — finance roles
-    { prefix: '/employee-custodies', allowed: ['ADMIN', 'GLOBAL_ACCOUNTANT', 'GENERAL_MANAGER'] },
+    // Employee custodies report
+    { prefix: '/employee-custodies', allowed: ['ROOT', 'ADMIN', 'GLOBAL_ACCOUNTANT', 'GENERAL_MANAGER'] },
 
-    // Company custodies — finance roles
-    { prefix: '/company-custodies', allowed: ['ADMIN', 'GLOBAL_ACCOUNTANT', 'GENERAL_MANAGER'] },
+    // Company custodies
+    { prefix: '/company-custodies', allowed: ['ROOT', 'ADMIN', 'GLOBAL_ACCOUNTANT', 'GENERAL_MANAGER'] },
 
-    // Notifications send — ADMIN only
-    { prefix: '/notifications/send', allowed: ['ADMIN', 'GENERAL_MANAGER'] },
+    // Notifications send
+    { prefix: '/notifications/send', allowed: ['ROOT', 'ADMIN', 'GENERAL_MANAGER'] },
 
-    // Invoices + purchases — all authenticated users (filtered server-side)
-    { prefix: '/invoices', allowed: ['ADMIN', 'GLOBAL_ACCOUNTANT', 'USER', 'GENERAL_MANAGER'] },
+    // Invoices + purchases — all authenticated users
+    { prefix: '/invoices', allowed: ['ROOT', 'ADMIN', 'GLOBAL_ACCOUNTANT', 'USER', 'GENERAL_MANAGER'] },
 
-    // Purchases create — restricted
-    // USER is included because coordinators (USER + PROJECT_MANAGER) need access.
-    // Fine-grained check (isCoordinatorInAny) happens in the page via useCanDo,
-    // and server-side in createPurchase() via projectMember lookup.
-    { prefix: '/purchases/new', allowed: ['ADMIN', 'GENERAL_MANAGER', 'USER'] },
+    // Purchases create
+    { prefix: '/purchases/new', allowed: ['ROOT', 'ADMIN', 'GENERAL_MANAGER', 'USER'] },
     // Purchases list
-    { prefix: '/purchases', allowed: ['ADMIN', 'GLOBAL_ACCOUNTANT', 'USER', 'GENERAL_MANAGER'] },
+    { prefix: '/purchases', allowed: ['ROOT', 'ADMIN', 'GLOBAL_ACCOUNTANT', 'USER', 'GENERAL_MANAGER'] },
+
+    // v8: Branch management — ROOT only
+    { prefix: '/branches', allowed: ['ROOT'] },
 ];
 
 // ─── Proxy ────────────────────────────────────────────────────────────────────
@@ -71,19 +71,18 @@ export function proxy(request: NextRequest) {
     const sessionCookie = request.cookies.get('session')?.value;
     const path = request.nextUrl.pathname;
 
-    // Allow public paths — redirect logged-in users away from /login
-    if (path.startsWith('/login') || path.startsWith('/register')) {
+    // Allow public paths — redirect logged-in users away from /login and /welcome
+    if (path.startsWith('/login') || path.startsWith('/register') || path.startsWith('/welcome')) {
         if (sessionCookie) {
             return NextResponse.redirect(new URL('/', request.url));
         }
         return NextResponse.next();
     }
 
-    // Redirect unauthenticated users to /login
+    // Redirect unauthenticated users to /welcome
     if (!sessionCookie) {
-        const loginUrl = new URL('/login', request.url);
-        loginUrl.searchParams.set('from', path);
-        return NextResponse.redirect(loginUrl);
+        const welcomeUrl = new URL('/welcome', request.url);
+        return NextResponse.redirect(welcomeUrl);
     }
 
     try {

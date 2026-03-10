@@ -2,7 +2,7 @@
 import React, { createContext, useContext, useState, ReactNode, useMemo } from "react";
 import type { SessionData } from "@/lib/auth";
 
-export type UserRole = "ADMIN" | "GENERAL_MANAGER" | "GLOBAL_ACCOUNTANT" | "USER";
+export type UserRole = "ROOT" | "ADMIN" | "GENERAL_MANAGER" | "GLOBAL_ACCOUNTANT" | "USER";
 
 /** Minimal membership info loaded at layout time */
 export type ProjectMembership = {
@@ -38,7 +38,8 @@ export function AuthProvider({
     const [user, setUser] = useState<SessionData | null>(initialUser);
 
     const roleNameMap: Record<UserRole, string> = {
-        ADMIN: "الادمن",
+        ROOT: "المدير التنفيذي",
+        ADMIN: "مدير النظام",
         GENERAL_MANAGER: "المدير العام",
         GLOBAL_ACCOUNTANT: "المحاسب العام",
         USER: "موظف",

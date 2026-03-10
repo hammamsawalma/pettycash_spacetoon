@@ -10,6 +10,8 @@ export type SessionData = {
     image?: string | null;
     phone?: string | null;
     role: UserRole;
+    branchId?: string | null;    // v8: الفرع — null for ROOT and GM
+    branchCode?: string | null;  // v8: رمز الفرع (QA, AE, etc.)
 };
 
 const getJwtSecret = () => {

@@ -6,6 +6,7 @@ const prisma = new PrismaClient();
 async function main() {
 
     console.log('🧹 Clearing old data...');
+    await prisma.pushSubscription.deleteMany();
     await prisma.voucherCounter.deleteMany();
     await prisma.custodyReturn.deleteMany();
     await prisma.custodyConfirmation.deleteMany();
@@ -25,13 +26,41 @@ async function main() {
     await prisma.deposit.deleteMany();
     await prisma.category.deleteMany();
     await prisma.user.deleteMany();
+    await prisma.branch.deleteMany();
     console.log('✅ Old data cleared.\n');
 
     const hashed = await bcrypt.hash('123456', 10);
 
+    // ─── BRANCHES ────────────────────────────────────────────────────────
+    console.log('🌍 Creating branches...');
+
+    const branchQA = await prisma.branch.create({ data: { name: 'قطر', code: 'QA', currency: 'QAR', country: 'Qatar', flag: '🇶🇦' } });
+    const branchAE = await prisma.branch.create({ data: { name: 'الإمارات', code: 'AE', currency: 'AED', country: 'UAE', flag: '🇦🇪' } });
+    const branchSA = await prisma.branch.create({ data: { name: 'السعودية', code: 'SA', currency: 'SAR', country: 'Saudi Arabia', flag: '🇸🇦' } });
+    const branchBH = await prisma.branch.create({ data: { name: 'البحرين', code: 'BH', currency: 'BHD', country: 'Bahrain', flag: '🇧🇭' } });
+    const branchSY = await prisma.branch.create({ data: { name: 'سوريا', code: 'SY', currency: 'SYP', country: 'Syria', flag: '🇸🇾' } });
+    const branchTR = await prisma.branch.create({ data: { name: 'تركيا', code: 'TR', currency: 'TRY', country: 'Turkey', flag: '🇹🇷' } });
+
+    console.log(`✅ Created ${6} branches (default: ${branchQA.name})\n`);
+
+    // ─── ROOT USER ───────────────────────────────────────────────────────
+    console.log('🔑 Creating ROOT user...');
+    await prisma.user.create({
+        data: {
+            name: 'المدير التنفيذي',
+            email: 'root@pocket.com',
+            phone: '0500000000',
+            password: hashed,
+            role: 'ROOT',
+            jobTitle: 'المدير التنفيذي',
+            // ROOT has no branchId — controls all branches
+        },
+    });
+    console.log('✅ ROOT user created (root@pocket.com / 123456)\n');
+
     // ─── USERS ───────────────────────────────────────────────────────────
-    // v5 Roles: ADMIN, GENERAL_MANAGER, GLOBAL_ACCOUNTANT, USER
-    // No PROJECT_ACCOUNTANT, no salary
+    // v8 Roles: ROOT, ADMIN, GENERAL_MANAGER, GLOBAL_ACCOUNTANT, USER
+    // All existing users belong to Qatar branch
     console.log('👤 Creating users...');
 
     const admin = await prisma.user.create({
@@ -42,6 +71,7 @@ async function main() {
             password: hashed,
             role: 'ADMIN',
             jobTitle: 'مدير النظام',
+            branchId: branchQA.id,
         },
     });
 
@@ -53,6 +83,7 @@ async function main() {
             password: hashed,
             role: 'GENERAL_MANAGER',
             jobTitle: 'المدير العام',
+            // GM has no branchId — views all branches
         },
     });
 
@@ -64,6 +95,7 @@ async function main() {
             password: hashed,
             role: 'GLOBAL_ACCOUNTANT',
             jobTitle: 'المحاسب العام',
+            branchId: branchQA.id,
         },
     });
 
@@ -76,6 +108,7 @@ async function main() {
             password: hashed,
             role: 'USER',
             jobTitle: 'منسق مشاريع',
+            branchId: branchQA.id,
         },
     });
 
@@ -87,6 +120,7 @@ async function main() {
             password: hashed,
             role: 'USER',
             jobTitle: 'مطور برمجيات',
+            branchId: branchQA.id,
         },
     });
 
@@ -98,6 +132,7 @@ async function main() {
             password: hashed,
             role: 'USER',
             jobTitle: 'مصممة جرافيك',
+            branchId: branchQA.id,
         },
     });
 
@@ -109,6 +144,7 @@ async function main() {
             password: hashed,
             role: 'USER',
             jobTitle: 'مدير موقع ميداني',
+            branchId: branchQA.id,
         },
     });
 
@@ -117,7 +153,7 @@ async function main() {
     // ─── COMPANY WALLET ────────────────────────────────────────────────
     console.log('💰 Setting up company wallet...');
     const wallet = await prisma.companyWallet.create({
-        data: { balance: 350000, totalIn: 500000, totalOut: 150000 },
+        data: { balance: 350000, totalIn: 500000, totalOut: 150000, branchId: branchQA.id },
     });
     await prisma.walletEntry.create({
         data: { walletId: wallet.id, type: 'DEPOSIT', amount: 500000, note: 'إيداع رأس المال الابتدائي — الربع الأول 2026', createdBy: admin.id },
@@ -158,6 +194,7 @@ async function main() {
             startDate: new Date('2026-01-10'),
             endDate: new Date('2026-07-30'),
             managerId: admin.id,
+            branchId: branchQA.id,
             budgetAllocated: 90000,
             custodyIssued: 18000,
             custodyReturned: 2000,
@@ -306,6 +343,7 @@ async function main() {
             startDate: new Date('2026-02-15'),
             endDate: new Date('2026-04-20'),
             managerId: admin.id,
+            branchId: branchQA.id,
             budgetAllocated: 50000,
             custodyIssued: 11000,
             custodyReturned: 0,
@@ -381,6 +419,7 @@ async function main() {
             startDate: new Date('2026-05-01'),
             endDate: new Date('2026-11-01'),
             managerId: admin.id,
+            branchId: branchQA.id,
             budgetAllocated: 0,
             custodyIssued: 0,
         },
@@ -400,6 +439,7 @@ async function main() {
             endDate: new Date('2025-12-31'),
             closedAt: new Date('2025-12-31'),
             managerId: admin.id,
+            branchId: branchQA.id,
             budgetAllocated: 65000,
             custodyIssued: 65000,
             custodyReturned: 65000,
