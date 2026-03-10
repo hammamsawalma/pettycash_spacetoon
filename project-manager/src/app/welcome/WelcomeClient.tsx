@@ -19,7 +19,6 @@ export default function WelcomeClient({ branches }: { branches: Branch[] }) {
 
     const handleSelectBranch = (branchCode: string) => {
         setSelectedBranch(branchCode);
-        // Small delay for animation then navigate to login
         setTimeout(() => {
             router.push(`/login?branch=${branchCode}`);
         }, 400);
@@ -34,9 +33,15 @@ export default function WelcomeClient({ branches }: { branches: Branch[] }) {
 
             {step === "welcome" ? (
                 <div className="welcome-step welcome-step-active" key="step-welcome">
-                    {/* Logo */}
+                    {/* Spacetoon Logo */}
                     <div className="welcome-logo-wrap">
-                        <div className="welcome-logo-icon">💰</div>
+                        <div className="welcome-logo-img-container">
+                            <img
+                                src="/spacetoon-logo.png"
+                                alt="Spacetoon Logo"
+                                className="welcome-logo-img"
+                            />
+                        </div>
                     </div>
 
                     <h1 className="welcome-title">
@@ -71,9 +76,23 @@ export default function WelcomeClient({ branches }: { branches: Branch[] }) {
                         ابدأ الآن
                         <span className="welcome-cta-arrow">←</span>
                     </button>
+
+                    {/* Powered by badge */}
+                    <div className="welcome-powered">
+                        Spacetoon Media Group
+                    </div>
                 </div>
             ) : (
                 <div className="welcome-step welcome-step-active" key="step-branches">
+                    {/* Small logo on branch selection */}
+                    <div className="welcome-branch-logo-wrap">
+                        <img
+                            src="/spacetoon-logo.png"
+                            alt="Spacetoon"
+                            className="welcome-branch-logo"
+                        />
+                    </div>
+
                     <button className="welcome-back" onClick={() => setStep("welcome")}>
                         → العودة
                     </button>

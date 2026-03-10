@@ -242,7 +242,8 @@ body {
 }
 
 /* ═══════════════════════════════════════════════════════════
-   Welcome Page Styles (v8: Multi-Branch)
+   Welcome Page Styles (v9: Spacetoon Brand Identity)
+   Brand Colors: Navy #102550, Gold #facc15, Blue #2563eb
    ═══════════════════════════════════════════════════════════ */
 
 .welcome-container {
@@ -251,46 +252,47 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
+  background: linear-gradient(160deg, #0a1628 0%, #102550 40%, #0d1f3c 70%, #0a1628 100%);
   position: relative;
   overflow: hidden;
   padding: 1rem;
 }
 
-/* Animated background orbs */
+/* Animated background orbs — brand-aligned */
 .welcome-bg-orb {
   position: absolute;
   border-radius: 50%;
-  filter: blur(80px);
-  opacity: 0.3;
-  animation: orb-float 8s ease-in-out infinite;
+  filter: blur(90px);
+  opacity: 0.25;
+  animation: orb-float 10s ease-in-out infinite;
 }
 
 .welcome-bg-orb-1 {
-  width: 300px;
-  height: 300px;
-  background: #6366f1;
-  top: -100px;
-  left: -50px;
+  width: 320px;
+  height: 320px;
+  background: #2563eb;
+  top: -120px;
+  left: -60px;
   animation-delay: 0s;
 }
 
 .welcome-bg-orb-2 {
-  width: 250px;
-  height: 250px;
-  background: #06b6d4;
-  bottom: -80px;
-  right: -40px;
+  width: 260px;
+  height: 260px;
+  background: #facc15;
+  bottom: -100px;
+  right: -50px;
   animation-delay: -3s;
+  opacity: 0.12;
 }
 
 .welcome-bg-orb-3 {
   width: 200px;
   height: 200px;
-  background: #a855f7;
-  top: 40%;
-  left: 50%;
-  animation-delay: -5s;
+  background: #3b82f6;
+  top: 45%;
+  left: 55%;
+  animation-delay: -6s;
 }
 
 @keyframes orb-float {
@@ -301,16 +303,16 @@ body {
   }
 
   50% {
-    transform: translateY(-30px) scale(1.1);
+    transform: translateY(-30px) scale(1.08);
   }
 }
 
 /* Step container */
 .welcome-step {
   text-align: center;
-  max-width: 500px;
+  max-width: 520px;
   width: 100%;
-  animation: step-in 0.5s ease-out;
+  animation: step-in 0.6s ease-out;
   position: relative;
   z-index: 1;
 }
@@ -318,7 +320,7 @@ body {
 @keyframes step-in {
   from {
     opacity: 0;
-    transform: translateY(20px);
+    transform: translateY(24px);
   }
 
   to {
@@ -327,69 +329,93 @@ body {
   }
 }
 
-/* Logo */
+/* ── Logo ── */
 .welcome-logo-wrap {
   display: flex;
   justify-content: center;
-  margin-bottom: 1.5rem;
+  margin-bottom: 1.75rem;
 }
 
-.welcome-logo-icon {
-  width: 80px;
-  height: 80px;
-  background: linear-gradient(135deg, #6366f1, #a855f7);
-  border-radius: 24px;
+.welcome-logo-img-container {
+  width: 120px;
+  height: 120px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 2.5rem;
-  box-shadow: 0 8px 32px rgba(99, 102, 241, 0.3);
-  animation: logo-pulse 3s ease-in-out infinite;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 28px;
+  padding: 16px;
+  animation: logo-glow 4s ease-in-out infinite;
+  backdrop-filter: blur(8px);
 }
 
-@keyframes logo-pulse {
+.welcome-logo-img {
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+  filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.5));
+}
+
+@keyframes logo-glow {
 
   0%,
   100% {
-    box-shadow: 0 8px 32px rgba(99, 102, 241, 0.3);
+    box-shadow: 0 8px 32px rgba(37, 99, 235, 0.2), 0 0 0 1px rgba(255, 255, 255, 0.05);
   }
 
   50% {
-    box-shadow: 0 12px 48px rgba(99, 102, 241, 0.5);
+    box-shadow: 0 12px 48px rgba(37, 99, 235, 0.35), 0 0 0 1px rgba(255, 255, 255, 0.1);
   }
 }
 
-/* Typography */
+/* ── Branch selection mini logo ── */
+.welcome-branch-logo-wrap {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 0.75rem;
+}
+
+.welcome-branch-logo {
+  height: 36px;
+  width: auto;
+  object-fit: contain;
+  filter: drop-shadow(0 0 4px rgba(255, 255, 255, 0.4));
+  opacity: 0.85;
+}
+
+/* ── Typography ── */
 .welcome-title {
-  font-size: 2rem;
+  font-size: 2.1rem;
   font-weight: 800;
   margin-bottom: 0.5rem;
   letter-spacing: -0.5px;
 }
 
 .welcome-title-gradient {
-  background: linear-gradient(135deg, #e0e7ff, #c7d2fe 40%, #a5b4fc);
+  background: linear-gradient(135deg, #ffffff, #bfdbfe 50%, #93c5fd);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
 
 .welcome-subtitle {
-  color: #94a3b8;
+  color: #93c5fd;
   font-size: 1.1rem;
   margin-bottom: 0.5rem;
+  font-weight: 500;
 }
 
 .welcome-desc {
   color: #64748b;
   font-size: 0.9rem;
-  line-height: 1.6;
+  line-height: 1.7;
   margin-bottom: 1.5rem;
   max-width: 400px;
   margin-inline: auto;
 }
 
-/* Feature chips */
+/* ── Feature chips ── */
 .welcome-features {
   display: flex;
   gap: 0.5rem;
@@ -402,39 +428,46 @@ body {
   display: flex;
   align-items: center;
   gap: 0.4rem;
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(37, 99, 235, 0.08);
+  border: 1px solid rgba(37, 99, 235, 0.15);
   border-radius: 100px;
-  padding: 0.4rem 0.8rem;
-  color: #cbd5e1;
+  padding: 0.45rem 0.9rem;
+  color: #bfdbfe;
   font-size: 0.8rem;
+  transition: all 0.2s;
+}
+
+.welcome-feature:hover {
+  background: rgba(37, 99, 235, 0.15);
+  border-color: rgba(37, 99, 235, 0.3);
 }
 
 .welcome-feature-icon {
   font-size: 1rem;
 }
 
-/* CTA Button */
+/* ── CTA Button — brand navy ── */
 .welcome-cta {
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  background: linear-gradient(135deg, #2563eb, #1d4ed8);
   color: white;
   border: none;
-  border-radius: 12px;
-  padding: 0.85rem 2.5rem;
+  border-radius: 14px;
+  padding: 0.9rem 2.8rem;
   font-size: 1.05rem;
   font-weight: 700;
   cursor: pointer;
   transition: all 0.3s ease;
-  box-shadow: 0 4px 20px rgba(99, 102, 241, 0.4);
+  box-shadow: 0 4px 24px rgba(37, 99, 235, 0.35);
   font-family: inherit;
 }
 
 .welcome-cta:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 32px rgba(99, 102, 241, 0.5);
+  box-shadow: 0 8px 36px rgba(37, 99, 235, 0.5);
+  background: linear-gradient(135deg, #3b82f6, #2563eb);
 }
 
 .welcome-cta-arrow {
@@ -445,16 +478,26 @@ body {
   transform: translateX(-4px);
 }
 
-/* Branch selection */
+/* ── Powered-by badge ── */
+.welcome-powered {
+  margin-top: 2.5rem;
+  color: #475569;
+  font-size: 0.7rem;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  opacity: 0.7;
+}
+
+/* ═══ Branch selection step ═══ */
 .welcome-back {
   background: none;
   border: none;
-  color: #94a3b8;
+  color: #93c5fd;
   font-size: 0.9rem;
   cursor: pointer;
-  margin-bottom: 1.5rem;
+  margin-bottom: 1.25rem;
   font-family: inherit;
-  transition: color 0.2s;
+  transition: all 0.2s;
 }
 
 .welcome-back:hover {
@@ -487,20 +530,21 @@ body {
   align-items: center;
   gap: 0.4rem;
   padding: 1.25rem 0.75rem;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.07);
   border-radius: 16px;
   cursor: pointer;
   transition: all 0.3s ease;
   font-family: inherit;
   animation: card-in 0.4s ease-out both;
   color: white;
+  backdrop-filter: blur(4px);
 }
 
 @keyframes card-in {
   from {
     opacity: 0;
-    transform: scale(0.9) translateY(10px);
+    transform: scale(0.92) translateY(10px);
   }
 
   to {
@@ -510,16 +554,17 @@ body {
 }
 
 .welcome-branch-card:hover {
-  background: rgba(99, 102, 241, 0.15);
-  border-color: rgba(99, 102, 241, 0.4);
-  transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+  background: rgba(37, 99, 235, 0.12);
+  border-color: rgba(37, 99, 235, 0.35);
+  transform: translateY(-3px);
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.25);
 }
 
 .welcome-branch-card-selected {
-  background: rgba(99, 102, 241, 0.25) !important;
-  border-color: #6366f1 !important;
+  background: rgba(37, 99, 235, 0.2) !important;
+  border-color: #2563eb !important;
   transform: scale(0.95) !important;
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.3) !important;
 }
 
 .welcome-branch-flag {
@@ -533,18 +578,19 @@ body {
 
 .welcome-branch-currency {
   font-size: 0.75rem;
-  color: #94a3b8;
+  color: #93c5fd;
+  font-weight: 500;
 }
 
-/* ROOT link */
+/* ── ROOT link ── */
 .welcome-root-link {
-  margin-top: 0.5rem;
+  margin-top: 0.75rem;
 }
 
 .welcome-root-btn {
   background: none;
-  border: 1px dashed rgba(255, 255, 255, 0.15);
-  color: #64748b;
+  border: 1px dashed rgba(250, 204, 21, 0.2);
+  color: #94a3b8;
   padding: 0.5rem 1.5rem;
   border-radius: 10px;
   cursor: pointer;
@@ -554,12 +600,20 @@ body {
 }
 
 .welcome-root-btn:hover {
-  color: #a5b4fc;
-  border-color: rgba(99, 102, 241, 0.3);
+  color: #facc15;
+  border-color: rgba(250, 204, 21, 0.4);
+  background: rgba(250, 204, 21, 0.05);
 }
 
-/* Mobile responsive */
+/* ── Mobile responsive ── */
 @media (max-width: 480px) {
+  .welcome-logo-img-container {
+    width: 96px;
+    height: 96px;
+    padding: 12px;
+    border-radius: 22px;
+  }
+
   .welcome-title {
     font-size: 1.6rem;
   }
