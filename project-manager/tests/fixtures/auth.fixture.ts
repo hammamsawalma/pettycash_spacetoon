@@ -5,6 +5,9 @@
  *   import { test, expect } from '../fixtures/auth.fixture';
  *   test('admin can access wallet', async ({ adminPage }) => { ... });
  *
+ * Layer 0 (Super Admin):
+ *   rootPage    → ROOT: manage all branches
+ *
  * Layer 1 (System Roles):
  *   adminPage, gmPage, accountantPage
  *
@@ -20,6 +23,7 @@ import path from 'path';
 const AUTH_DIR = path.join(__dirname, '..', '.auth');
 
 type AuthFixtures = {
+    rootPage: Page;
     adminPage: Page;
     gmPage: Page;
     accountantPage: Page;
@@ -30,6 +34,12 @@ type AuthFixtures = {
 };
 
 export const test = base.extend<AuthFixtures>({
+    rootPage: async ({ browser }, use) => {
+        const ctx = await browser.newContext({ storageState: path.join(AUTH_DIR, 'root.json') });
+        const page = await ctx.newPage();
+        await use(page);
+        await ctx.close();
+    },
     adminPage: async ({ browser }, use) => {
         const ctx = await browser.newContext({ storageState: path.join(AUTH_DIR, 'admin.json') });
         const page = await ctx.newPage();

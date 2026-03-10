@@ -89,3 +89,18 @@ export async function requirePermission<R extends Resource>(
     }
     return null;
 }
+
+// ─── Branch Data Isolation Helper ────────────────────────────────────────────
+/**
+ * Returns a Prisma `where` filter for branch scoping.
+ * - ROOT & GENERAL_MANAGER → `{}` (see all branches)
+ * - Other roles → `{ branchId: session.branchId }`
+ *
+ * @example
+ *   const bf = getBranchFilter(session);
+ *   const projects = await prisma.project.findMany({ where: { ...bf, ... } });
+ */
+export function getBranchFilter(session: SessionData): { branchId?: string } {
+    if (session.role === 'ROOT' || session.role === 'GENERAL_MANAGER') return {};
+    return { branchId: session.branchId ?? undefined };
+}

@@ -1,21 +1,24 @@
 "use client"
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import { Card } from "@/components/ui/Card";
 import { AnimatedNumber } from "@/components/ui/AnimatedNumber";
 import { CurrencyDisplay } from "@/components/ui/CurrencyDisplay";
-import { getGMDashboardStats, getFlowStats } from '@/actions/dashboard';
+import { getGMDashboardStats, getFlowStats, getBranchesForGM, getGMBranchComparison } from '@/actions/dashboard';
 import {
     Wallet, FolderKanban, Users, FileText, ShoppingCart,
     TrendingUp, TrendingDown, AlertTriangle, CheckCircle2,
-    Clock, ArrowRight, Building2, BarChart3, Star
+    Clock, ArrowRight, Building2, BarChart3, Star, Filter,
+    ChevronDown, Globe
 } from 'lucide-react';
 import { GeneralManagerDashboardSkeleton } from "@/components/ui/SkeletonCard";
 
 type GMStats = Awaited<ReturnType<typeof getGMDashboardStats>>;
 type FlowStats = Awaited<ReturnType<typeof getFlowStats>>;
+type BranchItem = { id: string; name: string; code: string; flag: string | null };
+type BranchComparison = Awaited<ReturnType<typeof getGMBranchComparison>>;
 
 // Narrowed type for wallet flow (returned when role is ADMIN/ACC/GM)
 type WalletFlow = NonNullable<FlowStats> & {
@@ -88,17 +91,233 @@ function StatusBadge({ status }: { status: string }) {
     );
 }
 
+// ═══════════════════════════════════════════════════════════════
+// Branch Selector Dropdown
+// ═══════════════════════════════════════════════════════════════
+function BranchSelector({
+    branches,
+    selectedBranchId,
+    onSelect,
+    loading
+}: {
+    branches: BranchItem[];
+    selectedBranchId: string | null;
+    onSelect: (id: string | null) => void;
+    loading: boolean;
+}) {
+    const [open, setOpen] = useState(false);
+    const selectedBranch = branches.find(b => b.id === selectedBranchId);
+
+    return (
+        <div className="relative" id="gm-branch-selector">
+            <button
+                onClick={() => setOpen(!open)}
+                disabled={loading}
+                className={`
+                    flex items-center gap-2 px-4 py-2.5 rounded-xl border-2 
+                    ${selectedBranchId ? 'border-[#102550] bg-[#102550]/5' : 'border-gray-200 bg-white'}
+                    hover:border-[#102550] transition-all duration-200 shadow-sm
+                    ${loading ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
+                `}
+            >
+                {selectedBranch ? (
+                    <>
+                        <span className="text-lg">{selectedBranch.flag || '🏢'}</span>
+                        <span className="font-bold text-sm text-[#102550]">{selectedBranch.name}</span>
+                    </>
+                ) : (
+                    <>
+                        <Globe className="w-4 h-4 text-gray-500" />
+                        <span className="font-bold text-sm text-gray-700">كل الفروع</span>
+                    </>
+                )}
+                <ChevronDown className={`w-4 h-4 text-gray-400 transition-transform ${open ? 'rotate-180' : ''}`} />
+            </button>
+
+            <AnimatePresence>
+                {open && (
+                    <motion.div
+                        initial={{ opacity: 0, y: -8, scale: 0.95 }}
+                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                        exit={{ opacity: 0, y: -8, scale: 0.95 }}
+                        transition={{ duration: 0.15 }}
+                        className="absolute top-full mt-2 right-0 z-50 bg-white rounded-xl shadow-xl border border-gray-100 overflow-hidden min-w-[200px]"
+                    >
+                        <button
+                            onClick={() => { onSelect(null); setOpen(false); }}
+                            className={`w-full flex items-center gap-3 px-4 py-3 text-right hover:bg-gray-50 transition-colors
+                                ${!selectedBranchId ? 'bg-[#102550]/5 border-r-2 border-[#102550]' : ''}`}
+                        >
+                            <Globe className="w-4 h-4 text-gray-500" />
+                            <span className="font-semibold text-sm">كل الفروع</span>
+                        </button>
+                        {branches.map(branch => (
+                            <button
+                                key={branch.id}
+                                onClick={() => { onSelect(branch.id); setOpen(false); }}
+                                className={`w-full flex items-center gap-3 px-4 py-3 text-right hover:bg-gray-50 transition-colors
+                                    ${selectedBranchId === branch.id ? 'bg-[#102550]/5 border-r-2 border-[#102550]' : ''}`}
+                            >
+                                <span className="text-lg">{branch.flag || '🏢'}</span>
+                                <div>
+                                    <span className="font-semibold text-sm block">{branch.name}</span>
+                                    <span className="text-[10px] text-gray-400">{branch.code}</span>
+                                </div>
+                            </button>
+                        ))}
+                    </motion.div>
+                )}
+            </AnimatePresence>
+
+            {/* Backdrop to close */}
+            {open && <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} />}
+        </div>
+    );
+}
+
+// ═══════════════════════════════════════════════════════════════
+// Branch Comparison Table
+// ═══════════════════════════════════════════════════════════════
+function BranchComparisonTable({ data }: { data: BranchComparison }) {
+    if (!data || data.length === 0) return null;
+
+    return (
+        <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
+            <Card className="p-0 overflow-hidden" id="gm-branch-comparison">
+                <div className="p-5 border-b border-gray-100/60 flex items-center gap-2">
+                    <div className="w-8 h-8 rounded-lg bg-[#102550]/10 flex items-center justify-center">
+                        <BarChart3 className="w-4 h-4 text-[#102550]" />
+                    </div>
+                    <h3 className="font-bold text-gray-900">مقارنة أداء الفروع</h3>
+                </div>
+                <div className="overflow-x-auto">
+                    <table className="w-full text-sm">
+                        <thead>
+                            <tr className="bg-gray-50 text-gray-500">
+                                <th className="py-3 px-4 text-right font-semibold">الفرع</th>
+                                <th className="py-3 px-3 text-center font-semibold">المشاريع</th>
+                                <th className="py-3 px-3 text-center font-semibold">النشطة</th>
+                                <th className="py-3 px-3 text-center font-semibold">الموظفون</th>
+                                <th className="py-3 px-3 text-center font-semibold">رصيد الخزنة</th>
+                                <th className="py-3 px-3 text-center font-semibold">الفواتير</th>
+                                <th className="py-3 px-3 text-center font-semibold">العُهد</th>
+                            </tr>
+                        </thead>
+                        <tbody className="divide-y divide-gray-50">
+                            {data.map((branch) => (
+                                <tr key={branch.id} className="hover:bg-gray-50/50 transition-colors">
+                                    <td className="py-3 px-4">
+                                        <div className="flex items-center gap-2">
+                                            <span className="text-lg">{branch.flag || '🏢'}</span>
+                                            <div>
+                                                <p className="font-bold text-gray-800">{branch.name}</p>
+                                                <p className="text-[10px] text-gray-400">{branch.code}</p>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td className="py-3 px-3 text-center">
+                                        <span className="font-black text-blue-700">{branch.projects}</span>
+                                    </td>
+                                    <td className="py-3 px-3 text-center">
+                                        <span className="bg-blue-100 text-blue-700 text-xs font-bold px-2 py-0.5 rounded-lg">
+                                            {branch.activeProjects}
+                                        </span>
+                                    </td>
+                                    <td className="py-3 px-3 text-center">
+                                        <span className="font-black text-gray-700">{branch.employees}</span>
+                                    </td>
+                                    <td className="py-3 px-3 text-center">
+                                        <span className="font-black text-emerald-700">
+                                            {branch.walletBalance.toLocaleString('en-US')}
+                                        </span>
+                                    </td>
+                                    <td className="py-3 px-3 text-center">
+                                        <span className="font-black text-rose-600">
+                                            {branch.totalInvoices.toLocaleString('en-US')}
+                                        </span>
+                                    </td>
+                                    <td className="py-3 px-3 text-center">
+                                        <div className="flex flex-col items-center">
+                                            <span className="font-black text-amber-600 text-xs">
+                                                {branch.custodyIssued.toLocaleString('en-US')}
+                                            </span>
+                                            <span className="text-[9px] text-gray-400">مصروف</span>
+                                        </div>
+                                    </td>
+                                </tr>
+                            ))}
+                            {/* Totals row */}
+                            <tr className="bg-[#102550]/5 font-bold">
+                                <td className="py-3 px-4 text-[#102550]">📊 المجموع</td>
+                                <td className="py-3 px-3 text-center text-blue-800">
+                                    {data.reduce((s, b) => s + b.projects, 0)}
+                                </td>
+                                <td className="py-3 px-3 text-center text-blue-800">
+                                    {data.reduce((s, b) => s + b.activeProjects, 0)}
+                                </td>
+                                <td className="py-3 px-3 text-center text-gray-800">
+                                    {data.reduce((s, b) => s + b.employees, 0)}
+                                </td>
+                                <td className="py-3 px-3 text-center text-emerald-800">
+                                    {data.reduce((s, b) => s + b.walletBalance, 0).toLocaleString('en-US')}
+                                </td>
+                                <td className="py-3 px-3 text-center text-rose-700">
+                                    {data.reduce((s, b) => s + b.totalInvoices, 0).toLocaleString('en-US')}
+                                </td>
+                                <td className="py-3 px-3 text-center text-amber-700">
+                                    {data.reduce((s, b) => s + b.custodyIssued, 0).toLocaleString('en-US')}
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </Card>
+        </motion.div>
+    );
+}
+
+// ═══════════════════════════════════════════════════════════════
+// Main Dashboard Component
+// ═══════════════════════════════════════════════════════════════
 export default function GeneralManagerDashboard() {
     const router = useRouter();
     const [stats, setStats] = useState<GMStats>(null);
     const [flow, setFlow] = useState<FlowStats>(null);
+    const [branches, setBranches] = useState<BranchItem[]>([]);
+    const [comparison, setComparison] = useState<BranchComparison>([]);
+    const [selectedBranchId, setSelectedBranchId] = useState<string | null>(null);
     const [isMounted, setIsMounted] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
 
+    // Load branches once
     useEffect(() => {
         setIsMounted(true);
-        getGMDashboardStats().then(setStats);
-        getFlowStats().then(setFlow);
+        getBranchesForGM().then(setBranches);
+        getGMBranchComparison().then(setComparison);
     }, []);
+
+    // Load stats whenever branch changes
+    const loadStats = useCallback(async (branchId: string | null) => {
+        setIsLoading(true);
+        try {
+            const [statsData, flowData] = await Promise.all([
+                getGMDashboardStats(branchId || undefined),
+                getFlowStats(),
+            ]);
+            setStats(statsData);
+            setFlow(flowData);
+        } finally {
+            setIsLoading(false);
+        }
+    }, []);
+
+    useEffect(() => {
+        if (isMounted) loadStats(selectedBranchId);
+    }, [isMounted, selectedBranchId, loadStats]);
+
+    const handleBranchChange = (branchId: string | null) => {
+        setSelectedBranchId(branchId);
+    };
 
     if (!isMounted || !stats) {
         return (
@@ -109,6 +328,7 @@ export default function GeneralManagerDashboard() {
     }
 
     const walletFlow: WalletFlow | null = (flow && 'walletRemaining' in flow) ? flow as WalletFlow : null;
+    const selectedBranch = branches.find(b => b.id === selectedBranchId);
 
     const kpis = [
         {
@@ -136,7 +356,7 @@ export default function GeneralManagerDashboard() {
             color: "text-blue-600",
             bg: "from-[#102550] to-[#2563eb]",
             isCurrency: false,
-            sub: "العدد الكلي للموظفين",
+            sub: selectedBranch ? `فرع ${selectedBranch.name}` : "العدد الكلي للموظفين",
         },
         {
             title: "الفواتير المعلّقة",
@@ -153,7 +373,7 @@ export default function GeneralManagerDashboard() {
         <DashboardLayout title="لوحة المدير العام">
             <div className="space-y-6 md:space-y-8">
 
-                {/* Welcome Banner */}
+                {/* Welcome Banner + Branch Selector */}
                 <motion.div
                     initial={{ opacity: 0, y: -12 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -166,15 +386,35 @@ export default function GeneralManagerDashboard() {
                         <div className="space-y-1 text-center sm:text-right">
                             <p className="text-white/70 text-sm font-medium">مرحباً بك</p>
                             <h1 className="text-2xl md:text-3xl font-black tracking-tight">لوحة المدير العام</h1>
-                            <p className="text-white/60 text-sm">نظرة شاملة على أداء الشركة — كل شيء في مكان واحد</p>
+                            <p className="text-white/60 text-sm">
+                                {selectedBranch
+                                    ? `${selectedBranch.flag || '🏢'} عرض بيانات فرع ${selectedBranch.name}`
+                                    : 'نظرة شاملة على أداء الشركة — كل الفروع'}
+                            </p>
                         </div>
                         <div className="flex items-center gap-3">
+                            <BranchSelector
+                                branches={branches}
+                                selectedBranchId={selectedBranchId}
+                                onSelect={handleBranchChange}
+                                loading={isLoading}
+                            />
                             <div className="w-14 h-14 rounded-2xl bg-white/15 backdrop-blur-sm flex items-center justify-center border border-white/20">
                                 <BarChart3 className="w-7 h-7 text-white" />
                             </div>
                         </div>
                     </div>
                 </motion.div>
+
+                {/* Loading overlay */}
+                {isLoading && (
+                    <div className="flex justify-center py-2">
+                        <div className="flex items-center gap-2 bg-[#102550]/10 px-4 py-2 rounded-xl">
+                            <div className="w-4 h-4 border-2 border-[#102550] border-t-transparent rounded-full animate-spin" />
+                            <span className="text-sm font-semibold text-[#102550]">جاري التحديث...</span>
+                        </div>
+                    </div>
+                )}
 
                 {/* KPI Grid */}
                 <motion.div
@@ -205,6 +445,11 @@ export default function GeneralManagerDashboard() {
                         </motion.div>
                     ))}
                 </motion.div>
+
+                {/* Branch Comparison Table — only when showing all branches */}
+                {!selectedBranchId && comparison.length > 0 && (
+                    <BranchComparisonTable data={comparison} />
+                )}
 
                 {/* Financial Flow Row */}
                 {walletFlow && (

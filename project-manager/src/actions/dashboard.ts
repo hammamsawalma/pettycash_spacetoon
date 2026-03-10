@@ -1,7 +1,7 @@
 "use server";
 
 import prisma from "@/lib/prisma";
-import { getSession } from "@/lib/auth";
+import { getSession, getBranchFilter } from "@/lib/auth";
 import { Prisma } from "@prisma/client";
 import { isGlobalFinance } from "@/lib/rbac";
 
@@ -24,15 +24,17 @@ export async function getDashboardStats() {
         };
     }
 
+    const bf = getBranchFilter(session);
     const projectWhereClause: Prisma.ProjectWhereInput = (!isGlobalFinance(session.role))
         ? {
+            ...bf,
             OR: [
                 { managerId: session.id },
                 { members: { some: { userId: session.id } } }
             ],
             isDeleted: false
         }
-        : { isDeleted: false };
+        : { ...bf, isDeleted: false };
 
     const invoiceProjectFilter = session.role === "ADMIN"
         ? { project: { managerId: session.id } }
@@ -46,7 +48,7 @@ export async function getDashboardStats() {
     const [totalProjects, completedProjects, employees] = await Promise.all([
         prisma.project.count({ where: projectWhereClause }),
         prisma.project.count({ where: { ...projectWhereClause, status: "COMPLETED" } }),
-        prisma.user.count({ where: { role: { not: "ADMIN" }, isDeleted: false } }),
+        prisma.user.count({ where: { ...bf, role: { not: "ADMIN" }, isDeleted: false } }),
     ]);
 
     // P2: Group 2 — financial aggregations (only if financial role, run in parallel)
@@ -144,12 +146,14 @@ export async function getDashboardStats() {
 export async function getFlowStats() {
     const session = await getSession();
     if (!session) return null;
+    const bf = getBranchFilter(session);
 
     const role = session.role;
 
     // ─── ADMIN & ACCOUNTANT & GENERAL_MANAGER: يريان كامل الخزنة والمشاريع ──────
     if (isGlobalFinance(role)) {
-        const wallet = await prisma.companyWallet.findFirst();
+        const walletWhere = bf.branchId ? { branchId: bf.branchId } : {};
+        const wallet = await prisma.companyWallet.findFirst({ where: walletWhere });
         const walletTotalIn = wallet?.totalIn ?? 0;
         const walletBalance = wallet?.balance ?? 0;
         const walletTotalOut = wallet?.totalOut ?? 0;
@@ -158,20 +162,31 @@ export async function getFlowStats() {
         const [projectBudgetAgg, approvedInvoicesAgg, pendingInvoicesAgg, companyExpensesAgg] = await Promise.all([
             prisma.project.aggregate({
                 _sum: { budgetAllocated: true, custodyIssued: true, custodyReturned: true },
-                where: { isDeleted: false, ...(role === "ADMIN" ? { managerId: session.id } : {}) }
+                where: { ...bf, isDeleted: false, ...(role === "ADMIN" ? { managerId: session.id } : {}) }
             }),
             prisma.invoice.aggregate({
                 _sum: { amount: true },
-                where: { status: "APPROVED", isDeleted: false, expenseScope: "PROJECT", ...(role === "ADMIN" ? { project: { managerId: session.id } } : {}) }
+                where: {
+                    status: "APPROVED", isDeleted: false, expenseScope: "PROJECT",
+                    ...(bf.branchId ? { project: { is: { branchId: bf.branchId } } } : {}),
+                    ...(role === "ADMIN" ? { project: { is: { managerId: session.id, ...(bf.branchId ? { branchId: bf.branchId } : {}) } } } : {})
+                }
             }),
             prisma.invoice.aggregate({
                 _sum: { amount: true },
-                where: { status: "PENDING", isDeleted: false, expenseScope: "PROJECT", ...(role === "ADMIN" ? { project: { managerId: session.id } } : {}) }
+                where: {
+                    status: "PENDING", isDeleted: false, expenseScope: "PROJECT",
+                    ...(bf.branchId ? { project: { is: { branchId: bf.branchId } } } : {}),
+                    ...(role === "ADMIN" ? { project: { is: { managerId: session.id, ...(bf.branchId ? { branchId: bf.branchId } : {}) } } } : {})
+                }
             }),
             // v5: Company expenses total (separate from project stats)
             prisma.invoice.aggregate({
                 _sum: { amount: true },
-                where: { status: "APPROVED", isDeleted: false, expenseScope: "COMPANY" }
+                where: {
+                    status: "APPROVED", isDeleted: false, expenseScope: "COMPANY",
+                    ...(bf.branchId ? { project: { is: { branchId: bf.branchId } } } : {})
+                }
             }),
         ]);
 
@@ -272,43 +287,50 @@ export async function getFlowStats() {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// getGMDashboardStats — بيانات شاملة للمدير العام: يرى كل شيء بلا قيود
+// getGMDashboardStats — بيانات شاملة للمدير العام مع فلتر فرع اختياري
+// v8: Fixed branch filtering bug + added branchId parameter
 // ─────────────────────────────────────────────────────────────────────────────
-export async function getGMDashboardStats() {
+export async function getGMDashboardStats(branchId?: string) {
     const session = await getSession();
     if (!session || session.role !== "GENERAL_MANAGER") return null;
 
+    // Branch scoping: filter all queries when a specific branch is selected
+    const projectBranch = branchId ? { branchId } : {};
+    const invoiceBranch = branchId ? { project: { is: { branchId } } } : {};
+    const userBranch = branchId ? { branchId } : {};
+    const walletWhere = branchId ? { branchId } : {};
+
     // P7: Group 1 — counts and wallet in parallel
     const [wallet, totalProjects, inProgressProjects, closedProjects, totalEmployees] = await Promise.all([
-        prisma.companyWallet.findFirst(),
-        prisma.project.count({ where: { isDeleted: false } }),
-        prisma.project.count({ where: { status: "IN_PROGRESS", isDeleted: false } }),
-        prisma.project.count({ where: { status: "COMPLETED", isDeleted: false } }),
-        prisma.user.count({ where: { isDeleted: false, role: { notIn: ["ADMIN", "GENERAL_MANAGER"] } } }),
+        prisma.companyWallet.findFirst({ where: walletWhere }),
+        prisma.project.count({ where: { ...projectBranch, isDeleted: false } }),
+        prisma.project.count({ where: { ...projectBranch, status: "IN_PROGRESS", isDeleted: false } }),
+        prisma.project.count({ where: { ...projectBranch, status: "COMPLETED", isDeleted: false } }),
+        prisma.user.count({ where: { ...userBranch, isDeleted: false, role: { notIn: ["ROOT", "ADMIN", "GENERAL_MANAGER"] } } }),
     ]);
 
     // P7: Group 2 — list fetches + groupBy stats in parallel
     const [recentProjects, invoiceStats, pendingInvoices, urgentPurchases, custodyStats, purchaseStats] = await Promise.all([
         prisma.project.findMany({
-            where: { isDeleted: false },
+            where: { ...projectBranch, isDeleted: false },
             take: 5,
             orderBy: { createdAt: "desc" },
             include: { manager: { select: { id: true, name: true } }, members: true }
         }),
         prisma.invoice.groupBy({
             by: ["status"],
-            where: { isDeleted: false },
+            where: { isDeleted: false, ...invoiceBranch },
             _sum: { amount: true },
             _count: { id: true }
         }),
         prisma.invoice.findMany({
-            where: { status: "PENDING", isDeleted: false },
+            where: { status: "PENDING", isDeleted: false, ...invoiceBranch },
             take: 8,
             orderBy: { createdAt: "desc" },
             include: { project: { select: { id: true, name: true } }, creator: { select: { id: true, name: true } } }
         }),
         prisma.purchase.findMany({
-            where: { priority: "URGENT", isDeleted: false, status: { not: "CANCELLED" } },
+            where: { priority: "URGENT", isDeleted: false, status: { not: "CANCELLED" }, ...invoiceBranch },
             take: 10,
             orderBy: { createdAt: "desc" },
             include: {
@@ -318,11 +340,11 @@ export async function getGMDashboardStats() {
         }),
         prisma.project.aggregate({
             _sum: { budgetAllocated: true, custodyIssued: true, custodyReturned: true },
-            where: { isDeleted: false }
+            where: { ...projectBranch, isDeleted: false }
         }),
         prisma.purchase.groupBy({
             by: ["status"],
-            where: { isDeleted: false },
+            where: { isDeleted: false, ...invoiceBranch },
             _count: { id: true }
         }),
     ]);
@@ -361,5 +383,123 @@ export async function getGMDashboardStats() {
             purchased: purchaseStats.find(s => s.status === "PURCHASED")?._count.id ?? 0,
         }
     };
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// getBranchesForGM — قائمة الفروع لاستخدامها في فلتر GM
+// ─────────────────────────────────────────────────────────────────────────────
+export async function getBranchesForGM() {
+    const session = await getSession();
+    if (!session || !["ROOT", "GENERAL_MANAGER"].includes(session.role)) return [];
+
+    return prisma.branch.findMany({
+        where: { isActive: true },
+        orderBy: { name: "asc" },
+        select: { id: true, name: true, code: true, flag: true },
+    });
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// getGMBranchComparison — مقارنة أداء الفروع للمدير العام
+// ─────────────────────────────────────────────────────────────────────────────
+export async function getGMBranchComparison() {
+    const session = await getSession();
+    if (!session || !["ROOT", "GENERAL_MANAGER"].includes(session.role)) return [];
+
+    const branches = await prisma.branch.findMany({
+        where: { isActive: true },
+        orderBy: { name: "asc" },
+        select: { id: true, name: true, code: true, flag: true },
+    });
+
+    const comparison = await Promise.all(
+        branches.map(async (branch) => {
+            const [projectCount, activeProjects, employeeCount, wallet, invoiceAgg, custodyAgg] = await Promise.all([
+                prisma.project.count({ where: { branchId: branch.id, isDeleted: false } }),
+                prisma.project.count({ where: { branchId: branch.id, isDeleted: false, status: "IN_PROGRESS" } }),
+                prisma.user.count({ where: { branchId: branch.id, isDeleted: false } }),
+                prisma.companyWallet.findFirst({ where: { branchId: branch.id } }),
+                prisma.invoice.aggregate({
+                    _sum: { amount: true },
+                    where: { status: "APPROVED", isDeleted: false, project: { branchId: branch.id } }
+                }),
+                prisma.project.aggregate({
+                    _sum: { custodyIssued: true, custodyReturned: true },
+                    where: { branchId: branch.id, isDeleted: false }
+                }),
+            ]);
+
+            return {
+                ...branch,
+                projects: projectCount,
+                activeProjects,
+                employees: employeeCount,
+                walletBalance: wallet?.balance ?? 0,
+                totalInvoices: invoiceAgg._sum.amount ?? 0,
+                custodyIssued: custodyAgg._sum.custodyIssued ?? 0,
+                custodyReturned: custodyAgg._sum.custodyReturned ?? 0,
+            };
+        })
+    );
+
+    return comparison;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// getRootDashboardStats — بيانات شاملة لمستخدم ROOT: كل الفروع دفعة واحدة
+// ─────────────────────────────────────────────────────────────────────────────
+export async function getRootDashboardStats() {
+    const session = await getSession();
+    if (!session || session.role !== "ROOT") return null;
+
+    // Fetch all active branches
+    const branches = await prisma.branch.findMany({
+        where: { isActive: true },
+        orderBy: { name: "asc" },
+        select: { id: true, name: true, code: true, currency: true, country: true, flag: true },
+    });
+
+    // Per-branch stats in parallel
+    const branchStats = await Promise.all(
+        branches.map(async (branch) => {
+            const [projectCount, activeProjects, employeeCount, wallet, pendingInvoiceCount, pendingInvoiceAmount] = await Promise.all([
+                prisma.project.count({ where: { branchId: branch.id, isDeleted: false } }),
+                prisma.project.count({ where: { branchId: branch.id, isDeleted: false, status: "IN_PROGRESS" } }),
+                prisma.user.count({ where: { branchId: branch.id, isDeleted: false } }),
+                prisma.companyWallet.findFirst({ where: { branchId: branch.id } }),
+                prisma.invoice.count({ where: { status: "PENDING", isDeleted: false, project: { branchId: branch.id } } }),
+                prisma.invoice.aggregate({
+                    _sum: { amount: true },
+                    where: { status: "PENDING", isDeleted: false, project: { branchId: branch.id } }
+                }),
+            ]);
+
+            return {
+                ...branch,
+                projects: projectCount,
+                activeProjects,
+                employees: employeeCount,
+                walletBalance: wallet?.balance ?? 0,
+                walletTotalIn: wallet?.totalIn ?? 0,
+                walletTotalOut: wallet?.totalOut ?? 0,
+                pendingInvoices: pendingInvoiceCount,
+                pendingInvoiceAmount: pendingInvoiceAmount._sum.amount ?? 0,
+            };
+        })
+    );
+
+    // Aggregate totals
+    const totals = {
+        projects: branchStats.reduce((s, b) => s + b.projects, 0),
+        activeProjects: branchStats.reduce((s, b) => s + b.activeProjects, 0),
+        employees: branchStats.reduce((s, b) => s + b.employees, 0),
+        walletBalance: branchStats.reduce((s, b) => s + b.walletBalance, 0),
+        walletTotalIn: branchStats.reduce((s, b) => s + b.walletTotalIn, 0),
+        walletTotalOut: branchStats.reduce((s, b) => s + b.walletTotalOut, 0),
+        pendingInvoices: branchStats.reduce((s, b) => s + b.pendingInvoices, 0),
+        pendingInvoiceAmount: branchStats.reduce((s, b) => s + b.pendingInvoiceAmount, 0),
+    };
+
+    return { branches: branchStats, totals };
 }
 

@@ -1,7 +1,7 @@
 "use server";
 
 import prisma from "@/lib/prisma";
-import { getSession } from "@/lib/auth";
+import { getSession, getBranchFilter } from "@/lib/auth";
 import { isGlobalFinance } from "@/lib/rbac";
 
 // ─── Helper: Verify export access ────────────────────────────────────────────
@@ -20,12 +20,14 @@ export async function getInvoicesExportData(filters?: {
     projectId?: string;
     scope?: string;
 }) {
-    await verifyExportAccess();
+    const session = await verifyExportAccess();
+    const bf = getBranchFilter(session);
 
     const where: Record<string, unknown> = { isDeleted: false };
     if (filters?.status && filters.status !== "ALL") where.status = filters.status;
     if (filters?.projectId) where.projectId = filters.projectId;
     if (filters?.scope && filters.scope !== "ALL") where.expenseScope = filters.scope;
+    if (bf.branchId) where.project = { branchId: bf.branchId };
 
     const invoices = await prisma.invoice.findMany({
         where,
@@ -62,9 +64,11 @@ export async function getInvoicesExportData(filters?: {
 // ─── Wallet Export Data ───────────────────────────────────────────────────────
 
 export async function getWalletExportData() {
-    await verifyExportAccess();
+    const session = await verifyExportAccess();
+    const bf = getBranchFilter(session);
 
     const wallet = await prisma.companyWallet.findFirst({
+        where: bf.branchId ? { branchId: bf.branchId } : {},
         include: {
             entries: {
                 include: { creator: { select: { name: true } } },
@@ -92,7 +96,8 @@ export async function getWalletExportData() {
 // ─── Debts Export Data ────────────────────────────────────────────────────────
 
 export async function getDebtsExportData() {
-    await verifyExportAccess();
+    const session = await verifyExportAccess();
+    const bf = getBranchFilter(session);
 
     const debts = await prisma.outOfPocketDebt.findMany({
         where: { isSettled: false },
@@ -171,10 +176,11 @@ export async function getCustodiesExportData(
 // ─── Projects Export Data ─────────────────────────────────────────────────────
 
 export async function getProjectsExportData() {
-    await verifyExportAccess();
+    const session = await verifyExportAccess();
+    const bf = getBranchFilter(session);
 
     const projects = await prisma.project.findMany({
-        where: { isDeleted: false },
+        where: { isDeleted: false, ...bf },
         include: {
             manager: { select: { name: true } },
             _count: { select: { invoices: true, purchases: true, members: true, custodies: true } },
@@ -281,11 +287,13 @@ export async function getProjectFinancialExportData(projectId: string) {
 // ─── Purchases Export Data ────────────────────────────────────────────────────
 
 export async function getPurchasesExportData(filters?: { status?: string; projectId?: string }) {
-    await verifyExportAccess();
+    const session = await verifyExportAccess();
+    const bf = getBranchFilter(session);
 
     const where: Record<string, unknown> = { isDeleted: false };
     if (filters?.status && filters.status !== "ALL") where.status = filters.status;
     if (filters?.projectId) where.projectId = filters.projectId;
+    if (bf.branchId) where.project = { branchId: bf.branchId };
 
     const purchases = await prisma.purchase.findMany({
         where,

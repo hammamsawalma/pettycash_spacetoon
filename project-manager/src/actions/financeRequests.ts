@@ -1,7 +1,7 @@
 "use server"
 import prisma from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
-import { getSession } from "@/lib/auth";
+import { getSession, getBranchFilter } from "@/lib/auth";
 import { isGlobalFinance } from "@/lib/rbac";
 import { sendPushNotification } from "@/lib/push";
 
@@ -11,8 +11,8 @@ import { sendPushNotification } from "@/lib/push";
 export async function approveFinanceRequest(requestId: string) {
     try {
         const session = await getSession();
-        // W1: ADMIN and GENERAL_MANAGER can approve finance requests
-        if (!session || (session.role !== "ADMIN" && session.role !== "GENERAL_MANAGER")) {
+        // W1+v8: ROOT, ADMIN and GENERAL_MANAGER can approve finance requests
+        if (!session || !["ROOT", "ADMIN", "GENERAL_MANAGER"].includes(session.role)) {
             return { error: "فقط مدير النظام أو المدير العام يمكنه الموافقة على الطلبات المالية" };
         }
 
@@ -25,7 +25,8 @@ export async function approveFinanceRequest(requestId: string) {
             requestId,
             req.type as any,
             { amount: req.amount ?? undefined, targetId: req.targetId ?? undefined, note: req.note ?? undefined },
-            session.id
+            session.id,
+            session.branchId
         );
         if (execResult?.error) return execResult;
 
@@ -52,8 +53,8 @@ export async function approveFinanceRequest(requestId: string) {
 export async function rejectFinanceRequest(requestId: string, reason: string) {
     try {
         const session = await getSession();
-        // W1: ADMIN and GENERAL_MANAGER can reject finance requests
-        if (!session || (session.role !== "ADMIN" && session.role !== "GENERAL_MANAGER")) {
+        // W1+v8: ROOT, ADMIN and GENERAL_MANAGER can reject finance requests
+        if (!session || !["ROOT", "ADMIN", "GENERAL_MANAGER"].includes(session.role)) {
             return { error: "فقط مدير النظام أو المدير العام يمكنه الرفض" };
         }
 
@@ -97,8 +98,11 @@ export async function getPendingFinanceRequests() {
 
         // ADMIN and GENERAL_MANAGER see all pending requests; GLOBAL_ACCOUNTANT sees own
         const canSeeAll = isGlobalFinance(session.role);
+        const bf = getBranchFilter(session);
+        // Branch isolation: ADMIN sees only their branch requests, GM/ROOT sees all
+        const branchWhere = bf.branchId ? { requester: { branchId: bf.branchId } } : {};
         const where = canSeeAll
-            ? { status: "PENDING" }
+            ? { status: "PENDING", ...branchWhere }
             : { requestedBy: session.id }; // المحاسب يرى طلباته فقط
 
         const requests = await prisma.financeRequest.findMany({
@@ -125,8 +129,8 @@ export async function createFinanceRequest(data: {
 }) {
     try {
         const session = await getSession();
-        // Only ADMIN and GLOBAL_ACCOUNTANT can create finance requests
-        if (!session || (session.role !== "ADMIN" && session.role !== "GLOBAL_ACCOUNTANT")) {
+        // Only ROOT, ADMIN and GLOBAL_ACCOUNTANT can create finance requests
+        if (!session || !["ROOT", "ADMIN", "GLOBAL_ACCOUNTANT"].includes(session.role)) {
             return { error: "ليس لديك صلاحية لإنشاء طلب مالي" };
         }
 
@@ -170,7 +174,8 @@ async function executeFinanceRequest(
     requestId: string,
     type: string,
     data: { amount?: number; targetId?: string; note?: string },
-    approverId: string
+    approverId: string,
+    approverBranchId?: string | null
 ) {
     try {
         await prisma.$transaction(async (tx) => {
@@ -186,8 +191,9 @@ async function executeFinanceRequest(
                     include: { employee: { select: { name: true } } }
                 });
                 if (debt && !debt.isSettled) {
-                    // B-1 FIX: Deduct from wallet (matching direct settleDebt behavior)
-                    const wallet = await tx.companyWallet.findFirst();
+                    // B-1 FIX: Deduct from wallet (branch-scoped)
+                    const walletWhere = approverBranchId ? { branchId: approverBranchId } : {};
+                    const wallet = await tx.companyWallet.findFirst({ where: walletWhere });
                     if (!wallet) throw new Error("خزنة الشركة غير موجودة");
                     if (wallet.balance < debt.amount) {
                         throw new Error(`رصيد الخزنة (${wallet.balance.toLocaleString('en-US')}) غير كافٍ لتسوية هذا الدين (${debt.amount.toLocaleString('en-US')})`);
@@ -223,7 +229,8 @@ async function executeFinanceRequest(
             }
 
             if (type === "ALLOCATE_BUDGET" && data.targetId && data.amount && data.amount > 0) {
-                const wallet = await tx.companyWallet.findFirst();
+                const walletWhere = approverBranchId ? { branchId: approverBranchId } : {};
+                const wallet = await tx.companyWallet.findFirst({ where: walletWhere });
                 if (!wallet) throw new Error("خزنة الشركة غير موجودة");
                 if (wallet.balance < data.amount) throw new Error(`الرصيد المتاح في الخزنة (${wallet.balance}) أقل من المبلغ المطلوب (${data.amount})`);
 

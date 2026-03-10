@@ -1,5 +1,5 @@
 /**
- * Auth Setup — logs in all 7 test accounts and saves sessions.
+ * Auth Setup — logs in all 8 test accounts and saves sessions.
  * Uses existing seed data from `npx prisma db seed`.
  * Password for all: 123456
  */
@@ -9,6 +9,7 @@ import path from 'path';
 const AUTH_DIR = path.join(__dirname, '.auth');
 
 const ACCOUNTS = {
+    root: 'root@pocket.com',
     admin: 'admin@pocket.com',
     gm: 'gm@pocket.com',
     accountant: 'accountant@pocket.com',

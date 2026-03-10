@@ -1,7 +1,7 @@
 "use server"
 import prisma from "@/lib/prisma"
 import { revalidatePath } from "next/cache";
-import { getSession } from "@/lib/auth";
+import { getSession, getBranchFilter } from "@/lib/auth";
 import { createProjectSchema } from "@/lib/validations/app-schemas";
 import { isGlobalFinance } from "@/lib/rbac";
 import fs from "fs";
@@ -16,16 +16,18 @@ export async function getProjects() {
 
         // Global finance roles (incl. GENERAL_MANAGER) see all projects
         const canSeeAll = isGlobalFinance(session.role);
+        const bf = getBranchFilter(session);
 
         const projectWhereClause: Prisma.ProjectWhereInput = (!canSeeAll)
             ? {
+                ...bf,
                 OR: [
                     { managerId: session.id },
                     { members: { some: { userId: session.id } } }
                 ],
                 isDeleted: false
             }
-            : { isDeleted: false };
+            : { ...bf, isDeleted: false };
 
         const projects = await prisma.project.findMany({
             where: projectWhereClause,
@@ -77,9 +79,11 @@ export async function getProjectById(id: string) {
         if (!session) return null;
 
         const canSeeAll = isGlobalFinance(session.role) || session.role === "GENERAL_MANAGER";
+        const bf = getBranchFilter(session);
 
         const whereClause: Prisma.ProjectWhereInput = (!canSeeAll)
             ? {
+                ...bf,
                 id,
                 isDeleted: false,
                 OR: [
@@ -87,7 +91,7 @@ export async function getProjectById(id: string) {
                     { members: { some: { userId: session.id } } }
                 ]
             }
-            : { id, isDeleted: false };
+            : { ...bf, id, isDeleted: false };
 
         const project = await prisma.project.findFirst({
             where: whereClause,
@@ -124,9 +128,10 @@ export async function getProjectsForInvoice() {
         if (!session) return [];
 
         // Global roles that can always create invoices against any project
-        if (["ADMIN", "GLOBAL_ACCOUNTANT"].includes(session.role)) {
+        if (["ROOT", "ADMIN", "GLOBAL_ACCOUNTANT"].includes(session.role)) {
+            const bf = getBranchFilter(session);
             return prisma.project.findMany({
-                where: { status: "IN_PROGRESS", isDeleted: false },
+                where: { ...bf, status: "IN_PROGRESS", isDeleted: false },
                 orderBy: { name: "asc" },
                 select: { id: true, name: true, status: true }
             });
@@ -162,9 +167,10 @@ export async function getProjectsForPurchase() {
         if (!session) return [];
 
         // ADMIN and GENERAL_MANAGER can create purchases for any active project
-        if (["ADMIN", "GENERAL_MANAGER"].includes(session.role)) {
+        if (["ROOT", "ADMIN", "GENERAL_MANAGER"].includes(session.role)) {
+            const bf = getBranchFilter(session);
             return prisma.project.findMany({
-                where: { status: "IN_PROGRESS", isDeleted: false },
+                where: { ...bf, status: "IN_PROGRESS", isDeleted: false },
                 orderBy: { name: "asc" },
                 select: { id: true, name: true, status: true }
             });
@@ -196,7 +202,7 @@ export async function getProjectsForPurchase() {
 export async function updateProjectStatus(projectId: string, status: string) {
     try {
         const session = await getSession();
-        if (!session || session.role !== "ADMIN") {
+        if (!session || !["ROOT", "ADMIN"].includes(session.role)) {
             return { error: "فقط المدير يمكنه تغيير حالة المشاريع" };
         }
 
@@ -226,7 +232,7 @@ export async function updateProjectStatus(projectId: string, status: string) {
 export async function createProject(prevState: unknown, formData: FormData) {
     try {
         const session = await getSession();
-        if (!session || session.role !== "ADMIN") {
+        if (!session || !["ROOT", "ADMIN"].includes(session.role)) {
             return { error: "ليس لديك صلاحية لإنشاء مشروع جديد" };
         }
 
@@ -286,6 +292,7 @@ export async function createProject(prevState: unknown, formData: FormData) {
                 budget: budget !== undefined && budget !== null ? budget : null,
                 custody: custody !== undefined && custody !== null ? custody : 0,
                 managerId,
+                branchId: session.branchId ?? null,
                 status: "IN_PROGRESS",
                 ...(imagePath && { image: imagePath }),
                 members: {
@@ -344,8 +351,8 @@ export async function updateProject(projectId: string, prevState: unknown, formD
 
         if (!existingProject) return { error: "المشروع غير موجود" };
 
-        // Only ADMIN or the Project's MANAGER can edit it
-        if (session.role !== "ADMIN" && session.id !== existingProject.managerId) {
+        // Only ROOT/ADMIN or the Project's MANAGER can edit it
+        if (!["ROOT", "ADMIN"].includes(session.role) && session.id !== existingProject.managerId) {
             return { error: "عذراً، فقط مدير النظام أو منسق المشتريات في هذا المشروع يمكنه تعديله" };
         }
 
@@ -452,7 +459,7 @@ export async function updateProject(projectId: string, prevState: unknown, formD
 export async function closeProject(projectId: string) {
     try {
         const session = await getSession();
-        if (!session || session.role !== "ADMIN") {
+        if (!session || !["ROOT", "ADMIN"].includes(session.role)) {
             return { error: "فقط مدير النظام يمكنه إغلاق المشاريع بشكل نهائي" };
         }
 
@@ -500,7 +507,8 @@ export async function closeProject(projectId: string) {
 
         await prisma.$transaction(async (tx: any) => {
             if (remainingBudget > 0) {
-                const wallet = await tx.companyWallet.findFirst();
+                const walletWhere = session.branchId ? { branchId: session.branchId } : {};
+                const wallet = await tx.companyWallet.findFirst({ where: walletWhere });
                 if (wallet) {
                     await tx.companyWallet.update({
                         where: { id: wallet.id },
@@ -541,11 +549,13 @@ export async function getCompletedProjects() {
         if (!session) return [];
 
         const canSeeAll = isGlobalFinance(session.role) || session.role === "GENERAL_MANAGER";
+        const bf = getBranchFilter(session);
 
         const whereClause =
             canSeeAll
-                ? { status: "COMPLETED", isDeleted: false }
+                ? { ...bf, status: "COMPLETED", isDeleted: false }
                 : {
+                    ...bf,
                     status: "COMPLETED",
                     isDeleted: false,
                     OR: [
@@ -573,7 +583,7 @@ export async function getCompletedProjects() {
 export async function reopenProject(projectId: string) {
     try {
         const session = await getSession();
-        if (!session || session.role !== "ADMIN") {
+        if (!session || !["ROOT", "ADMIN"].includes(session.role)) {
             return { error: "فقط مدير النظام يمكنه إعادة تفعيل المشاريع" };
         }
 
@@ -632,7 +642,7 @@ export async function getManagerAvailableCustody(projectId: string) {
 export async function softDeleteProject(projectId: string) {
     try {
         const session = await getSession();
-        if (!session || session.role !== "ADMIN") {
+        if (!session || !["ROOT", "ADMIN"].includes(session.role)) {
             return { error: "فقط مدير النظام يمكنه حذف المشاريع" };
         }
 

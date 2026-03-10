@@ -1,7 +1,7 @@
 "use server"
 import prisma from "@/lib/prisma"
 import { revalidatePath } from "next/cache";
-import { getSession } from "@/lib/auth";
+import { getSession, getBranchFilter } from "@/lib/auth";
 import { Prisma } from "@prisma/client";
 import { isGlobalFinance, hasProjectPermission } from "@/lib/rbac";
 import { sendPushNotification } from "@/lib/push";
@@ -15,10 +15,14 @@ export async function getInvoices() {
         if (!session) return [];
 
         const isRestricted = !isGlobalFinance(session.role);
+        const bf = getBranchFilter(session);
+        // branchId scoping: filter invoices by project's branchId
+        const branchProjectFilter = bf.branchId ? { project: { is: { branchId: bf.branchId } } } : {};
 
         const invoices = await prisma.invoice.findMany({
             where: {
                 isDeleted: false,
+                ...branchProjectFilter,
                 ...(isRestricted
                     ? {
                         OR: [

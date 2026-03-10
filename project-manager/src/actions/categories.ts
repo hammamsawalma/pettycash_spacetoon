@@ -1,14 +1,22 @@
 "use server"
 import prisma from "@/lib/prisma"
-import { getSession } from "@/lib/auth"
+import { getSession, getBranchFilter } from "@/lib/auth"
 import { revalidatePath } from "next/cache"
 
 // ─── Get Categories (with optional scope filter) ───────────────────────────
 export async function getCategories(scope?: "PROJECT" | "COMPANY" | "BOTH") {
     try {
+        const session = await getSession();
+        const bf = session ? getBranchFilter(session) : {};
+        // Categories: show branch-specific + shared (branchId = null)
+        const branchCatFilter = bf.branchId
+            ? { OR: [{ branchId: bf.branchId }, { branchId: null }] }
+            : {};
+
         const categories = await prisma.category.findMany({
             where: {
                 isActive: true,
+                ...branchCatFilter,
                 ...(scope ? {
                     OR: [
                         { scope },
@@ -78,7 +86,8 @@ export async function createCategory(name: string, scope: string, icon?: string)
             data: {
                 name: name.trim(),
                 scope,
-                icon: icon || null
+                icon: icon || null,
+                branchId: session.branchId ?? null,
             }
         });
 

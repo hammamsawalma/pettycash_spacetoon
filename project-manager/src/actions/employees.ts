@@ -1,7 +1,7 @@
 "use server"
 import prisma from "@/lib/prisma"
 import { revalidatePath } from "next/cache";
-import { SessionData, getSession } from "@/lib/auth";
+import { SessionData, getSession, getBranchFilter } from "@/lib/auth";
 import { User } from "@prisma/client";
 import { isGlobalFinance } from "@/lib/rbac";
 import path from "path";
@@ -18,13 +18,14 @@ export async function getEmployees(excludeAdmins: boolean = false) {
         // Global management roles see the full employee directory
         const allowedGlobalRoles = ["ADMIN", "GLOBAL_ACCOUNTANT", "GENERAL_MANAGER"];
         const isGlobalRole = allowedGlobalRoles.includes(session.role);
+        const bf = getBranchFilter(session);
 
-        let whereClause: any = { isDeleted: false };
+        let whereClause: any = { ...bf, isDeleted: false };
 
         if (isGlobalRole) {
-            // Global roles: full list, with optional admin exclusion
+            // Global roles: full list within branch, with optional admin exclusion
             if (excludeAdmins) {
-                whereClause.role = { notIn: ["ADMIN", "GENERAL_MANAGER"] };
+                whereClause.role = { notIn: ["ADMIN", "GENERAL_MANAGER", "ROOT"] };
             }
         } else {
             // USER role: only see employees who share at least one project with the session user.
@@ -129,8 +130,8 @@ export async function getEmployeeById(id: string) {
 export async function createEmployee(prevState: unknown, formData: FormData) {
     try {
         const session = await getSession();
-        // Only Admins can create new users
-        if (!session || session.role !== "ADMIN") {
+        // Only ROOT/Admins can create new users
+        if (!session || !["ROOT", "ADMIN"].includes(session.role)) {
             return { error: "غير مصرح لك بإضافة موظفين، هذه الصلاحية للمدير فقط" };
         }
 
@@ -199,6 +200,7 @@ export async function createEmployee(prevState: unknown, formData: FormData) {
                 role: role || "USER",
                 jobTitle: jobTitle || null,
                 salary: salary,
+                branchId: session.branchId ?? null,
                 ...(imagePath && { image: imagePath })
             }
         });
@@ -215,8 +217,8 @@ export async function createEmployee(prevState: unknown, formData: FormData) {
 export async function updateEmployee(employeeId: string, prevState: unknown, formData: FormData) {
     try {
         const session = await getSession();
-        // Only Admins can edit users
-        if (!session || session.role !== "ADMIN") {
+        // Only ROOT/Admins can edit users
+        if (!session || !["ROOT", "ADMIN"].includes(session.role)) {
             return { error: "غير مصرح لك بتعديل بيانات الموظفين، هذه الصلاحية للمدير فقط" };
         }
 

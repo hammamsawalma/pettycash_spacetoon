@@ -1,15 +1,16 @@
 "use server"
 import prisma from "@/lib/prisma"
 import { revalidatePath } from "next/cache";
-import { getSession } from "@/lib/auth";
+import { getSession, getBranchFilter } from "@/lib/auth";
 import { isGlobalFinance } from "@/lib/rbac";
 
 // ─── Get or Create the single CompanyWallet ───────────────
-async function getOrCreateWallet() {
-    let wallet = await prisma.companyWallet.findFirst();
+async function getOrCreateWallet(branchId?: string | null) {
+    const where = branchId ? { branchId } : {};
+    let wallet = await prisma.companyWallet.findFirst({ where });
     if (!wallet) {
         wallet = await prisma.companyWallet.create({
-            data: { balance: 0, totalIn: 0, totalOut: 0 }
+            data: { balance: 0, totalIn: 0, totalOut: 0, branchId: branchId ?? null }
         });
     }
     return wallet;
@@ -22,7 +23,7 @@ export async function getCompanyWallet() {
         if (!session || !isGlobalFinance(session.role)) {
             return null;
         }
-        const wallet = await getOrCreateWallet();
+        const wallet = await getOrCreateWallet(session.branchId);
         const entries = await prisma.walletEntry.findMany({
             where: { walletId: wallet.id },
             include: { creator: { select: { name: true } } },
@@ -40,7 +41,7 @@ export async function getCompanyWallet() {
 export async function depositToCompanyWallet(prevState: unknown, formData: FormData) {
     try {
         const session = await getSession();
-        if (!session || session.role !== "ADMIN") {
+        if (!session || !["ROOT", "ADMIN"].includes(session.role)) {
             return { error: "فقط المدير يمكنه إيداع في خزنة الشركة" };
         }
 
@@ -49,7 +50,7 @@ export async function depositToCompanyWallet(prevState: unknown, formData: FormD
 
         if (isNaN(amount) || amount <= 0) return { error: "المبلغ غير صالح" };
 
-        const wallet = await getOrCreateWallet();
+        const wallet = await getOrCreateWallet(session.branchId);
 
         await prisma.$transaction([
             prisma.companyWallet.update({
@@ -83,7 +84,7 @@ export async function depositToCompanyWallet(prevState: unknown, formData: FormD
 export async function allocateBudgetToProject(prevState: unknown, formData: FormData) {
     try {
         const session = await getSession();
-        if (!session || session.role !== "ADMIN") {
+        if (!session || !["ROOT", "ADMIN"].includes(session.role)) {
             return { error: "فقط المدير يمكنه تخصيص الميزانية للمشاريع" };
         }
 
@@ -100,7 +101,8 @@ export async function allocateBudgetToProject(prevState: unknown, formData: Form
         let managerId: string | null = null;
 
         await prisma.$transaction(async (tx) => {
-            const wallet = await tx.companyWallet.findFirst();
+            const walletWhere = session.branchId ? { branchId: session.branchId } : {};
+            const wallet = await tx.companyWallet.findFirst({ where: walletWhere });
             if (!wallet) throw new Error("خزنة الشركة غير موجودة");
             if (wallet.balance < amount) {
                 throw new Error(`رصيد خزنة الشركة (${wallet.balance.toLocaleString('en-US')}) أقل من المبلغ المطلوب (${amount.toLocaleString('en-US')})`);

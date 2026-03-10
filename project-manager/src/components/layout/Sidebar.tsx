@@ -8,7 +8,7 @@ import {
     Archive, HeadphonesIcon, BarChart3, Users,
     Trash2, BellRing, Settings, LogOut, MessageSquare, PlusCircle, Wallet,
     KanbanSquare, ChevronDown, X, Banknote, BadgeDollarSign, HandCoins,
-    Download
+    Download, Globe2
 } from 'lucide-react';
 
 import { useAuth } from '@/context/AuthContext';
@@ -147,7 +147,7 @@ const navigationGroups: NavGroup[] = [
                     {
                         name: 'عهد الموظفين',
                         href: '/employee-custodies',
-                        check: (r) => r === 'ADMIN' || r === 'GLOBAL_ACCOUNTANT' || r === 'GENERAL_MANAGER',
+                        check: (r) => r === 'ROOT' || r === 'ADMIN' || r === 'GLOBAL_ACCOUNTANT' || r === 'GENERAL_MANAGER',
                     },
                     {
                         name: 'إدارة عهدي',
@@ -159,13 +159,13 @@ const navigationGroups: NavGroup[] = [
                         name: 'العهد الخارجية',
                         href: '/external-custodies',
                         // v5.1: ADMIN + GLOBAL_ACCOUNTANT + GENERAL_MANAGER
-                        check: (r) => r === 'ADMIN' || r === 'GLOBAL_ACCOUNTANT' || r === 'GENERAL_MANAGER',
+                        check: (r) => r === 'ROOT' || r === 'ADMIN' || r === 'GLOBAL_ACCOUNTANT' || r === 'GENERAL_MANAGER',
                     },
                     {
                         name: 'عهد مصاريف الشركة',
                         href: '/company-custodies',
                         // v7: ADMIN + GLOBAL_ACCOUNTANT + GENERAL_MANAGER
-                        check: (r) => r === 'ADMIN' || r === 'GLOBAL_ACCOUNTANT' || r === 'GENERAL_MANAGER',
+                        check: (r) => r === 'ROOT' || r === 'ADMIN' || r === 'GLOBAL_ACCOUNTANT' || r === 'GENERAL_MANAGER',
                     },
                 ],
             },
@@ -244,7 +244,7 @@ const navigationGroups: NavGroup[] = [
                 href: '/settings/categories',
                 icon: FolderKanban,
                 // v5: Only ADMIN + GLOBAL_ACCOUNTANT
-                check: (r) => r === 'ADMIN' || r === 'GLOBAL_ACCOUNTANT',
+                check: (r) => r === 'ROOT' || r === 'ADMIN' || r === 'GLOBAL_ACCOUNTANT',
             },
             {
                 name: 'الدعم الفني',
@@ -271,6 +271,13 @@ const navigationGroups: NavGroup[] = [
                 icon: Archive,
                 // Must match proxy.ts guard: ADMIN, GLOBAL_ACCOUNTANT, GENERAL_MANAGER
                 check: (r) => canDo(r, 'archive', 'view'),
+            },
+            {
+                name: 'إدارة الفروع',
+                href: '/branches',
+                icon: Globe2,
+                // v8: ROOT only — manage branches
+                check: (r) => r === 'ROOT',
             },
             {
                 name: 'السلة',

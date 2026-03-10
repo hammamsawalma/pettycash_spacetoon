@@ -102,20 +102,35 @@ export default function WelcomeClient({ branches }: { branches: Branch[] }) {
                         حدد فرع الشركة للمتابعة إلى تسجيل الدخول
                     </p>
 
-                    <div className="welcome-branches-grid">
-                        {branches.map((branch, i) => (
+                    {branches.length > 0 ? (
+                        <div className="welcome-branches-grid">
+                            {branches.map((branch, i) => (
+                                <button
+                                    key={branch.id}
+                                    className={`welcome-branch-card ${selectedBranch === branch.code ? "welcome-branch-card-selected" : ""}`}
+                                    onClick={() => handleSelectBranch(branch.code)}
+                                    style={{ animationDelay: `${i * 0.08}s` }}
+                                >
+                                    <span className="welcome-branch-flag">{branch.flag}</span>
+                                    <span className="welcome-branch-name">{branch.name}</span>
+                                    <span className="welcome-branch-currency">{branch.currency}</span>
+                                </button>
+                            ))}
+                        </div>
+                    ) : (
+                        <div style={{ textAlign: "center", padding: "2rem 0" }}>
+                            <p style={{ color: "#94a3b8", fontSize: "0.9rem", marginBottom: "1.5rem" }}>
+                                لم يتم العثور على فروع — يمكنك تسجيل الدخول مباشرة
+                            </p>
                             <button
-                                key={branch.id}
-                                className={`welcome-branch-card ${selectedBranch === branch.code ? "welcome-branch-card-selected" : ""}`}
-                                onClick={() => handleSelectBranch(branch.code)}
-                                style={{ animationDelay: `${i * 0.08}s` }}
+                                className="welcome-cta"
+                                onClick={() => router.push("/login")}
                             >
-                                <span className="welcome-branch-flag">{branch.flag}</span>
-                                <span className="welcome-branch-name">{branch.name}</span>
-                                <span className="welcome-branch-currency">{branch.currency}</span>
+                                تسجيل الدخول
+                                <span className="welcome-cta-arrow">←</span>
                             </button>
-                        ))}
-                    </div>
+                        </div>
+                    )}
 
                     {/* ROOT login link */}
                     <div className="welcome-root-link">

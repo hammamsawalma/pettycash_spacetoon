@@ -1,7 +1,7 @@
 "use server"
 import prisma from "@/lib/prisma"
 import { revalidatePath } from "next/cache";
-import { getSession } from "@/lib/auth";
+import { getSession, getBranchFilter } from "@/lib/auth";
 import { isGlobalFinance } from "@/lib/rbac";
 
 // ─── Get all unsettled debts ──────────────────────────────
@@ -10,10 +10,11 @@ export async function getPendingDebts() {
         const session = await getSession();
         if (!session) return [];
 
-        // Employees see only their own debts; admins/accountants see all
-        const where = !isGlobalFinance(session.role)
+        const bf = getBranchFilter(session);
+        // Employees see only their own debts; admins/accountants see all within branch
+        const where: any = !isGlobalFinance(session.role)
             ? { employeeId: session.id, isSettled: false }
-            : { isSettled: false };
+            : { isSettled: false, ...(bf.branchId ? { invoice: { project: { is: { branchId: bf.branchId } } } } : {}) };
 
         const debts = await prisma.outOfPocketDebt.findMany({
             where,
@@ -41,8 +42,8 @@ export async function getPendingDebts() {
 export async function settleDebt(debtId: string) {
     try {
         const session = await getSession();
-        // M2: GLOBAL_ACCOUNTANT or ADMIN can settle debts
-        if (!session || (session.role !== "GLOBAL_ACCOUNTANT" && session.role !== "ADMIN")) {
+        // M2+v8: ROOT, GLOBAL_ACCOUNTANT or ADMIN can settle debts
+        if (!session || !["ROOT", "ADMIN", "GLOBAL_ACCOUNTANT"].includes(session.role)) {
             return { error: "غير مصرح لك بتسوية الديون، هذه الصلاحية للمحاسب العام أو مدير النظام فقط." };
         }
 
@@ -56,8 +57,9 @@ export async function settleDebt(debtId: string) {
             if (!debt) throw new Error("الدين غير موجود");
             if (debt.isSettled) throw new Error("هذا الدين تم تسويته مسبقاً");
 
-            // Re-read wallet inside transaction
-            const wallet = await tx.companyWallet.findFirst();
+            // Re-read wallet inside transaction — branch-scoped
+            const walletWhere = session.branchId ? { branchId: session.branchId } : {};
+            const wallet = await tx.companyWallet.findFirst({ where: walletWhere });
             if (!wallet) throw new Error("خزنة الشركة غير موجودة");
             if (wallet.balance < debt.amount) {
                 throw new Error(`رصيد الخزنة (${wallet.balance.toLocaleString('en-US')}) غير كافٍ لتسوية هذا الدين (${debt.amount.toLocaleString('en-US')})`);

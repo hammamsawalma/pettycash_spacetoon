@@ -1,19 +1,22 @@
 "use server"
 import prisma from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
-import { requirePermission } from "@/lib/auth";
+import { requirePermission, getSession, getBranchFilter } from "@/lib/auth";
 
 export async function getTrashItems() {
     try {
         const denied = await requirePermission("trash", "manage");
         if (denied) return { projects: [], invoices: [], purchases: [], users: [] };
 
+        const session = await getSession();
+        const bf = session ? getBranchFilter(session) : {};
+
         // P5: Run all 4 trash queries in parallel — reduces load time ~4x
         const [projects, invoices, purchases, users] = await Promise.all([
-            prisma.project.findMany({ where: { isDeleted: true } }),
+            prisma.project.findMany({ where: { isDeleted: true, ...bf } }),
             prisma.invoice.findMany({ where: { isDeleted: true } }),
             prisma.purchase.findMany({ where: { isDeleted: true } }),
-            prisma.user.findMany({ where: { isDeleted: true } }),
+            prisma.user.findMany({ where: { isDeleted: true, ...bf } }),
         ]);
 
         return { projects, invoices, purchases, users };

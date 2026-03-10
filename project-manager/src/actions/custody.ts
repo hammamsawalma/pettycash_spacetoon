@@ -1,7 +1,7 @@
 "use server"
 import prisma from "@/lib/prisma"
 import { revalidatePath } from "next/cache";
-import { getSession } from "@/lib/auth";
+import { getSession, getBranchFilter } from "@/lib/auth";
 import { getUserRolesInProject } from "@/lib/roles";
 import { isGlobalFinance, hasProjectPermission } from "@/lib/rbac";
 import { sendPushNotification } from "@/lib/push";
@@ -44,8 +44,8 @@ export async function issueCustody(prevState: unknown, formData: FormData) {
             return { error: "لا يمكن صرف عهدة لمشروع مكتمل أو متوقف" };
         }
 
-        // v4: Only ADMIN + GLOBAL_ACCOUNTANT can issue custody (all projects)
-        const isAuthorized = session.role === "ADMIN" || session.role === "GLOBAL_ACCOUNTANT";
+        // v4+v8: ROOT, ADMIN, GLOBAL_ACCOUNTANT can issue custody (all projects)
+        const isAuthorized = ["ROOT", "ADMIN", "GLOBAL_ACCOUNTANT"].includes(session.role);
 
         if (!isAuthorized) {
             return { error: "ليس لديك صلاحية لصرف عهدة في هذا المشروع" };
@@ -207,8 +207,8 @@ export async function resendCustodyReminder(custodyId: string) {
         const session = await getSession();
         if (!session) return { error: "غير مصرح" };
 
-        // Only ADMIN and GLOBAL_ACCOUNTANT can send reminders
-        if (session.role !== "ADMIN" && session.role !== "GLOBAL_ACCOUNTANT") {
+        // Only ROOT, ADMIN and GLOBAL_ACCOUNTANT can send reminders
+        if (!["ROOT", "ADMIN", "GLOBAL_ACCOUNTANT"].includes(session.role)) {
             return { error: "غير مصرح" };
         }
 
@@ -276,7 +276,7 @@ export async function rejectCustody(custodyId: string, reason?: string) {
 
             // v7: Company custody — return to wallet
             if (custody.isCompanyExpense) {
-                const wallet = await tx.companyWallet.findFirst();
+                const wallet = await tx.companyWallet.findFirst({ where: { branchId: session.branchId } });
                 if (wallet) {
                     await tx.companyWallet.update({
                         where: { id: wallet.id },
@@ -438,8 +438,8 @@ export async function returnCustodyBalance(
         });
         if (!custody) return { error: "العهدة غير موجودة" };
 
-        // v4+M-1 FIX: ADMIN + GLOBAL_ACCOUNTANT can record custody returns
-        const isAuthorized = session.role === "GLOBAL_ACCOUNTANT" || session.role === "ADMIN";
+        // v4+v8+M-1 FIX: ROOT, ADMIN, GLOBAL_ACCOUNTANT can record custody returns
+        const isAuthorized = ["ROOT", "ADMIN", "GLOBAL_ACCOUNTANT"].includes(session.role);
 
         if (!isAuthorized) {
             return { error: "ليس لديك صلاحية لتسجيل إرجاع العهدة" };
@@ -495,7 +495,7 @@ export async function returnCustodyBalance(
 
         // v7: Company custody — return to wallet
         if (custody.isCompanyExpense) {
-            const wallet = await prisma.companyWallet.findFirst();
+            const wallet = await prisma.companyWallet.findFirst({ where: { branchId: session.branchId } });
             if (wallet) {
                 txOps.push(
                     prisma.companyWallet.update({
@@ -550,12 +550,16 @@ export async function getExternalCustodiesReport() {
         const session = await getSession();
         if (!session) return [];
 
-        // v5.1: Only ADMIN, GLOBAL_ACCOUNTANT, GENERAL_MANAGER
-        const canView = session.role === "ADMIN" || session.role === "GLOBAL_ACCOUNTANT" || session.role === "GENERAL_MANAGER";
+        // v5.1+v8: ROOT, ADMIN, GLOBAL_ACCOUNTANT, GENERAL_MANAGER
+        const canView = ["ROOT", "ADMIN", "GLOBAL_ACCOUNTANT", "GENERAL_MANAGER"].includes(session.role);
         if (!canView) return [];
 
+        // Branch isolation: filter by project.branchId
+        const bf = getBranchFilter(session);
+        const branchWhere = bf.branchId ? { project: { branchId: bf.branchId } } : {};
+
         const custodies = await (prisma.employeeCustody as any).findMany({
-            where: { isExternal: true },
+            where: { isExternal: true, ...branchWhere },
             include: {
                 project: { select: { id: true, name: true } },
                 returns: {
@@ -577,7 +581,7 @@ export async function getExternalCustodiesReport() {
 export async function issueCompanyCustody(prevState: unknown, formData: FormData) {
     try {
         const session = await getSession();
-        if (!session || session.role !== "ADMIN") {
+        if (!session || !["ROOT", "ADMIN"].includes(session.role)) {
             return { error: "فقط المدير يمكنه صرف عهدة مصاريف الشركة" };
         }
 
@@ -600,8 +604,8 @@ export async function issueCompanyCustody(prevState: unknown, formData: FormData
         let custodyId: string;
         // H5 FIX: Serializable isolation to prevent race conditions
         await prisma.$transaction(async (tx: any) => {
-            // Check wallet balance
-            const wallet = await tx.companyWallet.findFirst();
+            // Check wallet balance — branch-scoped
+            const wallet = await tx.companyWallet.findFirst({ where: { branchId: session.branchId } });
             if (!wallet) throw new Error("المحفظة غير موجودة");
             if (wallet.balance < amount) {
                 throw new Error(`رصيد المحفظة (${wallet.balance.toLocaleString('en-US')}) أقل من المبلغ المطلوب (${amount.toLocaleString('en-US')})`);
@@ -666,12 +670,16 @@ export async function getCompanyCustodies() {
         const session = await getSession();
         if (!session) return [];
 
-        // ADMIN, GLOBAL_ACCOUNTANT, GM can view
-        const canView = session.role === "ADMIN" || session.role === "GLOBAL_ACCOUNTANT" || session.role === "GENERAL_MANAGER";
+        // ROOT, ADMIN, GLOBAL_ACCOUNTANT, GM can view
+        const canView = ["ROOT", "ADMIN", "GLOBAL_ACCOUNTANT", "GENERAL_MANAGER"].includes(session.role);
         if (!canView) return [];
 
+        // Branch isolation: filter by employee's branchId
+        const bf = getBranchFilter(session);
+        const branchWhere = bf.branchId ? { employee: { branchId: bf.branchId } } : {};
+
         const custodies = await prisma.employeeCustody.findMany({
-            where: { isCompanyExpense: true },
+            where: { isCompanyExpense: true, ...branchWhere },
             include: {
                 employee: { select: { id: true, name: true, image: true } },
                 confirmation: true,
@@ -697,15 +705,18 @@ export async function getAllEmployeeCustodies() {
         if (!session) return [];
 
         const canView =
-            session.role === "ADMIN" ||
-            session.role === "GLOBAL_ACCOUNTANT" ||
-            session.role === "GENERAL_MANAGER";
+            ["ROOT", "ADMIN", "GLOBAL_ACCOUNTANT", "GENERAL_MANAGER"].includes(session.role);
         if (!canView) return [];
+
+        // Branch isolation: filter by project.branchId
+        const bf = getBranchFilter(session);
+        const branchWhere = bf.branchId ? { project: { branchId: bf.branchId } } : {};
 
         const custodies = await prisma.employeeCustody.findMany({
             where: {
                 isExternal: false,
                 isCompanyExpense: false,
+                ...branchWhere,
             },
             include: {
                 employee: { select: { id: true, name: true, image: true } },

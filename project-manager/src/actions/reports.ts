@@ -1,6 +1,6 @@
 "use server"
 import prisma from "@/lib/prisma"
-import { getSession } from "@/lib/auth"
+import { getSession, getBranchFilter } from "@/lib/auth"
 import { isGlobalFinance } from "@/lib/rbac"
 
 export async function getReportStats(period: string) {
@@ -64,9 +64,10 @@ export async function getReportStats(period: string) {
         }
 
         // Projects info
+        const bf = getBranchFilter(session);
         const projectWhereClause: any = !isGlobalFinance(session.role)
-            ? { OR: [{ managerId: session.id }, { members: { some: { userId: session.id } } }], isDeleted: false }
-            : { isDeleted: false };
+            ? { ...bf, OR: [{ managerId: session.id }, { members: { some: { userId: session.id } } }], isDeleted: false }
+            : { ...bf, isDeleted: false };
 
         if (dateCondition) projectWhereClause.createdAt = dateCondition;
 

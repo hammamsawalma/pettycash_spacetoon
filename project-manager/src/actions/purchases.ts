@@ -1,7 +1,7 @@
 "use server"
 import prisma from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
-import { getSession } from "@/lib/auth";
+import { getSession, getBranchFilter } from "@/lib/auth";
 import { isGlobalFinance } from "@/lib/rbac";
 import { sendPushNotification } from "@/lib/push";
 import fs from "fs";
@@ -13,10 +13,13 @@ export async function getPurchases(projectId?: string) {
         const session = await getSession();
         if (!session) return [];
         const isUnrestricted = isGlobalFinance(session.role);
+        const bf = getBranchFilter(session);
+        const branchProjectFilter = bf.branchId ? { project: { is: { branchId: bf.branchId } } } : {};
 
         const purchases = await prisma.purchase.findMany({
             where: {
                 isDeleted: false,
+                ...branchProjectFilter,
                 ...(projectId ? { projectId } : {}),
                 ...(!isUnrestricted
                     ? {

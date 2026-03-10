@@ -102,11 +102,17 @@ jobs:
             --log-opt max-file=3 \
             ${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}:latest
 
-          # Wait and verify
+          # Apply schema changes + seed data
           sleep 5
-          sudo docker logs spacetoon-pocket --tail 3
+          sudo docker exec spacetoon-pocket npx prisma db push --skip-generate 2>&1 || echo "⚠️ Prisma push failed (may be fine if no changes)"
+          sudo docker exec spacetoon-pocket npx prisma db seed 2>&1 || echo "⚠️ Seed skipped (data may already exist)"
+
+          # Verify container is running
+          sleep 3
+          sudo docker logs spacetoon-pocket --tail 5
 
     - name: Health Check
       run: |
         sleep 10
-        curl -sf https://54.93.172.83.nip.io/api/push/vapid || echo "⚠️ Health check returned non-zero (may need time to warm up)"
+        curl -sf http://${{ env.EC2_HOST }}:3000/ -o /dev/null -w "%{http_code}" || echo "⚠️ Health check returned non-zero (may need time to warm up)"
+
