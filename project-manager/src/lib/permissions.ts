@@ -191,6 +191,14 @@ export const PERMISSIONS = {
         /** Can change system-level settings */
         manage: ["ADMIN"] as UserRole[],
     },
+
+    // ── Exports (مركز التصدير) ────────────────────────────────────────────────────
+    exports: {
+        /** Can access the export center and export data */
+        view: ["ADMIN", "GENERAL_MANAGER", "GLOBAL_ACCOUNTANT"] as UserRole[],
+        /** Can download full financial reports */
+        downloadAll: ["ADMIN", "GLOBAL_ACCOUNTANT"] as UserRole[],
+    },
 } as const;
 
 // ─── Type Helpers ─────────────────────────────────────────────────────────────

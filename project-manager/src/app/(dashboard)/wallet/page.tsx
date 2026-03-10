@@ -8,6 +8,7 @@ import { ArrowDownCircle, ArrowUpCircle, Wallet, Plus, RefreshCw, FolderKanban }
 import Link from "next/link";
 import { CurrencyDisplay } from "@/components/ui/CurrencyDisplay";
 import { UserRole } from "@/context/AuthContext";
+import { WalletExportButton } from "./WalletExportButton";
 
 export default async function WalletPage() {
     const session = await getSession();
@@ -38,15 +39,20 @@ export default async function WalletPage() {
                         <h2 className="text-xl md:text-2xl font-bold text-gray-900">خزنة الشركة الرئيسية (Company Wallet)</h2>
                         <p className="text-sm text-gray-500 mt-1">الرصيد المركزي للشركة وتخصيص الميزانيات للمشاريع</p>
                     </div>
-                    {canDo(session.role as UserRole, 'wallet', 'deposit') && (
-                        <Link
-                            href="/wallet/deposit"
-                            className="inline-flex items-center justify-center gap-2 h-10 md:h-11 px-4 md:px-6 rounded-xl shadow-sm text-sm font-bold bg-green-600 text-white hover:bg-green-700 transition"
-                        >
-                            <Plus className="w-4 h-4 md:w-5 md:h-5" />
-                            إيداع في الخزنة
-                        </Link>
-                    )}
+                    <div className="flex items-center gap-3">
+                        {canDo(session.role as UserRole, 'exports', 'view') && (
+                            <WalletExportButton />
+                        )}
+                        {canDo(session.role as UserRole, 'wallet', 'deposit') && (
+                            <Link
+                                href="/wallet/deposit"
+                                className="inline-flex items-center justify-center gap-2 h-10 md:h-11 px-4 md:px-6 rounded-xl shadow-sm text-sm font-bold bg-green-600 text-white hover:bg-green-700 transition"
+                            >
+                                <Plus className="w-4 h-4 md:w-5 md:h-5" />
+                                إيداع في الخزنة
+                            </Link>
+                        )}
+                    </div>
                 </div>
 
                 {/* KPIs */}

@@ -27,6 +27,9 @@ import {
     HandCoins,
     FileText,
 } from "lucide-react";
+import { ExportButton } from "@/components/ui/ExportButton";
+import { getCustodiesExportData } from "@/actions/exports";
+import { downloadExcel, generatePrintableReport, openPrintWindow, formatDate, formatCurrency, custodyStatusLabel, type ExportColumn } from "@/lib/export-utils";
 
 interface EmployeeCustody {
     id: string;
@@ -56,6 +59,41 @@ export default function EmployeeCustodiesPage() {
     const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
     const [projectFilter, setProjectFilter] = useState<string>("all");
     const [searchQuery, setSearchQuery] = useState("");
+
+    const custodyColumns: ExportColumn[] = [
+        { key: "employeeName", label: "الموظف" },
+        { key: "projectName", label: "المشروع" },
+        { key: "amount", label: "المبلغ", format: (v) => formatCurrency(v as number) },
+        { key: "balance", label: "المتبقي", format: (v) => formatCurrency(v as number) },
+        { key: "status", label: "الحالة", format: (v) => custodyStatusLabel[v as string] || String(v) },
+        { key: "method", label: "طريقة الدفع" },
+        { key: "totalReturned", label: "المرجع", format: (v) => formatCurrency(v as number) },
+        { key: "note", label: "ملاحظة" },
+        { key: "createdAt", label: "التاريخ", format: (v) => formatDate(v as string) },
+    ];
+
+    const handleExportExcel = async () => {
+        const data = await getCustodiesExportData("employee");
+        downloadExcel([{ name: "عهد الموظفين", columns: custodyColumns, data: data as Record<string, unknown>[] }], "تقرير_عهد_الموظفين");
+    };
+
+    const handleExportPDF = async () => {
+        const data = await getCustodiesExportData("employee");
+        const totalAmount = data.reduce((s, d) => s + d.amount, 0);
+        const totalBalance = data.reduce((s, d) => s + d.balance, 0);
+        const html = generatePrintableReport({
+            title: "تقرير عهد الموظفين",
+            subtitle: "جميع العهد الصادرة للموظفين عبر كل المشاريع",
+            columns: custodyColumns,
+            data: data as Record<string, unknown>[],
+            summary: [
+                { label: "إجمالي المصروفات", value: formatCurrency(totalAmount) },
+                { label: "الرصيد المتبقي", value: formatCurrency(totalBalance) },
+                { label: "عدد العهد", value: String(data.length) },
+            ],
+        });
+        openPrintWindow(html);
+    };
 
     // Redirect unauthorized users
     useEffect(() => {
@@ -165,14 +203,11 @@ export default function EmployeeCustodiesPage() {
                             جميع العهد الصادرة للموظفين عبر كل المشاريع
                         </p>
                     </div>
-                    <Button
-                        variant="primary"
-                        className="gap-2 shrink-0 py-2.5 md:py-3 h-auto"
-                        onClick={() => window.print()}
-                    >
-                        <Download className="w-4 h-4" />
-                        <span className="text-xs md:text-sm font-bold">طباعة التقرير</span>
-                    </Button>
+                    <ExportButton
+                        onExportExcel={handleExportExcel}
+                        onExportPDF={handleExportPDF}
+                        label="تصدير عهد الموظفين"
+                    />
                 </div>
 
                 {/* KPI Cards */}
@@ -253,8 +288,8 @@ export default function EmployeeCustodiesPage() {
                                 key={tab.value}
                                 onClick={() => setStatusFilter(tab.value)}
                                 className={`px-3 md:px-4 py-2 text-[10px] md:text-xs font-bold rounded-lg transition-all whitespace-nowrap ${statusFilter === tab.value
-                                        ? "bg-[#102550] text-white shadow-sm"
-                                        : "text-gray-500 hover:text-gray-900 hover:bg-gray-50"
+                                    ? "bg-[#102550] text-white shadow-sm"
+                                    : "text-gray-500 hover:text-gray-900 hover:bg-gray-50"
                                     }`}
                             >
                                 {tab.label}{" "}

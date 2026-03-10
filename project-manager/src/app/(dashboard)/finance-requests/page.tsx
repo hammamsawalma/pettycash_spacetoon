@@ -10,6 +10,9 @@ import { useCanDo } from "@/components/auth/Protect";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import { CurrencyDisplay } from "@/components/ui/CurrencyDisplay";
+import { ExportButton } from "@/components/ui/ExportButton";
+import { getFinanceRequestsExportData } from "@/actions/exports";
+import { downloadExcel, generatePrintableReport, openPrintWindow, formatDate, formatCurrency, financeRequestTypeLabel, financeRequestStatusLabel, type ExportColumn } from "@/lib/export-utils";
 
 type Request = Awaited<ReturnType<typeof getPendingFinanceRequests>>[0];
 
@@ -60,6 +63,38 @@ export default function FinanceRequestsPage() {
 
     // ADMIN and GLOBAL_ACCOUNTANT can create finance requests
     const canCreate = isAdmin || user.role === 'GLOBAL_ACCOUNTANT';
+    const canExport = useCanDo('exports', 'view');
+
+    const frColumns: ExportColumn[] = [
+        { key: "type", label: "النوع", format: (v) => financeRequestTypeLabel[v as string] || String(v) },
+        { key: "status", label: "الحالة", format: (v) => financeRequestStatusLabel[v as string] || String(v) },
+        { key: "amount", label: "المبلغ", format: (v) => formatCurrency(v as number) },
+        { key: "requesterName", label: "الطالب" },
+        { key: "approverName", label: "الموافق" },
+        { key: "note", label: "ملاحظات" },
+        { key: "createdAt", label: "التاريخ", format: (v) => formatDate(v as string) },
+    ];
+
+    const handleExportExcel = async () => {
+        const data = await getFinanceRequestsExportData();
+        downloadExcel([{ name: "الطلبات المالية", columns: frColumns, data: data as Record<string, unknown>[] }], "تقرير_الطلبات_المالية");
+    };
+
+    const handleExportPDF = async () => {
+        const data = await getFinanceRequestsExportData();
+        const html = generatePrintableReport({
+            title: "تقرير الطلبات المالية",
+            subtitle: "سجل الطلبات المالية والموافقات",
+            columns: frColumns,
+            data: data as Record<string, unknown>[],
+            summary: [
+                { label: "إجمالي الطلبات", value: String(data.length) },
+                { label: "معلقة", value: String(data.filter(d => d.status === 'PENDING').length) },
+                { label: "موافق عليها", value: String(data.filter(d => d.status === 'APPROVED').length) },
+            ],
+        });
+        openPrintWindow(html);
+    };
 
     const handleCreate = async () => {
         if (!newReqType) { toast.error("نوع الطلب مطلوب"); return; }
@@ -137,6 +172,14 @@ export default function FinanceRequestsPage() {
                         <span className="mr-auto bg-red-500 text-white text-xs font-bold px-2.5 py-1 rounded-full">
                             {pending.length} معلقة
                         </span>
+                    )}
+                    {canExport && (
+                        <ExportButton
+                            onExportExcel={handleExportExcel}
+                            onExportPDF={handleExportPDF}
+                            label="تصدير الطلبات"
+                            compact
+                        />
                     )}
                     {canCreate && (
                         <button

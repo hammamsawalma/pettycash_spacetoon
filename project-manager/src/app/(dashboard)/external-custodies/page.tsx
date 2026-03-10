@@ -22,6 +22,9 @@ import {
     Download,
     FileOutput,
 } from "lucide-react";
+import { ExportButton } from "@/components/ui/ExportButton";
+import { getCustodiesExportData } from "@/actions/exports";
+import { downloadExcel, generatePrintableReport, openPrintWindow, formatDate, formatCurrency, type ExportColumn } from "@/lib/export-utils";
 
 interface ExternalCustody {
     id: string;
@@ -43,6 +46,40 @@ export default function ExternalCustodiesPage() {
     const [custodies, setCustodies] = useState<ExternalCustody[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [filter, setFilter] = useState<"all" | "open" | "closed">("all");
+
+    const extColumns: ExportColumn[] = [
+        { key: "externalName", label: "الطرف الخارجي" },
+        { key: "projectName", label: "المشروع" },
+        { key: "externalPhone", label: "الهاتف" },
+        { key: "externalPurpose", label: "الغرض" },
+        { key: "amount", label: "المبلغ", format: (v) => formatCurrency(v as number) },
+        { key: "balance", label: "المتبقي", format: (v) => formatCurrency(v as number) },
+        { key: "isClosed", label: "الحالة", format: (v) => v ? "مغلقة" : "مفتوحة" },
+        { key: "createdAt", label: "التاريخ", format: (v) => formatDate(v as string) },
+    ];
+
+    const handleExportExcel = async () => {
+        const data = await getCustodiesExportData("external");
+        downloadExcel([{ name: "العهد الخارجية", columns: extColumns, data: data as Record<string, unknown>[] }], "تقرير_العهد_الخارجية");
+    };
+
+    const handleExportPDF = async () => {
+        const data = await getCustodiesExportData("external");
+        const totalAmount = data.reduce((s, d) => s + d.amount, 0);
+        const totalBalance = data.reduce((s, d) => s + d.balance, 0);
+        const html = generatePrintableReport({
+            title: "تقرير العهد الخارجية",
+            subtitle: "العهد المصروفة لأطراف خارجية عبر جميع المشاريع",
+            columns: extColumns,
+            data: data as Record<string, unknown>[],
+            summary: [
+                { label: "إجمالي العهد", value: formatCurrency(totalAmount) },
+                { label: "الرصيد المتبقي", value: formatCurrency(totalBalance) },
+                { label: "عدد العهد", value: String(data.length) },
+            ],
+        });
+        openPrintWindow(html);
+    };
 
     useEffect(() => {
         if (user && !canViewReports) {
@@ -85,14 +122,11 @@ export default function ExternalCustodiesPage() {
                             تتبع وإدارة كل العهد المصروفة لأطراف خارجية
                         </p>
                     </div>
-                    <Button
-                        variant="primary"
-                        className="gap-2 shrink-0 py-2.5 md:py-3 h-auto"
-                        onClick={() => window.print()}
-                    >
-                        <Download className="w-4 h-4" />
-                        <span className="text-xs md:text-sm font-bold">طباعة التقرير</span>
-                    </Button>
+                    <ExportButton
+                        onExportExcel={handleExportExcel}
+                        onExportPDF={handleExportPDF}
+                        label="تصدير العهد الخارجية"
+                    />
                 </div>
 
                 {/* KPI Cards */}
@@ -181,8 +215,8 @@ export default function ExternalCustodiesPage() {
                             key={val}
                             onClick={() => setFilter(val)}
                             className={`px-4 py-2 text-xs font-bold rounded-lg transition-all ${filter === val
-                                    ? "bg-[#102550] text-white shadow-sm"
-                                    : "text-gray-500 hover:text-gray-900 hover:bg-gray-50"
+                                ? "bg-[#102550] text-white shadow-sm"
+                                : "text-gray-500 hover:text-gray-900 hover:bg-gray-50"
                                 }`}
                         >
                             {label}{" "}
@@ -293,8 +327,8 @@ export default function ExternalCustodiesPage() {
                                             <td className="px-4 md:px-5 py-3 md:py-4">
                                                 <span
                                                     className={`inline-flex items-center gap-1 px-2 py-1 rounded-md text-[10px] font-bold ${c.isClosed
-                                                            ? "bg-gray-100 text-gray-600"
-                                                            : "bg-emerald-50 text-emerald-700"
+                                                        ? "bg-gray-100 text-gray-600"
+                                                        : "bg-emerald-50 text-emerald-700"
                                                         }`}
                                                 >
                                                     {c.isClosed ? (

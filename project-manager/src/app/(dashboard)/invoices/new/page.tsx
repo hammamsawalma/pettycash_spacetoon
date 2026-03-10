@@ -535,7 +535,7 @@ function FullInvoiceForm() {
 
                         {/* STEP 2: INVOICE DATA */}
                         {currentStep === 2 && (
-                            <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500 pb-24 md:pb-0">
+                            <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500 pb-32 md:pb-0">
                                 <h3 className="text-lg font-bold text-gray-900 border-b border-gray-100 pb-2">تفاصيل الفاتورة الأساسية</h3>
 
                                 {/* v5: Company Expense Toggle — only for ADMIN + GLOBAL_ACCOUNTANT */}

@@ -8,12 +8,47 @@ import { useAuth } from "@/context/AuthContext";
 import { Banknote, CheckCircle, Clock } from "lucide-react";
 import toast from "react-hot-toast";
 import { CurrencyDisplay } from "@/components/ui/CurrencyDisplay";
+import { ExportButton } from "@/components/ui/ExportButton";
+import { getDebtsExportData } from "@/actions/exports";
+import { downloadExcel, generatePrintableReport, openPrintWindow, formatDate, formatCurrency, type ExportColumn } from "@/lib/export-utils";
+import { useCanDo } from "@/components/auth/Protect";
 
 export default function DebtsPage() {
     const { role } = useAuth();
     const [debts, setDebts] = useState<any[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [isSettling, setIsSettling] = useState<string | null>(null);
+    const canExport = useCanDo('exports', 'view');
+
+    const debtColumns: ExportColumn[] = [
+        { key: "employeeName", label: "الموظف" },
+        { key: "projectName", label: "المشروع" },
+        { key: "categoryName", label: "القسم" },
+        { key: "invoiceRef", label: "مرجع الفاتورة" },
+        { key: "amount", label: "المبلغ المستحق", format: (v) => formatCurrency(v as number) },
+        { key: "createdAt", label: "التاريخ", format: (v) => formatDate(v as string) },
+    ];
+
+    const handleExportExcel = async () => {
+        const data = await getDebtsExportData();
+        downloadExcel([{ name: "ديون الموظفين", columns: debtColumns, data: data as Record<string, unknown>[] }], "تقرير_الديون");
+    };
+
+    const handleExportPDF = async () => {
+        const data = await getDebtsExportData();
+        const totalAmount = data.reduce((s, d) => s + d.amount, 0);
+        const html = generatePrintableReport({
+            title: "تقرير ديون الموظفين",
+            subtitle: "المبالغ المستحقة للموظفين نتيجة الدفع الشخصي",
+            columns: debtColumns,
+            data: data as Record<string, unknown>[],
+            summary: [
+                { label: "إجمالي الديون", value: formatCurrency(totalAmount) },
+                { label: "عدد الفواتير", value: String(data.length) },
+            ],
+        });
+        openPrintWindow(html);
+    };
 
     const loadDebts = () => {
         setIsLoading(true);
@@ -68,6 +103,13 @@ export default function DebtsPage() {
                                 : "المبالغ المستحقة للموظفين نتيجة دفعهم من حسابهم الخاص للفواتير"}
                         </p>
                     </div>
+                    {canExport && (
+                        <ExportButton
+                            onExportExcel={handleExportExcel}
+                            onExportPDF={handleExportPDF}
+                            label="تصدير الديون"
+                        />
+                    )}
                 </div>
 
                 {/* KPIs */}

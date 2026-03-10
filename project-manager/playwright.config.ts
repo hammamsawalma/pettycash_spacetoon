@@ -66,7 +66,7 @@ export default defineConfig({
         command: isDev ? 'npm run dev' : 'npm run start',
         url: 'http://localhost:3000',
         /* In prod mode, don't reuse — kill any existing dev server */
-        reuseExistingServer: isDev,
+        reuseExistingServer: true,
         timeout: 120_000,
     },
 });

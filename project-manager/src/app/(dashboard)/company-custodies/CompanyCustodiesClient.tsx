@@ -10,6 +10,10 @@ import toast from "react-hot-toast";
 import { Building2, Plus, Wallet, Clock, FileOutput, User, CheckCircle, XCircle, AlertTriangle } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useActionState } from "react";
+import { ExportButton } from "@/components/ui/ExportButton";
+import { getCustodiesExportData } from "@/actions/exports";
+import { downloadExcel, generatePrintableReport, openPrintWindow, formatDate, formatCurrency, type ExportColumn } from "@/lib/export-utils";
+import { useCanDo } from "@/components/auth/Protect";
 
 interface CompanyCustodyData {
     id: string;
@@ -44,10 +48,54 @@ export default function CompanyCustodiesClient({ custodies, role }: { custodies:
     const closed = custodies.filter(c => c.isClosed && c.status !== 'REJECTED');
     const rejected = custodies.filter(c => c.status === 'REJECTED');
     const totalActive = active.reduce((sum, c) => sum + c.balance, 0);
+    const canExport = useCanDo('exports', 'view');
+
+    const compColumns: ExportColumn[] = [
+        { key: "employeeName", label: "المستلم" },
+        { key: "amount", label: "المبلغ", format: (v) => formatCurrency(v as number) },
+        { key: "balance", label: "المتبقي", format: (v) => formatCurrency(v as number) },
+        { key: "method", label: "طريقة الدفع" },
+        { key: "status", label: "الحالة" },
+        { key: "note", label: "ملاحظة" },
+        { key: "createdAt", label: "التاريخ", format: (v) => formatDate(v as string) },
+    ];
+
+    const handleExportExcel = async () => {
+        const data = await getCustodiesExportData("company");
+        downloadExcel([{ name: "مصاريف الشركة", columns: compColumns, data: data as Record<string, unknown>[] }], "تقرير_مصاريف_الشركة");
+    };
+
+    const handleExportPDF = async () => {
+        const data = await getCustodiesExportData("company");
+        const totalAmount = data.reduce((s, d) => s + d.amount, 0);
+        const html = generatePrintableReport({
+            title: "تقرير عهد مصاريف الشركة",
+            subtitle: "عهد مصاريف الشركة العامة",
+            columns: compColumns,
+            data: data as Record<string, unknown>[],
+            summary: [
+                { label: "إجمالي العهد", value: formatCurrency(totalAmount) },
+                { label: "الرصيد النشط", value: formatCurrency(totalActive) },
+                { label: "عدد العهد", value: String(data.length) },
+            ],
+        });
+        openPrintWindow(html);
+    };
 
     return (
         <DashboardLayout title="عهد مصاريف الشركة">
             <div className="space-y-8 pb-10">
+                {/* Header with Export */}
+                <div className="flex justify-between items-center">
+                    <h2 className="text-xl font-bold text-gray-900">عهد مصاريف الشركة</h2>
+                    {canExport && (
+                        <ExportButton
+                            onExportExcel={handleExportExcel}
+                            onExportPDF={handleExportPDF}
+                            label="تصدير مصاريف الشركة"
+                        />
+                    )}
+                </div>
                 {/* Stats */}
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                     <Card className="p-5 bg-gradient-to-br from-blue-50 to-white border-blue-100">

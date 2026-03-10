@@ -11,6 +11,10 @@ import { useRouter } from "next/navigation";
 import { useDebounce } from "@/hooks/useDebounce";
 import { matchArabicText } from "@/utils/arabic";
 import { CurrencyDisplay } from "@/components/ui/CurrencyDisplay";
+import { ExportButton } from "@/components/ui/ExportButton";
+import { getInvoicesExportData } from "@/actions/exports";
+import { downloadExcel, generatePrintableReport, openPrintWindow, formatDate, formatCurrency, invoiceStatusLabel, paymentSourceLabel, type ExportColumn } from "@/lib/export-utils";
+import { useCanDo } from "@/components/auth/Protect";
 
 type InvoiceWithRelations = Awaited<ReturnType<typeof getInvoices>>[number];
 
@@ -24,6 +28,42 @@ export default function InvoicesClient({ initialInvoices }: Props) {
     const [filter, setFilter] = useState("الكل");
     const [searchQuery, setSearchQuery] = useState("");
     const debouncedSearchQuery = useDebounce(searchQuery, 300);
+    const canExport = useCanDo('exports', 'view');
+
+    const invoiceColumns: ExportColumn[] = [
+        { key: "reference", label: "المرجع" },
+        { key: "type", label: "النوع" },
+        { key: "amount", label: "المبلغ", format: (v) => formatCurrency(v as number) },
+        { key: "status", label: "الحالة", format: (v) => invoiceStatusLabel[v as string] || String(v) },
+        { key: "paymentSource", label: "مصدر الدفع", format: (v) => paymentSourceLabel[v as string] || String(v) },
+        { key: "projectName", label: "المشروع" },
+        { key: "categoryName", label: "التصنيف" },
+        { key: "creatorName", label: "المنشئ" },
+        { key: "createdAt", label: "التاريخ", format: (v) => formatDate(v as string) },
+    ];
+
+    const handleExportExcel = async () => {
+        const data = await getInvoicesExportData();
+        downloadExcel([{ name: "الفواتير", columns: invoiceColumns, data: data as Record<string, unknown>[] }], "تقرير_الفواتير");
+    };
+
+    const handleExportPDF = async () => {
+        const data = await getInvoicesExportData();
+        const totalAmount = data.reduce((s, d) => s + d.amount, 0);
+        const html = generatePrintableReport({
+            title: "تقرير الفواتير",
+            subtitle: "سبيستون بوكيت — إدارة المشاريع",
+            columns: invoiceColumns,
+            data: data as Record<string, unknown>[],
+            summary: [
+                { label: "إجمالي الفواتير", value: String(data.length) },
+                { label: "إجمالي المبالغ", value: formatCurrency(totalAmount) },
+                { label: "معتمدة", value: String(data.filter(d => d.status === 'APPROVED').length) },
+                { label: "معلقة", value: String(data.filter(d => d.status === 'PENDING').length) },
+            ],
+        });
+        openPrintWindow(html);
+    };
 
     const filteredInvoices = initialInvoices.filter(invoice => {
         let matchesFilter = true;
@@ -81,12 +121,21 @@ export default function InvoicesClient({ initialInvoices }: Props) {
                         ))}
                     </div>
 
-                    {/* Add Invoice Button — hidden on mobile (FAB handles it) + hidden for GENERAL_MANAGER */}
-                    {!!user && user.role !== 'GENERAL_MANAGER' && (
-                        <button onClick={() => router.push('/invoices/new')} className="hidden md:flex w-full py-4 md:py-5 text-sm md:text-base font-bold rounded-2xl bg-[#102550] hover:bg-[#102550]/90 active:scale-[0.98] text-white border-none items-center justify-center gap-2 shadow-sm transition-all duration-150">
-                            <span>+ إضافة فاتورة جديدة</span>
-                        </button>
-                    )}
+                    {/* Action Buttons */}
+                    <div className="flex gap-3">
+                        {canExport && (
+                            <ExportButton
+                                onExportExcel={handleExportExcel}
+                                onExportPDF={handleExportPDF}
+                                label="تصدير الفواتير"
+                            />
+                        )}
+                        {!!user && user.role !== 'GENERAL_MANAGER' && (
+                            <button onClick={() => router.push('/invoices/new')} className="hidden md:flex flex-1 py-4 md:py-5 text-sm md:text-base font-bold rounded-2xl bg-[#102550] hover:bg-[#102550]/90 active:scale-[0.98] text-white border-none items-center justify-center gap-2 shadow-sm transition-all duration-150">
+                                <span>+ إضافة فاتورة جديدة</span>
+                            </button>
+                        )}
+                    </div>
                 </div>
 
 
