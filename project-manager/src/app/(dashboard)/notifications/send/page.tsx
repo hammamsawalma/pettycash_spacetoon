@@ -5,6 +5,8 @@ import { Button } from "@/components/ui/Button";
 import { BellRing, Send } from "lucide-react";
 import { useState, useEffect, useActionState } from "react";
 import { getNotifications, createNotification } from "@/actions/notifications";
+import { getProjects } from "@/actions/projects";
+import { getEmployees } from "@/actions/employees";
 import { Notification } from "@prisma/client";
 import toast from "react-hot-toast";
 import { useAuth } from "@/context/AuthContext";
@@ -17,6 +19,11 @@ export default function SendNotificationPage() {
     const canSend = useCanDo('notifications', 'send');
     const [notifications, setNotifications] = useState<Notification[]>([]);
     const [isLoading, setIsLoading] = useState(true);
+    const [target, setTarget] = useState("ALL");
+    const [projects, setProjects] = useState<{ id: string; name: string }[]>([]);
+    const [employees, setEmployees] = useState<{ id: string; name: string }[]>([]);
+    const [selectedProjectId, setSelectedProjectId] = useState("");
+    const [selectedEmployeeIds, setSelectedEmployeeIds] = useState<string[]>([]);
 
     const [state, formAction, isPending] = useActionState(createNotification, null);
 
@@ -37,6 +44,8 @@ export default function SendNotificationPage() {
     useEffect(() => {
         if (user && canSend) {
             loadNotifications();
+            getProjects().then((data: any[]) => setProjects(data.map(p => ({ id: p.id, name: p.name }))));
+            getEmployees().then((data: any[]) => setEmployees(data.map(e => ({ id: e.id, name: e.name }))));
         }
     }, [user, canSend]);
 
@@ -110,18 +119,49 @@ export default function SendNotificationPage() {
                                     <label className="text-xs md:text-sm font-bold text-gray-700 block mb-2">الفئة المستهدفة</label>
                                     <div className="flex flex-col sm:flex-row gap-4">
                                         <label className="flex items-center gap-3 p-3 border border-gray-200 rounded-xl hover:border-[#102550]/50 transition-colors cursor-pointer bg-white">
-                                            <input type="radio" name="target" value="ALL" className="w-4 h-4 text-[#102550] focus:ring-[#102550] border-gray-300" defaultChecked />
+                                            <input type="radio" name="target" value="ALL" className="w-4 h-4 text-[#102550] focus:ring-[#102550] border-gray-300" checked={target === "ALL"} onChange={() => setTarget("ALL")} />
                                             <span className="text-sm font-medium text-gray-700">الجميع</span>
                                         </label>
-                                        <label className="flex items-center gap-3 p-3 border border-gray-200 rounded-xl hover:border-[#102550]/50 transition-colors cursor-pointer bg-white opacity-50">
-                                            <input type="radio" name="target" value="PROJECT" disabled className="w-4 h-4 text-[#102550] focus:ring-[#102550] border-gray-300" />
-                                            <span className="text-sm font-medium text-gray-700">موظفي مشروع محدد (قريباً)</span>
+                                        <label className="flex items-center gap-3 p-3 border border-gray-200 rounded-xl hover:border-[#102550]/50 transition-colors cursor-pointer bg-white">
+                                            <input type="radio" name="target" value="PROJECT" className="w-4 h-4 text-[#102550] focus:ring-[#102550] border-gray-300" checked={target === "PROJECT"} onChange={() => setTarget("PROJECT")} />
+                                            <span className="text-sm font-medium text-gray-700">موظفي مشروع محدد</span>
                                         </label>
-                                        <label className="flex items-center gap-3 p-3 border border-gray-200 rounded-xl hover:border-[#102550]/50 transition-colors cursor-pointer bg-white opacity-50">
-                                            <input type="radio" name="target" value="SPECIFIC" disabled className="w-4 h-4 text-[#102550] focus:ring-[#102550] border-gray-300" />
-                                            <span className="text-sm font-medium text-gray-700">موظفين محددين فقط (قريباً)</span>
+                                        <label className="flex items-center gap-3 p-3 border border-gray-200 rounded-xl hover:border-[#102550]/50 transition-colors cursor-pointer bg-white">
+                                            <input type="radio" name="target" value="SPECIFIC" className="w-4 h-4 text-[#102550] focus:ring-[#102550] border-gray-300" checked={target === "SPECIFIC"} onChange={() => setTarget("SPECIFIC")} />
+                                            <span className="text-sm font-medium text-gray-700">موظفين محددين فقط</span>
                                         </label>
                                     </div>
+
+                                    {/* Project selector */}
+                                    {target === "PROJECT" && (
+                                        <div className="space-y-2 mt-3">
+                                            <label className="text-xs font-bold text-gray-700">اختر المشروع</label>
+                                            <select name="targetProjectId" required value={selectedProjectId} onChange={e => setSelectedProjectId(e.target.value)} className="w-full rounded-xl border border-gray-200 p-3 outline-none focus:ring-2 focus:ring-[#102550] text-sm bg-white">
+                                                <option value="">— اختر مشروعاً —</option>
+                                                {projects.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
+                                            </select>
+                                        </div>
+                                    )}
+
+                                    {/* Employee multi-select */}
+                                    {target === "SPECIFIC" && (
+                                        <div className="space-y-2 mt-3">
+                                            <label className="text-xs font-bold text-gray-700">اختر الموظفين</label>
+                                            <div className="max-h-48 overflow-y-auto border border-gray-200 rounded-xl p-3 space-y-2 bg-white">
+                                                {employees.map(emp => (
+                                                    <label key={emp.id} className="flex items-center gap-3 p-2 hover:bg-gray-50 rounded-lg cursor-pointer">
+                                                        <input type="checkbox" name="targetEmployeeIds" value={emp.id} checked={selectedEmployeeIds.includes(emp.id)} onChange={e => {
+                                                            if (e.target.checked) setSelectedEmployeeIds(prev => [...prev, emp.id]);
+                                                            else setSelectedEmployeeIds(prev => prev.filter(id => id !== emp.id));
+                                                        }} className="w-4 h-4 rounded accent-[#102550]" />
+                                                        <span className="text-sm font-medium text-gray-700">{emp.name}</span>
+                                                    </label>
+                                                ))}
+                                                {employees.length === 0 && <p className="text-xs text-gray-400 text-center py-2">لا يوجد موظفين</p>}
+                                            </div>
+                                            {selectedEmployeeIds.length > 0 && <p className="text-xs text-gray-500">تم اختيار {selectedEmployeeIds.length} موظف</p>}
+                                        </div>
+                                    )}
                                 </div>
                             </div>
                         </div>

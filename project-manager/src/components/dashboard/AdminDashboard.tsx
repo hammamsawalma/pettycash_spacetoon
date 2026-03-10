@@ -27,7 +27,7 @@ export default function AdminDashboard() {
         totalExpenses: 0,
         todayRevenue: 0,
         todayWithdrawals: 0,
-        pendingInvoices: [] as any[],
+        pendingInvoices: [] as Array<{ id: string; amount: number; status: string }>,
         recentProjects: [] as Array<Project & { manager: User | null, members: ProjectMember[] }>,
         recentNotifications: [] as Notification[],
         chartData: { monthly: [] as { name: string, value: number }[], yearly: [] as { name: string, value: number }[] }
@@ -184,8 +184,8 @@ export default function AdminDashboard() {
                                     </div>
                                     <div className="pt-1 flex-1 min-w-0">
                                         <p className="text-sm md:text-base font-bold text-gray-800 leading-snug">{n.title}</p>
-                                        {(n as any).message && (
-                                            <p className="text-xs text-gray-500 mt-0.5 line-clamp-1">{(n as any).message}</p>
+                                        {n.content && (
+                                            <p className="text-xs text-gray-500 mt-0.5 line-clamp-1">{n.content}</p>
                                         )}
                                         <p className="text-[11px] md:text-xs font-semibold text-gray-500 mt-1">{new Date(n.createdAt).toLocaleDateString('en-GB')}</p>
                                     </div>

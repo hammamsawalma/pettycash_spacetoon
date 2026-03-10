@@ -134,16 +134,7 @@ export default function LoginPage() {
                         </Button>
                     </form>
 
-                    <div className="grid grid-cols-2 gap-4 pt-4">
-                        <Button type="button" onClick={() => toast("هذه الميزة قريباً", { icon: "⏳" })} variant="outline" className="w-full rounded-xl py-6 flex gap-2">
-                            <Fingerprint className="w-5 h-5" />
-                            بصمة الوجه
-                        </Button>
-                        <Button type="button" onClick={() => toast("هذه الميزة قريباً", { icon: "⏳" })} variant="outline" className="w-full rounded-xl py-6 flex gap-2">
-                            <GripHorizontal className="w-5 h-5" />
-                            النمط
-                        </Button>
-                    </div>
+
 
                     <a
                         href="/manual"

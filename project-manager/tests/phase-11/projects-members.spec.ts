@@ -38,7 +38,7 @@ test.describe('P11-PCF: Project Close Financial (25)', () => {
 
 test.describe('P11-PMG: Project Member Guards (20)', () => {
     test('P11-PMG1: Members tab in project detail', async ({ adminPage }) => { await goProjDetail(adminPage); const b = await bd(adminPage); expect(b.length).toBeGreaterThan(100); });
-    test('P11-PMG2: Members page dedicated link', async ({ adminPage }) => { const l = adminPage.locator('a[href*="/members"]').first(); const b = await bd(adminPage); expect(b.length).toBeGreaterThan(100); });
+    test('P11-PMG2: Members page dedicated link', async ({ adminPage }) => { await goProjDetail(adminPage); const l = adminPage.locator('a[href*="/members"]').first(); const b = await bd(adminPage); expect(b.length).toBeGreaterThan(100); });
     test('P11-PMG3: Add member form', async ({ adminPage }) => { await goProjDetail(adminPage); const b = await bd(adminPage); expect(b.length).toBeGreaterThan(100); });
     test('P11-PMG4: Member role selector', async ({ adminPage }) => { await goProjDetail(adminPage); const b = await bd(adminPage); expect(b.length).toBeGreaterThan(100); });
     test('P11-PMG5: Remove member button', async ({ adminPage }) => { await goProjDetail(adminPage); const b = await bd(adminPage); expect(b.length).toBeGreaterThan(100); });

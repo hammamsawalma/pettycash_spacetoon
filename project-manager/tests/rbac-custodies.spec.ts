@@ -30,7 +30,7 @@ async function login(page: Page, creds: { email: string; pass: string }) {
     await page.fill('input[name="email"]', creds.email);
     await page.fill('input[name="password"]', creds.pass);
     await page.click('button[type="submit"]');
-    await page.waitForURL('http://localhost:3001/', { timeout: 15000 });
+    await page.waitForURL('**/', { timeout: 15000 });
     await page.waitForSelector('nav', { timeout: 8000 });
     await page.waitForTimeout(600);
 }
@@ -41,9 +41,10 @@ async function isPageBlocked(page: Page, path: string): Promise<boolean> {
     await page.waitForTimeout(2000);
     const url = page.url();
     const body = (await page.evaluate(() => document.body.innerText)).toLowerCase();
+    const pathname = new URL(url).pathname;
     return (
         url.includes('/login') ||
-        url === 'http://localhost:3001/' ||
+        pathname === '/' ||
         body.includes('غير مصرح') ||
         body.includes('unauthorized') ||
         body.includes('403')
@@ -84,7 +85,8 @@ test.describe('Suite 10 — Custodies RBAC', () => {
         await page.waitForTimeout(2000);
         // Server component: session.role !== "USER" → redirect("/")
         const url = page.url();
-        expect(url).toBe('http://localhost:3001/');
+        const pathname = new URL(url).pathname;
+        expect(pathname).toBe('/');
     });
 
     test('[CUST-R4] GLOBAL_ACCOUNTANT is blocked from /my-custodies', async ({ page }) => {
@@ -92,7 +94,8 @@ test.describe('Suite 10 — Custodies RBAC', () => {
         await page.goto('/my-custodies');
         await page.waitForTimeout(2000);
         const url = page.url();
-        expect(url).toBe('http://localhost:3001/');
+        const pathname = new URL(url).pathname;
+        expect(pathname).toBe('/');
     });
 
     test('[CUST-R5] GENERAL_MANAGER is blocked from /my-custodies', async ({ page }) => {
@@ -100,7 +103,8 @@ test.describe('Suite 10 — Custodies RBAC', () => {
         await page.goto('/my-custodies');
         await page.waitForTimeout(2000);
         const url = page.url();
-        expect(url).toBe('http://localhost:3001/');
+        const pathname = new URL(url).pathname;
+        expect(pathname).toBe('/');
     });
 
     // ─── /custody/new — ADMIN only, then redirects to /projects ──────────

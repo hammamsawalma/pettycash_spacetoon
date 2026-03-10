@@ -108,7 +108,7 @@ export default function SupportPage() {
                                 <h4 className="font-bold text-gray-900 text-sm md:text-base mb-1">المحادثة المباشرة</h4>
                                 <p className="text-[11px] md:text-xs text-gray-500 font-medium leading-relaxed">تحدث مع أحد ممثلي خدمة العملاء بشكل مباشر الآن.</p>
                             </div>
-                            <Button variant="outline" className="w-full border-gray-200 text-gray-700 hover:bg-gray-50 text-xs md:text-sm h-11 md:h-12 font-bold" onClick={() => alert("بدء المحادثة المباشرة...")}>بدء محادثة</Button>
+                            <Button variant="outline" className="w-full border-gray-200 text-gray-700 hover:bg-gray-50 text-xs md:text-sm h-11 md:h-12 font-bold" onClick={() => toast("ميزة المحادثة المباشرة غير متوفرة حالياً.\nيرجى إرسال تذكرة دعم فني.", { icon: "💬", duration: 4000 })}>بدء محادثة</Button>
                         </Card>
 
                         <Card className="p-5 md:p-6 text-center space-y-4 border-gray-100 hover:border-gray-300 transition-colors cursor-pointer shadow-sm rounded-2xl group">
@@ -119,7 +119,7 @@ export default function SupportPage() {
                                 <h4 className="font-bold text-gray-900 text-sm md:text-base mb-1">دليل المستخدم</h4>
                                 <p className="text-[11px] md:text-xs text-gray-500 font-medium leading-relaxed">تصفح الأسئلة الشائعة والمقالات التعليمية حول النظام.</p>
                             </div>
-                            <Button variant="secondary" className="w-full text-xs md:text-sm h-11 md:h-12 font-bold text-gray-700 bg-gray-100 border-transparent hover:bg-gray-200" onClick={() => alert("جارٍ فتح الدليل...")}>تصفح الدليل</Button>
+                            <Button variant="secondary" className="w-full text-xs md:text-sm h-11 md:h-12 font-bold text-gray-700 bg-gray-100 border-transparent hover:bg-gray-200" onClick={() => window.open("/manual", "_blank")}>تصفح الدليل</Button>
                         </Card>
 
                         <Card className="p-5 border-l-4 border-l-yellow-400 bg-gradient-to-l from-white to-yellow-50/50 shadow-sm rounded-2xl border border-gray-100">

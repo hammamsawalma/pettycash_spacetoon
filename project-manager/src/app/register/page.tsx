@@ -97,7 +97,7 @@ export default function RegisterPage() {
                                 required
                             />
                             <label htmlFor="terms" className="text-sm text-gray-600 leading-relaxed">
-                                بالتسجيل، أنت توافق على <Link href="#" className="font-semibold text-[#102550]">الشروط والأحكام</Link> المتصلة بخدمات منصتنا.
+                                بالتسجيل، أنت توافق على <Link href="/manual" target="_blank" className="font-semibold text-[#102550] hover:underline">الشروط والأحكام</Link> المتصلة بخدمات منصتنا.
                             </label>
                         </div>
 

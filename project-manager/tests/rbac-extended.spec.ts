@@ -28,7 +28,7 @@ async function login(page: Page, creds: { email: string; pass: string }) {
     await page.fill('input[name="email"]', creds.email);
     await page.fill('input[name="password"]', creds.pass);
     await page.click('button[type="submit"]');
-    await page.waitForURL('http://localhost:3001/', { timeout: 15000 });
+    await page.waitForURL('**/', { timeout: 15000 });
     await page.waitForSelector('nav', { timeout: 8000 });
     await page.waitForTimeout(600);
 }
@@ -39,9 +39,10 @@ async function isPageBlocked(page: Page, path: string): Promise<boolean> {
     await page.waitForTimeout(2000);
     const url = page.url();
     const body = (await page.evaluate(() => document.body.innerText)).toLowerCase();
+    const pathname = new URL(url).pathname;
     return (
         url.includes('/login') ||
-        url === 'http://localhost:3001/' ||
+        pathname === '/' ||
         body.includes('غير مصرح') ||
         body.includes('unauthorized') ||
         body.includes('403')
@@ -305,7 +306,8 @@ test.describe('Suite 8 — Purchases RBAC', () => {
         await page.waitForTimeout(2000);
         const url = page.url();
         // Redirected to / or /login 
-        const blocked = url === 'http://localhost:3001/' || url.includes('/login');
+        const pathname = new URL(url).pathname;
+        const blocked = pathname === '/' || url.includes('/login');
         expect(blocked).toBeTruthy();
     });
 });
@@ -352,7 +354,8 @@ test.describe('Suite 9 — Server Action Security', () => {
         await page.waitForTimeout(2000);
         const url = page.url();
         // Should be redirected by proxy.ts or client guard
-        const blocked = url === 'http://localhost:3001/' || url.includes('/login');
+        const pathname = new URL(url).pathname;
+        const blocked = pathname === '/' || url.includes('/login');
         expect(blocked).toBeTruthy();
     });
 
@@ -361,7 +364,8 @@ test.describe('Suite 9 — Server Action Security', () => {
         await page.goto('/projects/new');
         await page.waitForTimeout(2000);
         const url = page.url();
-        const blocked = url === 'http://localhost:3001/' || url.includes('/login');
+        const pathname = new URL(url).pathname;
+        const blocked = pathname === '/' || url.includes('/login');
         expect(blocked).toBeTruthy();
     });
 
@@ -370,7 +374,8 @@ test.describe('Suite 9 — Server Action Security', () => {
         await page.goto('/trash');
         await page.waitForTimeout(2000);
         const url = page.url();
-        const blocked = url === 'http://localhost:3001/' || url.includes('/login');
+        const pathname = new URL(url).pathname;
+        const blocked = pathname === '/' || url.includes('/login');
         expect(blocked).toBeTruthy();
     });
 
@@ -379,7 +384,8 @@ test.describe('Suite 9 — Server Action Security', () => {
         await page.goto('/wallet');
         await page.waitForTimeout(2000);
         const url = page.url();
-        const blocked = url === 'http://localhost:3001/' || url.includes('/login');
+        const pathname = new URL(url).pathname;
+        const blocked = pathname === '/' || url.includes('/login');
         expect(blocked).toBeTruthy();
     });
 });

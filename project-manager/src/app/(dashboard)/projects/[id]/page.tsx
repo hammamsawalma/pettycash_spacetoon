@@ -110,7 +110,6 @@ export default function ProjectDetailsPage({ params }: { params: Promise<{ id: s
         tabs.push("فريق المشروع والعُهد");
     }
     tabs.push("الفواتير", "المشتريات");
-    tabs.push("شات المشروع");
 
     const handleCloseProject = async () => {
         if (!confirm("هل أنت متأكد من إغلاق هذا المشروع نهائياً؟ سيتم إعادة الميزانية المتبقية إلى خزنة الشركة.")) return;
@@ -744,16 +743,7 @@ export default function ProjectDetailsPage({ params }: { params: Promise<{ id: s
                 )}
 
                 {/* ─── Allocate Budget Modal ───────────────────────────── */}
-                {/* ─── Tab: شات المشروع ────────────────────────────── */}
-                {activeTab === "شات المشروع" && (
-                    <Card className="p-5 md:p-6 shadow-sm border-gray-100">
-                        <div className="text-center py-16">
-                            <Send className="w-12 h-12 text-gray-200 mx-auto mb-4" />
-                            <h3 className="text-lg font-bold text-gray-900 mb-2">شات المشروع</h3>
-                            <p className="text-sm text-gray-500 max-w-sm mx-auto">ميزة المحادثة داخل المشروع قيد التطوير. سيتم تفعيلها قريباً.</p>
-                        </div>
-                    </Card>
-                )}
+
 
                 {showAllocateModal && (
                     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">

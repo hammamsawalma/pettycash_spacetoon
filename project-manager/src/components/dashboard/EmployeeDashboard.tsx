@@ -396,7 +396,7 @@ export default function EmployeeDashboard() {
                                             <div className="grid grid-cols-2 gap-2 mb-3">
                                                 <div className="bg-rose-50 rounded-xl p-2 text-center">
                                                     <p className="text-[9px] text-gray-500 font-semibold">العُهد المصروفة</p>
-                                                    <p className="text-xs font-black text-rose-700">{((project as any).custodyIssued ?? 0).toLocaleString()} <CurrencyDisplay /></p>
+                                                    <p className="text-xs font-black text-rose-700">{(project.custodyIssued ?? 0).toLocaleString()} <CurrencyDisplay /></p>
                                                 </div>
                                                 <div className="bg-emerald-50 rounded-xl p-2 text-center">
                                                     <p className="text-[9px] text-gray-500 font-semibold">الأعضاء</p>
