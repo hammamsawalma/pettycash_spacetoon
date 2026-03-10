@@ -7,8 +7,8 @@ import type { NextRequest } from 'next/server';
 const ROUTE_RULES: Array<{ prefix: string; exact?: boolean; allowed: string[] }> = [
     // Settings categories — ADMIN + GLOBAL_ACCOUNTANT (more specific path first)
     { prefix: '/settings/categories', allowed: ['ADMIN', 'GLOBAL_ACCOUNTANT'] },
-    // Settings — ADMIN only
-    { prefix: '/settings', allowed: ['ADMIN'] },
+    // Settings (profile page) — all authenticated roles
+    { prefix: '/settings', allowed: ['ADMIN', 'GLOBAL_ACCOUNTANT', 'GENERAL_MANAGER', 'USER'] },
 
     // Trash — ADMIN only
     { prefix: '/trash', allowed: ['ADMIN'] },

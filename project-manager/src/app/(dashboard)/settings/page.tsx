@@ -159,7 +159,7 @@ export default function SettingsPage() {
 
                                 {/* Form Fields */}
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
-                                    {/* Using design image style: label at top-right (small grey text), value below (bold black text), edit icon far left */}
+                                    {/* Using design image style: label at top-right (small grey text), value below (bold black text), edit icon far-start */}
                                     <div className="relative group p-4 border border-gray-100 rounded-2xl bg-gray-50 focus-within:ring-2 focus-within:ring-[#102550]/50 focus-within:bg-white transition-all">
                                         <label className="block text-[10px] md:text-xs font-bold text-gray-400 mb-1">اسم الموظف</label>
                                         <input
@@ -168,7 +168,7 @@ export default function SettingsPage() {
                                             defaultValue={user?.name || ""}
                                             className="w-full bg-transparent font-bold text-gray-900 text-sm md:text-base outline-none pr-1 focus:ring-0"
                                         />
-                                        <div className="absolute left-4 top-1/2 -translate-y-1/2 text-[#102550] opacity-50 group-hover:opacity-100 transition-opacity">
+                                        <div className="absolute start-4 top-1/2 -translate-y-1/2 text-[#102550] opacity-50 group-hover:opacity-100 transition-opacity">
                                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" /></svg>
                                         </div>
                                     </div>
@@ -181,7 +181,7 @@ export default function SettingsPage() {
                                             defaultValue={user?.email || ""}
                                             className="w-full bg-transparent font-bold text-gray-900 text-sm md:text-base outline-none pr-1 flex-1 focus:ring-0"
                                         />
-                                        <div className="absolute left-4 top-1/2 -translate-y-1/2 text-[#102550] opacity-50 group-hover:opacity-100 transition-opacity">
+                                        <div className="absolute start-4 top-1/2 -translate-y-1/2 text-[#102550] opacity-50 group-hover:opacity-100 transition-opacity">
                                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" /></svg>
                                         </div>
                                     </div>
@@ -197,7 +197,7 @@ export default function SettingsPage() {
                                                 title="لتغيير رقم الجوال الرجاء الانتقال الى تبويب رقم الجوال"
                                             />
                                         </div>
-                                        <button type="button" onClick={() => setActiveTab("phone")} className="shrink-0 ml-2 text-[#102550] bg-blue-50 px-3 py-1.5 rounded-lg hover:bg-[#102550] hover:text-white transition-colors text-[10px] md:text-xs font-bold shadow-sm">
+                                        <button type="button" onClick={() => setActiveTab("phone")} className="shrink-0 me-2 text-[#102550] bg-blue-50 px-3 py-1.5 rounded-lg hover:bg-[#102550] hover:text-white transition-colors text-[10px] md:text-xs font-bold shadow-sm">
                                             تغيير
                                         </button>
                                     </div>
@@ -231,7 +231,7 @@ export default function SettingsPage() {
                                 <div>
                                     <label className="block text-xs md:text-sm font-bold text-gray-400 mb-2">رقم الجوال الجديد</label>
                                     <div className="w-full flex rounded-xl border border-gray-200 overflow-hidden bg-white focus-within:ring-2 focus-within:ring-[#102550] shadow-sm">
-                                        <span className="px-5 py-4 bg-gray-50 border-l border-gray-200 text-gray-500 font-bold dir-ltr">+966</span>
+                                        <span className="px-5 py-4 bg-gray-50 border-e border-gray-200 text-gray-500 font-bold dir-ltr">+966</span>
                                         <input
                                             type="tel"
                                             name="phone"
