@@ -3,6 +3,8 @@
  * Generates a clean, professional invoice detail page for printing
  */
 
+import { formatNumber, formatDateAr } from './format-utils';
+
 export interface InvoiceVoucherData {
     invoiceNumber: string;
     date: Date;
@@ -24,7 +26,7 @@ const statusLabels: Record<string, { label: string; color: string; bg: string }>
 };
 
 export function generateInvoiceVoucherHTML(data: InvoiceVoucherData): string {
-    const dateStr = data.date.toLocaleDateString("ar-EG", { year: "numeric", month: "long", day: "numeric" });
+    const dateStr = formatDateAr(data.date, { year: "numeric", month: "long", day: "numeric" });
     const st = statusLabels[data.status] || statusLabels.PENDING;
     const sourceLabel = data.paymentSource === "CUSTODY" ? "من العهدة" : data.paymentSource === "PROJECT" ? "من ميزانية المشروع" : "غير محدد";
 
@@ -114,7 +116,7 @@ export function generateInvoiceVoucherHTML(data: InvoiceVoucherData): string {
         
         <div class="amount-section">
             <div class="label">مبلغ الفاتورة</div>
-            <div class="amount">${data.amount.toLocaleString('ar-EG')} <span class="currency">ر.ق</span></div>
+            <div class="amount">${formatNumber(data.amount)} <span class="currency">ر.ق</span></div>
         </div>
         
         ${data.description ? `
@@ -124,7 +126,7 @@ export function generateInvoiceVoucherHTML(data: InvoiceVoucherData): string {
         </div>` : ''}
         
         <div class="footer">
-            تم إصدار هذه الفاتورة إلكترونياً بواسطة نظام سبيستون بوكيت — ${new Date().toLocaleDateString('ar-EG')}
+            تم إصدار هذه الفاتورة إلكترونياً بواسطة نظام سبيستون بوكيت — ${formatDateAr(new Date())}
         </div>
     </div>
 </body>

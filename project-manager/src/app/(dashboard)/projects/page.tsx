@@ -16,6 +16,9 @@ import toast from "react-hot-toast";
 import { useDebounce } from "@/hooks/useDebounce";
 import { matchArabicText } from "@/utils/arabic";
 import { CurrencyDisplay } from "@/components/ui/CurrencyDisplay";
+import { ExportButton } from "@/components/ui/ExportButton";
+import { getProjectsExportData } from "@/actions/exports";
+import { downloadExcel, generatePrintableReport, openPrintWindow, formatCurrency, type ExportColumn } from "@/lib/export-utils";
 
 type ProjectWithRelations = Project & {
     manager: User | null;
@@ -34,6 +37,7 @@ export default function ProjectsPage() {
     const canViewFinancials = useCanDo('projects', 'viewAll');
     // Only ADMIN can change project status via Kanban DnD
     const canDragDrop = useCanDo('projects', 'close');
+    const canExport = useCanDo('exports', 'view');
 
     const [filter, setFilter] = useState("الكل");
     const [viewMode, setViewMode] = useState<"grid" | "board">("grid");
@@ -41,6 +45,38 @@ export default function ProjectsPage() {
     const debouncedSearchQuery = useDebounce(searchQuery, 300);
     const [projects, setProjects] = useState<ProjectWithRelations[]>([]);
     const [isLoading, setIsLoading] = useState(true);
+
+    const projExportCols: ExportColumn[] = [
+        { key: "name", label: "اسم المشروع" },
+        { key: "status", label: "الحالة" },
+        { key: "budget", label: "الميزانية", format: (v) => formatCurrency(v as number) },
+        { key: "budgetAllocated", label: "المخصص", format: (v) => formatCurrency(v as number) },
+        { key: "custodyIssued", label: "عهد مصروفة", format: (v) => formatCurrency(v as number) },
+        { key: "managerName", label: "المدير" },
+        { key: "invoicesCount", label: "فواتير" },
+        { key: "purchasesCount", label: "مشتريات" },
+    ];
+
+    const handleProjectsExcel = async () => {
+        const data = await getProjectsExportData();
+        downloadExcel([{ name: "المشاريع", columns: projExportCols, data: data as Record<string, unknown>[] }], "تقرير_المشاريع");
+    };
+
+    const handleProjectsPDF = async () => {
+        const data = await getProjectsExportData();
+        const totalBudget = data.reduce((s, d) => s + d.budget, 0);
+        const html = generatePrintableReport({
+            title: "تقرير المشاريع",
+            subtitle: "ملخص مالي لجميع المشاريع",
+            columns: projExportCols,
+            data: data as Record<string, unknown>[],
+            summary: [
+                { label: "عدد المشاريع", value: String(data.length) },
+                { label: "إجمالي الميزانيات", value: formatCurrency(totalBudget) },
+            ],
+        });
+        openPrintWindow(html);
+    };
 
     const fetchProjects = useCallback(async () => {
         setIsLoading(true);
@@ -175,12 +211,21 @@ export default function ProjectsPage() {
                         </div>
                     </div>
 
-                    {/* Add Project Button - Only visible for ADMIN */}
-                    {canCreateProject && (
-                        <Button onClick={() => router.push('/projects/new')} className="w-full py-6 md:py-7 text-sm md:text-lg font-bold rounded-2xl bg-[#102550] hover:bg-[#102550]-hover text-white border-none flex items-center justify-center gap-2 shadow-sm mt-2">
-                            <span>أضف مشروع جديد</span>
-                        </Button>
-                    )}
+                    {/* Add Project / Export Buttons */}
+                    <div className="flex flex-col sm:flex-row gap-3">
+                        {canExport && (
+                            <ExportButton
+                                onExportExcel={handleProjectsExcel}
+                                onExportPDF={handleProjectsPDF}
+                                label="تصدير المشاريع"
+                            />
+                        )}
+                        {canCreateProject && (
+                            <Button onClick={() => router.push('/projects/new')} className="flex-1 py-6 md:py-7 text-sm md:text-lg font-bold rounded-2xl bg-[#102550] hover:bg-[#102550]-hover text-white border-none flex items-center justify-center gap-2 shadow-sm">
+                                <span>أضف مشروع جديد</span>
+                            </Button>
+                        )}
+                    </div>
                 </div>
 
                 {/* Projects Grid */}
@@ -261,19 +306,19 @@ export default function ProjectsPage() {
                                         <div className="grid grid-cols-2 gap-2 mt-4 pt-4 border-t border-gray-100 relative z-10 w-full">
                                             <div className="bg-blue-50/70 rounded-xl p-2.5 flex flex-col justify-center items-start border border-blue-100/50">
                                                 <span className="text-[9px] md:text-[10px] text-[#102550] font-bold mb-0.5" title="إجمالي الميزانية المخصصة للمشروع">الميزانية المخصصة</span>
-                                                <span className="text-xs md:text-sm font-black text-gray-900">{(project.budgetAllocated || 0).toLocaleString()} <span className="text-[8px] md:text-[9px] text-gray-500 font-normal"><CurrencyDisplay /></span></span>
+                                                <span className="text-xs md:text-sm font-black text-gray-900">{(project.budgetAllocated || 0).toLocaleString('en-US')} <span className="text-[8px] md:text-[9px] text-gray-500 font-normal"><CurrencyDisplay /></span></span>
                                             </div>
                                             <div className="bg-emerald-50/70 rounded-xl p-2.5 flex flex-col justify-center items-start border border-emerald-100/50">
                                                 <span className="text-[9px] md:text-[10px] text-emerald-600 font-bold mb-0.5" title="العهد المتبقية في أيدي الموظفين">العهد المتبقية</span>
-                                                <span className="text-xs md:text-sm font-black text-gray-900">{project.totalCustodyRemaining.toLocaleString()} <span className="text-[8px] md:text-[9px] text-gray-500 font-normal"><CurrencyDisplay /></span></span>
+                                                <span className="text-xs md:text-sm font-black text-gray-900">{project.totalCustodyRemaining.toLocaleString('en-US')} <span className="text-[8px] md:text-[9px] text-gray-500 font-normal"><CurrencyDisplay /></span></span>
                                             </div>
                                             <div className="bg-orange-50/70 rounded-xl p-2.5 flex flex-col justify-center items-start border border-orange-100/50">
                                                 <span className="text-[9px] md:text-[10px] text-orange-600 font-bold mb-0.5" title="المتبقي الفعلي لو رجعت كل العهد (بناءً على الفواتير المعتمدة وقيد الاعتماد)">المتبقي المتوقع</span>
-                                                <span className="text-xs md:text-sm font-black text-gray-900">{project.expectedRemaining.toLocaleString()} <span className="text-[8px] md:text-[9px] text-gray-500 font-normal"><CurrencyDisplay /></span></span>
+                                                <span className="text-xs md:text-sm font-black text-gray-900">{project.expectedRemaining.toLocaleString('en-US')} <span className="text-[8px] md:text-[9px] text-gray-500 font-normal"><CurrencyDisplay /></span></span>
                                             </div>
                                             <div className="bg-red-50/70 rounded-xl p-2.5 flex flex-col justify-center items-start border border-red-100/50">
                                                 <span className="text-[9px] md:text-[10px] text-red-600 font-bold mb-0.5" title="إجمالي الفواتير المعتمدة">المصروفات المعتمدة</span>
-                                                <span className="text-xs md:text-sm font-black text-gray-900">{project.approvedExpenses.toLocaleString()} <span className="text-[8px] md:text-[9px] text-gray-500 font-normal"><CurrencyDisplay /></span></span>
+                                                <span className="text-xs md:text-sm font-black text-gray-900">{project.approvedExpenses.toLocaleString('en-US')} <span className="text-[8px] md:text-[9px] text-gray-500 font-normal"><CurrencyDisplay /></span></span>
                                             </div>
                                         </div>
                                     )}

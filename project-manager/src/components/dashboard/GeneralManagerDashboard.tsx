@@ -118,7 +118,7 @@ export default function GeneralManagerDashboard() {
             color: "text-emerald-600",
             bg: "from-emerald-500 to-emerald-600",
             isCurrency: true,
-            sub: `إجمالي الإيداعات: ${stats.wallet.totalIn.toLocaleString()}`,
+            sub: `إجمالي الإيداعات: ${stats.wallet.totalIn.toLocaleString('en-US')}`,
         },
         {
             title: "المشاريع النشطة",
@@ -145,7 +145,7 @@ export default function GeneralManagerDashboard() {
             color: "text-amber-600",
             bg: "from-amber-500 to-orange-500",
             isCurrency: false,
-            sub: `بقيمة: ${stats.invoices.pending.toLocaleString()}`,
+            sub: `بقيمة: ${stats.invoices.pending.toLocaleString('en-US')}`,
         },
     ];
 
@@ -226,7 +226,7 @@ export default function GeneralManagerDashboard() {
                                 ].map((item, i) => (
                                     <div key={i} className={`rounded-xl p-3 text-center ${item.bg}`}>
                                         <p className={`text-base font-black ${item.color}`}>
-                                            {item.value.toLocaleString()}
+                                            {item.value.toLocaleString('en-US')}
                                         </p>
                                         <p className="text-[10px] text-gray-500 font-semibold mt-0.5 leading-tight">{item.label}</p>
                                         <p className="text-[9px] text-gray-400 font-bold"><CurrencyDisplay /></p>
@@ -276,7 +276,7 @@ export default function GeneralManagerDashboard() {
                                                 <p className="text-xs text-gray-500">{(inv as PendingInvoice).creator?.name ?? '—'} · {(inv as PendingInvoice).project?.name ?? 'بدون مشروع'}</p>
                                             </div>
                                             <div className="text-right shrink-0">
-                                                <p className="text-sm font-black text-gray-900">{inv.amount.toLocaleString()}</p>
+                                                <p className="text-sm font-black text-gray-900">{inv.amount.toLocaleString('en-US')}</p>
                                                 <StatusBadge status={inv.status} />
                                             </div>
                                         </div>
@@ -352,7 +352,7 @@ export default function GeneralManagerDashboard() {
                                     <div key={i} className="flex justify-between items-center py-1.5 border-b border-gray-50 last:border-0">
                                         <span className="text-xs font-semibold text-gray-600">{item.label}</span>
                                         <span className={`text-sm font-black ${item.color}`}>
-                                            {item.value.toLocaleString()} <span className="text-[10px] text-gray-400 font-bold"><CurrencyDisplay /></span>
+                                            {item.value.toLocaleString('en-US')} <span className="text-[10px] text-gray-400 font-bold"><CurrencyDisplay /></span>
                                         </span>
                                     </div>
                                 ))}
@@ -379,7 +379,7 @@ export default function GeneralManagerDashboard() {
                                             <span className="text-xs font-semibold text-gray-600">{item.label}</span>
                                         </div>
                                         <span className={`text-sm font-black ${item.color}`}>
-                                            {item.value.toLocaleString()}
+                                            {item.value.toLocaleString('en-US')}
                                         </span>
                                     </div>
                                 ))}
@@ -421,7 +421,7 @@ export default function GeneralManagerDashboard() {
                                             <p className="text-xs text-gray-400">{(p as UrgentPurchase).project?.name ?? 'بدون مشروع'} · {p.orderNumber}</p>
                                         </div>
                                         <div className="text-right shrink-0">
-                                            <p className="text-sm font-black text-gray-900">{p.amount > 0 ? `${p.amount.toLocaleString()}` : '—'}</p>
+                                            <p className="text-sm font-black text-gray-900">{p.amount > 0 ? `${p.amount.toLocaleString('en-US')}` : '—'}</p>
                                             <StatusBadge status={p.status} />
                                         </div>
                                     </div>
@@ -461,11 +461,11 @@ export default function GeneralManagerDashboard() {
                                     <div className="grid grid-cols-3 gap-2 text-center">
                                         <div className="bg-blue-50 rounded-lg p-2">
                                             <p className="text-[10px] text-gray-500 font-semibold">الميزانية</p>
-                                            <p className="text-xs font-black text-blue-700">{((project as RecentProject).budgetAllocated ?? 0).toLocaleString()}</p>
+                                            <p className="text-xs font-black text-blue-700">{((project as RecentProject).budgetAllocated ?? 0).toLocaleString('en-US')}</p>
                                         </div>
                                         <div className="bg-rose-50 rounded-lg p-2">
                                             <p className="text-[10px] text-gray-500 font-semibold">العُهد</p>
-                                            <p className="text-xs font-black text-rose-700">{((project as RecentProject).custodyIssued ?? 0).toLocaleString()}</p>
+                                            <p className="text-xs font-black text-rose-700">{((project as RecentProject).custodyIssued ?? 0).toLocaleString('en-US')}</p>
                                         </div>
                                         <div className="bg-emerald-50 rounded-lg p-2">
                                             <p className="text-[10px] text-gray-500 font-semibold">الأعضاء</p>

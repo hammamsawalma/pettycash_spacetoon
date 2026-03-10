@@ -184,7 +184,7 @@ export default function InvoicesClient({ initialInvoices }: Props) {
                                         </div>
                                         <div className="bg-[#102550]/5 rounded-xl p-2 md:p-2">
                                             <p className="text-[11px] md:text-xs text-gray-400 font-bold mb-0.5 md:mb-1">الإجمالي</p>
-                                            <p className="font-bold text-[#102550] text-xs md:text-sm">{invoice.amount.toLocaleString()} <span className="text-[9px] md:text-[10px]"><CurrencyDisplay /></span></p>
+                                            <p className="font-bold text-[#102550] text-xs md:text-sm">{invoice.amount.toLocaleString('en-US')} <span className="text-[9px] md:text-[10px]"><CurrencyDisplay /></span></p>
                                         </div>
                                         {/* Bug #4 fix: flex-wrap so 3 items never overflow the card width */}
                                         <div className="bg-gray-50 rounded-xl p-2 col-span-2 flex flex-wrap items-center gap-1.5 px-3">

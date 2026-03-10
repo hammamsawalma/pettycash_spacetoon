@@ -73,7 +73,7 @@ export async function issueCustody(prevState: unknown, formData: FormData) {
 
             const available = (lockedProject.budgetAllocated ?? 0) - (lockedProject.custodyIssued ?? 0) + (lockedProject.custodyReturned ?? 0);
             if (amount > available) {
-                throw new Error(`ميزانية المشروع المتاحة (${available.toLocaleString()}) أقل من المبلغ المطلوب (${amount.toLocaleString()})`);
+                throw new Error(`ميزانية المشروع المتاحة (${available.toLocaleString('en-US')}) أقل من المبلغ المطلوب (${amount.toLocaleString('en-US')})`);
             }
 
             // Create custody record
@@ -123,7 +123,7 @@ export async function issueCustody(prevState: unknown, formData: FormData) {
             await prisma.notification.create({
                 data: {
                     title: 'تم صرف عهدة لك ✅',
-                    content: `تم صرف مبلغ ${amount.toLocaleString()} ريال — يرجى تأكيد الاستلام`,
+                    content: `تم صرف مبلغ ${amount.toLocaleString('en-US')} ريال — يرجى تأكيد الاستلام`,
                     targetUserId: employeeId
                 }
             });
@@ -185,7 +185,7 @@ export async function confirmCustodyReceipt(custodyId: string, signatureBase64: 
             await prisma.notification.create({
                 data: {
                     title: 'تأكيد استلام عهدة ✅',
-                    content: `قام ${session.name || 'موظف'} بتأكيد استلام عهدة بقيمة ${custody.amount.toLocaleString()} ريال`,
+                    content: `قام ${session.name || 'موظف'} بتأكيد استلام عهدة بقيمة ${custody.amount.toLocaleString('en-US')} ريال`,
                     targetRole: 'GLOBAL_ACCOUNTANT'
                 }
             });
@@ -226,7 +226,7 @@ export async function resendCustodyReminder(custodyId: string) {
         await prisma.notification.create({
             data: {
                 title: '⏳ تذكير: تأكيد استلام عهدة',
-                content: `يرجى تأكيد استلام عهدة بقيمة ${custody.amount.toLocaleString()} ريال من مشروع "${custody.project?.name || ''}" — يتطلب توقيعك الإلكتروني`,
+                content: `يرجى تأكيد استلام عهدة بقيمة ${custody.amount.toLocaleString('en-US')} ريال من مشروع "${custody.project?.name || ''}" — يتطلب توقيعك الإلكتروني`,
                 targetUserId: custody.employeeId,
             }
         });
@@ -300,7 +300,7 @@ export async function rejectCustody(custodyId: string, reason?: string) {
 
             // v7: Notify ADMIN + GLOBAL_ACCOUNTANT (no PM role — admin manages all)
             const projectName = custody.project?.name || 'مصاريف الشركة';
-            const notifContent = `قام ${session.name || 'موظف'} برفض عهدة بقيمة ${custody.amount.toLocaleString()} ريال — ${projectName}${reason ? `\nالسبب: ${reason}` : ''}`;
+            const notifContent = `قام ${session.name || 'موظف'} برفض عهدة بقيمة ${custody.amount.toLocaleString('en-US')} ريال — ${projectName}${reason ? `\nالسبب: ${reason}` : ''}`;
 
             await tx.notification.createMany({
                 data: [
@@ -520,8 +520,8 @@ export async function returnCustodyBalance(
         const scopeName = custody.project?.name || 'مصاريف الشركة';
         try {
             const msg = willClose
-                ? `تم إرجاع ${returnedAmount.toLocaleString()} ريال وإغلاق عهدتك — ${scopeName}`
-                : `تم إرجاع ${returnedAmount.toLocaleString()} ريال من عهدتك — ${scopeName}. المتبقي: ${newBalance.toLocaleString()}`;
+                ? `تم إرجاع ${returnedAmount.toLocaleString('en-US')} ريال وإغلاق عهدتك — ${scopeName}`
+                : `تم إرجاع ${returnedAmount.toLocaleString('en-US')} ريال من عهدتك — ${scopeName}. المتبقي: ${newBalance.toLocaleString('en-US')}`;
             await prisma.notification.create({
                 data: {
                     title: willClose ? 'تم إغلاق عهدتك 🔒' : 'تم إرجاع جزء من عهدتك 💰',
@@ -602,7 +602,7 @@ export async function issueCompanyCustody(prevState: unknown, formData: FormData
             const wallet = await tx.companyWallet.findFirst();
             if (!wallet) throw new Error("المحفظة غير موجودة");
             if (wallet.balance < amount) {
-                throw new Error(`رصيد المحفظة (${wallet.balance.toLocaleString()}) أقل من المبلغ المطلوب (${amount.toLocaleString()})`);
+                throw new Error(`رصيد المحفظة (${wallet.balance.toLocaleString('en-US')}) أقل من المبلغ المطلوب (${amount.toLocaleString('en-US')})`);
             }
 
             // Deduct from wallet
@@ -644,7 +644,7 @@ export async function issueCompanyCustody(prevState: unknown, formData: FormData
         await prisma.notification.create({
             data: {
                 title: 'عهدة مصاريف شركة 🏢',
-                content: `تم صرف عهدة مصاريف شركة بقيمة ${amount.toLocaleString()} ريال — يرجى تأكيد الاستلام`,
+                content: `تم صرف عهدة مصاريف شركة بقيمة ${amount.toLocaleString('en-US')} ريال — يرجى تأكيد الاستلام`,
                 targetUserId: employeeId
             }
         });

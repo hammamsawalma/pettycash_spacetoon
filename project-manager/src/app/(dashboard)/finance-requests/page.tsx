@@ -219,7 +219,7 @@ export default function FinanceRequestsPage() {
                                                         <p className="text-sm font-bold text-gray-900">{req.requester?.name}</p>
                                                         {req.amount && (
                                                             <p className="text-sm text-amber-700 font-bold mt-1">
-                                                                المبلغ: {req.amount.toLocaleString()} <CurrencyDisplay />
+                                                                المبلغ: {req.amount.toLocaleString('en-US')} <CurrencyDisplay />
                                                             </p>
                                                         )}
                                                         {req.note && (
@@ -273,7 +273,7 @@ export default function FinanceRequestsPage() {
                                                     </div>
                                                     {req.amount && (
                                                         <p className="text-sm font-bold text-gray-600">
-                                                            {req.amount.toLocaleString()} <CurrencyDisplay />
+                                                            {req.amount.toLocaleString('en-US')} <CurrencyDisplay />
                                                         </p>
                                                     )}
                                                     <span className={`flex items-center gap-1 text-xs font-semibold px-2 py-1 rounded-full ${statusInfo.color}`}>

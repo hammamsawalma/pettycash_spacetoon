@@ -154,7 +154,7 @@ export async function createFinanceRequest(data: {
         // إشعار المدير بالطلب الجديد
         await sendAdminNotification(
             "طلب مالي جديد 📋",
-            `${session.name || 'مستخدم'} أنشأ طلب: ${getRequestTypeLabel(data.type)}${data.amount ? ` — المبلغ: ${data.amount.toLocaleString()}` : ''}`
+            `${session.name || 'مستخدم'} أنشأ طلب: ${getRequestTypeLabel(data.type)}${data.amount ? ` — المبلغ: ${data.amount.toLocaleString('en-US')}` : ''}`
         );
 
         revalidatePath("/finance-requests");
@@ -191,7 +191,7 @@ async function executeFinanceRequest(
                     const wallet = await tx.companyWallet.findFirst();
                     if (!wallet) throw new Error("خزنة الشركة غير موجودة");
                     if (wallet.balance < debt.amount) {
-                        throw new Error(`رصيد الخزنة (${wallet.balance.toLocaleString()}) غير كافٍ لتسوية هذا الدين (${debt.amount.toLocaleString()})`);
+                        throw new Error(`رصيد الخزنة (${wallet.balance.toLocaleString('en-US')}) غير كافٍ لتسوية هذا الدين (${debt.amount.toLocaleString('en-US')})`);
                     }
 
                     await tx.outOfPocketDebt.update({

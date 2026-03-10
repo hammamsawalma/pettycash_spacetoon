@@ -222,12 +222,12 @@ export async function createInvoice(prevState: unknown, formData: FormData) {
             if (!paymentSource) paymentSource = "CUSTODY";
 
             if (paymentSource === "CUSTODY" && amount > managerAvailable) {
-                return { error: `الرصيد المتاح لعهدة المدير (${managerAvailable.toLocaleString()} ريال) أقل من مبلغ الفاتورة (${amount.toLocaleString()} ريال).` };
+                return { error: `الرصيد المتاح لعهدة المدير (${managerAvailable.toLocaleString('en-US')} ريال) أقل من مبلغ الفاتورة (${amount.toLocaleString('en-US')} ريال).` };
             }
             if (paymentSource === "SPLIT") {
                 const custAmt = parseFloat(formData.get("custodyAmount") as string || "0");
                 if (custAmt > managerAvailable) {
-                    return { error: `الرصيد المتاح لعهدة المدير (${managerAvailable.toLocaleString()} ريال) أقل من الجزء المطلوب من العهدة (${custAmt.toLocaleString()} ريال).` };
+                    return { error: `الرصيد المتاح لعهدة المدير (${managerAvailable.toLocaleString('en-US')} ريال) أقل من الجزء المطلوب من العهدة (${custAmt.toLocaleString('en-US')} ريال).` };
                 }
             }
         }
@@ -307,7 +307,7 @@ export async function createInvoice(prevState: unknown, formData: FormData) {
                     return { error: "مجموع الجزءين يجب أن يساوي إجمالي الفاتورة" };
                 }
                 if (custodyAmount > custody.balance) {
-                    return { error: `رصيد عهدتك (${custody.balance.toLocaleString()} ريال) أقل من الجزء المطلوب من العهدة (${custodyAmount.toLocaleString()} ريال)` };
+                    return { error: `رصيد عهدتك (${custody.balance.toLocaleString('en-US')} ريال) أقل من الجزء المطلوب من العهدة (${custodyAmount.toLocaleString('en-US')} ريال)` };
                 }
             }
 
@@ -315,7 +315,7 @@ export async function createInvoice(prevState: unknown, formData: FormData) {
             if (paymentSource === "CUSTODY" && !isSimplifiedFlow) {
                 if (amount > custody.balance) {
                     return {
-                        error: `رصيد عهدتك (${custody.balance.toLocaleString()} ريال) أقل من مبلغ الفاتورة (${amount.toLocaleString()} ريال).
+                        error: `رصيد عهدتك (${custody.balance.toLocaleString('en-US')} ريال) أقل من مبلغ الفاتورة (${amount.toLocaleString('en-US')} ريال).
  هل تريد الدفع المختلط (SPLIT)? حدد GLIT من العهدة والباقي من جيبك` };
                 }
             }
@@ -470,7 +470,7 @@ export async function createInvoice(prevState: unknown, formData: FormData) {
             await prisma.notification.create({
                 data: {
                     title: `فاتورة جديدة تنتظر المراجعة 📄 (${scopeLabel})`,
-                    content: `مرفوعة بواسطة ${session.name || session.id} — المبلغ: ${amount.toLocaleString()} ريال`,
+                    content: `مرفوعة بواسطة ${session.name || session.id} — المبلغ: ${amount.toLocaleString('en-US')} ريال`,
                     targetRole: "GLOBAL_ACCOUNTANT"
                 }
             });
@@ -723,7 +723,7 @@ export async function updateInvoiceStatus(
                     REJECTED: "تم رفض فاتورتك ❌",
                     PENDING: "تمت إعادة فاتورتك للمراجعة 🔄",
                 };
-                const contentParts = [`الفاتورة ${existingInvoice.reference} — المبلغ: ${existingInvoice.amount.toLocaleString()} ريال`];
+                const contentParts = [`الفاتورة ${existingInvoice.reference} — المبلغ: ${existingInvoice.amount.toLocaleString('en-US')} ريال`];
                 if (status === "REJECTED" && options?.rejectionReason) {
                     contentParts.push(`السبب: ${options.rejectionReason}`);
                 }

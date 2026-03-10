@@ -113,7 +113,7 @@ export default function MyCustodiesClient({ custodies }: { custodies: CustodyDat
                                         <div>
                                             <p className="text-xs font-semibold text-amber-700 mb-1">{custody.project?.name || 'مصاريف الشركة'}</p>
                                             <h3 className="text-2xl font-black text-gray-900 drop-shadow-sm">
-                                                {custody.amount.toLocaleString()} <span className="text-sm text-gray-500 font-bold"><CurrencyDisplay /></span>
+                                                {custody.amount.toLocaleString('en-US')} <span className="text-sm text-gray-500 font-bold"><CurrencyDisplay /></span>
                                             </h3>
                                         </div>
                                         <div className="bg-white p-2 rounded-xl shadow-sm border border-amber-100">
@@ -213,7 +213,7 @@ export default function MyCustodiesClient({ custodies }: { custodies: CustodyDat
                                             <div>
                                                 <p className="text-xs font-semibold text-gray-500 mb-0.5">{custody.project?.name || 'مصاريف الشركة'}</p>
                                                 <h3 className="text-xl font-black text-gray-900 group-hover:text-[#102550] transition-colors line-clamp-1">
-                                                    المتبقي: {custody.balance.toLocaleString()} <span className="text-xs text-gray-400 font-bold"><CurrencyDisplay /></span>
+                                                    المتبقي: {custody.balance.toLocaleString('en-US')} <span className="text-xs text-gray-400 font-bold"><CurrencyDisplay /></span>
                                                 </h3>
                                             </div>
                                             <span className="px-2.5 py-1 text-[10px] font-bold rounded-lg bg-emerald-50 text-emerald-600 shrink-0">
@@ -224,8 +224,8 @@ export default function MyCustodiesClient({ custodies }: { custodies: CustodyDat
                                         {/* Progress Bar */}
                                         <div className="mb-4">
                                             <div className="flex justify-between text-[10px] font-bold text-gray-500 mb-1">
-                                                <span>تم صرف: {(custody.amount - custody.balance).toLocaleString()}</span>
-                                                <span>الأصل: {custody.amount.toLocaleString()}</span>
+                                                <span>تم صرف: {(custody.amount - custody.balance).toLocaleString('en-US')}</span>
+                                                <span>الأصل: {custody.amount.toLocaleString('en-US')}</span>
                                             </div>
                                             <div className="h-2 w-full bg-gray-100 rounded-full overflow-hidden">
                                                 <div
@@ -292,7 +292,7 @@ export default function MyCustodiesClient({ custodies }: { custodies: CustodyDat
                                         {closed.map(c => (
                                             <tr key={c.id} className="hover:bg-gray-50/50 transition-colors">
                                                 <td className="px-4 py-3 font-semibold text-gray-900">{c.project?.name || 'مصاريف الشركة'}</td>
-                                                <td className="px-4 py-3 font-bold text-gray-600">{c.amount.toLocaleString()} <span className="text-[10px]"><CurrencyDisplay /></span></td>
+                                                <td className="px-4 py-3 font-bold text-gray-600">{c.amount.toLocaleString('en-US')} <span className="text-[10px]"><CurrencyDisplay /></span></td>
                                                 <td className="px-4 py-3 text-gray-500">{new Date(c.createdAt).toLocaleDateString('en-GB')}</td>
                                                 <td className="px-4 py-3">
                                                     <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md text-[10px] font-bold bg-gray-100 text-gray-600">
@@ -343,7 +343,7 @@ export default function MyCustodiesClient({ custodies }: { custodies: CustodyDat
                                         {rejected.map(c => (
                                             <tr key={c.id} className="hover:bg-red-50/30 transition-colors">
                                                 <td className="px-4 py-3 font-semibold text-gray-900">{c.project?.name || 'مصاريف الشركة'}</td>
-                                                <td className="px-4 py-3 font-bold text-gray-600">{c.amount.toLocaleString()} <span className="text-[10px]"><CurrencyDisplay /></span></td>
+                                                <td className="px-4 py-3 font-bold text-gray-600">{c.amount.toLocaleString('en-US')} <span className="text-[10px]"><CurrencyDisplay /></span></td>
                                                 <td className="px-4 py-3 text-red-600 text-xs max-w-[200px]">{c.rejectedReason || '—'}</td>
                                                 <td className="px-4 py-3 text-gray-500">{new Date(c.createdAt).toLocaleDateString('en-GB')}</td>
                                             </tr>

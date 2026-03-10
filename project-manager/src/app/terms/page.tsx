@@ -1,3 +1,4 @@
+import { formatDateAr } from "@/lib/format-utils";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -38,7 +39,7 @@ export default function TermsPage() {
                         يرجى قراءة هذه الشروط بعناية قبل استخدام النظام.
                     </p>
                     <p className="text-xs text-gray-400 mt-3">
-                        آخر تحديث: {new Date().toLocaleDateString("ar-EG", { year: "numeric", month: "long", day: "numeric" })}
+                        آخر تحديث: {formatDateAr(new Date())}
                     </p>
                 </section>
 

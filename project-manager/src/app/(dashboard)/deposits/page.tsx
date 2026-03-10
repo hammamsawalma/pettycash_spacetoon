@@ -111,7 +111,7 @@ export default function DepositsPage() {
                                                     {entry.creator?.name ?? '—'}
                                                 </td>
                                                 <td className={`px-4 md:px-6 py-4 font-black text-left text-[13px] md:text-base ${meta.color}`} dir="ltr">
-                                                    {meta.sign}{entry.amount.toLocaleString()}
+                                                    {meta.sign}{entry.amount.toLocaleString('en-US')}
                                                 </td>
                                             </tr>
                                         );

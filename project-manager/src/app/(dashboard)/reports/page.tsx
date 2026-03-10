@@ -13,6 +13,9 @@ import { useAuth } from "@/context/AuthContext";
 import { useCanDo } from "@/components/auth/Protect";
 import { useRouter } from "next/navigation";
 import { CurrencyDisplay } from "@/components/ui/CurrencyDisplay";
+import { ExportButton } from "@/components/ui/ExportButton";
+import { getInvoicesExportData, getProjectsExportData, getWalletExportData, getDebtsExportData, getCustodiesExportData } from "@/actions/exports";
+import { downloadExcel, generatePrintableReport, openPrintWindow, formatDate, formatCurrency, invoiceStatusLabel, paymentSourceLabel, custodyStatusLabel, type ExportColumn } from "@/lib/export-utils";
 
 const COLORS = ['#102550', '#0ea5e9', '#10b981', '#f59e0b', '#f43f5e'];
 
@@ -55,6 +58,75 @@ export default function ReportsPage() {
         }
     }, [dateFilter, canViewReports]);
 
+    const canExport = useCanDo('exports', 'view');
+
+    const reportInvColumns: ExportColumn[] = [
+        { key: "reference", label: "المرجع" },
+        { key: "type", label: "النوع" },
+        { key: "amount", label: "المبلغ", format: (v) => formatCurrency(v as number) },
+        { key: "status", label: "الحالة", format: (v) => invoiceStatusLabel[v as string] || String(v) },
+        { key: "paymentSource", label: "مصدر الدفع", format: (v) => paymentSourceLabel[v as string] || String(v) },
+        { key: "projectName", label: "المشروع" },
+        { key: "categoryName", label: "التصنيف" },
+        { key: "creatorName", label: "المنشئ" },
+        { key: "createdAt", label: "التاريخ", format: (v) => formatDate(v as string) },
+    ];
+
+    const reportProjColumns: ExportColumn[] = [
+        { key: "name", label: "المشروع" },
+        { key: "status", label: "الحالة" },
+        { key: "budget", label: "الميزانية", format: (v) => formatCurrency(v as number) },
+        { key: "budgetAllocated", label: "المخصص", format: (v) => formatCurrency(v as number) },
+        { key: "custodyIssued", label: "العهد", format: (v) => formatCurrency(v as number) },
+        { key: "managerName", label: "المدير" },
+        { key: "invoicesCount", label: "فواتير" },
+    ];
+
+    const reportCustColumns: ExportColumn[] = [
+        { key: "employeeName", label: "المستلم" },
+        { key: "projectName", label: "المشروع" },
+        { key: "amount", label: "المبلغ", format: (v) => formatCurrency(v as number) },
+        { key: "balance", label: "المتبقي", format: (v) => formatCurrency(v as number) },
+        { key: "status", label: "الحالة", format: (v) => custodyStatusLabel[v as string] || String(v) },
+        { key: "createdAt", label: "التاريخ", format: (v) => formatDate(v as string) },
+    ];
+
+    const handleReportExcel = async () => {
+        const [invoices, projects, wallet, debts, custodies] = await Promise.all([
+            getInvoicesExportData(),
+            getProjectsExportData(),
+            getWalletExportData(),
+            getDebtsExportData(),
+            getCustodiesExportData("all"),
+        ]);
+        downloadExcel(
+            [
+                { name: "الفواتير", columns: reportInvColumns, data: invoices as Record<string, unknown>[] },
+                { name: "المشاريع", columns: reportProjColumns, data: projects as Record<string, unknown>[] },
+                { name: "العهدات", columns: reportCustColumns, data: custodies as Record<string, unknown>[] },
+            ],
+            "التقرير_الشامل"
+        );
+    };
+
+    const handleReportPDF = async () => {
+        const invoices = await getInvoicesExportData();
+        const totalAmount = invoices.reduce((s, d) => s + d.amount, 0);
+        const html = generatePrintableReport({
+            title: "التقرير المالي الشامل",
+            subtitle: "سبيستون بوكيت — إدارة المشاريع",
+            columns: reportInvColumns,
+            data: invoices as Record<string, unknown>[],
+            summary: [
+                { label: "إجمالي الفواتير", value: String(invoices.length) },
+                { label: "إجمالي المبالغ", value: formatCurrency(totalAmount) },
+                { label: "معتمدة", value: String(invoices.filter(d => d.status === 'APPROVED').length) },
+                { label: "معلقة", value: String(invoices.filter(d => d.status === 'PENDING').length) },
+            ],
+        });
+        openPrintWindow(html);
+    };
+
     if (!user || !canViewReports) return null;
 
     return (
@@ -75,10 +147,13 @@ export default function ReportsPage() {
                             <option value="العام الماضي">العام الماضي</option>
                             <option value="الكل">الكل</option>
                         </select>
-                        <Button variant="primary" className="gap-2 shrink-0 py-2.5 md:py-3 h-auto" onClick={() => window.print()}>
-                            <Download className="w-4 h-4 md:w-4 md:h-4" />
-                            <span className="text-xs md:text-sm font-bold">طباعة التقرير</span>
-                        </Button>
+                        {canExport && (
+                            <ExportButton
+                                onExportExcel={handleReportExcel}
+                                onExportPDF={handleReportPDF}
+                                label="تصدير التقرير"
+                            />
+                        )}
                     </div>
                 </div>
 
@@ -91,7 +166,7 @@ export default function ReportsPage() {
                             </div>
                             <div>
                                 <p className="text-[10px] md:text-sm text-gray-400 font-bold mb-1">صافي الأرباح</p>
-                                <p className="text-xl md:text-2xl font-black text-gray-900">{stats ? stats.netProfit.toLocaleString() : '...'}</p>
+                                <p className="text-xl md:text-2xl font-black text-gray-900">{stats ? stats.netProfit.toLocaleString('en-US') : '...'}</p>
                             </div>
                         </div>
                         <div className="mt-4 md:mt-5 pt-4 border-t border-gray-50 flex items-center gap-2 text-[10px] md:text-xs font-bold text-emerald-600 bg-emerald-50 w-fit px-2.5 py-1 rounded-lg">
@@ -157,7 +232,7 @@ export default function ReportsPage() {
                             </div>
                             <div>
                                 <p className="text-[10px] md:text-sm text-gray-400 font-bold mb-1">مصاريف الشركة</p>
-                                <p className="text-xl md:text-2xl font-black text-purple-700">{stats ? stats.companyExpensesTotal.toLocaleString() : '...'} <span className="text-xs font-bold text-purple-400"><CurrencyDisplay /></span></p>
+                                <p className="text-xl md:text-2xl font-black text-purple-700">{stats ? stats.companyExpensesTotal.toLocaleString('en-US') : '...'} <span className="text-xs font-bold text-purple-400"><CurrencyDisplay /></span></p>
                             </div>
                         </div>
                         <p className="mt-3 text-[10px] md:text-xs text-purple-500 font-bold">فواتير غير مرتبطة بمشاريع (معتمدة)</p>
@@ -169,7 +244,7 @@ export default function ReportsPage() {
                             </div>
                             <div>
                                 <p className="text-[10px] md:text-sm text-gray-400 font-bold mb-1">مصاريف المشاريع</p>
-                                <p className="text-xl md:text-2xl font-black text-blue-700">{stats ? stats.projectExpensesTotal.toLocaleString() : '...'} <span className="text-xs font-bold text-blue-400"><CurrencyDisplay /></span></p>
+                                <p className="text-xl md:text-2xl font-black text-blue-700">{stats ? stats.projectExpensesTotal.toLocaleString('en-US') : '...'} <span className="text-xs font-bold text-blue-400"><CurrencyDisplay /></span></p>
                             </div>
                         </div>
                         <p className="mt-3 text-[10px] md:text-xs text-blue-500 font-bold">فواتير مرتبطة بالمشاريع (معتمدة)</p>
@@ -185,7 +260,7 @@ export default function ReportsPage() {
                             </div>
                             <div>
                                 <p className="text-[10px] md:text-sm text-gray-400 font-bold mb-1">عهد داخلية (موظفين)</p>
-                                <p className="text-xl md:text-2xl font-black text-blue-700">{stats ? stats.internalCustodyTotal.toLocaleString() : '...'} <span className="text-xs font-bold text-blue-400"><CurrencyDisplay /></span></p>
+                                <p className="text-xl md:text-2xl font-black text-blue-700">{stats ? stats.internalCustodyTotal.toLocaleString('en-US') : '...'} <span className="text-xs font-bold text-blue-400"><CurrencyDisplay /></span></p>
                             </div>
                         </div>
                         <p className="mt-3 text-[10px] md:text-xs text-blue-500 font-bold">{stats ? stats.internalCustodyCount : 0} عهدة لموظفين مسجلين</p>
@@ -197,7 +272,7 @@ export default function ReportsPage() {
                             </div>
                             <div>
                                 <p className="text-[10px] md:text-sm text-gray-400 font-bold mb-1">عهد خارجية (أطراف خارجية)</p>
-                                <p className="text-xl md:text-2xl font-black text-orange-700">{stats ? stats.externalCustodyTotal.toLocaleString() : '...'} <span className="text-xs font-bold text-orange-400"><CurrencyDisplay /></span></p>
+                                <p className="text-xl md:text-2xl font-black text-orange-700">{stats ? stats.externalCustodyTotal.toLocaleString('en-US') : '...'} <span className="text-xs font-bold text-orange-400"><CurrencyDisplay /></span></p>
                             </div>
                         </div>
                         <p className="mt-3 text-[10px] md:text-xs text-orange-500 font-bold">{stats ? stats.externalCustodyCount : 0} عهدة — {stats ? stats.openExternalCustodies : 0} مفتوحة</p>
@@ -326,7 +401,7 @@ export default function ReportsPage() {
                                             {project.startDate ? new Date(project.startDate).toLocaleDateString('en-GB') : 'غير محدد'}
                                         </td>
                                         <td className="px-4 md:px-6 py-4 font-bold text-primary">
-                                            {project.budget ? project.budget.toLocaleString() : 0} <span className="text-[10px]"><CurrencyDisplay /></span>
+                                            {project.budget ? project.budget.toLocaleString('en-US') : 0} <span className="text-[10px]"><CurrencyDisplay /></span>
                                         </td>
                                         <td className="px-4 md:px-6 py-4">
                                             <div className="flex items-center gap-3">

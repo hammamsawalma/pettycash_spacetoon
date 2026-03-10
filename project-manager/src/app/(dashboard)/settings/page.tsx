@@ -298,7 +298,7 @@ export default function SettingsPage() {
                                 <span className={`w-2.5 h-2.5 rounded-full ${autoRule ? 'bg-emerald-500 animate-pulse' : 'bg-gray-300'}`} />
                                 <p className={`text-sm font-bold ${autoRule ? 'text-emerald-700' : 'text-gray-500'}`}>
                                     {autoRule
-                                        ? `مُفعَّل — الفواتير حتى ${autoRule.maxAmount.toLocaleString()} ${currency} تُعتمد تلقائياً`
+                                        ? `مُفعَّل — الفواتير حتى ${autoRule.maxAmount.toLocaleString('en-US')} ${currency} تُعتمد تلقائياً`
                                         : 'معطَّل — جميع الفواتير تحتاج موافقة يدوية'}
                                 </p>
                             </div>

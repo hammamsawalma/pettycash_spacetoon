@@ -103,7 +103,7 @@ export async function allocateBudgetToProject(prevState: unknown, formData: Form
             const wallet = await tx.companyWallet.findFirst();
             if (!wallet) throw new Error("خزنة الشركة غير موجودة");
             if (wallet.balance < amount) {
-                throw new Error(`رصيد خزنة الشركة (${wallet.balance.toLocaleString()}) أقل من المبلغ المطلوب (${amount.toLocaleString()})`);
+                throw new Error(`رصيد خزنة الشركة (${wallet.balance.toLocaleString('en-US')}) أقل من المبلغ المطلوب (${amount.toLocaleString('en-US')})`);
             }
 
             const project = await tx.project.findUnique({ where: { id: projectId } });
@@ -142,7 +142,7 @@ export async function allocateBudgetToProject(prevState: unknown, formData: Form
                 await prisma.notification.create({
                     data: {
                         title: 'تم تخصيص ميزانية جديدة لمشروعك 💰',
-                        content: `تم تخصيص ${amount.toLocaleString()} ريال لمشروع "${projectName}"`,
+                        content: `تم تخصيص ${amount.toLocaleString('en-US')} ريال لمشروع "${projectName}"`,
                         targetUserId: managerId
                     }
                 });

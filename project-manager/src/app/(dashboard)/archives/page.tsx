@@ -134,7 +134,7 @@ export default function ArchivesPage() {
                                 <div className="grid grid-cols-3 gap-2 text-center">
                                     <div className="bg-gray-50 rounded-xl p-2">
                                         <p className="text-[10px] text-gray-400 font-semibold mb-0.5">الميزانية</p>
-                                        <p className="text-xs font-black text-gray-700">{(project.budgetAllocated ?? 0).toLocaleString()}</p>
+                                        <p className="text-xs font-black text-gray-700">{(project.budgetAllocated ?? 0).toLocaleString('en-US')}</p>
                                         <p className="text-[9px] text-gray-400"><CurrencyDisplay /></p>
                                     </div>
                                     <div className="bg-blue-50 rounded-xl p-2">

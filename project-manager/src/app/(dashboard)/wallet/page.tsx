@@ -63,7 +63,7 @@ export default async function WalletPage() {
                         </div>
                         <div>
                             <p className="text-xs md:text-sm font-bold text-gray-500 mb-1">الرصيد المتاح والمتبقي</p>
-                            <p className="text-2xl md:text-3xl font-black text-gray-900">{balance.toLocaleString()} <span className="text-sm font-bold text-gray-400"><CurrencyDisplay /></span></p>
+                            <p className="text-2xl md:text-3xl font-black text-gray-900">{balance.toLocaleString('en-US')} <span className="text-sm font-bold text-gray-400"><CurrencyDisplay /></span></p>
                         </div>
                     </Card>
 
@@ -73,7 +73,7 @@ export default async function WalletPage() {
                         </div>
                         <div>
                             <p className="text-xs md:text-sm font-bold text-gray-500 mb-1">إجمالي الإيداعات (دخول)</p>
-                            <p className="text-xl md:text-2xl font-bold text-gray-900">{totalIn.toLocaleString()} <span className="text-xs font-bold text-gray-400"><CurrencyDisplay /></span></p>
+                            <p className="text-xl md:text-2xl font-bold text-gray-900">{totalIn.toLocaleString('en-US')} <span className="text-xs font-bold text-gray-400"><CurrencyDisplay /></span></p>
                         </div>
                     </Card>
 
@@ -83,7 +83,7 @@ export default async function WalletPage() {
                         </div>
                         <div>
                             <p className="text-xs md:text-sm font-bold text-gray-500 mb-1">المخصص للمشاريع (خروج)</p>
-                            <p className="text-xl md:text-2xl font-bold text-gray-900">{totalOut.toLocaleString()} <span className="text-xs font-bold text-gray-400"><CurrencyDisplay /></span></p>
+                            <p className="text-xl md:text-2xl font-bold text-gray-900">{totalOut.toLocaleString('en-US')} <span className="text-xs font-bold text-gray-400"><CurrencyDisplay /></span></p>
                         </div>
                     </Card>
                 </div>
@@ -132,7 +132,7 @@ export default async function WalletPage() {
                                                 </td>
                                                 <td className="px-6 py-4 whitespace-nowrap">
                                                     <span className={`font-black text-sm ${config.isOutgoing ? 'text-red-500' : 'text-green-600'}`}>
-                                                        {config.isOutgoing ? '-' : '+'} {entry.amount.toLocaleString()} <span className="text-[10px] font-bold"><CurrencyDisplay /></span>
+                                                        {config.isOutgoing ? '-' : '+'} {entry.amount.toLocaleString('en-US')} <span className="text-[10px] font-bold"><CurrencyDisplay /></span>
                                                     </span>
                                                 </td>
                                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 font-bold">

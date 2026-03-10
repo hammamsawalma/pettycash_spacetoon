@@ -122,7 +122,7 @@ export default function DebtsPage() {
                             <p className="text-xs md:text-sm font-bold text-gray-500 mb-1">
                                 {role === "USER" ? "إجمالي ديوني عند الشركة" : "إجمالي الديون المعلقة للموظفين"}
                             </p>
-                            <p className="text-2xl md:text-3xl font-black text-gray-900">{totalDebts.toLocaleString()} <span className="text-sm font-bold text-gray-400"><CurrencyDisplay /></span></p>
+                            <p className="text-2xl md:text-3xl font-black text-gray-900">{totalDebts.toLocaleString('en-US')} <span className="text-sm font-bold text-gray-400"><CurrencyDisplay /></span></p>
                         </div>
                     </Card>
 
@@ -181,7 +181,7 @@ export default function DebtsPage() {
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap">
                                                 <span className="font-black text-sm text-red-600">
-                                                    {debt.amount.toLocaleString()} <span className="text-[10px] font-bold"><CurrencyDisplay /></span>
+                                                    {debt.amount.toLocaleString('en-US')} <span className="text-[10px] font-bold"><CurrencyDisplay /></span>
                                                 </span>
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 font-medium">

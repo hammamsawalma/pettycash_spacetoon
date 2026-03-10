@@ -7,7 +7,8 @@ import {
     Home, FolderKanban, FileText, ShoppingCart,
     Archive, HeadphonesIcon, BarChart3, Users,
     Trash2, BellRing, Settings, LogOut, MessageSquare, PlusCircle, Wallet,
-    KanbanSquare, ChevronDown, X, Banknote, BadgeDollarSign, HandCoins
+    KanbanSquare, ChevronDown, X, Banknote, BadgeDollarSign, HandCoins,
+    Download
 } from 'lucide-react';
 
 import { useAuth } from '@/context/AuthContext';
@@ -220,6 +221,12 @@ const navigationGroups: NavGroup[] = [
                 href: '/reports',
                 icon: BarChart3,
                 check: (r) => canDo(r, 'reports', 'viewAll'),
+            },
+            {
+                name: 'مركز التصدير',
+                href: '/exports',
+                icon: Download,
+                check: (r) => canDo(r, 'exports', 'view'),
             },
             {
                 name: 'إرسال إشعارات',

@@ -253,11 +253,11 @@ export default function AdminDashboard() {
                                 <div className="relative z-10 grid grid-cols-3 gap-2 text-center">
                                     <div className="bg-emerald-50 rounded-xl p-2">
                                         <p className="text-[10px] text-gray-500 font-semibold">الميزانية</p>
-                                        <p className="text-xs font-black text-emerald-700">{(project.budgetAllocated ?? 0).toLocaleString()}</p>
+                                        <p className="text-xs font-black text-emerald-700">{(project.budgetAllocated ?? 0).toLocaleString('en-US')}</p>
                                     </div>
                                     <div className="bg-rose-50 rounded-xl p-2">
                                         <p className="text-[10px] text-gray-500 font-semibold">العُهد</p>
-                                        <p className="text-xs font-black text-rose-700">{(project.custodyIssued ?? 0).toLocaleString()}</p>
+                                        <p className="text-xs font-black text-rose-700">{(project.custodyIssued ?? 0).toLocaleString('en-US')}</p>
                                     </div>
                                     <div className="bg-amber-50 rounded-xl p-2">
                                         <p className="text-[10px] text-gray-500 font-semibold">الأعضاء</p>

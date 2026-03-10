@@ -9,7 +9,7 @@ interface AnimatedNumberProps {
     formatter?: (value: number) => string;
 }
 
-export function AnimatedNumber({ value, duration = 1.5, delay = 0, formatter = (v) => v.toLocaleString() }: AnimatedNumberProps) {
+export function AnimatedNumber({ value, duration = 1.5, delay = 0, formatter = (v) => v.toLocaleString('en-US') }: AnimatedNumberProps) {
     const count = useMotionValue(0);
     const displayed = useTransform(count, (latest) => formatter(Math.round(latest)));
 

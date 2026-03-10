@@ -12,6 +12,9 @@ import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
 import { useDebounce } from "@/hooks/useDebounce";
 import { matchArabicText } from "@/utils/arabic";
+import { ExportButton } from "@/components/ui/ExportButton";
+import { getPurchasesExportData } from "@/actions/exports";
+import { downloadExcel, generatePrintableReport, openPrintWindow, formatDate, purchaseStatusLabel, purchasePriorityLabel, type ExportColumn } from "@/lib/export-utils";
 
 type PurchaseWithRelations = Purchase & {
     project: Project | null;
@@ -25,10 +28,43 @@ interface Props {
 export default function PurchasesClient({ initialPurchases }: Props) {
     const { isCoordinatorInAny, role } = useAuth();
     const canCreatePurchase = useCanDo('purchases', 'createGlobal') || (role === 'USER' && isCoordinatorInAny);
+    const canExport = useCanDo('exports', 'view');
     const router = useRouter();
     const [searchQuery, setSearchQuery] = useState("");
     const [filter, setFilter] = useState("الكل");
     const debouncedSearchQuery = useDebounce(searchQuery, 300);
+
+    const purchExportCols: ExportColumn[] = [
+        { key: "orderNumber", label: "رقم الطلب" },
+        { key: "description", label: "الوصف" },
+        { key: "status", label: "الحالة", format: (v) => purchaseStatusLabel[v as string] || String(v) },
+        { key: "priority", label: "الأولوية", format: (v) => purchasePriorityLabel[v as string] || String(v) },
+        { key: "projectName", label: "المشروع" },
+        { key: "creatorName", label: "الطالب" },
+        { key: "deadline", label: "الموعد", format: (v) => v ? formatDate(v as string) : "-" },
+        { key: "createdAt", label: "التاريخ", format: (v) => formatDate(v as string) },
+    ];
+
+    const handlePurchasesExcel = async () => {
+        const data = await getPurchasesExportData();
+        downloadExcel([{ name: "المشتريات", columns: purchExportCols, data: data as Record<string, unknown>[] }], "تقرير_المشتريات");
+    };
+
+    const handlePurchasesPDF = async () => {
+        const data = await getPurchasesExportData();
+        const html = generatePrintableReport({
+            title: "تقرير المشتريات",
+            subtitle: "أوامر الشراء عبر جميع المشاريع",
+            columns: purchExportCols,
+            data: data as Record<string, unknown>[],
+            summary: [
+                { label: "إجمالي الطلبات", value: String(data.length) },
+                { label: "تم الشراء", value: String(data.filter(d => d.status === 'PURCHASED').length) },
+                { label: "قيد التنفيذ", value: String(data.filter(d => d.status === 'IN_PROGRESS').length) },
+            ],
+        });
+        openPrintWindow(html);
+    };
 
     // ─── Summary Stats ─────────────────────────────────────────────────
     const totalCount = initialPurchases.length;
@@ -94,12 +130,22 @@ export default function PurchasesClient({ initialPurchases }: Props) {
                             <Search className="absolute end-3 top-3.5 h-4 w-4 text-gray-400 pointer-events-none" />
                         </div>
 
-                        {canCreatePurchase && (
-                            <Button onClick={() => router.push('/purchases/new')} variant="primary" className="gap-2 w-full sm:w-auto py-3 text-xs md:text-sm h-auto justify-center active:scale-95 transition-transform">
-                                <Plus className="w-3.5 h-3.5 md:w-4 md:h-4" />
-                                إضافة طلب شراء
-                            </Button>
-                        )}
+                        <div className="flex gap-2">
+                            {canExport && (
+                                <ExportButton
+                                    onExportExcel={handlePurchasesExcel}
+                                    onExportPDF={handlePurchasesPDF}
+                                    label="تصدير المشتريات"
+                                    compact
+                                />
+                            )}
+                            {canCreatePurchase && (
+                                <Button onClick={() => router.push('/purchases/new')} variant="primary" className="gap-2 w-full sm:w-auto py-3 text-xs md:text-sm h-auto justify-center active:scale-95 transition-transform">
+                                    <Plus className="w-3.5 h-3.5 md:w-4 md:h-4" />
+                                    إضافة طلب شراء
+                                </Button>
+                            )}
+                        </div>
                     </div>
 
                     {/* Filter Tabs — horizontal scroll, no squashing */}

@@ -148,7 +148,7 @@ export default function ProjectMembersPage() {
                                         <div className="text-right ml-2">
                                             <p className="text-xs text-gray-400">العهدة</p>
                                             <p className={`text-sm font-bold ${member.custodyBalance > 0 ? "text-amber-600" : "text-gray-400"}`}>
-                                                {member.custodyBalance.toLocaleString()} ر
+                                                {member.custodyBalance.toLocaleString('en-US')} ر
                                             </p>
                                         </div>
                                         <ChevronDown className={`w-4 h-4 text-gray-400 transition-transform ${isExpanded ? "rotate-180" : ""}`} />

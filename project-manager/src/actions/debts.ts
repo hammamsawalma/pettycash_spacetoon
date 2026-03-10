@@ -60,7 +60,7 @@ export async function settleDebt(debtId: string) {
             const wallet = await tx.companyWallet.findFirst();
             if (!wallet) throw new Error("خزنة الشركة غير موجودة");
             if (wallet.balance < debt.amount) {
-                throw new Error(`رصيد الخزنة (${wallet.balance.toLocaleString()}) غير كافٍ لتسوية هذا الدين (${debt.amount.toLocaleString()})`);
+                throw new Error(`رصيد الخزنة (${wallet.balance.toLocaleString('en-US')}) غير كافٍ لتسوية هذا الدين (${debt.amount.toLocaleString('en-US')})`);
             }
 
             // Mark debt as settled
@@ -106,7 +106,7 @@ export async function settleDebt(debtId: string) {
                 await prisma.notification.create({
                     data: {
                         title: 'تمت تسوية دينك ✅',
-                        content: `تم تسوية مبلغ ${debt.amount.toLocaleString()} ريال مستحق لك من الشركة`,
+                        content: `تم تسوية مبلغ ${debt.amount.toLocaleString('en-US')} ريال مستحق لك من الشركة`,
                         targetUserId: debt.employeeId
                     }
                 });

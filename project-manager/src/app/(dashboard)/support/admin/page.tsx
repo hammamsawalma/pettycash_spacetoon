@@ -1,4 +1,5 @@
 "use client"
+import { formatDateAr } from "@/lib/format-utils";
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
@@ -156,8 +157,8 @@ export default function AdminSupportPage() {
                                     key={conv.userId}
                                     onClick={() => selectConversation(conv.userId)}
                                     className={`px-4 py-3 flex items-center gap-3 cursor-pointer transition-colors border-l-4 ${activeUserId === conv.userId
-                                            ? 'bg-blue-50 border-[#102550]'
-                                            : 'border-transparent hover:bg-gray-50'
+                                        ? 'bg-blue-50 border-[#102550]'
+                                        : 'border-transparent hover:bg-gray-50'
                                         }`}
                                 >
                                     {/* Avatar */}
@@ -176,7 +177,7 @@ export default function AdminSupportPage() {
                                         <div className="flex justify-between items-baseline mb-0.5">
                                             <p className="text-sm font-bold text-gray-900 truncate">{conv.userName}</p>
                                             <span className="text-[10px] text-gray-400 shrink-0 mr-2">
-                                                {new Date(conv.lastMessageAt).toLocaleDateString('ar-EG', { day: 'numeric', month: 'short' })}
+                                                {formatDateAr(new Date(conv.lastMessageAt), { day: 'numeric', month: 'short' })}
                                             </span>
                                         </div>
                                         <p className="text-xs text-gray-500 truncate">
@@ -238,8 +239,8 @@ export default function AdminSupportPage() {
                                 return (
                                     <div key={msg.id} className={`flex ${isAdmin ? 'justify-start' : 'justify-end'}`}>
                                         <div className={`max-w-[80%] rounded-2xl px-4 py-2.5 shadow-sm ${isAdmin
-                                                ? 'bg-[#102550] text-white rounded-br-sm'
-                                                : 'bg-white text-gray-800 border border-gray-100 rounded-bl-sm'
+                                            ? 'bg-[#102550] text-white rounded-br-sm'
+                                            : 'bg-white text-gray-800 border border-gray-100 rounded-bl-sm'
                                             }`}>
                                             {!isAdmin && (
                                                 <p className="text-[10px] text-blue-600 font-bold mb-1">{msg.sender.name}</p>

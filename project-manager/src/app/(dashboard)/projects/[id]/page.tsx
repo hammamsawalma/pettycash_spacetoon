@@ -92,10 +92,10 @@ export default function ProjectDetailsPage({ params }: { params: Promise<{ id: s
     const expectedRemaining = budgetAllocated - approvedExpenses - pendingExpenses;
 
     const kpis = [
-        { title: "الميزانية المخصصة", value: budgetAllocated.toLocaleString(), icon: Wallet, color: "text-[#102550]", bg: "bg-blue-50" },
-        { title: "العهد المتبقية (مع الموظفين)", value: custodyRemaining.toLocaleString(), icon: Landmark, color: "text-emerald-600", bg: "bg-emerald-50" },
-        { title: "المصروفات المعتمدة", value: approvedExpenses.toLocaleString(), icon: FileText, color: "text-red-600", bg: "bg-red-50" },
-        { title: "المتبقي المتوقع (الصافي)", value: expectedRemaining.toLocaleString(), icon: ArrowDownLeft, color: expectedRemaining < 0 ? "text-red-600" : "text-orange-600", bg: expectedRemaining < 0 ? "bg-red-50" : "bg-orange-50" },
+        { title: "الميزانية المخصصة", value: budgetAllocated.toLocaleString('en-US'), icon: Wallet, color: "text-[#102550]", bg: "bg-blue-50" },
+        { title: "العهد المتبقية (مع الموظفين)", value: custodyRemaining.toLocaleString('en-US'), icon: Landmark, color: "text-emerald-600", bg: "bg-emerald-50" },
+        { title: "المصروفات المعتمدة", value: approvedExpenses.toLocaleString('en-US'), icon: FileText, color: "text-red-600", bg: "bg-red-50" },
+        { title: "المتبقي المتوقع (الصافي)", value: expectedRemaining.toLocaleString('en-US'), icon: ArrowDownLeft, color: expectedRemaining < 0 ? "text-red-600" : "text-orange-600", bg: expectedRemaining < 0 ? "bg-red-50" : "bg-orange-50" },
     ];
 
     const userMember = project.members?.find((m: any) => m.userId === user?.id);
@@ -258,11 +258,11 @@ export default function ProjectDetailsPage({ params }: { params: Promise<{ id: s
 
                                     <div className="bg-primary/5 p-4 rounded-xl">
                                         <p className="text-[10px] md:text-xs text-primary/70 font-bold">الميزانية المخصصة الكلية (من الخزينة)</p>
-                                        <p className="font-bold text-primary mt-1.5 text-xs md:text-sm">{project.budgetAllocated?.toLocaleString() || '0'} <span className="text-[10px]"><CurrencyDisplay /></span></p>
+                                        <p className="font-bold text-primary mt-1.5 text-xs md:text-sm">{project.budgetAllocated?.toLocaleString('en-US') || '0'} <span className="text-[10px]"><CurrencyDisplay /></span></p>
                                     </div>
                                     <div className="bg-emerald-50 p-4 rounded-xl">
                                         <p className="text-[10px] md:text-xs text-emerald-600/70 font-bold">إجمالي ما تم سحبه للعهد</p>
-                                        <p className="font-bold text-emerald-600 mt-1.5 text-xs md:text-sm">{project.custodyIssued?.toLocaleString() || '0'} <span className="text-[10px]"><CurrencyDisplay /></span></p>
+                                        <p className="font-bold text-emerald-600 mt-1.5 text-xs md:text-sm">{project.custodyIssued?.toLocaleString('en-US') || '0'} <span className="text-[10px]"><CurrencyDisplay /></span></p>
                                     </div>
                                     <div className="bg-blue-50 p-4 rounded-xl">
                                         <p className="text-[10px] md:text-xs text-blue-400 font-bold">مدير المشروع</p>
@@ -366,8 +366,8 @@ export default function ProjectDetailsPage({ params }: { params: Promise<{ id: s
                                                     </div>
                                                 </div>
                                                 <div className="text-left shrink-0">
-                                                    <p className="text-xs font-black text-gray-900">{memberBalance.toLocaleString()} <span className="text-[10px] text-gray-400"><CurrencyDisplay /></span></p>
-                                                    <p className="text-[10px] text-gray-400">متبقي / {memberTotal.toLocaleString()} وصل</p>
+                                                    <p className="text-xs font-black text-gray-900">{memberBalance.toLocaleString('en-US')} <span className="text-[10px] text-gray-400"><CurrencyDisplay /></span></p>
+                                                    <p className="text-[10px] text-gray-400">متبقي / {memberTotal.toLocaleString('en-US')} وصل</p>
                                                     {/* Custodianship confirmation badge */}
                                                     {(() => {
                                                         const memberCustodies = projectCustodies.filter((c: any) => c.employeeId === m.userId);
@@ -439,7 +439,7 @@ export default function ProjectDetailsPage({ params }: { params: Promise<{ id: s
                                                         {c.externalPurpose && <p className="text-[10px] text-gray-500 truncate">{c.externalPurpose}</p>}
                                                     </div>
                                                     <div className="text-left shrink-0">
-                                                        <p className="text-xs font-black text-gray-900">{c.balance?.toLocaleString()} <span className="text-[10px] text-gray-400"><CurrencyDisplay /></span></p>
+                                                        <p className="text-xs font-black text-gray-900">{c.balance?.toLocaleString('en-US')} <span className="text-[10px] text-gray-400"><CurrencyDisplay /></span></p>
                                                         <span className="text-[9px] px-1.5 py-0.5 rounded-full font-bold bg-orange-100 text-orange-700 inline-block">خارجي</span>
                                                     </div>
                                                 </div>
@@ -460,15 +460,15 @@ export default function ProjectDetailsPage({ params }: { params: Promise<{ id: s
                                 <div className="grid grid-cols-3 gap-2">
                                     <div className="bg-primary/5 rounded-xl p-3 text-center">
                                         <p className="text-[10px] text-gray-500 font-semibold">ميزانية المشروع</p>
-                                        <p className="text-sm font-black text-primary">{(project.budgetAllocated ?? 0).toLocaleString()}</p>
+                                        <p className="text-sm font-black text-primary">{(project.budgetAllocated ?? 0).toLocaleString('en-US')}</p>
                                     </div>
                                     <div className="bg-rose-50 rounded-xl p-3 text-center">
                                         <p className="text-[10px] text-gray-500 font-semibold">صُرف عُهدًا</p>
-                                        <p className="text-sm font-black text-rose-600">{(project.custodyIssued ?? 0).toLocaleString()}</p>
+                                        <p className="text-sm font-black text-rose-600">{(project.custodyIssued ?? 0).toLocaleString('en-US')}</p>
                                     </div>
                                     <div className="bg-emerald-50 rounded-xl p-3 text-center">
                                         <p className="text-[10px] text-gray-500 font-semibold">متاح للصرف</p>
-                                        <p className="text-sm font-black text-emerald-600">{((project.budgetAllocated ?? 0) - (project.custodyIssued ?? 0)).toLocaleString()}</p>
+                                        <p className="text-sm font-black text-emerald-600">{((project.budgetAllocated ?? 0) - (project.custodyIssued ?? 0)).toLocaleString('en-US')}</p>
                                     </div>
                                 </div>
                                 {project.status === "COMPLETED" ? (
@@ -663,7 +663,7 @@ export default function ProjectDetailsPage({ params }: { params: Promise<{ id: s
                                             </div>
                                         </div>
                                         <div className="text-left">
-                                            <p className="font-black text-gray-900">{inv.amount.toLocaleString()} <span className="text-xs"><CurrencyDisplay /></span></p>
+                                            <p className="font-black text-gray-900">{inv.amount.toLocaleString('en-US')} <span className="text-xs"><CurrencyDisplay /></span></p>
                                             <p className={`text-[10px] md:text-xs font-bold ${inv.status === 'APPROVED' ? 'text-emerald-500' : inv.status === 'REJECTED' ? 'text-red-500' : 'text-amber-500'}`}>
                                                 {inv.status === 'APPROVED' ? 'معتمد' : inv.status === 'REJECTED' ? 'مرفوض' : 'قيد المراجعة'}
                                             </p>
@@ -785,7 +785,7 @@ export default function ProjectDetailsPage({ params }: { params: Promise<{ id: s
                             <div className="space-y-4">
                                 <div className="bg-blue-50 p-3 rounded-xl text-sm">
                                     <span className="font-bold text-blue-800">الرصيد المتاح: </span>
-                                    <span className="font-black text-blue-900">{returnModal.balance.toLocaleString()} <CurrencyDisplay /></span>
+                                    <span className="font-black text-blue-900">{returnModal.balance.toLocaleString('en-US')} <CurrencyDisplay /></span>
                                 </div>
                                 <div className="space-y-1">
                                     <label className="text-sm font-bold text-gray-700">المبلغ المُرجَع</label>

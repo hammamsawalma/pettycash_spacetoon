@@ -139,8 +139,8 @@ export default function AccountantDashboard() {
                                     <div>
                                         <p className="text-sm font-bold text-gray-900">{p.name}</p>
                                         <p className="text-xs text-gray-400 font-medium mt-0.5">
-                                            ميزانية: {(p.budgetAllocated ?? 0).toLocaleString()} <CurrencyDisplay />
-                                            {" • "}عُهد: {(p.custodyIssued ?? 0).toLocaleString()} <CurrencyDisplay />
+                                            ميزانية: {(p.budgetAllocated ?? 0).toLocaleString('en-US')} <CurrencyDisplay />
+                                            {" • "}عُهد: {(p.custodyIssued ?? 0).toLocaleString('en-US')} <CurrencyDisplay />
                                         </p>
                                     </div>
                                     <span className={`px-2 py-1 text-[10px] font-bold rounded-lg ${p.status === 'COMPLETED' ? 'bg-emerald-50 text-emerald-600' : 'bg-amber-50 text-amber-600'}`}>
@@ -167,7 +167,7 @@ export default function AccountantDashboard() {
                                         </div>
                                         <div>
                                             <p className="text-xs md:text-sm font-bold text-gray-900">
-                                                {invoice.type === 'SALES' ? 'مبيعات' : 'مشتريات'} — {(invoice.amount || 0).toLocaleString()} <CurrencyDisplay />
+                                                {invoice.type === 'SALES' ? 'مبيعات' : 'مشتريات'} — {(invoice.amount || 0).toLocaleString('en-US')} <CurrencyDisplay />
                                             </p>
                                             <p className="text-[10px] md:text-xs text-gray-400 font-medium mt-0.5">{invoice.project?.name || 'بدون مشروع'}</p>
                                         </div>

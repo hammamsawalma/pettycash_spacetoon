@@ -3,6 +3,8 @@
  * Generates HTML that can be printed via browser print (Ctrl+P → Save as PDF)
  */
 
+import { formatNumber, formatDateAr } from './format-utils';
+
 export type VoucherType = "ISSUE" | "RECEIPT";
 
 export interface VoucherData {
@@ -27,7 +29,7 @@ export function generateVoucherHTML(data: VoucherData): string {
     const typeLabel = data.type === "ISSUE" ? "سند صرف" : "سند قبض";
     const typeColor = data.type === "ISSUE" ? "#1e3a5f" : "#0d6b3d";
     const typeBg = data.type === "ISSUE" ? "#e8f0fe" : "#e6f4ea";
-    const dateStr = data.date.toLocaleDateString("ar-EG", { year: "numeric", month: "long", day: "numeric" });
+    const dateStr = formatDateAr(data.date, { year: "numeric", month: "long", day: "numeric" });
     const recipientName = data.isExternal ? data.externalName : data.employeeName;
     const methodLabel = data.method === "CASH" ? "نقداً" : "تحويل بنكي";
     const vNum = String(data.voucherNumber || 1).padStart(5, '0');
@@ -132,7 +134,7 @@ export function generateVoucherHTML(data: VoucherData): string {
         
         <div class="amount-section">
             <div class="label">${data.type === "ISSUE" ? "المبلغ المصروف" : "المبلغ المُرجَع"}</div>
-            <div class="amount">${data.amount.toLocaleString('ar-EG')} <span class="currency">ر.ق</span></div>
+            <div class="amount">${formatNumber(data.amount)} <span class="currency">ر.ق</span></div>
         </div>
         
         <div class="signatures">
@@ -151,7 +153,7 @@ export function generateVoucherHTML(data: VoucherData): string {
         </div>
         
         <div class="footer">
-            تم إصدار هذا السند إلكترونياً بواسطة نظام سبيستون بوكيت — ${new Date().toLocaleDateString('ar-EG')}
+            تم إصدار هذا السند إلكترونياً بواسطة نظام سبيستون بوكيت — ${formatDateAr(new Date())}
         </div>
     </div>
 </body>

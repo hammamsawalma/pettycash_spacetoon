@@ -6,6 +6,7 @@
  */
 
 import * as XLSX from "xlsx";
+import { formatDateAr } from './format-utils';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -30,9 +31,7 @@ export function formatDate(date: Date | string | null | undefined): string {
 }
 
 export function formatDateArabic(date: Date | string | null | undefined): string {
-    if (!date) return "-";
-    const d = typeof date === "string" ? new Date(date) : date;
-    return d.toLocaleDateString("ar-EG", {
+    return formatDateAr(date, {
         year: "numeric",
         month: "long",
         day: "numeric",
@@ -132,7 +131,7 @@ export function generatePrintableReport(options: {
         accentColor = "#102550",
     } = options;
 
-    const dateStr = new Date().toLocaleDateString("ar-EG", {
+    const dateStr = formatDateAr(new Date(), {
         year: "numeric",
         month: "long",
         day: "numeric",

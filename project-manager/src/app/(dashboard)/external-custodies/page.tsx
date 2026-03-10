@@ -308,7 +308,7 @@ export default function ExternalCustodiesPage() {
                                                 </span>
                                             </td>
                                             <td className="px-4 md:px-5 py-3 md:py-4 font-black text-gray-900">
-                                                {c.amount.toLocaleString()}{" "}
+                                                {c.amount.toLocaleString('en-US')}{" "}
                                                 <span className="text-[10px] text-gray-400">
                                                     <CurrencyDisplay />
                                                 </span>
@@ -318,7 +318,7 @@ export default function ExternalCustodiesPage() {
                                                     className={`font-black ${c.balance > 0 ? "text-red-600" : "text-gray-400"
                                                         }`}
                                                 >
-                                                    {c.balance.toLocaleString()}{" "}
+                                                    {c.balance.toLocaleString('en-US')}{" "}
                                                     <span className="text-[10px] text-gray-400">
                                                         <CurrencyDisplay />
                                                     </span>
@@ -371,7 +371,7 @@ export default function ExternalCustodiesPage() {
                                         <td className="px-4 md:px-5 py-3 md:py-4 font-black text-gray-900">
                                             {filtered
                                                 .reduce((s, c) => s + c.amount, 0)
-                                                .toLocaleString()}{" "}
+                                                .toLocaleString('en-US')}{" "}
                                             <span className="text-[10px] text-gray-400">
                                                 <CurrencyDisplay />
                                             </span>
@@ -379,7 +379,7 @@ export default function ExternalCustodiesPage() {
                                         <td className="px-4 md:px-5 py-3 md:py-4 font-black text-red-600">
                                             {filtered
                                                 .reduce((s, c) => s + c.balance, 0)
-                                                .toLocaleString()}{" "}
+                                                .toLocaleString('en-US')}{" "}
                                             <span className="text-[10px] text-gray-400">
                                                 <CurrencyDisplay />
                                             </span>

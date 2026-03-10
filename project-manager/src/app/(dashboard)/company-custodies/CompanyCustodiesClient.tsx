@@ -105,7 +105,7 @@ export default function CompanyCustodiesClient({ custodies, role }: { custodies:
                             </div>
                             <div>
                                 <p className="text-xs text-gray-500 font-bold">إجمالي العهد النشطة</p>
-                                <p className="text-xl font-black text-gray-900">{totalActive.toLocaleString()} <span className="text-xs font-bold text-gray-400"><CurrencyDisplay /></span></p>
+                                <p className="text-xl font-black text-gray-900">{totalActive.toLocaleString('en-US')} <span className="text-xs font-bold text-gray-400"><CurrencyDisplay /></span></p>
                             </div>
                         </div>
                     </Card>
@@ -201,7 +201,7 @@ export default function CompanyCustodiesClient({ custodies, role }: { custodies:
                                                 <User className="w-3 h-3" /> {c.employee.name}
                                             </p>
                                             <h3 className="text-xl font-black text-gray-900">
-                                                {c.balance.toLocaleString()} <span className="text-xs text-gray-400 font-bold"><CurrencyDisplay /></span>
+                                                {c.balance.toLocaleString('en-US')} <span className="text-xs text-gray-400 font-bold"><CurrencyDisplay /></span>
                                             </h3>
                                         </div>
                                         <span className={`px-2.5 py-1 text-[10px] font-bold rounded-lg ${c.isConfirmed ? 'bg-emerald-50 text-emerald-600' : 'bg-amber-50 text-amber-600'}`}>
@@ -248,7 +248,7 @@ export default function CompanyCustodiesClient({ custodies, role }: { custodies:
                                         {rejected.map(c => (
                                             <tr key={c.id} className="hover:bg-red-50/30">
                                                 <td className="px-4 py-3 font-semibold">{c.employee.name}</td>
-                                                <td className="px-4 py-3 font-bold">{c.amount.toLocaleString()} <span className="text-[10px]"><CurrencyDisplay /></span></td>
+                                                <td className="px-4 py-3 font-bold">{c.amount.toLocaleString('en-US')} <span className="text-[10px]"><CurrencyDisplay /></span></td>
                                                 <td className="px-4 py-3 text-red-600 text-xs">{c.rejectedReason || '—'}</td>
                                                 <td className="px-4 py-3 text-gray-500">{new Date(c.createdAt).toLocaleDateString('en-GB')}</td>
                                             </tr>
@@ -281,7 +281,7 @@ export default function CompanyCustodiesClient({ custodies, role }: { custodies:
                                         {closed.map(c => (
                                             <tr key={c.id} className="hover:bg-gray-50/50">
                                                 <td className="px-4 py-3 font-semibold">{c.employee.name}</td>
-                                                <td className="px-4 py-3 font-bold">{c.amount.toLocaleString()} <span className="text-[10px]"><CurrencyDisplay /></span></td>
+                                                <td className="px-4 py-3 font-bold">{c.amount.toLocaleString('en-US')} <span className="text-[10px]"><CurrencyDisplay /></span></td>
                                                 <td className="px-4 py-3 text-gray-500">{new Date(c.createdAt).toLocaleDateString('en-GB')}</td>
                                                 <td className="px-4 py-3">
                                                     <a href={`/api/vouchers/${c.id}`} target="_blank" rel="noopener noreferrer"
