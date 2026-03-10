@@ -3,10 +3,13 @@ import { defineConfig, devices } from '@playwright/test';
 const AUTH_DIR = './tests/.auth';
 
 /**
- * Use production server when TEST_PROD=1 is set.
- * Production mode eliminates on-the-fly compilation (0ms compile vs 10-75s in dev).
+ * Production build is the DEFAULT (much faster, no compilation overhead).
+ * Set TEST_DEV=1 to use the dev server instead.
+ *
+ * Production mode: 0ms compile, 5-10x faster page loads.
+ * Dev mode: 10-75s compile on first load, useful for debugging.
  */
-const isProd = process.env.TEST_PROD === '1';
+const isDev = process.env.TEST_DEV === '1';
 
 export default defineConfig({
     testDir: './tests',
@@ -21,8 +24,8 @@ export default defineConfig({
 
     reporter: [['html'], ['list']],
 
-    /* 60s default timeout — generous enough for slow dev server */
-    timeout: 60_000,
+    /* 45s default — prod build is fast, dev may need more */
+    timeout: isDev ? 60_000 : 45_000,
 
     use: {
         baseURL: 'http://localhost:3000',
@@ -60,9 +63,10 @@ export default defineConfig({
     ],
 
     webServer: {
-        command: isProd ? 'npm run start' : 'npm run dev',
+        command: isDev ? 'npm run dev' : 'npm run start',
         url: 'http://localhost:3000',
-        reuseExistingServer: true,
+        /* In prod mode, don't reuse — kill any existing dev server */
+        reuseExistingServer: isDev,
         timeout: 120_000,
     },
 });

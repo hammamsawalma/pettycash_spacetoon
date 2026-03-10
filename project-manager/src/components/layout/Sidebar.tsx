@@ -160,6 +160,12 @@ const navigationGroups: NavGroup[] = [
                         // v5.1: ADMIN + GLOBAL_ACCOUNTANT + GENERAL_MANAGER
                         check: (r) => r === 'ADMIN' || r === 'GLOBAL_ACCOUNTANT' || r === 'GENERAL_MANAGER',
                     },
+                    {
+                        name: 'عهد مصاريف الشركة',
+                        href: '/company-custodies',
+                        // v7: ADMIN + GLOBAL_ACCOUNTANT + GENERAL_MANAGER
+                        check: (r) => r === 'ADMIN' || r === 'GLOBAL_ACCOUNTANT' || r === 'GENERAL_MANAGER',
+                    },
                 ],
             },
             {

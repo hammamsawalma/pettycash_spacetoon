@@ -1,6 +1,6 @@
 /**
- * v5: Voucher generation utilities
- * Generates HTML vouchers that can be printed as PDFs via browser print
+ * v7: Redesigned Voucher generation — Clean, professional A4 layout
+ * Generates HTML that can be printed via browser print (Ctrl+P → Save as PDF)
  */
 
 export type VoucherType = "ISSUE" | "RECEIPT";
@@ -9,109 +9,155 @@ export interface VoucherData {
     voucherNumber: number;
     type: VoucherType;
     date: Date;
-    // Custody info
     employeeName: string;
     projectName: string;
     amount: number;
-    method: string; // CASH | BANK
+    method: string;
     note?: string;
-    // For external custody
     isExternal?: boolean;
     externalName?: string;
     externalPhone?: string;
     externalPurpose?: string;
-    // Signatures
+    isCompanyExpense?: boolean;
     issuerName: string;
-    recipientSignature?: string; // base64 PNG
+    recipientSignature?: string;
 }
 
-/**
- * Generate printable HTML voucher
- */
 export function generateVoucherHTML(data: VoucherData): string {
     const typeLabel = data.type === "ISSUE" ? "سند صرف" : "سند قبض";
-    const typeColor = data.type === "ISSUE" ? "#1e40af" : "#059669";
+    const typeColor = data.type === "ISSUE" ? "#1e3a5f" : "#0d6b3d";
+    const typeBg = data.type === "ISSUE" ? "#e8f0fe" : "#e6f4ea";
     const dateStr = data.date.toLocaleDateString("ar-EG", { year: "numeric", month: "long", day: "numeric" });
     const recipientName = data.isExternal ? data.externalName : data.employeeName;
     const methodLabel = data.method === "CASH" ? "نقداً" : "تحويل بنكي";
+    const vNum = String(data.voucherNumber || 1).padStart(5, '0');
+    const scopeLabel = data.isCompanyExpense ? "مصاريف الشركة" : data.projectName;
 
-    return `
-<!DOCTYPE html>
+    return `<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>${typeLabel} رقم ${data.voucherNumber}</title>
+    <title>${typeLabel} رقم ${vNum}</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        @page { margin: 1.5cm; size: A5 landscape; }
-        body { font-family: 'Segoe UI', Tahoma, Arial, sans-serif; direction: rtl; color: #1a1a2e; font-size: 13px; }
-        .voucher { border: 2px solid ${typeColor}; border-radius: 12px; padding: 24px 28px; max-width: 650px; margin: 0 auto; }
-        .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #e5e7eb; padding-bottom: 14px; margin-bottom: 16px; }
-        .header h1 { font-size: 22px; font-weight: 800; color: ${typeColor}; }
-        .header .meta { text-align: left; font-size: 11px; color: #6b7280; }
-        .meta strong { color: #1f2937; }
-        .details { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 20px; margin-bottom: 18px; }
-        .detail { display: flex; gap: 6px; }
-        .detail-label { font-weight: 700; color: #6b7280; min-width: 80px; }
-        .detail-value { font-weight: 600; color: #111827; }
-        .amount-box { background: #f0fdf4; border: 2px solid #bbf7d0; border-radius: 10px; padding: 14px; text-align: center; margin-bottom: 18px; }
-        .amount-box .label { font-size: 11px; color: #16a34a; font-weight: 700; margin-bottom: 4px; }
-        .amount-box .value { font-size: 26px; font-weight: 900; color: #15803d; }
-        .signatures { display: flex; justify-content: space-between; margin-top: 24px; padding-top: 14px; border-top: 2px dashed #d1d5db; }
-        .sig-block { text-align: center; width: 45%; }
-        .sig-label { font-size: 10px; color: #9ca3af; margin-bottom: 4px; font-weight: 600; }
-        .sig-line { border-bottom: 1px solid #333; height: 50px; display: flex; align-items: flex-end; justify-content: center; padding-bottom: 2px; }
-        .sig-line img { max-height: 45px; max-width: 150px; }
-        .sig-name { font-size: 11px; font-weight: 700; color: #374151; margin-top: 4px; }
-        .note { background: #fefce8; border: 1px solid #fde68a; border-radius: 8px; padding: 8px 12px; font-size: 11px; color: #92400e; margin-bottom: 14px; }
-        .external-badge { display: inline-block; background: #fef3c7; color: #92400e; font-size: 9px; font-weight: 800; padding: 2px 8px; border-radius: 20px; margin-right: 8px; }
+        @page { margin: 20mm; size: A4; }
+        @media print { .no-print { display: none !important; } body { -webkit-print-color-adjust: exact; print-color-adjust: exact; } }
+        body { font-family: 'Segoe UI', Tahoma, 'Arial', sans-serif; direction: rtl; color: #1a1a2e; font-size: 15px; background: #f5f5f5; }
+        .page { max-width: 800px; margin: 20px auto; background: white; padding: 48px; border-radius: 12px; box-shadow: 0 4px 24px rgba(0,0,0,0.08); }
+        .print-bar { max-width: 800px; margin: 20px auto 0; padding: 12px 20px; display: flex; gap: 12px; justify-content: center; }
+        .print-bar button { padding: 10px 28px; border: none; border-radius: 8px; font-size: 14px; font-weight: 700; cursor: pointer; font-family: inherit; }
+        .btn-print { background: ${typeColor}; color: white; }
+        .btn-print:hover { opacity: 0.9; }
+        
+        .header { display: flex; justify-content: space-between; align-items: flex-start; padding-bottom: 20px; border-bottom: 3px solid ${typeColor}; margin-bottom: 28px; }
+        .header-right h1 { font-size: 28px; font-weight: 900; color: ${typeColor}; margin-bottom: 6px; }
+        .header-right .subtitle { font-size: 13px; color: #6b7280; font-weight: 600; }
+        .header-left { text-align: left; background: ${typeBg}; padding: 14px 20px; border-radius: 10px; min-width: 180px; }
+        .header-left .field { font-size: 12px; color: #6b7280; margin-bottom: 4px; }
+        .header-left .field strong { color: ${typeColor}; font-size: 14px; }
+        
+        .details-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 28px; }
+        .detail-item { background: #fafafa; border: 1px solid #eee; border-radius: 10px; padding: 14px 18px; }
+        .detail-item .label { font-size: 11px; color: #9ca3af; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+        .detail-item .value { font-size: 16px; font-weight: 700; color: #111827; }
+        
+        .amount-section { background: linear-gradient(135deg, ${typeBg}, white); border: 2px solid ${typeColor}20; border-radius: 14px; padding: 24px; text-align: center; margin-bottom: 28px; }
+        .amount-section .label { font-size: 13px; color: #6b7280; font-weight: 700; margin-bottom: 8px; }
+        .amount-section .amount { font-size: 36px; font-weight: 900; color: ${typeColor}; letter-spacing: 1px; }
+        .amount-section .currency { font-size: 16px; color: #6b7280; font-weight: 700; margin-right: 6px; }
+        
+        .note-box { background: #fffbeb; border: 1px solid #fbbf24; border-radius: 10px; padding: 14px 18px; margin-bottom: 28px; font-size: 14px; color: #92400e; line-height: 1.6; }
+        .note-box .note-title { font-weight: 800; font-size: 12px; color: #b45309; margin-bottom: 4px; }
+        
+        .signatures { display: flex; justify-content: space-between; margin-top: 40px; padding-top: 20px; border-top: 2px dashed #e5e7eb; gap: 40px; }
+        .sig-block { text-align: center; flex: 1; }
+        .sig-label { font-size: 12px; color: #9ca3af; font-weight: 700; margin-bottom: 8px; }
+        .sig-area { height: 70px; border-bottom: 2px solid #333; display: flex; align-items: flex-end; justify-content: center; padding-bottom: 4px; margin-bottom: 8px; }
+        .sig-area img { max-height: 60px; max-width: 180px; }
+        .sig-name { font-size: 14px; font-weight: 800; color: #374151; }
+        
+        .badge { display: inline-block; padding: 4px 14px; border-radius: 20px; font-size: 11px; font-weight: 800; }
+        .badge-external { background: #fef3c7; color: #92400e; }
+        .badge-company { background: #dbeafe; color: #1e40af; }
+        
+        .footer { text-align: center; margin-top: 32px; padding-top: 16px; border-top: 1px solid #eee; font-size: 11px; color: #9ca3af; }
     </style>
 </head>
 <body>
-    <div class="voucher">
+    <div class="print-bar no-print">
+        <button class="btn-print" onclick="window.print()">🖨️ طباعة السند</button>
+    </div>
+    <div class="page">
         <div class="header">
-            <div>
-                <h1>${typeLabel} ${data.isExternal ? '<span class="external-badge">خارجي</span>' : ''}</h1>
+            <div class="header-right">
+                <h1>${typeLabel} ${data.isExternal ? '<span class="badge badge-external">خارجي</span>' : ''}${data.isCompanyExpense ? '<span class="badge badge-company">مصاريف شركة</span>' : ''}</h1>
+                <div class="subtitle">سبيستون بوكيت — إدارة المشاريع</div>
             </div>
-            <div class="meta">
-                <div><strong>رقم:</strong> ${String(data.voucherNumber).padStart(5, '0')}</div>
-                <div><strong>التاريخ:</strong> ${dateStr}</div>
+            <div class="header-left">
+                <div class="field">رقم السند: <strong>${vNum}</strong></div>
+                <div class="field">التاريخ: <strong>${dateStr}</strong></div>
             </div>
         </div>
-        <div class="details">
-            <div class="detail"><span class="detail-label">المستلم:</span><span class="detail-value">${recipientName}</span></div>
-            <div class="detail"><span class="detail-label">المشروع:</span><span class="detail-value">${data.projectName}</span></div>
-            <div class="detail"><span class="detail-label">طريقة الدفع:</span><span class="detail-value">${methodLabel}</span></div>
-            ${data.isExternal && data.externalPhone ? `<div class="detail"><span class="detail-label">الهاتف:</span><span class="detail-value">${data.externalPhone}</span></div>` : ''}
-            ${data.isExternal && data.externalPurpose ? `<div class="detail"><span class="detail-label">الغرض:</span><span class="detail-value">${data.externalPurpose}</span></div>` : ''}
+        
+        <div class="details-grid">
+            <div class="detail-item">
+                <div class="label">${data.type === "ISSUE" ? "المستلم" : "المُرجِع"}</div>
+                <div class="value">${recipientName}</div>
+            </div>
+            <div class="detail-item">
+                <div class="label">${data.isCompanyExpense ? "النطاق" : "المشروع"}</div>
+                <div class="value">${scopeLabel}</div>
+            </div>
+            <div class="detail-item">
+                <div class="label">طريقة الدفع</div>
+                <div class="value">${methodLabel}</div>
+            </div>
+            ${data.isExternal && data.externalPhone ? `
+            <div class="detail-item">
+                <div class="label">هاتف الطرف الخارجي</div>
+                <div class="value">${data.externalPhone}</div>
+            </div>` : ''}
+            ${data.isExternal && data.externalPurpose ? `
+            <div class="detail-item">
+                <div class="label">الغرض</div>
+                <div class="value">${data.externalPurpose}</div>
+            </div>` : ''}
         </div>
-        ${data.note ? `<div class="note">📝 ${data.note}</div>` : ''}
-        <div class="amount-box">
-            <div class="label">المبلغ</div>
-            <div class="value">${data.amount.toLocaleString('ar-EG')} ر.ق</div>
+        
+        ${data.note ? `
+        <div class="note-box">
+            <div class="note-title">📝 ملاحظات</div>
+            ${data.note}
+        </div>` : ''}
+        
+        <div class="amount-section">
+            <div class="label">${data.type === "ISSUE" ? "المبلغ المصروف" : "المبلغ المُرجَع"}</div>
+            <div class="amount">${data.amount.toLocaleString('ar-EG')} <span class="currency">ر.ق</span></div>
         </div>
+        
         <div class="signatures">
             <div class="sig-block">
-                <div class="sig-label">${data.type === "ISSUE" ? "توقيع المُصرف" : "توقيع المُستلم"}</div>
-                <div class="sig-line"><span>${data.issuerName}</span></div>
+                <div class="sig-label">${data.type === "ISSUE" ? "توقيع المُصرِف (المدير)" : "توقيع المُستلِم"}</div>
+                <div class="sig-area"><span>${data.issuerName}</span></div>
                 <div class="sig-name">${data.issuerName}</div>
             </div>
             <div class="sig-block">
                 <div class="sig-label">${data.type === "ISSUE" ? "توقيع المستلم" : "توقيع المحاسب"}</div>
-                <div class="sig-line">
+                <div class="sig-area">
                     ${data.recipientSignature ? `<img src="${data.recipientSignature}" alt="signature" />` : ''}
                 </div>
                 <div class="sig-name">${recipientName}</div>
             </div>
+        </div>
+        
+        <div class="footer">
+            تم إصدار هذا السند إلكترونياً بواسطة نظام سبيستون بوكيت — ${new Date().toLocaleDateString('ar-EG')}
         </div>
     </div>
 </body>
 </html>`;
 }
 
-/**
- * Open voucher in a new window for printing
- */
 export function printVoucher(data: VoucherData) {
     const html = generateVoucherHTML(data);
     const printWindow = window.open("", "_blank");

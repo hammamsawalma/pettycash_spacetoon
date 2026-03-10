@@ -258,14 +258,17 @@ async function executeFinanceRequest(
                         where: { id: data.targetId },
                         data: { isClosed: true, closedAt: new Date(), balance: 0 }
                     });
-                    await tx.projectMember.updateMany({
-                        where: { projectId: custody.projectId, userId: custody.employeeId },
-                        data: { custodyBalance: { decrement: remainingBalance } }
-                    });
-                    await tx.project.update({
-                        where: { id: custody.projectId },
-                        data: { custodyReturned: { increment: remainingBalance } }
-                    });
+                    // v7: Only update project member/project if linked to a project
+                    if (custody.projectId) {
+                        await tx.projectMember.updateMany({
+                            where: { projectId: custody.projectId, userId: custody.employeeId },
+                            data: { custodyBalance: { decrement: remainingBalance } }
+                        });
+                        await tx.project.update({
+                            where: { id: custody.projectId },
+                            data: { custodyReturned: { increment: remainingBalance } }
+                        });
+                    }
                     // C3: Fixed — use approverId (User ID) instead of requestId (FinanceRequest ID)
                     await tx.custodyReturn.create({
                         data: {

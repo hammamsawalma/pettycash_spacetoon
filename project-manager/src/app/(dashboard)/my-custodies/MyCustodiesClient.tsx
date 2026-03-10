@@ -20,13 +20,15 @@ interface CustodyData {
     method: string;
     isConfirmed: boolean;
     isClosed: boolean;
+    status?: string;
+    rejectedReason?: string | null;
     createdAt: Date;
     note: string | null;
     project: {
         id: string;
         name: string;
         manager: { name: string } | null;
-    };
+    } | null;
 }
 
 export default function MyCustodiesClient({ custodies }: { custodies: CustodyData[] }) {
@@ -84,9 +86,10 @@ export default function MyCustodiesClient({ custodies }: { custodies: CustodyDat
 
 
 
-    const unconfirmed = custodies.filter(c => !c.isConfirmed && !c.isClosed);
-    const active = custodies.filter(c => c.isConfirmed && !c.isClosed);
-    const closed = custodies.filter(c => c.isClosed);
+    const unconfirmed = custodies.filter(c => !c.isConfirmed && !c.isClosed && c.status !== 'REJECTED');
+    const active = custodies.filter(c => c.isConfirmed && !c.isClosed && c.status !== 'REJECTED');
+    const closed = custodies.filter(c => c.isClosed && c.status !== 'REJECTED');
+    const rejected = custodies.filter(c => c.status === 'REJECTED');
 
     return (
         <DashboardLayout title="إدارة عهدي">
@@ -108,7 +111,7 @@ export default function MyCustodiesClient({ custodies }: { custodies: CustodyDat
 
                                     <div className="flex justify-between items-start mb-4">
                                         <div>
-                                            <p className="text-xs font-semibold text-amber-700 mb-1">{custody.project.name}</p>
+                                            <p className="text-xs font-semibold text-amber-700 mb-1">{custody.project?.name || 'مصاريف الشركة'}</p>
                                             <h3 className="text-2xl font-black text-gray-900 drop-shadow-sm">
                                                 {custody.amount.toLocaleString()} <span className="text-sm text-gray-500 font-bold"><CurrencyDisplay /></span>
                                             </h3>
@@ -121,7 +124,7 @@ export default function MyCustodiesClient({ custodies }: { custodies: CustodyDat
                                     <div className="space-y-2 mb-6">
                                         <div className="flex items-center gap-2 text-xs text-gray-600">
                                             <Briefcase className="w-3.5 h-3.5 text-gray-400" />
-                                            <span>المرسِل: <span className="font-semibold">{custody.project.manager?.name || "مدير النظام"}</span></span>
+                                            <span>المرسِل: <span className="font-semibold">{custody.project?.manager?.name || "مدير النظام"}</span></span>
                                         </div>
                                         <div className="flex items-center gap-2 text-xs text-gray-600">
                                             <Clock className="w-3.5 h-3.5 text-gray-400" />
@@ -208,7 +211,7 @@ export default function MyCustodiesClient({ custodies }: { custodies: CustodyDat
                                     <Card key={custody.id} className="p-5 hover:border-[#102550]/30 transition-all group">
                                         <div className="flex justify-between items-start mb-3">
                                             <div>
-                                                <p className="text-xs font-semibold text-gray-500 mb-0.5">{custody.project.name}</p>
+                                                <p className="text-xs font-semibold text-gray-500 mb-0.5">{custody.project?.name || 'مصاريف الشركة'}</p>
                                                 <h3 className="text-xl font-black text-gray-900 group-hover:text-[#102550] transition-colors line-clamp-1">
                                                     المتبقي: {custody.balance.toLocaleString()} <span className="text-xs text-gray-400 font-bold"><CurrencyDisplay /></span>
                                                 </h3>
@@ -288,7 +291,7 @@ export default function MyCustodiesClient({ custodies }: { custodies: CustodyDat
                                     <tbody className="divide-y divide-gray-50">
                                         {closed.map(c => (
                                             <tr key={c.id} className="hover:bg-gray-50/50 transition-colors">
-                                                <td className="px-4 py-3 font-semibold text-gray-900">{c.project.name}</td>
+                                                <td className="px-4 py-3 font-semibold text-gray-900">{c.project?.name || 'مصاريف الشركة'}</td>
                                                 <td className="px-4 py-3 font-bold text-gray-600">{c.amount.toLocaleString()} <span className="text-[10px]"><CurrencyDisplay /></span></td>
                                                 <td className="px-4 py-3 text-gray-500">{new Date(c.createdAt).toLocaleDateString('en-GB')}</td>
                                                 <td className="px-4 py-3">
@@ -307,6 +310,42 @@ export default function MyCustodiesClient({ custodies }: { custodies: CustodyDat
                                                         عرض
                                                     </a>
                                                 </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </section>
+                )}
+
+                {/* v7: Rejected Custodies Section */}
+                {rejected.length > 0 && (
+                    <section>
+                        <div className="flex items-center gap-2 mb-4">
+                            <div className="w-8 h-8 rounded-lg bg-red-100 flex items-center justify-center">
+                                <XCircle className="w-4 h-4 text-red-600" />
+                            </div>
+                            <h2 className="text-xl font-bold text-gray-900">عهد مرفوضة</h2>
+                        </div>
+                        <div className="bg-white rounded-2xl border border-red-100 overflow-hidden shadow-sm">
+                            <div className="overflow-x-auto">
+                                <table className="w-full text-sm text-right min-w-[480px]">
+                                    <thead className="bg-red-50/50 text-gray-500 font-semibold border-b border-red-100">
+                                        <tr>
+                                            <th className="px-4 py-3">المشروع</th>
+                                            <th className="px-4 py-3">المبلغ</th>
+                                            <th className="px-4 py-3">سبب الرفض</th>
+                                            <th className="px-4 py-3">التاريخ</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody className="divide-y divide-red-50">
+                                        {rejected.map(c => (
+                                            <tr key={c.id} className="hover:bg-red-50/30 transition-colors">
+                                                <td className="px-4 py-3 font-semibold text-gray-900">{c.project?.name || 'مصاريف الشركة'}</td>
+                                                <td className="px-4 py-3 font-bold text-gray-600">{c.amount.toLocaleString()} <span className="text-[10px]"><CurrencyDisplay /></span></td>
+                                                <td className="px-4 py-3 text-red-600 text-xs max-w-[200px]">{c.rejectedReason || '—'}</td>
+                                                <td className="px-4 py-3 text-gray-500">{new Date(c.createdAt).toLocaleDateString('en-GB')}</td>
                                             </tr>
                                         ))}
                                     </tbody>

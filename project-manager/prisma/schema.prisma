@@ -128,7 +128,7 @@ model ProjectMember {
 // ─────────────────────────────────────────────
 model EmployeeCustody {
   id            String                @id @default(uuid())
-  projectId     String
+  projectId     String?               // v7: اختياري — عهدة الشركة لا تحتاج مشروع
   employeeId    String
   memberId      String?               // FK to ProjectMember
   amount        Float                 // المبلغ المصروف الأصلي
@@ -142,6 +142,14 @@ model EmployeeCustody {
   createdAt     DateTime              @default(now())
   updatedAt     DateTime              @updatedAt
 
+  // v7: Custody status tracking (replaces deletion on reject)
+  status           String             @default("PENDING") // PENDING | CONFIRMED | REJECTED
+  rejectedReason   String?            // سبب الرفض من الموظف
+  rejectedAt       DateTime?
+
+  // v7: Company expense custody (not tied to a project)
+  isCompanyExpense Boolean            @default(false)
+
   // v5: External payee fields
   isExternal       Boolean            @default(false)
   externalName     String?            // اسم الشخص الخارجي
@@ -149,7 +157,7 @@ model EmployeeCustody {
   externalPurpose  String?            // الغرض من الصرف
   externalSignature String?           // صورة توقيع مرفوعة
 
-  project       Project               @relation(fields: [projectId], references: [id])
+  project       Project?              @relation(fields: [projectId], references: [id])
   employee      User                  @relation(fields: [employeeId], references: [id])
   member        ProjectMember?        @relation(fields: [memberId], references: [id])
   invoices      Invoice[]             // الفواتير المرتبطة بهذه العهدة
@@ -158,6 +166,7 @@ model EmployeeCustody {
 
   @@index([employeeId, isClosed])  // P1: employee's open custodies
   @@index([projectId, isClosed])   // P1: project's open custodies
+  @@index([isCompanyExpense])      // v7: company custodies lookup
 }
 
 model CustodyConfirmation {

@@ -34,6 +34,8 @@ async function checkCustodyEdgeCases() {
     for (const custody of allCustodies) {
         // Skip external custodies
         if ((custody as any).isExternal) continue;
+        // Skip company custodies (no projectId)
+        if (!custody.projectId) continue;
 
         const membership = await prisma.projectMember.findUnique({
             where: {
@@ -54,14 +56,14 @@ async function checkCustodyEdgeCases() {
                 coordinatorOnlyBalance += custody.balance;
                 console.log(`  🔴 Custody ${custody.id.substring(0, 8)}...`);
                 console.log(`     Employee: ${custody.employee.name} (${custody.employee.email})`);
-                console.log(`     Project:  ${custody.project.name}`);
+                console.log(`     Project:  ${custody.project?.name}`);
                 console.log(`     Amount:   ${custody.amount.toLocaleString()} | Balance: ${custody.balance.toLocaleString()}`);
                 console.log(`     Roles:    ${membership.projectRoles}`);
                 console.log('');
             }
         } else {
             // Member no longer in the project but has custody
-            console.log(`  ⚠️  Custody ${custody.id.substring(0, 8)}... — employee ${custody.employee.name} is NO LONGER a member of ${custody.project.name}`);
+            console.log(`  ⚠️  Custody ${custody.id.substring(0, 8)}... — employee ${custody.employee.name} is NO LONGER a member of ${custody.project?.name}`);
             console.log(`     Amount: ${custody.amount.toLocaleString()} | Balance: ${custody.balance.toLocaleString()}`);
             console.log('');
         }

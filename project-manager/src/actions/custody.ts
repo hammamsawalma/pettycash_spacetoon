@@ -155,6 +155,9 @@ export async function confirmCustodyReceipt(custodyId: string, signatureBase64: 
         });
         if (!custody) return { error: "العهدة غير موجودة" };
 
+        // H1 FIX: Block confirmation of rejected custodies
+        if (custody.status === 'REJECTED') return { error: "لا يمكن تأكيد عهدة مرفوضة" };
+
         // v6 FIX: ONLY the custody owner can confirm — no proxy confirmation
         if (custody.employeeId !== session.id) {
             return { error: "تأكيد الاستلام يتطلب توقيع صاحب العهدة شخصياً" };
@@ -166,6 +169,7 @@ export async function confirmCustodyReceipt(custodyId: string, signatureBase64: 
             data: {
                 isConfirmed: true,
                 confirmedAt: new Date(),
+                status: 'CONFIRMED',
                 confirmation: {
                     create: {
                         signatureFile: signatureBase64,
@@ -213,6 +217,8 @@ export async function resendCustodyReminder(custodyId: string) {
         });
         if (!custody) return { error: "العهدة غير موجودة" };
         if (custody.isConfirmed) return { error: "تم تأكيد الاستلام مسبقاً" };
+        // E6 FIX: Block reminder for rejected custodies
+        if (custody.status === 'REJECTED') return { error: "لا يمكن إرسال تذكير لعهدة مرفوضة" };
 
         // Send a targeted notification to the employee
         await prisma.notification.create({
@@ -231,6 +237,7 @@ export async function resendCustodyReminder(custodyId: string) {
 }
 
 // ─── Employee rejects an unconfirmed custody ─────────────
+// v7: Preserves record with REJECTED status instead of deleting
 export async function rejectCustody(custodyId: string, reason?: string) {
     try {
         const session = await getSession();
@@ -242,14 +249,44 @@ export async function rejectCustody(custodyId: string, reason?: string) {
         });
         if (!custody) return { error: "العهدة غير موجودة" };
         if (custody.employeeId !== session.id) return { error: "لا يمكنك رفض عهدة شخص آخر" };
-        if (custody.isConfirmed) return { error: "لا يمكن رفض عهدة تم تأكيد استلامها بالفعل" };
+        if (custody.isConfirmed || custody.status === 'CONFIRMED') return { error: "لا يمكن رفض عهدة تم تأكيد استلامها بالفعل" };
+        if (custody.status === 'REJECTED') return { error: "تم رفض هذه العهدة مسبقاً" };
 
         await prisma.$transaction(async (tx) => {
-            // Restore project budget
-            await tx.project.update({
-                where: { id: custody.projectId },
-                data: { custodyIssued: { decrement: custody.amount } }
+            // v7: Update status instead of deleting
+            await tx.employeeCustody.update({
+                where: { id: custodyId },
+                data: {
+                    status: 'REJECTED',
+                    rejectedReason: reason || null,
+                    rejectedAt: new Date(),
+                    isClosed: true,
+                    closedAt: new Date(),
+                    balance: 0,
+                }
             });
+
+            // Restore project budget (only for project custodies)
+            if (custody.projectId) {
+                await tx.project.update({
+                    where: { id: custody.projectId },
+                    data: { custodyIssued: { decrement: custody.amount } }
+                });
+            }
+
+            // v7: Company custody — return to wallet
+            if (custody.isCompanyExpense) {
+                const wallet = await tx.companyWallet.findFirst();
+                if (wallet) {
+                    await tx.companyWallet.update({
+                        where: { id: wallet.id },
+                        data: {
+                            balance: { increment: custody.amount },
+                            totalOut: { decrement: custody.amount },
+                        }
+                    });
+                }
+            }
 
             // Restore project member balance
             if (custody.memberId) {
@@ -259,25 +296,21 @@ export async function rejectCustody(custodyId: string, reason?: string) {
                 });
             }
 
-            // Notify the project manager (if exists) about the rejection
-            if (custody.project.managerId) {
-                await tx.notification.create({
-                    data: {
-                        title: 'تم رفض استلام عهدة ❌',
-                        content: `قام ${session.name} برفض عهدة بقيمة ${custody.amount.toLocaleString()} ريال للمشروع "${custody.project.name}".${reason ? `\nالسبب: ${reason}` : ''}`,
-                        targetUserId: custody.project.managerId
-                    }
-                });
-            }
+            // v7: Notify ADMIN + GLOBAL_ACCOUNTANT (no PM role — admin manages all)
+            const projectName = custody.project?.name || 'مصاريف الشركة';
+            const notifContent = `قام ${session.name || 'موظف'} برفض عهدة بقيمة ${custody.amount.toLocaleString()} ريال — ${projectName}${reason ? `\nالسبب: ${reason}` : ''}`;
 
-            // Delete the custody record entirely
-            await tx.employeeCustody.delete({
-                where: { id: custodyId }
+            await tx.notification.createMany({
+                data: [
+                    { title: 'تم رفض استلام عهدة ❌', content: notifContent, targetRole: 'ADMIN' },
+                    { title: 'تم رفض استلام عهدة ❌', content: notifContent, targetRole: 'GLOBAL_ACCOUNTANT' },
+                ]
             });
         });
 
         revalidatePath("/");
         revalidatePath("/my-custodies");
+        if (custody.projectId) revalidatePath(`/projects/${custody.projectId}`);
         return { success: true };
     } catch (error) {
         console.error("Reject Custody Error:", error);
@@ -405,6 +438,8 @@ export async function returnCustodyBalance(
             return { error: "ليس لديك صلاحية لتسجيل إرجاع العهدة" };
         }
         if (custody.isClosed) return { error: "هذه العهدة مغلقة مسبقاً" };
+        // H2 FIX: Block return on rejected custodies
+        if (custody.status === 'REJECTED') return { error: "لا يمكن إرجاع عهدة مرفوضة" };
         // H3: Guard against zero or negative return amounts
         if (!returnedAmount || returnedAmount <= 0) {
             return { error: "المبلغ يجب أن يكون أكبر من صفر" };
@@ -439,15 +474,35 @@ export async function returnCustodyBalance(
                     closedAt: willClose ? new Date() : null
                 }
             }),
-            // تحديث custodyReturned على المشروع
-            prisma.project.update({
-                where: { id: custody.projectId },
-                data: { custodyReturned: { increment: returnedAmount } }
-            })
         ];
 
+        // v7: تحديث custodyReturned على المشروع (فقط للعهد المرتبطة بمشروع)
+        if (custody.projectId) {
+            txOps.push(
+                prisma.project.update({
+                    where: { id: custody.projectId },
+                    data: { custodyReturned: { increment: returnedAmount } }
+                })
+            );
+        }
+
+        // v7: Company custody — return to wallet
+        if (custody.isCompanyExpense) {
+            const wallet = await prisma.companyWallet.findFirst();
+            if (wallet) {
+                txOps.push(
+                    prisma.companyWallet.update({
+                        where: { id: wallet.id },
+                        data: {
+                            balance: { increment: returnedAmount },
+                        }
+                    })
+                );
+            }
+        }
+
         // EDGE-4: Only update projectMember for internal custodies
-        if (!custody.isExternal) {
+        if (!custody.isExternal && custody.projectId) {
             txOps.push(
                 prisma.projectMember.updateMany({
                     where: { projectId: custody.projectId, userId: custody.employeeId },
@@ -459,10 +514,11 @@ export async function returnCustodyBalance(
         await prisma.$transaction(txOps);
 
         // N-3: Notify employee that their custody balance was returned
+        const scopeName = custody.project?.name || 'مصاريف الشركة';
         try {
             const msg = willClose
-                ? `تم إرجاع ${returnedAmount.toLocaleString()} ريال وإغلاق عهدتك في مشروع "${custody.project.name}"`
-                : `تم إرجاع ${returnedAmount.toLocaleString()} ريال من عهدتك في مشروع "${custody.project.name}". المتبقي: ${newBalance.toLocaleString()}`;
+                ? `تم إرجاع ${returnedAmount.toLocaleString()} ريال وإغلاق عهدتك — ${scopeName}`
+                : `تم إرجاع ${returnedAmount.toLocaleString()} ريال من عهدتك — ${scopeName}. المتبقي: ${newBalance.toLocaleString()}`;
             await prisma.notification.create({
                 data: {
                     title: willClose ? 'تم إغلاق عهدتك 🔒' : 'تم إرجاع جزء من عهدتك 💰',
@@ -507,6 +563,123 @@ export async function getExternalCustodiesReport() {
         return custodies;
     } catch (error) {
         console.error("External Custodies Report Error:", error);
+        return [];
+    }
+}
+
+// ─── v7: Issue Company Expense Custody (Admin→Accountant from Wallet) ────
+export async function issueCompanyCustody(prevState: unknown, formData: FormData) {
+    try {
+        const session = await getSession();
+        if (!session || session.role !== "ADMIN") {
+            return { error: "فقط المدير يمكنه صرف عهدة مصاريف الشركة" };
+        }
+
+        const employeeId = formData.get("employeeId") as string;
+        const amount = parseFloat(formData.get("amount") as string);
+        const method = (formData.get("method") as string) || "CASH";
+        const note = formData.get("note") as string;
+
+        if (!employeeId || isNaN(amount) || amount <= 0) {
+            return { error: "جميع الحقول مطلوبة والمبلغ يجب أن يكون أكبر من صفر" };
+        }
+
+        // Verify employee exists and is GLOBAL_ACCOUNTANT
+        const employee = await prisma.user.findUnique({ where: { id: employeeId } });
+        if (!employee) return { error: "الموظف غير موجود" };
+        if (employee.role !== "GLOBAL_ACCOUNTANT") {
+            return { error: "عهدة مصاريف الشركة تُصرف للمحاسب فقط" };
+        }
+
+        let custodyId: string;
+        // H5 FIX: Serializable isolation to prevent race conditions
+        await prisma.$transaction(async (tx: any) => {
+            // Check wallet balance
+            const wallet = await tx.companyWallet.findFirst();
+            if (!wallet) throw new Error("المحفظة غير موجودة");
+            if (wallet.balance < amount) {
+                throw new Error(`رصيد المحفظة (${wallet.balance.toLocaleString()}) أقل من المبلغ المطلوب (${amount.toLocaleString()})`);
+            }
+
+            // Deduct from wallet
+            await tx.companyWallet.update({
+                where: { id: wallet.id },
+                data: {
+                    balance: { decrement: amount },
+                    totalOut: { increment: amount },
+                }
+            });
+
+            // C2 FIX: Log wallet entry with correct field names
+            await tx.walletEntry.create({
+                data: {
+                    walletId: wallet.id,
+                    type: 'WITHDRAW',
+                    amount,
+                    note: `عهدة مصاريف شركة — ${employee.name || 'المحاسب'}${note ? ` — ${note}` : ''}`,
+                    createdBy: session.id,
+                }
+            });
+
+            // Create custody (no projectId)
+            const custody = await tx.employeeCustody.create({
+                data: {
+                    employeeId,
+                    amount,
+                    balance: amount,
+                    method,
+                    note: note || null,
+                    isCompanyExpense: true,
+                    // No projectId — company-level custody
+                }
+            });
+            custodyId = custody.id;
+        });
+
+        // Notify accountant
+        await prisma.notification.create({
+            data: {
+                title: 'عهدة مصاريف شركة 🏢',
+                content: `تم صرف عهدة مصاريف شركة بقيمة ${amount.toLocaleString()} ريال — يرجى تأكيد الاستلام`,
+                targetUserId: employeeId
+            }
+        });
+
+        revalidatePath("/");
+        revalidatePath("/company-custodies");
+        revalidatePath("/wallet");
+        return { success: true, custodyId: custodyId! };
+    } catch (error: any) {
+        console.error("Issue Company Custody Error:", error);
+        return { error: error.message || "حدث خطأ أثناء صرف عهدة الشركة" };
+    }
+}
+
+// ─── v7: Get Company Custodies ──────────────────────────────
+export async function getCompanyCustodies() {
+    try {
+        const session = await getSession();
+        if (!session) return [];
+
+        // ADMIN, GLOBAL_ACCOUNTANT, GM can view
+        const canView = session.role === "ADMIN" || session.role === "GLOBAL_ACCOUNTANT" || session.role === "GENERAL_MANAGER";
+        if (!canView) return [];
+
+        const custodies = await prisma.employeeCustody.findMany({
+            where: { isCompanyExpense: true },
+            include: {
+                employee: { select: { id: true, name: true, image: true } },
+                confirmation: true,
+                returns: {
+                    orderBy: { createdAt: 'desc' }
+                }
+            },
+            orderBy: { createdAt: "desc" }
+        });
+
+        return custodies;
+    } catch (error) {
+        console.error("Get Company Custodies Error:", error);
         return [];
     }
 }

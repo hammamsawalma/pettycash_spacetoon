@@ -31,6 +31,11 @@ export async function login(prevState: unknown, formData: FormData) {
             return { error: "البريد الإلكتروني أو كلمة المرور غير صحيحة" };
         }
 
+        // C1 FIX: Block deleted users from logging in
+        if (user.isDeleted) {
+            return { error: "هذا الحساب معطّل. تواصل مع مدير النظام." };
+        }
+
         // Support both bcrypt-hashed passwords (new seed) and plain text (legacy)
         const isValidPassword = user.password.startsWith('$2')
             ? await bcrypt.compare(password, user.password)
