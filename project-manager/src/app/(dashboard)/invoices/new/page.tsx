@@ -235,7 +235,7 @@ function EmployeeInvoiceFlow({ projects, categories, defaultProjectId, defaultAm
                                 <p className="text-gray-500 text-sm">لا توجد مشاريع مسندة إليك</p>
                             </div>
                         ) : (
-                            <div className="grid grid-cols-2 gap-3">
+                            <div className="grid grid-cols-2 gap-3 pb-4">
                                 {projects.map((p) => (
                                     <button key={p.id} type="button"
                                         onClick={() => { setSelectedProjectId(p.id); setCurrentStep(4); }}
@@ -262,9 +262,11 @@ function EmployeeInvoiceFlow({ projects, categories, defaultProjectId, defaultAm
                                 ))}
                             </div>
                         )}
-                        <div className="fixed bottom-0 inset-x-0 z-50 bg-white/90 backdrop-blur-xl border-t border-gray-100 p-4 pb-[calc(1rem+env(safe-area-inset-bottom))] shadow-2xl">
-                            <Button type="button" onClick={() => setCurrentStep(2)} variant="secondary" className="w-full py-4 rounded-2xl font-bold">← رجوع</Button>
-                        </div>
+                    </div>
+                )}
+                {currentStep === 3 && (
+                    <div className="fixed bottom-0 inset-x-0 z-50 bg-white/90 backdrop-blur-xl border-t border-gray-100 p-4 pb-[calc(1rem+env(safe-area-inset-bottom))] shadow-2xl">
+                        <Button type="button" onClick={() => setCurrentStep(2)} variant="secondary" className="w-full py-4 rounded-2xl font-bold">← رجوع</Button>
                     </div>
                 )}
 

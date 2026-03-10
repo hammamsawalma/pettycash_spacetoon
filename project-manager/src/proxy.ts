@@ -45,6 +45,12 @@ const ROUTE_RULES: Array<{ prefix: string; exact?: boolean; allowed: string[] }>
     // External custodies report — finance roles
     { prefix: '/external-custodies', allowed: ['ADMIN', 'GLOBAL_ACCOUNTANT', 'GENERAL_MANAGER'] },
 
+    // Employee custodies report — finance roles
+    { prefix: '/employee-custodies', allowed: ['ADMIN', 'GLOBAL_ACCOUNTANT', 'GENERAL_MANAGER'] },
+
+    // Company custodies — finance roles
+    { prefix: '/company-custodies', allowed: ['ADMIN', 'GLOBAL_ACCOUNTANT', 'GENERAL_MANAGER'] },
+
     // Notifications send — ADMIN only
     { prefix: '/notifications/send', allowed: ['ADMIN', 'GENERAL_MANAGER'] },
 

@@ -131,6 +131,7 @@ export async function issueCustody(prevState: unknown, formData: FormData) {
 
         revalidatePath(`/projects/${projectId}`);
         revalidatePath("/projects");
+        revalidatePath("/employee-custodies");
 
         return { success: true, custodyId: custody!.id };
     } catch (error) {
@@ -193,6 +194,7 @@ export async function confirmCustodyReceipt(custodyId: string, signatureBase64: 
         revalidatePath("/");
         revalidatePath("/my-custodies");
         revalidatePath(`/projects/${custody.projectId}`);
+        revalidatePath("/employee-custodies");
         return { success: true };
     } catch (error) {
         console.error("Confirm Custody Error:", error);
@@ -311,6 +313,7 @@ export async function rejectCustody(custodyId: string, reason?: string) {
         revalidatePath("/");
         revalidatePath("/my-custodies");
         if (custody.projectId) revalidatePath(`/projects/${custody.projectId}`);
+        revalidatePath("/employee-custodies");
         return { success: true };
     } catch (error) {
         console.error("Reject Custody Error:", error);
@@ -531,6 +534,7 @@ export async function returnCustodyBalance(
         revalidatePath(`/projects/${custody.projectId}`);
         revalidatePath(`/custody/${custodyId}`);
         revalidatePath("/my-custodies");
+        revalidatePath("/employee-custodies");
         return { success: true, closed: willClose, remainingBalance: newBalance };
     } catch (error) {
         console.error("Return Custody Error:", error);
