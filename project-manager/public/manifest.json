@@ -17,46 +17,46 @@
     ],
     "icons": [
         {
-            "src": "/spacetoon-logo.png",
+            "src": "/icon-72.png",
             "sizes": "72x72",
             "type": "image/png",
             "purpose": "any"
         },
         {
-            "src": "/spacetoon-logo.png",
+            "src": "/icon-96.png",
             "sizes": "96x96",
             "type": "image/png",
             "purpose": "any"
         },
         {
-            "src": "/spacetoon-logo.png",
-            "sizes": "128x128",
-            "type": "image/png",
-            "purpose": "any"
-        },
-        {
-            "src": "/spacetoon-logo.png",
+            "src": "/icon-144.png",
             "sizes": "144x144",
             "type": "image/png",
             "purpose": "any"
         },
         {
-            "src": "/spacetoon-logo.png",
+            "src": "/icon-192.png",
             "sizes": "192x192",
-            "type": "image/png",
-            "purpose": "any maskable"
-        },
-        {
-            "src": "/spacetoon-logo.png",
-            "sizes": "256x256",
             "type": "image/png",
             "purpose": "any"
         },
         {
-            "src": "/spacetoon-logo.png",
+            "src": "/icon-192.png",
+            "sizes": "192x192",
+            "type": "image/png",
+            "purpose": "maskable"
+        },
+        {
+            "src": "/icon-512.png",
             "sizes": "512x512",
             "type": "image/png",
-            "purpose": "any maskable"
+            "purpose": "any"
+        },
+        {
+            "src": "/icon-512.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "maskable"
         }
     ],
     "shortcuts": [
@@ -67,7 +67,7 @@
             "url": "/invoices/new",
             "icons": [
                 {
-                    "src": "/spacetoon-logo.png",
+                    "src": "/icon-192.png",
                     "sizes": "192x192"
                 }
             ]
@@ -79,7 +79,7 @@
             "url": "/invoices",
             "icons": [
                 {
-                    "src": "/spacetoon-logo.png",
+                    "src": "/icon-192.png",
                     "sizes": "192x192"
                 }
             ]
@@ -91,7 +91,7 @@
             "url": "/projects",
             "icons": [
                 {
-                    "src": "/spacetoon-logo.png",
+                    "src": "/icon-192.png",
                     "sizes": "192x192"
                 }
             ]

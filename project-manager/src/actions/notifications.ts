@@ -1,7 +1,7 @@
 "use server"
 import prisma from "@/lib/prisma"
-
 import { getSession } from "@/lib/auth"
+import { sendPushNotification } from "@/lib/push"
 
 export async function getUnreadCount(): Promise<number> {
     try {
@@ -91,7 +91,19 @@ export async function createNotification(prevState: unknown, formData: FormData)
             }
         });
 
-        // revalidate caching if needed, though this might be better handled client side
+        // ── Send Web Push Notification ──────────────────────────────────
+        try {
+            await sendPushNotification({
+                targetRole,
+                title,
+                body: content,
+                url: '/',
+            });
+        } catch (pushError) {
+            // Push failure should not block notification creation
+            console.error("[Push] Send failed:", pushError);
+        }
+
         return { success: true };
 
     } catch (error) {
@@ -99,3 +111,4 @@ export async function createNotification(prevState: unknown, formData: FormData)
         return { error: "حدث خطأ أثناء إرسال الإشعار" };
     }
 }
+

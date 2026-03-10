@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { getSession } from "@/lib/auth";
 import { getUserRolesInProject } from "@/lib/roles";
 import { isGlobalFinance, hasProjectPermission } from "@/lib/rbac";
+import { sendPushNotification } from "@/lib/push";
 
 // ─── Issue Custody to Employee ──────────────────────────
 export async function issueCustody(prevState: unknown, formData: FormData) {
@@ -120,13 +121,12 @@ export async function issueCustody(prevState: unknown, formData: FormData) {
 
         // Notify employee (only for internal)
         if (!isExternal) {
+            const custTitle = 'تم صرف عهدة لك ✅';
+            const custBody = `تم صرف مبلغ ${amount.toLocaleString('en-US')} ريال — يرجى تأكيد الاستلام`;
             await prisma.notification.create({
-                data: {
-                    title: 'تم صرف عهدة لك ✅',
-                    content: `تم صرف مبلغ ${amount.toLocaleString('en-US')} ريال — يرجى تأكيد الاستلام`,
-                    targetUserId: employeeId
-                }
+                data: { title: custTitle, content: custBody, targetUserId: employeeId }
             });
+            try { await sendPushNotification({ targetUserId: employeeId, title: custTitle, body: custBody, url: '/my-custodies' }); } catch { /* push non-critical */ }
         }
 
         revalidatePath(`/projects/${projectId}`);
@@ -182,13 +182,12 @@ export async function confirmCustodyReceipt(custodyId: string, signatureBase64: 
 
         // N-1: Notify GLOBAL_ACCOUNTANT that employee confirmed receipt
         try {
+            const confTitle = 'تأكيد استلام عهدة ✅';
+            const confBody = `قام ${session.name || 'موظف'} بتأكيد استلام عهدة بقيمة ${custody.amount.toLocaleString('en-US')} ريال`;
             await prisma.notification.create({
-                data: {
-                    title: 'تأكيد استلام عهدة ✅',
-                    content: `قام ${session.name || 'موظف'} بتأكيد استلام عهدة بقيمة ${custody.amount.toLocaleString('en-US')} ريال`,
-                    targetRole: 'GLOBAL_ACCOUNTANT'
-                }
+                data: { title: confTitle, content: confBody, targetRole: 'GLOBAL_ACCOUNTANT' }
             });
+            try { await sendPushNotification({ targetRole: 'GLOBAL_ACCOUNTANT', title: confTitle, body: confBody, url: '/employee-custodies' }); } catch { /* push non-critical */ }
         } catch { /* non-critical */ }
 
         revalidatePath("/");
@@ -223,13 +222,12 @@ export async function resendCustodyReminder(custodyId: string) {
         if (custody.status === 'REJECTED') return { error: "لا يمكن إرسال تذكير لعهدة مرفوضة" };
 
         // Send a targeted notification to the employee
+        const remTitle = '⏳ تذكير: تأكيد استلام عهدة';
+        const remBody = `يرجى تأكيد استلام عهدة بقيمة ${custody.amount.toLocaleString('en-US')} ريال من مشروع "${custody.project?.name || ''}" — يتطلب توقيعك الإلكتروني`;
         await prisma.notification.create({
-            data: {
-                title: '⏳ تذكير: تأكيد استلام عهدة',
-                content: `يرجى تأكيد استلام عهدة بقيمة ${custody.amount.toLocaleString('en-US')} ريال من مشروع "${custody.project?.name || ''}" — يتطلب توقيعك الإلكتروني`,
-                targetUserId: custody.employeeId,
-            }
+            data: { title: remTitle, content: remBody, targetUserId: custody.employeeId }
         });
+        try { await sendPushNotification({ targetUserId: custody.employeeId, title: remTitle, body: remBody, url: '/my-custodies' }); } catch { /* push non-critical */ }
 
         return { success: true };
     } catch (error) {
@@ -309,6 +307,12 @@ export async function rejectCustody(custodyId: string, reason?: string) {
                 ]
             });
         });
+
+        // Push for custody rejection
+        const rejectTitle = 'تم رفض استلام عهدة ❌';
+        const rejectBody = `قام ${session.name || 'موظف'} برفض عهدة بقيمة ${custody.amount.toLocaleString('en-US')} ريال`;
+        try { await sendPushNotification({ targetRole: 'ADMIN', title: rejectTitle, body: rejectBody, url: '/employee-custodies' }); } catch { /* push non-critical */ }
+        try { await sendPushNotification({ targetRole: 'GLOBAL_ACCOUNTANT', title: rejectTitle, body: rejectBody, url: '/employee-custodies' }); } catch { /* push non-critical */ }
 
         revalidatePath("/");
         revalidatePath("/my-custodies");
@@ -522,13 +526,11 @@ export async function returnCustodyBalance(
             const msg = willClose
                 ? `تم إرجاع ${returnedAmount.toLocaleString('en-US')} ريال وإغلاق عهدتك — ${scopeName}`
                 : `تم إرجاع ${returnedAmount.toLocaleString('en-US')} ريال من عهدتك — ${scopeName}. المتبقي: ${newBalance.toLocaleString('en-US')}`;
+            const retTitle = willClose ? 'تم إغلاق عهدتك 🔒' : 'تم إرجاع جزء من عهدتك 💰';
             await prisma.notification.create({
-                data: {
-                    title: willClose ? 'تم إغلاق عهدتك 🔒' : 'تم إرجاع جزء من عهدتك 💰',
-                    content: msg,
-                    targetUserId: custody.employeeId
-                }
+                data: { title: retTitle, content: msg, targetUserId: custody.employeeId }
             });
+            try { await sendPushNotification({ targetUserId: custody.employeeId, title: retTitle, body: msg, url: '/my-custodies' }); } catch { /* push non-critical */ }
         } catch { /* non-critical */ }
 
         revalidatePath(`/projects/${custody.projectId}`);
@@ -641,13 +643,12 @@ export async function issueCompanyCustody(prevState: unknown, formData: FormData
         });
 
         // Notify accountant
+        const compTitle = 'عهدة مصاريف شركة 🏢';
+        const compBody = `تم صرف عهدة مصاريف شركة بقيمة ${amount.toLocaleString('en-US')} ريال — يرجى تأكيد الاستلام`;
         await prisma.notification.create({
-            data: {
-                title: 'عهدة مصاريف شركة 🏢',
-                content: `تم صرف عهدة مصاريف شركة بقيمة ${amount.toLocaleString('en-US')} ريال — يرجى تأكيد الاستلام`,
-                targetUserId: employeeId
-            }
+            data: { title: compTitle, content: compBody, targetUserId: employeeId }
         });
+        try { await sendPushNotification({ targetUserId: employeeId, title: compTitle, body: compBody, url: '/my-custodies' }); } catch { /* push non-critical */ }
 
         revalidatePath("/");
         revalidatePath("/company-custodies");

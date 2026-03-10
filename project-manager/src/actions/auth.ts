@@ -58,7 +58,7 @@ export async function login(prevState: unknown, formData: FormData) {
 
         cookieStore.set("session", token, {
             httpOnly: true,
-            secure: process.env.NODE_ENV === "production",
+            secure: process.env.COOKIE_SECURE === "true",
             sameSite: "lax", // A1: Prevents CSRF — cookie not sent on cross-site POST
             maxAge: 60 * 60 * 24 * 7, // 1 week
             path: "/",

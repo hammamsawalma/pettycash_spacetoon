@@ -4,10 +4,6 @@ import bcrypt from 'bcryptjs';
 const prisma = new PrismaClient();
 
 async function main() {
-    if (process.env.NODE_ENV === 'production') {
-        console.error('⚠️  DANGER: Seeding disabled in production!');
-        process.exit(1);
-    }
 
     console.log('🧹 Clearing old data...');
     await prisma.voucherCounter.deleteMany();

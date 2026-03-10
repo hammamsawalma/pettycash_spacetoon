@@ -3,6 +3,7 @@ import prisma from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { getSession } from "@/lib/auth";
 import { isGlobalFinance } from "@/lib/rbac";
+import { sendPushNotification } from "@/lib/push";
 
 
 
@@ -29,13 +30,12 @@ export async function approveFinanceRequest(requestId: string) {
         if (execResult?.error) return execResult;
 
         // إشعار مُقدِّم الطلب (non-critical, outside transaction)
+        const apprTitle = "تمت الموافقة على طلبك المالي ✅";
+        const apprBody = `وافق المدير على طلب: ${getRequestTypeLabel(req.type)}`;
         await prisma.notification.create({
-            data: {
-                title: "تمت الموافقة على طلبك المالي ✅",
-                content: `وافق المدير على طلب: ${getRequestTypeLabel(req.type)}`,
-                targetUserId: req.requestedBy
-            }
+            data: { title: apprTitle, content: apprBody, targetUserId: req.requestedBy }
         });
+        try { await sendPushNotification({ targetUserId: req.requestedBy, title: apprTitle, body: apprBody, url: '/finance-requests' }); } catch { /* push non-critical */ }
 
         revalidatePath("/finance-requests");
         revalidatePath("/debts");
@@ -74,13 +74,12 @@ export async function rejectFinanceRequest(requestId: string, reason: string) {
         });
 
         // إشعار مُقدِّم الطلب
+        const rejTitle = "تم رفض طلبك المالي ❌";
+        const rejBody = `رُفض الطلب: ${getRequestTypeLabel(req.type)} — السبب: ${reason}`;
         await prisma.notification.create({
-            data: {
-                title: "تم رفض طلبك المالي ❌",
-                content: `رُفض الطلب: ${getRequestTypeLabel(req.type)} — السبب: ${reason}`,
-                targetUserId: req.requestedBy
-            }
+            data: { title: rejTitle, content: rejBody, targetUserId: req.requestedBy }
         });
+        try { await sendPushNotification({ targetUserId: req.requestedBy, title: rejTitle, body: rejBody, url: '/finance-requests' }); } catch { /* push non-critical */ }
 
         revalidatePath("/finance-requests");
         return { success: true };
@@ -296,6 +295,7 @@ async function sendAdminNotification(title: string, content: string) {
     await prisma.notification.create({
         data: { title, content, targetRole: "ADMIN" }
     });
+    try { await sendPushNotification({ targetRole: 'ADMIN', title, body: content, url: '/finance-requests' }); } catch { /* push non-critical */ }
 }
 
 // ─── Helper: ترجمة نوع الطلب ─────────────────────────────

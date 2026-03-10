@@ -3,6 +3,7 @@ import prisma from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { getSession } from "@/lib/auth";
 import { isGlobalFinance } from "@/lib/rbac";
+import { sendPushNotification } from "@/lib/push";
 import fs from "fs";
 import path from "path";
 
@@ -197,14 +198,12 @@ export async function markPurchaseAsBought(purchaseId: string, invoiceId?: strin
         // N-5: Notify the purchase creator that the item was bought
         if (purchase.creatorId !== session.id) {
             try {
+                const boughtTitle = 'تم شراء عنصر من قائمة مشترياتك ✅';
+                const boughtBody = `تم شراء "${purchase.description}" (${purchase.orderNumber})`;
                 await prisma.notification.create({
-                    data: {
-                        title: 'تم شراء عنصر من قائمة مشترياتك ✅',
-                        content: `تم شراء "${purchase.description}" (${purchase.orderNumber})`,
-                        targetUserId: purchase.creatorId,
-                        targetProjectId: purchase.projectId,
-                    }
+                    data: { title: boughtTitle, content: boughtBody, targetUserId: purchase.creatorId, targetProjectId: purchase.projectId }
                 });
+                try { await sendPushNotification({ targetUserId: purchase.creatorId, title: boughtTitle, body: boughtBody, url: '/purchases' }); } catch { /* push non-critical */ }
             } catch { /* non-critical */ }
         }
 
@@ -294,14 +293,12 @@ export async function togglePurchaseRedFlag(purchaseId: string, reason: string |
 
         // EC1: Notify the creator if a red flag is added
         if (!isRemoving && purchase.creatorId !== session.id) {
+            const flagTitle = "تنبيه: عنصر غير متوفر 🚩";
+            const flagBody = `تم وضع راية حمراء على طلب الشراء المرجعي ${purchase.orderNumber}. السبب: ${reason}`;
             await prisma.notification.create({
-                data: {
-                    title: "تنبيه: عنصر غير متوفر 🚩",
-                    content: `تم وضع راية حمراء على طلب الشراء المرجعي ${purchase.orderNumber}. السبب: ${reason}`,
-                    targetUserId: purchase.creatorId,
-                    targetProjectId: purchase.projectId,
-                }
+                data: { title: flagTitle, content: flagBody, targetUserId: purchase.creatorId, targetProjectId: purchase.projectId }
             });
+            try { await sendPushNotification({ targetUserId: purchase.creatorId, title: flagTitle, body: flagBody, url: '/purchases' }); } catch { /* push non-critical */ }
         }
 
         revalidatePath(`/purchases/${purchaseId}`);

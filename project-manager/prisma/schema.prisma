@@ -437,3 +437,17 @@ model VoucherCounter {
   lastIssue   Int    @default(0)   // آخر رقم سند صرف
   lastReceipt Int    @default(0)   // آخر رقم سند قبض
 }
+
+// ─────────────────────────────────────────────
+// PUSH SUBSCRIPTION (اشتراكات الإشعارات)
+// ─────────────────────────────────────────────
+model PushSubscription {
+  id        String   @id @default(uuid())
+  userId    String
+  endpoint  String   @unique
+  p256dh    String   // Client public key
+  auth      String   // Auth secret
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+}

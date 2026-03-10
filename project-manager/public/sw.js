@@ -155,25 +155,54 @@ async function doBackgroundSync() {
     console.log('[SW] Background sync triggered');
 }
 
-// ─── Push Notifications (foundation for future use) ──────────────────────────
+// ─── Push Notifications ─────────────────────────────────────────────────────
 self.addEventListener('push', (event) => {
     if (!event.data) return;
-    const data = event.data.json();
+
+    let data;
+    try {
+        data = event.data.json();
+    } catch {
+        data = { title: 'Spacetoon Pocket', body: event.data.text() };
+    }
+
+    const options = {
+        body: data.body || '',
+        icon: data.icon || '/icon-192.png',
+        badge: '/icon-96.png',
+        dir: 'rtl',
+        lang: 'ar',
+        tag: data.tag || 'spacetoon-' + Date.now(), // group similar notifications
+        renotify: true, // vibrate even if tag matches
+        data: {
+            url: data.url || '/',
+        },
+        actions: data.url ? [
+            { action: 'open', title: 'فتح' },
+        ] : [],
+    };
+
     event.waitUntil(
-        self.registration.showNotification(data.title || 'Spacetoon Pocket', {
-            body: data.body || '',
-            icon: '/spacetoon-logo.png',
-            badge: '/spacetoon-logo.png',
-            dir: 'rtl',
-            lang: 'ar',
-        })
+        self.registration.showNotification(data.title || 'Spacetoon Pocket', options)
     );
 });
 
 self.addEventListener('notificationclick', (event) => {
     event.notification.close();
     const url = event.notification.data?.url || '/';
-    event.waitUntil(clients.openWindow(url));
+
+    // Try to focus existing window, or open new one
+    event.waitUntil(
+        clients.matchAll({ type: 'window', includeUncontrolled: true }).then((windowClients) => {
+            for (const client of windowClients) {
+                if (client.url.includes(self.location.origin) && 'focus' in client) {
+                    client.navigate(url);
+                    return client.focus();
+                }
+            }
+            return clients.openWindow(url);
+        })
+    );
 });
 
 // ─── Message Handler (SKIP_WAITING from NetworkStatus) ───────────────────────

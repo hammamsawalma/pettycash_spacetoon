@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { getSession } from "@/lib/auth";
 import { Prisma } from "@prisma/client";
 import { isGlobalFinance, hasProjectPermission } from "@/lib/rbac";
+import { sendPushNotification } from "@/lib/push";
 import fs from "fs";
 import path from "path";
 import { markPurchaseAsBought } from "./purchases";
@@ -467,13 +468,16 @@ export async function createInvoice(prevState: unknown, formData: FormData) {
         // v4+v5: Notify GLOBAL_ACCOUNTANT, but skip if the creator IS the accountant (UI-6)
         if (initialStatus === "PENDING" && session.role !== "GLOBAL_ACCOUNTANT") {
             const scopeLabel = isCompanyExpense ? "مصاريف شركة" : "مشاريع";
+            const notifTitle = `فاتورة جديدة تنتظر المراجعة 📄 (${scopeLabel})`;
+            const notifBody = `مرفوعة بواسطة ${session.name || session.id} — المبلغ: ${amount.toLocaleString('en-US')} ريال`;
             await prisma.notification.create({
                 data: {
-                    title: `فاتورة جديدة تنتظر المراجعة 📄 (${scopeLabel})`,
-                    content: `مرفوعة بواسطة ${session.name || session.id} — المبلغ: ${amount.toLocaleString('en-US')} ريال`,
+                    title: notifTitle,
+                    content: notifBody,
                     targetRole: "GLOBAL_ACCOUNTANT"
                 }
             });
+            try { await sendPushNotification({ targetRole: 'GLOBAL_ACCOUNTANT', title: notifTitle, body: notifBody, url: '/invoices' }); } catch { /* push non-critical */ }
         }
 
         if (purchaseId) {
@@ -727,13 +731,16 @@ export async function updateInvoiceStatus(
                 if (status === "REJECTED" && options?.rejectionReason) {
                     contentParts.push(`السبب: ${options.rejectionReason}`);
                 }
+                const pushTitle = statusLabels[status] || `تحديث حالة فاتورة`;
+                const pushBody = contentParts.join('\n');
                 await prisma.notification.create({
                     data: {
-                        title: statusLabels[status] || `تحديث حالة فاتورة`,
-                        content: contentParts.join('\n'),
+                        title: pushTitle,
+                        content: pushBody,
                         targetUserId: existingInvoice.creatorId
                     }
                 });
+                try { await sendPushNotification({ targetUserId: existingInvoice.creatorId, title: pushTitle, body: pushBody, url: `/invoices/${id}` }); } catch { /* push non-critical */ }
             }
         } catch { /* non-critical */ }
 

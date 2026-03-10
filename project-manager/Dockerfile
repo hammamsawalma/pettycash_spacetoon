@@ -1,6 +1,6 @@
 # ═══════════════════════════════════════════════════════════════════════════════
 #  Spacetoon Pocket — Production Dockerfile
-#  Multi-stage build: deps → build → production (~150MB final image)
+#  Multi-stage build: deps → build → production
 # ═══════════════════════════════════════════════════════════════════════════════
 
 FROM node:20-alpine AS base
@@ -43,17 +43,15 @@ ENV NEXT_TELEMETRY_DISABLED=1
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
 
-# Copy public assets
+# Copy everything needed for next start
 COPY --from=builder /app/public ./public
-
-# Copy standalone build output
-COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
-COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
-
-# Copy Prisma client (needed at runtime)
-COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
-COPY --from=builder /app/node_modules/@prisma ./node_modules/@prisma
+COPY --from=builder /app/.next ./.next
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/package.json ./package.json
 COPY --from=builder /app/prisma ./prisma
+
+# Set permissions
+RUN chown -R nextjs:nodejs /app/.next
 
 USER nextjs
 
@@ -65,4 +63,4 @@ ENV HOSTNAME="0.0.0.0"
 HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
   CMD wget --no-verbose --tries=1 --spider http://localhost:3000/ || exit 1
 
-CMD ["node", "server.js"]
+CMD ["npx", "next", "start", "-H", "0.0.0.0"]

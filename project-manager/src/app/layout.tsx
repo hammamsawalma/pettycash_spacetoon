@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Cairo } from "next/font/google";
 import "./globals.css";
+import PushNotificationManager from "@/components/layout/PushNotificationManager";
 
 const cairo = Cairo({
   variable: "--font-cairo",
@@ -35,7 +36,7 @@ export default function RootLayout({
         <meta name="color-scheme" content="light" />
         <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
         <link rel="manifest" href="/manifest.json" />
-        <link rel="apple-touch-icon" href="/spacetoon-logo.png" />
+        <link rel="apple-touch-icon" href="/icon-192.png" />
         <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         {/* Service Worker Registration */}
@@ -56,6 +57,7 @@ export default function RootLayout({
       <body
         className={`${cairo.variable} font-sans antialiased`}
       >
+        <PushNotificationManager />
         {children}
       </body>
     </html>
