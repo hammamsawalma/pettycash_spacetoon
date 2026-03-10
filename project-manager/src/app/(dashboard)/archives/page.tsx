@@ -35,7 +35,7 @@ export default function ArchivesPage() {
     const fetchArchives = async () => {
         setIsLoading(true);
         const data = await getCompletedProjects();
-        setProjects(data as any as CompletedProject[]);
+        setProjects(data as unknown as CompletedProject[]);
         setIsLoading(false);
     };
 

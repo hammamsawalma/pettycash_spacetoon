@@ -38,7 +38,7 @@ export default function NewProjectPage() {
     useEffect(() => {
         if (state?.success) {
             toast.success("تم إنشاء المشروع بنجاح");
-            router.push(`/projects/${(state as any).projectId}?tab=team`);
+            router.push(`/projects/${(state as { projectId?: string }).projectId}?tab=team`);
         }
     }, [state, router]);
 

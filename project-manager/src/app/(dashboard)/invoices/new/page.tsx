@@ -30,8 +30,8 @@ type InvoiceItemInput = {
 
 // ─── Employee Simplified View — 4 خطوات ─────────────────────────────────────
 function EmployeeInvoiceFlow({ projects, categories, defaultProjectId, defaultAmount, defaultDescription, purchaseId }: {
-    projects: any[];
-    categories: any[];
+    projects: Project[];
+    categories: Array<{ id: string; name: string; icon: string | null }>;
     defaultProjectId: string;
     defaultAmount: string;
     defaultDescription: string;
@@ -236,7 +236,7 @@ function EmployeeInvoiceFlow({ projects, categories, defaultProjectId, defaultAm
                             </div>
                         ) : (
                             <div className="grid grid-cols-2 gap-3">
-                                {projects.map((p: any) => (
+                                {projects.map((p) => (
                                     <button key={p.id} type="button"
                                         onClick={() => { setSelectedProjectId(p.id); setCurrentStep(4); }}
                                         className={`relative flex flex-col items-center gap-2 p-4 rounded-2xl border-2 transition-all active:scale-95 ${selectedProjectId === p.id
@@ -281,7 +281,7 @@ function EmployeeInvoiceFlow({ projects, categories, defaultProjectId, defaultAm
 
                         {/* Summary chip */}
                         {selectedProjectId && (() => {
-                            const proj = projects.find((p: any) => p.id === selectedProjectId);
+                            const proj = projects.find((p) => p.id === selectedProjectId);
                             return proj ? (
                                 <div className="flex items-center gap-3 bg-blue-50 rounded-2xl p-3 border border-blue-100">
                                     {proj.image
@@ -305,7 +305,7 @@ function EmployeeInvoiceFlow({ projects, categories, defaultProjectId, defaultAm
                                     <button type="button" onClick={() => setCategoryId("")}
                                         className={`px-3 py-2 rounded-xl text-xs font-bold border transition-colors ${categoryId === "" ? "bg-gray-800 text-white border-gray-800" : "bg-white text-gray-600 border-gray-200"
                                             }`}>غير مصنف</button>
-                                    {categories.map((c: any) => (
+                                    {categories.map((c) => (
                                         <button key={c.id} type="button" onClick={() => setCategoryId(c.id)}
                                             className={`px-3 py-2 rounded-xl text-xs font-bold border transition-colors ${categoryId === c.id ? "bg-blue-600 text-white border-blue-600" : "bg-white text-gray-600 border-gray-200"
                                                 }`}>{c.icon} {c.name}</button>
@@ -356,8 +356,8 @@ function FullInvoiceForm() {
     // v5: Company expense toggle
     const [isCompanyExpense, setIsCompanyExpense] = useState(false);
 
-    const [projects, setProjects] = useState<any[]>([]);
-    const [categories, setCategories] = useState<any[]>([]);
+    const [projects, setProjects] = useState<Project[]>([]);
+    const [categories, setCategories] = useState<Array<{ id: string; name: string; icon: string | null }>>([]);
 
     // Form State
     const [file, setFile] = useState<File | null>(null);
@@ -552,7 +552,7 @@ function FullInvoiceForm() {
                                                 <div className="bg-gray-50 rounded-xl p-4 text-center text-gray-400 text-sm">لا توجد مشاريع</div>
                                             ) : projects.length <= 6 ? (
                                                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                                                    {projects.map((p: any) => (
+                                                    {projects.map((p) => (
                                                         <button
                                                             key={p.id}
                                                             type="button"
@@ -587,7 +587,7 @@ function FullInvoiceForm() {
                                                     className="w-full rounded-xl border border-gray-200 p-3.5 min-h-[52px] outline-none focus:ring-2 focus:ring-blue-400 bg-white shadow-sm font-medium"
                                                 >
                                                     <option value="">اختر المشروع</option>
-                                                    {projects.map((p: any) => (
+                                                    {projects.map((p) => (
                                                         <option key={p.id} value={p.id}>{p.name}</option>
                                                     ))}
                                                 </select>
@@ -747,11 +747,11 @@ function NewInvoicePageInner() {
     const defaultAmount = searchParams.get('amount') || "";
     const defaultDescription = searchParams.get('description') || "";
 
-    const [projects, setProjects] = useState<any[]>([]);
-    const [categories, setCategories] = useState<any[]>([]);
+    const [projects, setProjects] = useState<Project[]>([]);
+    const [categories, setCategories] = useState<Array<{ id: string; name: string; icon: string | null }>>([]);
 
     useEffect(() => {
-        getProjectsForInvoice().then(data => setProjects(data as any[]));
+        getProjectsForInvoice().then(data => setProjects(data as unknown as Project[]));
         getCategories("PROJECT").then(setCategories);
     }, []);
 

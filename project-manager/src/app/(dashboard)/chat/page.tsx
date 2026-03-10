@@ -36,8 +36,7 @@ export default function ChatPage() {
                 getProjects()
             ]);
 
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            const sortedData = (msgsData as any[]).sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime())
+            const sortedData = (msgsData as MessageWithRelations[]).sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime())
             setMessages(sortedData);
             setProjects(projectsData as Project[]);
 
@@ -66,8 +65,7 @@ export default function ChatPage() {
         }
 
         if (res.message) {
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            setMessages(prev => [...prev, res.message as any]);
+            setMessages(prev => [...prev, res.message as MessageWithRelations]);
             setInputValue("");
             setTimeout(scrollToBottom, 50);
         }
