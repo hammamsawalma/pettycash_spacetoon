@@ -11,6 +11,7 @@ import {
     walletEntryTypeLabel,
     type ExportColumn,
 } from "@/lib/export-utils";
+import { useAuth } from "@/context/AuthContext";
 
 const walletColumns: ExportColumn[] = [
     { key: "createdAt", label: "التاريخ", format: (v) => formatDate(v as string) },
@@ -21,6 +22,7 @@ const walletColumns: ExportColumn[] = [
 ];
 
 export function WalletExportButton() {
+    const { user } = useAuth();
     const handleExportExcel = async () => {
         const data = await getWalletExportData();
         downloadExcel(
@@ -42,6 +44,8 @@ export function WalletExportButton() {
                 { label: "إجمالي المسحوبات", value: formatCurrency(data.totalOut) },
                 { label: "عدد الحركات", value: String(data.entries.length) },
             ],
+            branchName: user?.branchName,
+            branchFlag: user?.branchFlag,
         });
         openPrintWindow(html);
     };

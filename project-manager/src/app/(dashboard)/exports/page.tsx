@@ -179,6 +179,8 @@ export default function ExportsPage() {
                         { label: "معتمدة", value: String(data.filter((d) => d.status === "APPROVED").length) },
                         { label: "معلقة", value: String(data.filter((d) => d.status === "PENDING").length) },
                     ],
+                    branchName: user?.branchName,
+                    branchFlag: user?.branchFlag,
                 });
                 openPrintWindow(html);
             },
@@ -206,6 +208,8 @@ export default function ExportsPage() {
                         { label: "إجمالي الإيداعات", value: formatCurrency(data.totalIn) },
                         { label: "إجمالي المسحوبات", value: formatCurrency(data.totalOut) },
                     ],
+                    branchName: user?.branchName,
+                    branchFlag: user?.branchFlag,
                 });
                 openPrintWindow(html);
             },
@@ -233,6 +237,8 @@ export default function ExportsPage() {
                         { label: "إجمالي الديون", value: formatCurrency(totalAmount) },
                         { label: "عدد الفواتير", value: String(data.length) },
                     ],
+                    branchName: user?.branchName,
+                    branchFlag: user?.branchFlag,
                 });
                 openPrintWindow(html);
             },
@@ -262,6 +268,8 @@ export default function ExportsPage() {
                         { label: "الرصيد المتبقي", value: formatCurrency(totalBalance) },
                         { label: "عدد العهد", value: String(data.length) },
                     ],
+                    branchName: user?.branchName,
+                    branchFlag: user?.branchFlag,
                 });
                 openPrintWindow(html);
             },
@@ -289,6 +297,8 @@ export default function ExportsPage() {
                         { label: "عدد المشاريع", value: String(data.length) },
                         { label: "إجمالي الميزانيات", value: formatCurrency(totalBudget) },
                     ],
+                    branchName: user?.branchName,
+                    branchFlag: user?.branchFlag,
                 });
                 openPrintWindow(html);
             },
@@ -316,6 +326,8 @@ export default function ExportsPage() {
                         { label: "تم الشراء", value: String(data.filter((d) => d.status === "PURCHASED").length) },
                         { label: "قيد التنفيذ", value: String(data.filter((d) => d.status === "IN_PROGRESS").length) },
                     ],
+                    branchName: user?.branchName,
+                    branchFlag: user?.branchFlag,
                 });
                 openPrintWindow(html);
             },
@@ -342,6 +354,8 @@ export default function ExportsPage() {
                         { label: "إجمالي الطلبات", value: String(data.length) },
                         { label: "معلقة", value: String(data.filter((d) => d.status === "PENDING").length) },
                     ],
+                    branchName: user?.branchName,
+                    branchFlag: user?.branchFlag,
                 });
                 openPrintWindow(html);
             },
@@ -388,6 +402,8 @@ export default function ExportsPage() {
                         { label: "إجمالي الفواتير", value: String(invoices.length) },
                         { label: "إجمالي المبالغ", value: formatCurrency(totalAmount) },
                     ],
+                    branchName: user?.branchName,
+                    branchFlag: user?.branchFlag,
                 });
                 openPrintWindow(html);
             },

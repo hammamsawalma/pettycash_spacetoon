@@ -120,6 +120,8 @@ export function generatePrintableReport(options: {
     data: Record<string, unknown>[];
     summary?: ReportSummaryItem[];
     accentColor?: string;
+    branchName?: string | null;
+    branchFlag?: string | null;
 }): string {
     const {
         title,
@@ -129,6 +131,8 @@ export function generatePrintableReport(options: {
         data,
         summary,
         accentColor = "#102550",
+        branchName,
+        branchFlag,
     } = options;
 
     const dateStr = formatDateAr(new Date(), {
@@ -163,6 +167,14 @@ export function generatePrintableReport(options: {
                     .join("")}</tr>`
         )
         .join("");
+
+    // Branding header
+    const branchDisplay = branchName
+        ? `<div style="font-size:12px;font-weight:700;color:#374151;display:flex;align-items:center;gap:6px;">
+               ${branchFlag ? `<span style="font-size:16px">${branchFlag}</span>` : ''}
+               فرع ${branchName}
+           </div>`
+        : '';
 
     return `<!DOCTYPE html>
 <html lang="ar" dir="rtl">
@@ -211,6 +223,42 @@ export function generatePrintableReport(options: {
             color: white;
         }
         .print-bar button:hover { opacity: 0.9; }
+        .brand-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 14px;
+        }
+        .brand-logo {
+            width: 48px;
+            height: 48px;
+            object-fit: contain;
+            border-radius: 6px;
+        }
+        .brand-info {
+            display: flex;
+            flex-direction: column;
+            gap: 1px;
+        }
+        .brand-company {
+            font-size: 15px;
+            font-weight: 900;
+            color: #102550;
+        }
+        .brand-company-en {
+            font-size: 9px;
+            font-weight: 600;
+            color: #6b7280;
+            letter-spacing: 1px;
+        }
+        .brand-divider {
+            width: 100%;
+            height: 3px;
+            border: none;
+            border-radius: 2px;
+            margin: 6px 0 16px;
+            background: ${accentColor};
+        }
         .header {
             display: flex;
             justify-content: space-between;
@@ -314,6 +362,16 @@ export function generatePrintableReport(options: {
         <button onclick="window.print()">🖨️ طباعة / حفظ PDF</button>
     </div>
     <div class="page">
+        <div class="brand-header">
+            <img class="brand-logo" src="/spacetoon-logo.png" alt="Logo" />
+            <div class="brand-info">
+                <div class="brand-company">سبيستون بوكيت</div>
+                <div class="brand-company-en">SPACETOON POCKET</div>
+                ${branchDisplay}
+            </div>
+        </div>
+        <hr class="brand-divider" />
+
         <div class="header">
             <div class="header-right">
                 <h1>${title}</h1>
@@ -336,7 +394,7 @@ export function generatePrintableReport(options: {
         <div class="row-count">إجمالي السجلات: ${data.length}</div>
 
         <div class="footer">
-            تم إصدار هذا التقرير إلكترونياً بواسطة نظام سبيستون بوكيت — ${dateStr}
+            تم إصدار هذا التقرير إلكترونياً بواسطة نظام سبيستون بوكيت${branchName ? ` — فرع ${branchName}` : ''} — ${dateStr}
         </div>
     </div>
 </body>

@@ -14,6 +14,7 @@ import { ExportButton } from "@/components/ui/ExportButton";
 import { getCustodiesExportData } from "@/actions/exports";
 import { downloadExcel, generatePrintableReport, openPrintWindow, formatDate, formatCurrency, type ExportColumn } from "@/lib/export-utils";
 import { useCanDo } from "@/components/auth/Protect";
+import { useAuth } from "@/context/AuthContext";
 
 interface CompanyCustodyData {
     id: string;
@@ -31,6 +32,7 @@ interface CompanyCustodyData {
 
 export default function CompanyCustodiesClient({ custodies, role }: { custodies: CompanyCustodyData[]; role: string }) {
     const router = useRouter();
+    const { user } = useAuth();
     const [showForm, setShowForm] = useState(false);
     const [state, formAction, isPending] = useActionState(async (prev: any, formData: FormData) => {
         const res = await issueCompanyCustody(prev, formData);
@@ -78,6 +80,8 @@ export default function CompanyCustodiesClient({ custodies, role }: { custodies:
                 { label: "الرصيد النشط", value: formatCurrency(totalActive) },
                 { label: "عدد العهد", value: String(data.length) },
             ],
+            branchName: user?.branchName,
+            branchFlag: user?.branchFlag,
         });
         openPrintWindow(html);
     };

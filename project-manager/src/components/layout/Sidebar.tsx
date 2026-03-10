@@ -12,6 +12,7 @@ import {
 } from 'lucide-react';
 
 import { useAuth } from '@/context/AuthContext';
+import { useLanguage } from '@/context/LanguageContext';
 import { logout } from '@/actions/auth';
 import { canDo } from '@/lib/permissions';
 import { UserRole } from '@/context/AuthContext';
@@ -49,28 +50,28 @@ type NavGroup = {
 
 const navigationGroups: NavGroup[] = [
     {
-        section: 'الأساسيات',
+        section: 'sidebar.basics',
         items: [
             {
-                name: 'لوحة التحكم',
+                name: 'sidebar.dashboard',
                 href: '/',
                 icon: Home,
                 // All authenticated roles see the dashboard
                 check: () => true,
             },
             {
-                name: 'المشاريع',
+                name: 'sidebar.projects',
                 icon: FolderKanban,
                 // Visible if the user can either view all projects OR is a USER (sees own projects)
                 check: (r) => canDo(r, 'projects', 'viewAll') || r === 'USER',
                 subItems: [
                     {
-                        name: 'قائمة المشاريع',
+                        name: 'sidebar.projectsList',
                         href: '/projects',
                         check: (r) => canDo(r, 'projects', 'viewAll') || r === 'USER',
                     },
                     {
-                        name: 'إضافة مشروع جديد',
+                        name: 'sidebar.addProject',
                         href: '/projects/new',
                         // Only ADMIN can create from global nav; USER/Coordinator creates inside project
                         check: (r) => canDo(r, 'employees', 'create'), // same as ADMIN-only
@@ -78,7 +79,7 @@ const navigationGroups: NavGroup[] = [
                 ],
             },
             {
-                name: 'المحادثات',
+                name: 'sidebar.chat',
                 href: '/chat',
                 icon: MessageSquare,
                 check: () => true,
@@ -86,21 +87,21 @@ const navigationGroups: NavGroup[] = [
         ],
     },
     {
-        section: 'المالية والمشتريات',
+        section: 'sidebar.financeAndPurchases',
         items: [
             {
-                name: 'الفواتير',
+                name: 'sidebar.invoices',
                 icon: FileText,
                 // All roles that can create OR approve invoices see this section
                 check: (r) => canDo(r, 'invoices', 'create') || canDo(r, 'invoices', 'viewAll'),
                 subItems: [
                     {
-                        name: 'جميع الفواتير',
+                        name: 'sidebar.allInvoices',
                         href: '/invoices',
                         check: (r) => canDo(r, 'invoices', 'create') || canDo(r, 'invoices', 'viewAll'),
                     },
                     {
-                        name: 'إضافة فاتورة',
+                        name: 'sidebar.addInvoice',
                         href: '/invoices/new',
                         // GENERAL_MANAGER cannot create invoices (view-only) — handled in permissions.ts
                         check: (r) => canDo(r, 'invoices', 'create') && r !== 'GENERAL_MANAGER',
@@ -108,18 +109,18 @@ const navigationGroups: NavGroup[] = [
                 ],
             },
             {
-                name: 'المشتريات',
+                name: 'sidebar.purchases',
                 icon: ShoppingCart,
                 // All roles that can view purchases list see the parent item
                 check: (r) => canDo(r, 'purchases', 'view'),
                 subItems: [
                     {
-                        name: 'جميع المشتريات',
+                        name: 'sidebar.allPurchases',
                         href: '/purchases',
                         check: (r) => canDo(r, 'purchases', 'view'),
                     },
                     {
-                        name: 'إضافة طلب شراء',
+                        name: 'sidebar.addPurchase',
                         href: '/purchases/new',
                         // ADMIN + GM at system level; USER-coordinator via isCoordinatorInAny
                         check: (r, isCoordinatorInAny) => canDo(r, 'purchases', 'createGlobal') || (r === 'USER' && !!isCoordinatorInAny),
@@ -127,42 +128,42 @@ const navigationGroups: NavGroup[] = [
                 ],
             },
             {
-                name: 'الطلبات المالية',
+                name: 'sidebar.financeRequests',
                 icon: BadgeDollarSign,
                 check: (r) => canDo(r, 'financialRequests', 'view'),
                 subItems: [
                     {
-                        name: 'طلبات المحاسبين',
+                        name: 'sidebar.accountantRequests',
                         href: '/finance-requests',
                         check: (r) => canDo(r, 'financialRequests', 'view'),
                     },
                 ],
             },
             {
-                name: 'العهدة',
+                name: 'sidebar.custody',
                 icon: HandCoins,
                 // Visible to all who can view custodies (management) or specific USER custodies
                 check: (r) => canDo(r, 'custodies', 'view'),
                 subItems: [
                     {
-                        name: 'عهد الموظفين',
+                        name: 'sidebar.employeeCustodies',
                         href: '/employee-custodies',
                         check: (r) => r === 'ROOT' || r === 'ADMIN' || r === 'GLOBAL_ACCOUNTANT' || r === 'GENERAL_MANAGER',
                     },
                     {
-                        name: 'إدارة عهدي',
+                        name: 'sidebar.myCustodies',
                         href: '/my-custodies',
                         // Only USER role has their own custody page — edge case: ADMIN/ACC do not
                         check: (r) => r === 'USER',
                     },
                     {
-                        name: 'العهد الخارجية',
+                        name: 'sidebar.externalCustodies',
                         href: '/external-custodies',
                         // v5.1: ADMIN + GLOBAL_ACCOUNTANT + GENERAL_MANAGER
                         check: (r) => r === 'ROOT' || r === 'ADMIN' || r === 'GLOBAL_ACCOUNTANT' || r === 'GENERAL_MANAGER',
                     },
                     {
-                        name: 'عهد مصاريف الشركة',
+                        name: 'sidebar.companyCustodies',
                         href: '/company-custodies',
                         // v7: ADMIN + GLOBAL_ACCOUNTANT + GENERAL_MANAGER
                         check: (r) => r === 'ROOT' || r === 'ADMIN' || r === 'GLOBAL_ACCOUNTANT' || r === 'GENERAL_MANAGER',
@@ -170,24 +171,24 @@ const navigationGroups: NavGroup[] = [
                 ],
             },
             {
-                name: 'خزنة الشركة',
+                name: 'sidebar.companyWallet',
                 icon: Wallet,
                 check: (r) => canDo(r, 'wallet', 'view'),
                 subItems: [
                     {
-                        name: 'لوحة الخزنة',
+                        name: 'sidebar.walletDashboard',
                         href: '/wallet',
                         check: (r) => canDo(r, 'wallet', 'view'),
                     },
                     {
-                        name: 'إيداع جديد',
+                        name: 'sidebar.newDeposit',
                         href: '/wallet/deposit',
                         check: (r) => canDo(r, 'wallet', 'deposit'),
                     },
                 ],
             },
             {
-                name: 'الديون',
+                name: 'sidebar.debts',
                 href: '/debts',
                 icon: Banknote,
                 // All roles can view debts — USER sees own debts only (server-filtered)
@@ -196,40 +197,40 @@ const navigationGroups: NavGroup[] = [
         ],
     },
     {
-        section: 'الإدارة',
+        section: 'sidebar.management',
         items: [
             {
-                name: 'الموظفين',
+                name: 'sidebar.employees',
                 icon: Users,
                 // Only management roles see this section — USER has no access to employees list
                 check: (r) => canDo(r, 'employees', 'viewAll'),
                 subItems: [
                     {
-                        name: 'قائمة الموظفين',
+                        name: 'sidebar.employeesList',
                         href: '/employees',
                         check: (r) => canDo(r, 'employees', 'viewAll'),
                     },
                     {
-                        name: 'إضافة موظف جديد',
+                        name: 'sidebar.addEmployee',
                         href: '/employees/new',
                         check: (r) => canDo(r, 'employees', 'create'),
                     },
                 ],
             },
             {
-                name: 'التقارير',
+                name: 'sidebar.reports',
                 href: '/reports',
                 icon: BarChart3,
                 check: (r) => canDo(r, 'reports', 'viewAll'),
             },
             {
-                name: 'مركز التصدير',
+                name: 'sidebar.exportCenter',
                 href: '/exports',
                 icon: Download,
                 check: (r) => canDo(r, 'exports', 'view'),
             },
             {
-                name: 'إرسال إشعارات',
+                name: 'sidebar.sendNotifications',
                 href: '/notifications/send',
                 icon: BellRing,
                 check: (r) => canDo(r, 'notifications', 'send'),
@@ -237,28 +238,28 @@ const navigationGroups: NavGroup[] = [
         ],
     },
     {
-        section: 'النظام',
+        section: 'sidebar.system',
         items: [
             {
-                name: 'إدارة التصنيفات',
+                name: 'sidebar.manageCategories',
                 href: '/settings/categories',
                 icon: FolderKanban,
                 // v5: Only ADMIN + GLOBAL_ACCOUNTANT
                 check: (r) => r === 'ROOT' || r === 'ADMIN' || r === 'GLOBAL_ACCOUNTANT',
             },
             {
-                name: 'الدعم الفني',
+                name: 'sidebar.support',
                 icon: HeadphonesIcon,
                 // All roles get support access
                 check: () => true,
                 subItems: [
                     {
-                        name: 'تذاكر الدعم',
+                        name: 'sidebar.supportTickets',
                         href: '/support',
                         check: () => true,
                     },
                     {
-                        name: 'محادثات الدعم',
+                        name: 'sidebar.supportChats',
                         href: '/support/admin',
                         // Only ADMIN can manage support conversations
                         check: (r) => r === 'ADMIN',
@@ -266,21 +267,21 @@ const navigationGroups: NavGroup[] = [
                 ],
             },
             {
-                name: 'المؤرشفات',
+                name: 'sidebar.archives',
                 href: '/archives',
                 icon: Archive,
                 // Must match proxy.ts guard: ADMIN, GLOBAL_ACCOUNTANT, GENERAL_MANAGER
                 check: (r) => canDo(r, 'archive', 'view'),
             },
             {
-                name: 'إدارة الفروع',
+                name: 'sidebar.manageBranches',
                 href: '/branches',
                 icon: Globe2,
                 // v8: ROOT only — manage branches
                 check: (r) => r === 'ROOT',
             },
             {
-                name: 'السلة',
+                name: 'sidebar.trash',
                 href: '/trash',
                 icon: Trash2,
                 check: (r) => canDo(r, 'trash', 'manage'),
@@ -304,45 +305,45 @@ type QuickAddItem = {
 
 const QUICK_ADD_ITEMS: QuickAddItem[] = [
     {
-        name: 'مشروع جديد',
+        name: 'sidebar.newProject',
         icon: FolderKanban,
         href: '/projects/new',
-        desc: 'إنشاء مشروع وإسناد المهام',
+        desc: 'sidebar.newProjectDesc',
         color: 'bg-blue-50 text-blue-600 border-blue-100',
         check: (r) => canDo(r, 'employees', 'create'), // ADMIN only
     },
     {
-        name: 'فاتورة جديدة',
+        name: 'sidebar.newInvoice',
         icon: FileText,
         href: '/invoices/new',
-        desc: 'إصدار فاتورة لمشروع',
+        desc: 'sidebar.newInvoiceDesc',
         color: 'bg-green-50 text-green-600 border-green-100',
         // USER and ACC can create; GM cannot (view only)
         check: (r) => canDo(r, 'invoices', 'create') && r !== 'GENERAL_MANAGER',
     },
     {
-        name: 'موظف جديد',
+        name: 'sidebar.addEmployee',
         icon: Users,
         href: '/employees/new',
-        desc: 'إضافة موظف للنظام',
+        desc: 'sidebar.newProjectDesc',
         color: 'bg-blue-50 text-blue-600 border-blue-100',
         check: (r) => canDo(r, 'employees', 'create'), // ADMIN only
     },
 
     {
-        name: 'طلب شراء',
+        name: 'sidebar.purchaseRequest',
         icon: ShoppingCart,
         href: '/purchases/new',
-        desc: 'إنشاء طلب مشتريات',
+        desc: 'sidebar.purchaseRequestDesc',
         color: 'bg-teal-50 text-teal-600 border-teal-100',
         // ADMIN + GM at system level; USER-coordinator via isCoordinatorInAny
         check: (r: UserRole, isCoordinatorInAny?: boolean) => canDo(r, 'purchases', 'createGlobal') || (r === 'USER' && !!isCoordinatorInAny),
     },
     {
-        name: 'طلب مالي',
+        name: 'sidebar.financeRequest',
         icon: BadgeDollarSign,
         href: '/finance-requests',
-        desc: 'إنشاء طلب مالي للمدير',
+        desc: 'sidebar.financeRequestDesc',
         color: 'bg-amber-50 text-amber-600 border-amber-100',
         check: (r) => canDo(r, 'financialRequests', 'create') && r !== 'ADMIN',
     },
@@ -352,6 +353,7 @@ const QUICK_ADD_ITEMS: QuickAddItem[] = [
 export default function Sidebar({ isOpen, setIsOpen }: { isOpen?: boolean, setIsOpen?: (val: boolean) => void }) {
     const pathname = usePathname();
     const { user, isCoordinatorInAny, roleNameAr } = useAuth();
+    const { t, locale } = useLanguage();
     const role = user?.role as UserRole | undefined;
 
     const [expandedMenus, setExpandedMenus] = useState<Record<string, boolean>>({});
@@ -449,7 +451,7 @@ export default function Sidebar({ isOpen, setIsOpen }: { isOpen?: boolean, setIs
                 ref={sidebarRef}
                 role={isOpen ? 'dialog' : undefined}
                 aria-modal={isOpen ? 'true' : undefined}
-                aria-label="القائمة الجانبية"
+                aria-label={locale === 'ar' ? 'القائمة الجانبية' : 'Sidebar Menu'}
                 onTouchStart={handleTouchStart}
                 onTouchEnd={handleTouchEnd}
                 className={`
@@ -479,7 +481,7 @@ export default function Sidebar({ isOpen, setIsOpen }: { isOpen?: boolean, setIs
                             className="w-full flex items-center justify-center gap-2 bg-[#102550] hover:bg-[#1a3a7c] text-white py-2.5 rounded-xl font-semibold shadow-sm shadow-[#102550]/30 transition-all duration-200 hover:-translate-y-0.5"
                         >
                             <PlusCircle className="w-5 h-5" />
-                            إضافة سريعة
+                            {t('common.quickAdd')}
                         </button>
                     </div>
                 )}
@@ -492,7 +494,7 @@ export default function Sidebar({ isOpen, setIsOpen }: { isOpen?: boolean, setIs
 
                         return (
                             <div key={group.section || groupIdx}>
-                                <h3 className="text-[11px] font-black text-gray-500 mb-3 uppercase tracking-widest px-2">{group.section}</h3>
+                                <h3 className="text-[11px] font-black text-gray-500 mb-3 uppercase tracking-widest px-2">{t(group.section)}</h3>
                                 <ul className="space-y-1.5 relative">
                                     {visibleItems.map((item) => {
                                         const visibleSubItems = item.subItems?.filter(sub => role && sub.check(role, isCoordinatorInAny)) || [];
@@ -515,7 +517,7 @@ export default function Sidebar({ isOpen, setIsOpen }: { isOpen?: boolean, setIs
                                                         >
                                                             <div className="flex items-center gap-x-3.5">
                                                                 <item.icon className="h-5 w-5 shrink-0 transition-transform duration-200 group-hover:scale-110" aria-hidden="true" />
-                                                                {item.name}
+                                                                {t(item.name)}
                                                             </div>
                                                             <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${isExpanded ? 'rotate-180' : ''}`} />
                                                         </button>
@@ -541,7 +543,7 @@ export default function Sidebar({ isOpen, setIsOpen }: { isOpen?: boolean, setIs
                                                                                             ${isSubActive ? 'text-[#102550] bg-[#102550]/5 font-bold' : 'text-gray-500 hover:text-gray-900 hover:bg-gray-50'}`}
                                                                                     >
                                                                                         <div className={`w-1.5 h-1.5 rounded-full ${isSubActive ? 'bg-[#102550]' : 'bg-gray-300 group-hover:bg-gray-400'} transition-colors`} />
-                                                                                        {subItem.name}
+                                                                                        {t(subItem.name)}
                                                                                     </Link>
                                                                                 </li>
                                                                             )
@@ -570,7 +572,7 @@ export default function Sidebar({ isOpen, setIsOpen }: { isOpen?: boolean, setIs
                                                                 ${isActive ? 'text-[#102550]' : 'text-gray-500 hover:text-gray-900 hover:bg-gray-50/80 hover:shadow-sm hover:translate-x-[-4px]'}`}
                                                         >
                                                             <item.icon className="h-5 w-5 shrink-0 transition-transform duration-200 group-hover:scale-110" aria-hidden="true" />
-                                                            {item.name}
+                                                            {t(item.name)}
                                                         </Link>
                                                     </>
                                                 )}
@@ -597,8 +599,8 @@ export default function Sidebar({ isOpen, setIsOpen }: { isOpen?: boolean, setIs
                             <span className="text-[#102550] font-black text-sm">{user?.name?.charAt(0) ?? '؟'}</span>
                         </div>
                         <div className="flex-1 min-w-0">
-                            <p className="text-sm font-bold text-gray-900 truncate group-hover:text-[#102550] transition-colors">{user?.name || 'مستخدم'}</p>
-                            <p className="text-[10px] text-gray-400 font-medium truncate">{roleNameAr}</p>
+                            <p className="text-sm font-bold text-gray-900 truncate group-hover:text-[#102550] transition-colors">{user?.name || t('common.user')}</p>
+                            <p className="text-[10px] text-gray-400 font-medium truncate">{locale === 'en' ? t(`roles.${user?.role || 'USER'}`) : roleNameAr}</p>
                         </div>
                         <Settings className="h-4 w-4 text-gray-300 group-hover:text-[#102550] group-hover:rotate-45 transition-all shrink-0" />
                     </Link>
@@ -612,7 +614,7 @@ export default function Sidebar({ isOpen, setIsOpen }: { isOpen?: boolean, setIs
                         className="group flex w-full items-center justify-center gap-2 rounded-xl px-3 py-2.5 text-sm font-bold text-red-500/80 hover:text-red-600 hover:bg-red-50 border border-transparent hover:border-red-100 transition-all duration-200"
                     >
                         <LogOut className="h-4 w-4 shrink-0 transition-transform group-hover:-translate-x-1" />
-                        تسجيل الخروج
+                        {t('sidebar.logout')}
                     </button>
                 </div>
 
@@ -640,8 +642,8 @@ export default function Sidebar({ isOpen, setIsOpen }: { isOpen?: boolean, setIs
                             >
                                 <div className="flex items-center justify-between p-5 border-b border-gray-100">
                                     <div>
-                                        <h3 className="text-lg font-bold text-gray-900">إضافة سريعة</h3>
-                                        <p className="text-sm text-gray-500 mt-0.5">ماذا تريد أن تضيف اليوم؟</p>
+                                        <h3 className="text-lg font-bold text-gray-900">{t('common.quickAdd')}</h3>
+                                        <p className="text-sm text-gray-500 mt-0.5">{locale === 'ar' ? 'ماذا تريد أن تضيف اليوم؟' : 'What would you like to add today?'}</p>
                                     </div>
                                     <button
                                         onClick={(e) => { e.stopPropagation(); setIsQuickAddOpen(false); }}
@@ -665,15 +667,15 @@ export default function Sidebar({ isOpen, setIsOpen }: { isOpen?: boolean, setIs
                                                         <item.icon className="w-5 h-5" />
                                                     </div>
                                                     <div>
-                                                        <h4 className="font-semibold text-gray-900 group-hover:text-[#102550] transition-colors">{item.name}</h4>
-                                                        <p className="text-xs text-gray-500 mt-1 line-clamp-2">{item.desc}</p>
+                                                        <h4 className="font-semibold text-gray-900 group-hover:text-[#102550] transition-colors">{t(item.name)}</h4>
+                                                        <p className="text-xs text-gray-500 mt-1 line-clamp-2">{t(item.desc)}</p>
                                                     </div>
                                                 </Link>
                                             ))}
                                         </div>
                                     ) : (
                                         <div className="text-center py-8">
-                                            <p className="text-gray-500">لا توجد لديك صلاحيات للإضافة السريعة.</p>
+                                            <p className="text-gray-500">{locale === 'ar' ? 'لا توجد لديك صلاحيات للإضافة السريعة.' : 'You do not have quick add permissions.'}</p>
                                         </div>
                                     )}
                                 </div>

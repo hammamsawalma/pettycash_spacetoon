@@ -74,6 +74,8 @@ export default function ProjectsPage() {
                 { label: "عدد المشاريع", value: String(data.length) },
                 { label: "إجمالي الميزانيات", value: formatCurrency(totalBudget) },
             ],
+            branchName: user?.branchName,
+            branchFlag: user?.branchFlag,
         });
         openPrintWindow(html);
     };

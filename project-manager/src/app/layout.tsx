@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
-import { Cairo } from "next/font/google";
+import { Cairo, Inter } from "next/font/google";
 import "./globals.css";
 import PushNotificationManager from "@/components/layout/PushNotificationManager";
+import { LanguageProvider } from "@/context/LanguageContext";
 
 const cairo = Cairo({
   variable: "--font-cairo",
@@ -10,10 +11,43 @@ const cairo = Cairo({
   preload: true,
 });
 
+const inter = Inter({
+  variable: "--font-inter",
+  subsets: ["latin"],
+  display: "swap",
+  preload: true,
+});
+
 export const metadata: Metadata = {
+  metadataBase: new URL(process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"),
   title: "Spacetoon Pocket",
-  description: "نظام إدارة المشاريع والمالية",
+  description: "نظام إدارة المشاريع والمالية - سبيستون",
   manifest: "/manifest.json",
+  icons: {
+    icon: "/favicon.ico",
+    apple: "/icon-192.png",
+  },
+  openGraph: {
+    title: "Spacetoon Pocket",
+    description: "نظام إدارة المشاريع والمالية - سبيستون",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "Spacetoon Pocket - نظام إدارة المشاريع والمالية",
+      },
+    ],
+    locale: "ar_SA",
+    type: "website",
+    siteName: "Spacetoon Pocket",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Spacetoon Pocket",
+    description: "نظام إدارة المشاريع والمالية - سبيستون",
+    images: ["/og-image.png"],
+  },
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
@@ -30,7 +64,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="ar" dir="rtl">
+    <html lang="ar" dir="rtl" suppressHydrationWarning>
       <head>
         <meta name="theme-color" content="#102550" />
         <meta name="color-scheme" content="light" />
@@ -55,10 +89,12 @@ export default function RootLayout({
         />
       </head>
       <body
-        className={`${cairo.variable} font-sans antialiased`}
+        className={`${cairo.variable} ${inter.variable} font-sans antialiased`}
       >
-        <PushNotificationManager />
-        {children}
+        <LanguageProvider>
+          <PushNotificationManager />
+          {children}
+        </LanguageProvider>
       </body>
     </html>
   );

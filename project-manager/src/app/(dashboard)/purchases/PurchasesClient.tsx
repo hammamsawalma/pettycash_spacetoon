@@ -4,7 +4,7 @@ import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { StatusBadge } from "@/components/ui/StatusBadge";
-import { Plus, Search, ShoppingCart, CalendarDays, Hash, Flag, User as UserIcon, BarChart3 } from "lucide-react";
+import { Plus, Search, ShoppingCart, CalendarDays, Hash, Flag, User as UserIcon, BarChart3, FileSpreadsheet } from "lucide-react";
 import { useState } from "react";
 import { Purchase, Project, User } from "@prisma/client";
 import { useCanDo } from "@/components/auth/Protect";
@@ -26,7 +26,7 @@ interface Props {
 }
 
 export default function PurchasesClient({ initialPurchases }: Props) {
-    const { isCoordinatorInAny, role } = useAuth();
+    const { isCoordinatorInAny, role, user } = useAuth();
     const canCreatePurchase = useCanDo('purchases', 'createGlobal') || (role === 'USER' && isCoordinatorInAny);
     const canExport = useCanDo('exports', 'view');
     const router = useRouter();
@@ -62,6 +62,8 @@ export default function PurchasesClient({ initialPurchases }: Props) {
                 { label: "تم الشراء", value: String(data.filter(d => d.status === 'PURCHASED').length) },
                 { label: "قيد التنفيذ", value: String(data.filter(d => d.status === 'IN_PROGRESS').length) },
             ],
+            branchName: user?.branchName,
+            branchFlag: user?.branchFlag,
         });
         openPrintWindow(html);
     };
@@ -140,10 +142,16 @@ export default function PurchasesClient({ initialPurchases }: Props) {
                                 />
                             )}
                             {canCreatePurchase && (
-                                <Button onClick={() => router.push('/purchases/new')} variant="primary" className="gap-2 w-full sm:w-auto py-3 text-xs md:text-sm h-auto justify-center active:scale-95 transition-transform">
-                                    <Plus className="w-3.5 h-3.5 md:w-4 md:h-4" />
-                                    إضافة طلب شراء
-                                </Button>
+                                <>
+                                    <Button onClick={() => router.push('/purchases/bulk')} variant="outline" className="gap-1.5 w-auto py-3 text-xs md:text-sm h-auto justify-center active:scale-95 transition-transform border-[#102550]/30 text-[#102550] hover:bg-[#102550]/5">
+                                        <FileSpreadsheet className="w-3.5 h-3.5 md:w-4 md:h-4" />
+                                        إضافة مجمعة
+                                    </Button>
+                                    <Button onClick={() => router.push('/purchases/new')} variant="primary" className="gap-2 w-full sm:w-auto py-3 text-xs md:text-sm h-auto justify-center active:scale-95 transition-transform">
+                                        <Plus className="w-3.5 h-3.5 md:w-4 md:h-4" />
+                                        إضافة طلب شراء
+                                    </Button>
+                                </>
                             )}
                         </div>
                     </div>
@@ -197,81 +205,105 @@ export default function PurchasesClient({ initialPurchases }: Props) {
                                     <Card
                                         key={purchase.id}
                                         onClick={() => router.push(`/purchases/${purchase.id}`)}
-                                        className={`p-4 cursor-pointer active:scale-[0.99] transition-all border rounded-2xl shadow-sm ${isFlagged ? 'border-red-200 bg-red-50/30' : 'border-gray-100'}`}
+                                        className={`overflow-hidden cursor-pointer active:scale-[0.99] transition-all border rounded-2xl shadow-sm ${isFlagged ? 'border-red-200 bg-red-50/30' : 'border-gray-100'}`}
                                     >
-                                        {/* Top row: order number + flag + status */}
-                                        <div className="flex items-center justify-between mb-3">
-                                            <div className="flex items-center gap-2">
-                                                <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${isFlagged ? 'bg-red-100' : 'bg-gray-100'}`}>
-                                                    <Hash className={`w-4 h-4 ${isFlagged ? 'text-red-500' : 'text-gray-500'}`} />
+                                        {/* Hero Image at Top */}
+                                        {purchase.imageUrl ? (
+                                            <div className="relative w-full h-40 bg-gray-100">
+                                                <img
+                                                    src={purchase.imageUrl}
+                                                    alt="صورة الطلب"
+                                                    className="w-full h-full object-cover"
+                                                />
+                                                <div className="absolute top-2 left-2">
+                                                    <StatusBadge status={purchase.status} />
                                                 </div>
-                                                <div>
-                                                    <p className={`font-black text-sm ${isFlagged ? 'text-red-800' : 'text-gray-900'}`}>
-                                                        {purchase.orderNumber}
-                                                    </p>
-                                                    {isFlagged && (
-                                                        <span className="inline-flex items-center gap-1 text-[10px] font-bold text-red-600 bg-red-100 px-1.5 py-0.5 rounded-md mt-0.5">
+                                                {isFlagged && (
+                                                    <div className="absolute top-2 right-2">
+                                                        <span className="inline-flex items-center gap-1 text-[10px] font-bold text-white bg-red-500 px-2 py-1 rounded-lg shadow-sm">
                                                             <Flag className="w-2.5 h-2.5" /> غير متوفر
                                                         </span>
-                                                    )}
-                                                </div>
+                                                    </div>
+                                                )}
                                             </div>
-                                            <StatusBadge status={purchase.status} />
-                                        </div>
-
-                                        {/* Description */}
-                                        {purchase.description && (
-                                            <p className="text-sm text-gray-700 mb-3 line-clamp-2 leading-relaxed">
-                                                {purchase.description}
-                                            </p>
+                                        ) : (
+                                            <div className="relative w-full h-24 bg-gradient-to-b from-gray-50 to-white flex items-center justify-center">
+                                                <ShoppingCart className="w-10 h-10 text-gray-200" />
+                                                <div className="absolute top-2 left-2">
+                                                    <StatusBadge status={purchase.status} />
+                                                </div>
+                                                {isFlagged && (
+                                                    <div className="absolute top-2 right-2">
+                                                        <span className="inline-flex items-center gap-1 text-[10px] font-bold text-white bg-red-500 px-2 py-1 rounded-lg shadow-sm">
+                                                            <Flag className="w-2.5 h-2.5" /> غير متوفر
+                                                        </span>
+                                                    </div>
+                                                )}
+                                            </div>
                                         )}
 
-                                        {/* Meta row */}
-                                        <div className="flex flex-wrap gap-2 mb-3">
-                                            {purchase.project && (
-                                                <span className="inline-flex items-center gap-1 text-xs font-bold text-[#102550] bg-blue-50 px-2 py-1 rounded-lg">
-                                                    {purchase.project.name}
-                                                </span>
+                                        <div className="p-4">
+                                            {/* Order number */}
+                                            <div className="flex items-center gap-2 mb-2">
+                                                <div className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 ${isFlagged ? 'bg-red-100' : 'bg-gray-100'}`}>
+                                                    <Hash className={`w-3.5 h-3.5 ${isFlagged ? 'text-red-500' : 'text-gray-500'}`} />
+                                                </div>
+                                                <p className={`font-black text-sm ${isFlagged ? 'text-red-800' : 'text-gray-900'}`}>
+                                                    {purchase.orderNumber}
+                                                </p>
+                                            </div>
+
+                                            {/* Description */}
+                                            {purchase.description && (
+                                                <p className="text-sm text-gray-700 mb-3 line-clamp-2 leading-relaxed">
+                                                    {purchase.description}
+                                                </p>
                                             )}
-                                            {purchase.deadline && (
+
+                                            {/* Meta row */}
+                                            <div className="flex flex-wrap gap-2 mb-3">
+                                                {purchase.project && (
+                                                    <span className="inline-flex items-center gap-1 text-xs font-bold text-[#102550] bg-blue-50 px-2 py-1 rounded-lg">
+                                                        {purchase.project.name}
+                                                    </span>
+                                                )}
+                                                {(purchase as any).batchLabel && (
+                                                    <span className="inline-flex items-center gap-1 text-xs font-bold text-purple-700 bg-purple-50 px-2 py-1 rounded-lg">
+                                                        <FileSpreadsheet className="w-3 h-3" />
+                                                        {(purchase as any).batchLabel}
+                                                    </span>
+                                                )}
+                                                {purchase.deadline && (
+                                                    <span className="inline-flex items-center gap-1 text-xs font-medium text-gray-500 bg-gray-50 px-2 py-1 rounded-lg">
+                                                        <CalendarDays className="w-3 h-3" />
+                                                        {new Date(purchase.deadline).toLocaleDateString('en-GB')}
+                                                    </span>
+                                                )}
                                                 <span className="inline-flex items-center gap-1 text-xs font-medium text-gray-500 bg-gray-50 px-2 py-1 rounded-lg">
-                                                    <CalendarDays className="w-3 h-3" />
-                                                    {new Date(purchase.deadline).toLocaleDateString('en-GB')}
+                                                    الكمية: {purchase.quantity || 1}
                                                 </span>
+                                            </div>
+
+                                            {/* Creator */}
+                                            <div className="flex items-center gap-1.5 mb-3 text-xs text-gray-400">
+                                                <UserIcon className="w-3 h-3" />
+                                                <span className="font-medium">طالب الشراء: <span className="text-gray-600 font-bold">{purchase.creator?.name}</span></span>
+                                            </div>
+
+                                            {/* CTA for open purchases */}
+                                            {(purchase.status === 'REQUESTED' || purchase.status === 'IN_PROGRESS') && (
+                                                <Button
+                                                    variant="outline"
+                                                    className={`w-full h-9 text-xs font-bold rounded-xl mt-1 ${isFlagged ? 'border-red-300 text-red-600 hover:bg-red-50' : 'border-[#102550]/30 text-[#102550] hover:bg-[#102550]/5'}`}
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        window.location.href = `/invoices/new?purchaseId=${purchase.id}&projectId=${purchase.projectId || ''}&description=${encodeURIComponent(purchase.description)}`;
+                                                    }}
+                                                >
+                                                    إتمام الشراء ←
+                                                </Button>
                                             )}
-                                            <span className="inline-flex items-center gap-1 text-xs font-medium text-gray-500 bg-gray-50 px-2 py-1 rounded-lg">
-                                                الكمية: {purchase.quantity || 1}
-                                            </span>
                                         </div>
-
-                                        {/* Creator */}
-                                        <div className="flex items-center gap-1.5 mb-3 text-xs text-gray-400">
-                                            <UserIcon className="w-3 h-3" />
-                                            <span className="font-medium">طالب الشراء: <span className="text-gray-600 font-bold">{purchase.creator?.name}</span></span>
-                                        </div>
-
-                                        {/* Image preview */}
-                                        {purchase.imageUrl && (
-                                            <img
-                                                src={purchase.imageUrl}
-                                                alt="صورة الطلب"
-                                                className="w-full h-32 object-cover rounded-xl border border-gray-100 mb-3"
-                                            />
-                                        )}
-
-                                        {/* CTA for open purchases */}
-                                        {(purchase.status === 'REQUESTED' || purchase.status === 'IN_PROGRESS') && (
-                                            <Button
-                                                variant="outline"
-                                                className={`w-full h-9 text-xs font-bold rounded-xl mt-1 ${isFlagged ? 'border-red-300 text-red-600 hover:bg-red-50' : 'border-[#102550]/30 text-[#102550] hover:bg-[#102550]/5'}`}
-                                                onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    window.location.href = `/invoices/new?purchaseId=${purchase.id}&projectId=${purchase.projectId || ''}&description=${encodeURIComponent(purchase.description)}`;
-                                                }}
-                                            >
-                                                إتمام الشراء ←
-                                            </Button>
-                                        )}
                                     </Card>
                                 );
                             })}

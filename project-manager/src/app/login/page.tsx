@@ -5,9 +5,11 @@ import { EyeOff, Fingerprint, GripHorizontal } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { login } from "@/actions/auth";
 import toast from "react-hot-toast";
+import { useLanguage } from "@/context/LanguageContext";
 
 export default function LoginPage() {
     const [state, formAction, isPending] = useActionState(login, null);
+    const { t, locale } = useLanguage();
 
     return (
         <div className="min-h-screen flex flex-col md:flex-row bg-white">
@@ -19,7 +21,7 @@ export default function LoginPage() {
                     className="w-48 h-auto object-contain mb-4 drop-shadow-[0_0_3px_rgba(255,255,255,1)]"
                 />
                 <p className="text-blue-200 text-center max-w-sm hidden md:block">
-                    النظام الأذكى لإدارة مشاريعك وفريق عملك بكفاءة عالية
+                    {locale === 'ar' ? 'النظام الأذكى لإدارة مشاريعك وفريق عملك بكفاءة عالية' : 'The smartest system for managing your projects and team efficiently'}
                 </p>
             </div>
 
@@ -27,8 +29,8 @@ export default function LoginPage() {
             <div className="md:w-1/2 flex justify-center items-center p-6 md:p-12">
                 <div className="w-full max-w-md space-y-8">
                     <div className="text-center">
-                        <h2 className="text-3xl font-bold text-gray-900 mb-2">مرحبًا بعودتك!</h2>
-                        <p className="text-gray-500">تسجيل الدخول إلى حسابك</p>
+                        <h2 className="text-3xl font-bold text-gray-900 mb-2">{locale === 'ar' ? 'مرحبًا بعودتك!' : 'Welcome back!'}</h2>
+                        <p className="text-gray-500">{locale === 'ar' ? 'تسجيل الدخول إلى حسابك' : 'Sign in to your account'}</p>
                     </div>
 
                     {state?.error && (
@@ -41,11 +43,11 @@ export default function LoginPage() {
                         const email = formData.get("email");
                         const password = formData.get("password");
                         if (!email || !password) {
-                            toast.error("الرجاء إدخال البريد الإلكتروني وكلمة المرور");
+                            toast.error(locale === 'ar' ? 'الرجاء إدخال البريد الإلكتروني وكلمة المرور' : 'Please enter email and password');
                             return;
                         }
                         if (typeof email === "string" && !email.includes("@")) {
-                            toast.error("صيغة البريد الإلكتروني غير صحيحة");
+                            toast.error(locale === 'ar' ? 'صيغة البريد الإلكتروني غير صحيحة' : 'Invalid email format');
                             return;
                         }
                         // Then proceed with the server action
@@ -94,7 +96,7 @@ export default function LoginPage() {
                                     id="email"
                                     type="email"
                                     name="email"
-                                    placeholder="البريد الالكتروني"
+                                    placeholder={t('login.emailLabel')}
                                     className="block w-full rounded-xl border-0 py-3.5 pl-4 pr-4 text-gray-900 ring-1 ring-inset ring-gray-200 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-[#102550] sm:text-sm sm:leading-6 bg-gray-50"
                                 />
                             </div>
@@ -106,7 +108,7 @@ export default function LoginPage() {
                                     id="password"
                                     type="password"
                                     name="password"
-                                    placeholder="كلمة المرور"
+                                    placeholder={t('login.passwordLabel')}
                                     className="block w-full rounded-xl border-0 py-3.5 pl-12 pr-4 text-gray-900 ring-1 ring-inset ring-gray-200 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-[#102550] sm:text-sm sm:leading-6 bg-gray-50"
                                 />
                                 <button type="button" className="absolute inset-y-0 left-0 flex items-center pl-4 text-gray-400 hover:text-gray-600">
@@ -124,13 +126,13 @@ export default function LoginPage() {
                                     className="h-4 w-4 rounded border-gray-300 text-[#102550] focus:ring-[#102550]"
                                 />
                                 <label htmlFor="remember-me" className="mr-2 block text-sm text-gray-500">
-                                    تذكرني
+                                    {t('login.rememberMe')}
                                 </label>
                             </div>
                         </div>
 
                         <Button type="submit" disabled={isPending} isLoading={isPending} className="w-full text-base py-6 rounded-xl" variant="primary">
-                            تسجيل الدخول
+                            {t('login.loginButton')}
                         </Button>
                     </form>
 
@@ -143,7 +145,7 @@ export default function LoginPage() {
                         className="flex items-center justify-center gap-2 w-full py-3 rounded-xl border border-[#102550]/30 text-[#102550] hover:bg-[#dbeafe] transition-colors text-sm font-semibold"
                     >
                         <span className="text-base">📖</span>
-                        دليل الاستخدام
+                        {t('header.userManual')}
                     </a>
 
                 </div>

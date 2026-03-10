@@ -1,9 +1,10 @@
 /**
- * v7: Invoice Voucher HTML generator
+ * v9: Invoice Voucher HTML generator — with branding + external number
  * Generates a clean, professional invoice detail page for printing
  */
 
 import { formatNumber, formatDateAr } from './format-utils';
+import { getBrandingCSS, getBrandingHeaderHTML, type BrandingInfo } from './document-branding';
 
 export interface InvoiceVoucherData {
     invoiceNumber: string;
@@ -17,6 +18,11 @@ export interface InvoiceVoucherData {
     paymentSource?: string;
     seller?: string;
     attachments?: number;
+    // v9: Branding + External Number
+    externalNumber?: string | null;
+    branchName?: string | null;
+    branchFlag?: string | null;
+    logoBase64?: string;
 }
 
 const statusLabels: Record<string, { label: string; color: string; bg: string }> = {
@@ -28,7 +34,16 @@ const statusLabels: Record<string, { label: string; color: string; bg: string }>
 export function generateInvoiceVoucherHTML(data: InvoiceVoucherData): string {
     const dateStr = formatDateAr(data.date, { year: "numeric", month: "long", day: "numeric" });
     const st = statusLabels[data.status] || statusLabels.PENDING;
-    const sourceLabel = data.paymentSource === "CUSTODY" ? "من العهدة" : data.paymentSource === "PROJECT" ? "من ميزانية المشروع" : "غير محدد";
+    const sourceLabel = data.paymentSource === "CUSTODY" ? "من العهدة" : data.paymentSource === "PROJECT" ? "من ميزانية المشروع" : data.paymentSource === "PERSONAL" ? "شخصي" : data.paymentSource === "SPLIT" ? "مقسّم" : data.paymentSource === "COMPANY_DIRECT" ? "مصاريف شركة" : "غير محدد";
+
+    const branding: BrandingInfo = { branchName: data.branchName, branchFlag: data.branchFlag };
+    const brandingHeaderHTML = getBrandingHeaderHTML(branding, { logoBase64: data.logoBase64, accentColor: '#1e3a5f' });
+    const brandingCSS = getBrandingCSS();
+
+    // External number display
+    const externalNumHTML = data.externalNumber
+        ? `<div class="field">الرقم الخارجي: <strong style="color:#b45309">${data.externalNumber}</strong></div>`
+        : '';
 
     return `<!DOCTYPE html>
 <html lang="ar" dir="rtl">
@@ -45,11 +60,11 @@ export function generateInvoiceVoucherHTML(data: InvoiceVoucherData): string {
         .print-bar button { padding: 10px 28px; border: none; border-radius: 8px; font-size: 14px; font-weight: 700; cursor: pointer; font-family: inherit; }
         .btn-print { background: #1e3a5f; color: white; }
         .btn-print:hover { opacity: 0.9; }
+        ${brandingCSS}
         
         .header { display: flex; justify-content: space-between; align-items: flex-start; padding-bottom: 20px; border-bottom: 3px solid #1e3a5f; margin-bottom: 28px; }
         .header-right h1 { font-size: 26px; font-weight: 900; color: #1e3a5f; margin-bottom: 6px; }
-        .header-right .subtitle { font-size: 13px; color: #6b7280; font-weight: 600; }
-        .header-left { text-align: left; background: #e8f0fe; padding: 14px 20px; border-radius: 10px; min-width: 180px; }
+        .header-left { text-align: left; background: #e8f0fe; padding: 14px 20px; border-radius: 10px; min-width: 200px; }
         .header-left .field { font-size: 12px; color: #6b7280; margin-bottom: 4px; }
         .header-left .field strong { color: #1e3a5f; font-size: 14px; }
         
@@ -77,13 +92,14 @@ export function generateInvoiceVoucherHTML(data: InvoiceVoucherData): string {
         <button class="btn-print" onclick="window.print()">🖨️ طباعة الفاتورة</button>
     </div>
     <div class="page">
+        ${brandingHeaderHTML}
         <div class="header">
             <div class="header-right">
                 <h1>فاتورة مصاريف</h1>
-                <div class="subtitle">سبيستون بوكيت — إدارة المشاريع</div>
             </div>
             <div class="header-left">
                 <div class="field">رقم الفاتورة: <strong>${data.invoiceNumber}</strong></div>
+                ${externalNumHTML}
                 <div class="field">التاريخ: <strong>${dateStr}</strong></div>
                 <div class="field" style="margin-top:8px"><span class="status-badge">${st.label}</span></div>
             </div>
@@ -126,9 +142,10 @@ export function generateInvoiceVoucherHTML(data: InvoiceVoucherData): string {
         </div>` : ''}
         
         <div class="footer">
-            تم إصدار هذه الفاتورة إلكترونياً بواسطة نظام سبيستون بوكيت — ${formatDateAr(new Date())}
+            تم إصدار هذه الفاتورة إلكترونياً بواسطة نظام سبيستون بوكيت${data.branchName ? ` — فرع ${data.branchName}` : ''} — ${formatDateAr(new Date())}
         </div>
     </div>
 </body>
 </html>`;
 }
+

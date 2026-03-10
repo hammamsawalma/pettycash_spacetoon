@@ -21,6 +21,7 @@ import { useRouter } from "next/navigation";
 import { useProjectRoles } from "@/context/ProjectRolesContext";
 import { EmployeeDashboardSkeleton } from "@/components/ui/SkeletonCard";
 import { PullToRefreshIndicator } from "@/components/ui/PullToRefreshIndicator";
+import { useLanguage } from "@/context/LanguageContext";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 interface ProjectRoleFlags {
@@ -67,6 +68,7 @@ interface PurchaseItem {
 // ─── Main Component ───────────────────────────────────────────────────────────
 export default function EmployeeDashboard() {
     const router = useRouter();
+    const { t, locale } = useLanguage();
     const [isMounted, setIsMounted] = useState(false);
     const { setFlags: setContextFlags } = useProjectRoles();
 
@@ -176,22 +178,22 @@ export default function EmployeeDashboard() {
 
     // ─── KPI cards for personal financial summary ──────────────────────────────
     const kpis = [
-        { title: "إجمالي العُهد الواردة", value: flow.received, icon: Wallet, color: "text-[#102550]", bg: "bg-[#102550]/10", isCurrency: true },
-        { title: "مُنفَّق (فواتير مقبولة)", value: flow.spent, icon: Receipt, color: "text-rose-500", bg: "bg-rose-500/10", isCurrency: true },
-        { title: "المشاريع المسندة إليك", value: stats.totalProjects, icon: FolderKanban, color: "text-amber-500", bg: "bg-amber-500/10", isCurrency: false },
+        { title: locale === 'ar' ? 'إجمالي العُهد الواردة' : 'Total Custody Received', value: flow.received, icon: Wallet, color: "text-[#102550]", bg: "bg-[#102550]/10", isCurrency: true },
+        { title: locale === 'ar' ? 'مُنفَّق (فواتير مقبولة)' : 'Spent (Approved Invoices)', value: flow.spent, icon: Receipt, color: "text-rose-500", bg: "bg-rose-500/10", isCurrency: true },
+        { title: locale === 'ar' ? 'المشاريع المسندة إليك' : 'Assigned Projects', value: stats.totalProjects, icon: FolderKanban, color: "text-amber-500", bg: "bg-amber-500/10", isCurrency: false },
     ];
 
     // ─── Loading skeleton ──────────────────────────────────────────────────────
     if (!isMounted || !rolesLoaded) {
         return (
-            <DashboardLayout title="مساحة العمل">
+            <DashboardLayout title={locale === 'ar' ? 'مساحة العمل' : 'Workspace'}>
                 <EmployeeDashboardSkeleton />
             </DashboardLayout>
         );
     }
 
     return (
-        <DashboardLayout title="مساحة العمل">
+        <DashboardLayout title={locale === 'ar' ? 'مساحة العمل' : 'Workspace'}>
             <div
                 className="space-y-6 md:space-y-8 pb-6"
                 onTouchStart={onTouchStart}
@@ -208,9 +210,9 @@ export default function EmployeeDashboard() {
                             <PackageSearch className="w-10 h-10 text-[#102550]" />
                         </div>
                         <div>
-                            <h2 className="font-black text-xl text-gray-900 mb-1">أهلاً بك في منظومة المشاريع! 👋</h2>
+                            <h2 className="font-black text-xl text-gray-900 mb-1">{locale === 'ar' ? 'أهلاً بك في منظومة المشاريع! 👋' : 'Welcome to the Projects System! 👋'}</h2>
                             <p className="text-gray-400 text-sm font-medium max-w-xs mx-auto">
-                                لم تُضَف لأي مشروع بعد. ستظهر هنا بياناتك ومهامك بمجرد أن يضمّك مدير النظام لأحد المشاريع.
+                                {locale === 'ar' ? 'لم تُضَف لأي مشروع بعد. ستظهر هنا بياناتك ومهامك بمجرد أن يضمّك مدير النظام لأحد المشاريع.' : 'You have not been added to any project yet. Your data and tasks will appear here once the admin assigns you to a project.'}
                             </p>
                         </div>
                     </div>
@@ -225,9 +227,9 @@ export default function EmployeeDashboard() {
                                 <div className="w-14 h-14 bg-white/20 rounded-2xl flex items-center justify-center shrink-0">
                                     <Camera className="w-8 h-8" />
                                 </div>
-                                <div className="text-right flex-1">
-                                    <p className="text-xl font-black">رفع فاتورة</p>
-                                    <p className="text-blue-200 text-sm mt-0.5">صوّر أو ارفع فاتورة الآن ←</p>
+                                <div className={`text-${locale === 'en' ? 'left' : 'right'} flex-1`}>
+                                    <p className="text-xl font-black">{locale === 'ar' ? 'رفع فاتورة' : 'Upload Invoice'}</p>
+                                    <p className="text-blue-200 text-sm mt-0.5">{locale === 'ar' ? 'صوّر أو ارفع فاتورة الآن ←' : 'Take a photo or upload now →'}</p>
                                 </div>
                             </button>
                         )}
@@ -240,15 +242,15 @@ export default function EmployeeDashboard() {
                                         <AlertTriangle className="w-5 h-5 text-amber-600" />
                                     </div>
                                     <div>
-                                        <p className="font-bold text-amber-900 text-sm">يوجد لديك {unconfirmedCustodies.length} عهدة بانتظار تأكيدك</p>
-                                        <p className="text-xs text-amber-700 mt-1">يرجى مراجعة العهد وتأكيد استلامها أو رفضها للبدء باستخدامها</p>
+                                        <p className="font-bold text-amber-900 text-sm">{locale === 'ar' ? `يوجد لديك ${unconfirmedCustodies.length} عهدة بانتظار تأكيدك` : `You have ${unconfirmedCustodies.length} custody pending confirmation`}</p>
+                                        <p className="text-xs text-amber-700 mt-1">{locale === 'ar' ? 'يرجى مراجعة العهد وتأكيد استلامها أو رفضها للبدء باستخدامها' : 'Please review and confirm or reject the custodies to start using them'}</p>
                                     </div>
                                 </div>
                                 <Button
                                     onClick={() => router.push('/my-custodies')}
                                     className="bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold rounded-xl h-10 px-5 shrink-0 w-full md:w-auto"
                                 >
-                                    إدارة عهدي
+                                    {t('sidebar.myCustodies')}
                                 </Button>
                             </div>
                         )}
@@ -284,15 +286,15 @@ export default function EmployeeDashboard() {
                                         <Banknote className="w-5 h-5 text-red-600" />
                                     </div>
                                     <div>
-                                        <p className="text-sm font-bold text-red-900">لديك ديون شخصية بانتظار التعويض</p>
-                                        <p className="text-xs text-red-600 mt-0.5">مبالغ دفعتها من حسابك الشخصي — يرجى مراجعة التفاصيل</p>
+                                        <p className="text-sm font-bold text-red-900">{locale === 'ar' ? 'لديك ديون شخصية بانتظار التعويض' : 'You have personal debts awaiting reimbursement'}</p>
+                                        <p className="text-xs text-red-600 mt-0.5">{locale === 'ar' ? 'مبالغ دفعتها من حسابك الشخصي — يرجى مراجعة التفاصيل' : 'Amounts paid from your personal account — please review details'}</p>
                                     </div>
                                 </div>
                                 <Link
                                     href="/debts"
                                     className="text-xs font-bold text-red-700 bg-red-100 px-4 py-2 rounded-xl hover:bg-red-200 transition-colors shrink-0 w-full sm:w-auto text-center"
                                 >
-                                    عرض ديوني ←
+                                    {locale === 'ar' ? 'عرض ديوني ←' : 'View my debts →'}
                                 </Link>
                             </div>
                         )}
@@ -304,7 +306,7 @@ export default function EmployeeDashboard() {
                                 <div className="flex justify-between items-center p-4 md:p-5 border-b border-blue-100/60 bg-blue-50/50">
                                     <div className="flex items-center gap-2">
                                         <ShoppingCart className="w-5 h-5 text-blue-600" />
-                                        <h3 className="font-bold text-base text-gray-900">المشتريات النشطة في مشاريعك</h3>
+                                        <h3 className="font-bold text-base text-gray-900">{locale === 'ar' ? 'المشتريات النشطة في مشاريعك' : 'Active Purchases in Your Projects'}</h3>
                                     </div>
                                     <div className="flex gap-2">
                                         <Button
@@ -312,14 +314,14 @@ export default function EmployeeDashboard() {
                                             variant="primary"
                                             className="text-[11px] h-8 px-3 font-bold bg-blue-600 hover:bg-blue-700 border-none text-white"
                                         >
-                                            + طلب شراء
+                                            + {locale === 'ar' ? 'طلب شراء' : 'Purchase'}
                                         </Button>
                                         <Button
                                             onClick={() => router.push('/purchases')}
                                             variant="secondary"
                                             className="text-[11px] h-8 px-3 font-bold bg-blue-50 hover:bg-blue-100 text-blue-700 border-none"
                                         >
-                                            الكل <ChevronLeft className="w-3 h-3 ml-0.5" />
+                                            {locale === 'ar' ? 'الكل' : 'All'} <ChevronLeft className="w-3 h-3 ml-0.5" />
                                         </Button>
                                     </div>
                                 </div>
@@ -332,14 +334,14 @@ export default function EmployeeDashboard() {
                                         >
                                             <div>
                                                 <p className="text-sm font-bold text-gray-900">{p.itemName}</p>
-                                                <p className="text-xs text-gray-400 font-medium mt-0.5">{p.project?.name || 'بدون مشروع'}</p>
+                                                <p className="text-xs text-gray-400 font-medium mt-0.5">{p.project?.name || (locale === 'ar' ? 'بدون مشروع' : 'No project')}</p>
                                             </div>
                                             <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md ${p.status === 'IN_PROGRESS' ? 'bg-blue-50 text-blue-600' : 'bg-amber-50 text-amber-600'}`}>
-                                                {p.status === 'IN_PROGRESS' ? 'قيد التنفيذ' : 'طلب جديد'}
+                                                {p.status === 'IN_PROGRESS' ? t('status.IN_PROGRESS') : (locale === 'ar' ? 'طلب جديد' : 'New Request')}
                                             </span>
                                         </div>
                                     )) : (
-                                        <p className="text-sm text-gray-400 font-medium text-center py-4">لا توجد مشتريات نشطة حالياً. ✅</p>
+                                        <p className="text-sm text-gray-400 font-medium text-center py-4">{locale === 'ar' ? 'لا توجد مشتريات نشطة حالياً. ✅' : 'No active purchases. ✅'}</p>
                                     )}
                                 </div>
                             </Card>
@@ -350,7 +352,7 @@ export default function EmployeeDashboard() {
                             {/* Notifications */}
                             <Card className="p-0 lg:col-span-1 overflow-hidden flex flex-col h-[350px] md:h-[400px] shadow-sm border-gray-100">
                                 <div className="p-5 md:p-6 border-b border-gray-100/50 bg-gray-50/50">
-                                    <h3 className="font-bold text-base md:text-lg text-gray-900">إشعارات المهام</h3>
+                                    <h3 className="font-bold text-base md:text-lg text-gray-900">{locale === 'ar' ? 'إشعارات المهام' : 'Task Notifications'}</h3>
                                 </div>
                                 <div className="flex-1 overflow-y-auto p-5 md:p-6 space-y-4 md:space-y-6 custom-scrollbar">
                                     {stats.recentNotifications.length > 0 ? stats.recentNotifications.map((n) => (
@@ -364,12 +366,12 @@ export default function EmployeeDashboard() {
                                             </div>
                                         </div>
                                     )) : (
-                                        <p className="text-xs md:text-sm text-gray-400 font-medium text-center py-8">لا توجد إشعارات حديثة.</p>
+                                        <p className="text-xs md:text-sm text-gray-400 font-medium text-center py-8">{locale === 'ar' ? 'لا توجد إشعارات حديثة.' : 'No recent notifications.'}</p>
                                     )}
                                 </div>
                                 <div className="p-4 md:p-6 pt-0">
                                     <Button onClick={() => router.push('/notifications')} variant="secondary" className="w-full text-[11px] md:text-xs h-10 font-bold bg-gray-50 hover:bg-gray-100 text-gray-600 border-none transition-colors">
-                                        عرض كل الإشعارات <ChevronLeft className="w-3 h-3 md:w-4 md:h-4 ml-1" />
+                                        {locale === 'ar' ? 'عرض كل الإشعارات' : 'View All Notifications'} <ChevronLeft className="w-3 h-3 md:w-4 md:h-4 ml-1" />
                                     </Button>
                                 </div>
                             </Card>
@@ -377,7 +379,7 @@ export default function EmployeeDashboard() {
                             {/* My Projects */}
                             <div className="lg:col-span-2 space-y-4">
                                 <div className="flex justify-between items-center px-1">
-                                    <h3 className="font-bold text-lg md:text-xl text-gray-900">المشاريع الحالية</h3>
+                                    <h3 className="font-bold text-lg md:text-xl text-gray-900">{locale === 'ar' ? 'المشاريع الحالية' : 'Current Projects'}</h3>
                                 </div>
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                     {stats.recentProjects.slice(0, 4).map(project => (
@@ -386,33 +388,33 @@ export default function EmployeeDashboard() {
                                                 <div>
                                                     <h4 className="font-bold text-sm md:text-base text-gray-900 line-clamp-1 group-hover:text-[#102550] transition-colors">{project.name}</h4>
                                                     <p className="text-[10px] md:text-xs font-semibold mt-1 text-gray-400">
-                                                        {project.endDate ? new Date(project.endDate).toLocaleDateString('en-GB') : 'تاريخ غير محدد'}
+                                                        {project.endDate ? new Date(project.endDate).toLocaleDateString(locale === 'ar' ? 'ar-EG' : 'en-GB') : (locale === 'ar' ? 'تاريخ غير محدد' : 'No date set')}
                                                     </p>
                                                 </div>
                                                 <span className={`px-2.5 py-1 text-[10px] font-bold rounded-lg shrink-0 ${project.status === 'COMPLETED' ? 'bg-emerald-50 text-emerald-600' : 'bg-amber-50 text-amber-600'}`}>
-                                                    {project.status === 'COMPLETED' ? 'مكتمل' : 'قيد التنفيذ'}
+                                                    {project.status === 'COMPLETED' ? t('status.COMPLETED') : t('status.IN_PROGRESS')}
                                                 </span>
                                             </div>
                                             <div className="grid grid-cols-2 gap-2 mb-3">
                                                 <div className="bg-rose-50 rounded-xl p-2 text-center">
-                                                    <p className="text-[9px] text-gray-500 font-semibold">العُهد المصروفة</p>
+                                                    <p className="text-[9px] text-gray-500 font-semibold">{locale === 'ar' ? 'العُهد المصروفة' : 'Custody Issued'}</p>
                                                     <p className="text-xs font-black text-rose-700">{(project.custodyIssued ?? 0).toLocaleString('en-US')} <CurrencyDisplay /></p>
                                                 </div>
                                                 <div className="bg-emerald-50 rounded-xl p-2 text-center">
-                                                    <p className="text-[9px] text-gray-500 font-semibold">الأعضاء</p>
+                                                    <p className="text-[9px] text-gray-500 font-semibold">{locale === 'ar' ? 'الأعضاء' : 'Members'}</p>
                                                     <p className="text-xs font-black text-emerald-700">{project.members.length}</p>
                                                 </div>
                                             </div>
                                             <div className="mt-auto pt-3 border-t border-gray-50">
                                                 <Button onClick={() => router.push(`/projects/${project.id}`)} variant="secondary" className="w-full text-[11px] md:text-xs h-10 font-bold bg-[#102550]/5 text-[#102550] hover:bg-[#102550]/10 border-none transition-colors rounded-xl">
-                                                    عرض التفاصيل
+                                                    {locale === 'ar' ? 'عرض التفاصيل' : 'View Details'}
                                                 </Button>
                                             </div>
                                         </Card>
                                     ))}
                                     {stats.recentProjects.length === 0 && (
                                         <div className="col-span-1 sm:col-span-2 text-center bg-gray-50 rounded-2xl p-8">
-                                            <p className="text-gray-500 text-sm font-medium">لا توجد مشاريع مسندة حاليا.</p>
+                                            <p className="text-gray-500 text-sm font-medium">{locale === 'ar' ? 'لا توجد مشاريع مسندة حاليا.' : 'No assigned projects currently.'}</p>
                                         </div>
                                     )}
                                 </div>

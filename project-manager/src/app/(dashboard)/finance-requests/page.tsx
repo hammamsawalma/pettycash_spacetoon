@@ -92,6 +92,8 @@ export default function FinanceRequestsPage() {
                 { label: "معلقة", value: String(data.filter(d => d.status === 'PENDING').length) },
                 { label: "موافق عليها", value: String(data.filter(d => d.status === 'APPROVED').length) },
             ],
+            branchName: user?.branchName,
+            branchFlag: user?.branchFlag,
         });
         openPrintWindow(html);
     };

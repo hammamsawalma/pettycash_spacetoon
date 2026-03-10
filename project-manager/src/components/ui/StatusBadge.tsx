@@ -1,4 +1,6 @@
+"use client";
 import * as React from "react";
+import { useLanguage } from "@/context/LanguageContext";
 
 type StatusVariant = "COMPLETED" | "APPROVED" | "IN_PROGRESS" | "PENDING" | "REJECTED" | "CANCELLED";
 
@@ -8,27 +10,24 @@ interface StatusBadgeProps {
     variant?: "solid" | "soft" | "outline";
 }
 
-const statusMap: Record<string, { label: string; color: string }> = {
-    // Green
-    "COMPLETED": { label: "مكتمل", color: "emerald" },
-    "APPROVED": { label: "معتمد", color: "emerald" },
-    "PURCHASED": { label: "تم الشراء", color: "emerald" },
-
-    // Blue
-    "IN_PROGRESS": { label: "قيد التنفيذ", color: "blue" },
-    "REQUESTED": { label: "مطلوب", color: "blue" },
-
-    // Orange / Amber
-    "PENDING": { label: "معلق", color: "amber" },
-
-    // Red
-    "REJECTED": { label: "مرفوض", color: "red" },
-    "CANCELLED": { label: "ملغي", color: "rose" },
+const statusColorMap: Record<string, string> = {
+    "COMPLETED": "emerald",
+    "APPROVED": "emerald",
+    "PURCHASED": "emerald",
+    "CONFIRMED": "emerald",
+    "IN_PROGRESS": "blue",
+    "REQUESTED": "blue",
+    "PENDING": "amber",
+    "REJECTED": "red",
+    "CANCELLED": "rose",
+    "CLOSED": "gray",
 };
 
 export function StatusBadge({ status, className = "", variant = "soft" }: StatusBadgeProps) {
-    const defaultMapping = { label: status || "غير محدد", color: "gray" };
-    const mapped = statusMap[status] || defaultMapping;
+    const { t } = useLanguage();
+    const color = statusColorMap[status] || "gray";
+    const label = t(`status.${status}`) !== `status.${status}` ? t(`status.${status}`) : status;
+    const mapped = { label, color };
 
     const baseStyles = "inline-flex items-center justify-center font-bold px-2.5 py-1 rounded-lg text-[10px] md:text-xs shrink-0";
 

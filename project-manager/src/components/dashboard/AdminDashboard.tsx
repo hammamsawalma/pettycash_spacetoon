@@ -13,10 +13,12 @@ import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 
 import { motion } from 'framer-motion';
 import { CurrencyDisplay } from "@/components/ui/CurrencyDisplay";
 import { AdminDashboardSkeleton } from "@/components/ui/SkeletonCard";
+import { useLanguage } from "@/context/LanguageContext";
 
 export default function AdminDashboard() {
     const router = useRouter();
-    const [chartPeriod, setChartPeriod] = useState("شهري");
+    const { t, locale } = useLanguage();
+    const [chartPeriod, setChartPeriod] = useState("monthly");
     const [isMounted, setIsMounted] = useState(false);
 
     const [stats, setStats] = useState({
@@ -77,20 +79,20 @@ export default function AdminDashboard() {
 
     if (!isMounted) {
         return (
-            <DashboardLayout title="الرئيسية">
+            <DashboardLayout title={t('nav.home')}>
                 <AdminDashboardSkeleton />
             </DashboardLayout>
         );
     }
 
     const kpis = [
-        { title: "عدد المشاريع", value: stats.totalProjects, icon: FolderKanban, color: "text-primary", bg: "bg-primary/10" },
-        { title: "إجمالي الموظفين", value: stats.employees, icon: Users, color: "text-blue-500", bg: "bg-blue-500/10" },
-        { title: "العُهد المصروفة للموظفين", value: flow.custodyIssued, icon: ArrowUpToLine, color: "text-rose-500", bg: "bg-rose-500/10", isCurrency: true },
-        { title: "مصاريف الشركة", value: flow.companyExpenses, icon: Building2, color: "text-purple-600", bg: "bg-purple-100", isCurrency: true },
+        { title: t('dashboard.projectCount'), value: stats.totalProjects, icon: FolderKanban, color: "text-primary", bg: "bg-primary/10" },
+        { title: t('dashboard.employeeCount'), value: stats.employees, icon: Users, color: "text-blue-500", bg: "bg-blue-500/10" },
+        { title: locale === 'ar' ? 'العُهد المصروفة للموظفين' : 'Employee Custodies', value: flow.custodyIssued, icon: ArrowUpToLine, color: "text-rose-500", bg: "bg-rose-500/10", isCurrency: true },
+        { title: locale === 'ar' ? 'مصاريف الشركة' : 'Company Expenses', value: flow.companyExpenses, icon: Building2, color: "text-purple-600", bg: "bg-purple-100", isCurrency: true },
     ];
 
-    const chartData = chartPeriod === "شهري"
+    const chartData = chartPeriod === "monthly"
         ? stats.chartData.monthly
         : stats.chartData.yearly;
 
@@ -100,7 +102,7 @@ export default function AdminDashboard() {
     };
 
     return (
-        <DashboardLayout title="الرئيسية">
+        <DashboardLayout title={t('nav.home')}>
             <div className="space-y-6 md:space-y-8">
 
                 {/* الملخص المالي الموحد */}
@@ -113,7 +115,7 @@ export default function AdminDashboard() {
                         disabled={isRefreshing}
                     >
                         <RefreshCw className={`w-3.5 h-3.5 ${isRefreshing ? 'animate-spin' : ''}`} />
-                        تحديث
+                        {locale === 'ar' ? 'تحديث' : 'Refresh'}
                     </Button>
                 </div>
                 <ManagerFinancialOverview />
@@ -150,7 +152,7 @@ export default function AdminDashboard() {
                     {/* نسبة الإنجاز */}
                     <Card className="p-5 md:p-6 group cursor-default flex flex-col items-center">
                         <div className="w-full flex justify-between items-center mb-6">
-                            <h3 className="font-bold text-sm md:text-lg text-gray-800">نسبة الإنجاز</h3>
+                            <h3 className="font-bold text-sm md:text-lg text-gray-800">{locale === 'ar' ? 'نسبة الإنجاز' : 'Completion Rate'}</h3>
                             <TrendingUp className="w-5 h-5 text-blue-400" />
                         </div>
                         <div className="relative aspect-square w-[120px] md:w-full max-w-[160px] flex flex-col items-center justify-center rounded-full border-[12px] border-blue-100 border-t-primary shadow-inner shadow-blue-500/10 my-2 bg-gradient-to-tr from-white to-blue-50">
@@ -163,7 +165,7 @@ export default function AdminDashboard() {
                     {/* عدد المشاريع */}
                     <Card className="p-5 md:p-6 group cursor-default flex flex-col items-center">
                         <div className="w-full flex justify-between items-center mb-6">
-                            <h3 className="font-bold text-sm md:text-lg text-gray-800">المشاريع الكلية</h3>
+                            <h3 className="font-bold text-sm md:text-lg text-gray-800">{locale === 'ar' ? 'المشاريع الكلية' : 'Total Projects'}</h3>
                             <FolderKanban className="w-5 h-5 text-blue-400" />
                         </div>
                         <div className="relative aspect-square w-[120px] md:w-full max-w-[160px] flex flex-col items-center justify-center rounded-full border-[12px] border-blue-100 border-t-blue-500 shadow-inner shadow-blue-500/10 my-2 bg-gradient-to-tr from-white to-blue-50">
@@ -174,7 +176,7 @@ export default function AdminDashboard() {
                     {/* الإشعارات */}
                     <Card className="p-0 col-span-2 lg:col-span-1 lg:row-span-2 overflow-hidden flex flex-col">
                         <div className="p-5 md:p-6 border-b border-gray-100/50 bg-white/40 backdrop-blur-md">
-                            <h3 className="font-bold text-base md:text-xl text-gray-900">آخر الإشعارات</h3>
+                            <h3 className="font-bold text-base md:text-xl text-gray-900">{locale === 'ar' ? 'آخر الإشعارات' : 'Recent Notifications'}</h3>
                         </div>
                         <div className="flex-1 overflow-y-auto p-5 md:p-6 space-y-4 custom-scrollbar">
                             {stats.recentNotifications.length > 0 ? stats.recentNotifications.map((n) => (
@@ -193,7 +195,7 @@ export default function AdminDashboard() {
                             )) : (
                                 <div className="text-center py-10 flex flex-col items-center justify-center text-gray-500">
                                     <BellRing className="w-12 h-12 mb-3 opacity-20" />
-                                    <span className="text-sm font-semibold">لا توجد إشعارات حديثة</span>
+                                    <span className="text-sm font-semibold">{locale === 'ar' ? 'لا توجد إشعارات حديثة' : 'No recent notifications'}</span>
                                 </div>
                             )}
                         </div>
@@ -202,14 +204,14 @@ export default function AdminDashboard() {
                     {/* Bar Chart */}
                     <Card className="p-5 md:p-6 col-span-2 lg:col-span-2 flex flex-col min-h-[300px] h-80 md:h-[350px]">
                         <div className="flex justify-between items-center mb-6">
-                            <h3 className="font-bold text-base md:text-xl text-gray-900">عدد المشاريع حسب الفترة</h3>
+                            <h3 className="font-bold text-base md:text-xl text-gray-900">{locale === 'ar' ? 'عدد المشاريع حسب الفترة' : 'Projects by Period'}</h3>
                             <select
                                 className="text-xs md:text-sm font-semibold border-none text-primary bg-primary/10 rounded-xl px-4 py-2 outline-none focus:ring-2 focus:ring-primary/50 transition-colors"
                                 value={chartPeriod}
                                 onChange={(e) => setChartPeriod(e.target.value)}
                             >
-                                <option value="شهري">شهري</option>
-                                <option value="سنوي">سنوي</option>
+                                <option value="monthly">{locale === 'ar' ? 'شهري' : 'Monthly'}</option>
+                                <option value="yearly">{locale === 'ar' ? 'سنوي' : 'Yearly'}</option>
                             </select>
                         </div>
                         <div className="flex-1 w-full h-full pb-2">
@@ -232,8 +234,8 @@ export default function AdminDashboard() {
                 {/* آخر المشاريع */}
                 <div>
                     <div className="flex justify-between items-center mb-4">
-                        <h3 className="font-bold text-lg md:text-xl">آخر المشاريع</h3>
-                        <Button onClick={() => router.push('/projects')} className="text-xs text-primary hover:bg-primary/10 bg-transparent border-none shadow-none">الكل</Button>
+                        <h3 className="font-bold text-lg md:text-xl">{locale === 'ar' ? 'آخر المشاريع' : 'Recent Projects'}</h3>
+                        <Button onClick={() => router.push('/projects')} className="text-xs text-primary hover:bg-primary/10 bg-transparent border-none shadow-none">{locale === 'ar' ? 'الكل' : 'View All'}</Button>
                     </div>
                     <motion.div variants={containerVariants} initial="hidden" animate="show" className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-6">
                         {stats.recentProjects.length > 0 ? stats.recentProjects.map(project => (
@@ -243,7 +245,7 @@ export default function AdminDashboard() {
                                     <div className="space-y-1">
                                         <h4 className="font-bold text-base md:text-lg text-gray-900">{project.name}</h4>
                                         <span className={`inline-block px-2.5 py-0.5 text-[10px] md:text-xs font-bold rounded-md ${project.status === 'COMPLETED' ? 'bg-emerald-100 text-emerald-700' : 'bg-blue-100 text-primary'}`}>
-                                            {project.status === 'COMPLETED' ? 'مكتمل' : 'قيد التنفيذ'}
+                                            {project.status === 'COMPLETED' ? t('status.COMPLETED') : t('status.IN_PROGRESS')}
                                         </span>
                                     </div>
                                     <div className="w-10 h-10 bg-gray-50 rounded-full flex items-center justify-center shrink-0">
@@ -252,24 +254,24 @@ export default function AdminDashboard() {
                                 </div>
                                 <div className="relative z-10 grid grid-cols-3 gap-2 text-center">
                                     <div className="bg-emerald-50 rounded-xl p-2">
-                                        <p className="text-[10px] text-gray-500 font-semibold">الميزانية</p>
+                                        <p className="text-[10px] text-gray-500 font-semibold">{locale === 'ar' ? 'الميزانية' : 'Budget'}</p>
                                         <p className="text-xs font-black text-emerald-700">{(project.budgetAllocated ?? 0).toLocaleString('en-US')}</p>
                                     </div>
                                     <div className="bg-rose-50 rounded-xl p-2">
-                                        <p className="text-[10px] text-gray-500 font-semibold">العُهد</p>
+                                        <p className="text-[10px] text-gray-500 font-semibold">{locale === 'ar' ? 'العُهد' : 'Custody'}</p>
                                         <p className="text-xs font-black text-rose-700">{(project.custodyIssued ?? 0).toLocaleString('en-US')}</p>
                                     </div>
                                     <div className="bg-amber-50 rounded-xl p-2">
-                                        <p className="text-[10px] text-gray-500 font-semibold">الأعضاء</p>
+                                        <p className="text-[10px] text-gray-500 font-semibold">{locale === 'ar' ? 'الأعضاء' : 'Members'}</p>
                                         <p className="text-xs font-black text-amber-700">{project.members.length}</p>
                                     </div>
                                 </div>
                                 <p className="text-xs text-gray-400 font-medium z-10 relative">
-                                    {project.endDate ? `ينتهي: ${new Date(project.endDate).toLocaleDateString('en-GB')}` : 'تاريخ الانتهاء: غير محدد'}
+                                    {project.endDate ? `${locale === 'ar' ? 'ينتهي' : 'Ends'}: ${new Date(project.endDate).toLocaleDateString(locale === 'ar' ? 'ar-EG' : 'en-GB')}` : locale === 'ar' ? 'تاريخ الانتهاء: غير محدد' : 'End date: Not set'}
                                 </p>
                             </Card>
                         )) : (
-                            <div className="col-span-3 text-center py-12 text-gray-400 font-medium">لا توجد مشاريع حديثة</div>
+                            <div className="col-span-3 text-center py-12 text-gray-400 font-medium">{locale === 'ar' ? 'لا توجد مشاريع حديثة' : 'No recent projects'}</div>
                         )}
                     </motion.div>
                 </div>

@@ -61,6 +61,8 @@ export default function InvoicesClient({ initialInvoices }: Props) {
                 { label: "معتمدة", value: String(data.filter(d => d.status === 'APPROVED').length) },
                 { label: "معلقة", value: String(data.filter(d => d.status === 'PENDING').length) },
             ],
+            branchName: user?.branchName,
+            branchFlag: user?.branchFlag,
         });
         openPrintWindow(html);
     };

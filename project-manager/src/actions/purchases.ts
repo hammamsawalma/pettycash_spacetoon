@@ -341,3 +341,89 @@ export async function softDeletePurchase(purchaseId: string) {
         return { error: "حدث خطأ أثناء حذف طلب الشراء" };
     }
 }
+
+// ─── إنشاء مشتريات مجمعة من Excel ──────────────────────
+export async function createBatchPurchases(data: {
+    projectId: string;
+    batchLabel: string;
+    items: { description: string; quantity: string; notes: string }[];
+}) {
+    try {
+        const session = await getSession();
+        if (!session) return { error: "غير مسجل الدخول" };
+
+        const { projectId, batchLabel, items } = data;
+
+        if (!projectId || !items || items.length === 0) {
+            return { error: "المشروع وقائمة المشتريات مطلوبان" };
+        }
+
+        // Edge case: batch size limit
+        if (items.length > 100) {
+            return { error: "الحد الأقصى للعناصر في الدفعة الواحدة هو 100 عنصر" };
+        }
+
+        // Edge case: filter out empty descriptions
+        const validItems = items.filter(item => item.description && item.description.trim().length > 0);
+        if (validItems.length === 0) {
+            return { error: "جميع العناصر بدون وصف — يرجى التأكد من البيانات" };
+        }
+
+        // Auth: same as createPurchase
+        const isGlobalCreator = session.role === "ADMIN" || session.role === "GENERAL_MANAGER";
+        if (!isGlobalCreator) {
+            const membership = await prisma.projectMember.findFirst({
+                where: {
+                    projectId,
+                    userId: session.id,
+                    projectRoles: { contains: "PROJECT_MANAGER" }
+                }
+            });
+            if (!membership) {
+                return { error: "صلاحية مرفوضة: يجب أن تكون 'منسق المشتريات' في هذا المشروع لإنشاء طلبات الشراء." };
+            }
+        }
+
+        // Check project is active
+        const project = await prisma.project.findUnique({
+            where: { id: projectId },
+            select: { status: true, name: true }
+        });
+        if (!project) return { error: "المشروع غير موجود" };
+        if (project.status !== "IN_PROGRESS") {
+            return { error: "لا يمكن إنشاء طلبات شراء لمشروع مكتمل أو متوقف" };
+        }
+
+        // Generate a batch ID
+        const batchId = `BATCH-${Date.now()}`;
+        const timestamp = Date.now();
+
+        // Create all purchases in a transaction for atomicity
+        const createdPurchases = await prisma.$transaction(
+            validItems.map((item, index) =>
+                prisma.purchase.create({
+                    data: {
+                        orderNumber: `PO-${timestamp}-${index}`,
+                        description: item.description.trim(),
+                        amount: 0,
+                        quantity: item.quantity || "1",
+                        notes: item.notes?.trim() || null,
+                        status: "REQUESTED",
+                        priority: "NORMAL",
+                        projectId,
+                        creatorId: session.id,
+                        batchId,
+                        batchLabel: batchLabel || `دفعة ${new Date().toLocaleDateString('ar-EG')}`,
+                    }
+                })
+            )
+        );
+
+        revalidatePath(`/projects/${projectId}`);
+        revalidatePath("/purchases");
+        return { success: true, count: createdPurchases.length, batchId };
+    } catch (error) {
+        console.error("Create Batch Purchases Error:", error);
+        return { error: "حدث خطأ أثناء إنشاء المشتريات المجمعة" };
+    }
+}

@@ -12,6 +12,8 @@ export type SessionData = {
     role: UserRole;
     branchId?: string | null;    // v8: الفرع — null for ROOT and GM
     branchCode?: string | null;  // v8: رمز الفرع (QA, AE, etc.)
+    branchName?: string | null;  // v9: اسم الفرع (قطر, الإمارات, etc.)
+    branchFlag?: string | null;  // v9: علم الفرع emoji (🇶🇦, 🇦🇪, etc.)
 };
 
 const getJwtSecret = () => {

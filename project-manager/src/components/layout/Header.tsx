@@ -1,8 +1,9 @@
 "use client";
-import { Search, Settings, ChevronRight, User, Home, Menu, BookOpen } from 'lucide-react';
+import { Search, Settings, ChevronRight, User, Home, Menu, BookOpen, Globe } from 'lucide-react';
 import { usePathname, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/context/AuthContext';
+import { useLanguage } from '@/context/LanguageContext';
 import { useState, useEffect } from 'react';
 import { Tooltip } from '@/components/ui/Tooltip';
 import { GlobalSearch } from '@/components/ui/GlobalSearch';
@@ -11,9 +12,13 @@ import { NotificationDropdown } from './NotificationDropdown';
 
 export default function Header({ title, onMenuClick, isHidden = false }: { title: string, onMenuClick?: () => void, isHidden?: boolean }) {
     const { roleNameAr, user } = useAuth();
+    const { t, locale, setLocale } = useLanguage();
     const pathname = usePathname();
     const router = useRouter();
     const [isSearchOpen, setIsSearchOpen] = useState(false);
+
+    const toggleLocale = () => setLocale(locale === 'ar' ? 'en' : 'ar');
+    const roleName = locale === 'en' ? t(`roles.${user?.role || 'USER'}`) : roleNameAr;
 
     const isHome = pathname === '/';
 
@@ -56,8 +61,8 @@ export default function Header({ title, onMenuClick, isHidden = false }: { title
                                     <User className="h-5 w-5 text-[#102550]" />
                                 </div>
                                 <div className="flex flex-col">
-                                    <span className="text-xs text-gray-500">مرحبا</span>
-                                    <span className="text-sm font-bold text-gray-900 leading-tight group-hover:text-[#102550] transition-colors line-clamp-1 max-w-[120px]">{user?.name || "مستخدم"}</span>
+                                    <span className="text-xs text-gray-500">{t('common.welcome')}</span>
+                                    <span className="text-sm font-bold text-gray-900 leading-tight group-hover:text-[#102550] transition-colors line-clamp-1 max-w-[120px]">{user?.name || t('common.user')}</span>
                                 </div>
                             </Link>
                         </div>
@@ -91,7 +96,7 @@ export default function Header({ title, onMenuClick, isHidden = false }: { title
                             <button
                                 onClick={() => setIsSearchOpen(true)}
                                 className="h-10 w-10 flex items-center justify-center text-gray-500 hover:text-[#102550] hover:bg-blue-50 rounded-full transition-all active:scale-95"
-                                aria-label="بحث"
+                                aria-label={t('common.search')}
                             >
                                 <Search className="h-5 w-5" />
                             </button>
@@ -107,14 +112,14 @@ export default function Header({ title, onMenuClick, isHidden = false }: { title
 
                     <div className="flex items-center gap-x-6">
                         <div className="flex items-center gap-2 bg-gray-50/80 rounded-full p-1.5 border border-gray-100">
-                            <Tooltip content="الرئيسية" position="bottom">
+                            <Tooltip content={t('header.home')} position="bottom">
                                 <Link href="/" className="p-2 text-gray-400 hover:text-[#102550] hover:bg-white rounded-full transition-all duration-300 shadow-sm shadow-transparent hover:shadow-gray-200/50 block">
                                     <span className="sr-only">Home</span>
                                     <Home className="h-5 w-5" aria-hidden="true" />
                                 </Link>
                             </Tooltip>
 
-                            <Tooltip content="البحث (Cmd+K)" position="bottom">
+                            <Tooltip content={t('header.search')} position="bottom">
                                 <button
                                     type="button"
                                     onClick={() => setIsSearchOpen(true)}
@@ -125,20 +130,20 @@ export default function Header({ title, onMenuClick, isHidden = false }: { title
                                 </button>
                             </Tooltip>
 
-                            <Tooltip content="دليل الاستخدام" position="bottom">
+                            <Tooltip content={t('header.userManual')} position="bottom">
                                 <Link href="/manual" className="p-2 text-gray-400 hover:text-[#102550] hover:bg-white rounded-full transition-all duration-300 shadow-sm shadow-transparent hover:shadow-gray-200/50 block">
-                                    <span className="sr-only">دليل الاستخدام</span>
+                                    <span className="sr-only">{t('header.userManual')}</span>
                                     <BookOpen className="h-5 w-5" aria-hidden="true" />
                                 </Link>
                             </Tooltip>
 
-                            <Tooltip content="الإشعارات" position="bottom">
+                            <Tooltip content={t('header.notifications')} position="bottom">
                                 <div className="flex items-center">
                                     <NotificationDropdown />
                                 </div>
                             </Tooltip>
 
-                            <Tooltip content="الإعدادات" position="bottom">
+                            <Tooltip content={t('header.settings')} position="bottom">
                                 <Link href="/settings" className="p-2 text-gray-400 hover:text-[#102550] hover:bg-white rounded-full transition-all duration-300 shadow-sm shadow-transparent hover:shadow-gray-200/50 block">
                                     <span className="sr-only">Settings</span>
                                     <Settings className="h-5 w-5" aria-hidden="true" />
@@ -146,12 +151,24 @@ export default function Header({ title, onMenuClick, isHidden = false }: { title
                             </Tooltip>
                         </div>
 
+                        {/* Language Toggle */}
+                        <Tooltip content={t('language.switchTo')} position="bottom">
+                            <button
+                                onClick={toggleLocale}
+                                className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-gray-500 hover:text-[#102550] hover:bg-blue-50 rounded-full transition-all duration-200 border border-transparent hover:border-blue-100"
+                                aria-label={`Switch to ${locale === 'ar' ? 'English' : 'Arabic'}`}
+                            >
+                                <Globe className="h-4 w-4" />
+                                <span>{locale === 'ar' ? 'EN' : 'AR'}</span>
+                            </button>
+                        </Tooltip>
+
                         <div className="hidden lg:block lg:h-8 lg:w-px lg:bg-gray-200/80" aria-hidden="true" />
 
                         <Link href="/settings" className="flex items-center gap-x-4 cursor-pointer group">
                             <div className="hidden lg:flex lg:flex-col lg:items-end outline-none select-none">
-                                <span className="text-sm font-bold leading-tight text-gray-900 group-hover:text-[#102550] transition-colors" aria-hidden="true">{user?.name || "مستخدم"}</span>
-                                <span className="text-xs font-semibold text-gray-500 mt-0.5" aria-hidden="true">{roleNameAr}</span>
+                                <span className="text-sm font-bold leading-tight text-gray-900 group-hover:text-[#102550] transition-colors" aria-hidden="true">{user?.name || t('common.user')}</span>
+                                <span className="text-xs font-semibold text-gray-500 mt-0.5" aria-hidden="true">{roleName}</span>
                             </div>
                             <div className="h-11 w-11 flex items-center justify-center rounded-2xl bg-gradient-to-br from-[#102550]/10 to-[#102550]-hover/10 border border-[#102550]/20 overflow-hidden shadow-inner shadow-white/50 group-hover:scale-105 group-hover:shadow-lg transition-all duration-300 group-active:scale-95">
                                 <User className="h-5 w-5 text-[#102550]" />

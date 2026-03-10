@@ -54,6 +54,8 @@ export async function login(prevState: unknown, formData: FormData) {
             phone: user.phone,
             branchId: user.branchId,
             branchCode: user.branch?.code || null,
+            branchName: user.branch?.name || null,
+            branchFlag: user.branch?.flag || null,
         };
 
         const cookieStore = await cookies();

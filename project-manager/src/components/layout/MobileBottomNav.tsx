@@ -9,14 +9,15 @@ import { useState, useEffect, Fragment } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { getUnreadCount } from '@/actions/notifications';
 import { useProjectRoles } from '@/context/ProjectRolesContext';
+import { useLanguage } from '@/context/LanguageContext';
 
 // ─── Employee (USER role) nav ─────────────────────────────────────────────────
 const employeeNavItems = [
-    { name: 'حسابي', href: '/settings', icon: User },
-    { name: 'عهدي', href: '/my-custodies', icon: Wallet },
-    { name: 'الديون', href: '/debts', icon: Banknote },
-    { name: 'المشاريع', href: '/projects', icon: FolderKanban },
-    { name: 'الرئيسية', href: '/', icon: Home },
+    { name: 'nav.myAccount', href: '/settings', icon: User },
+    { name: 'nav.myCustody', href: '/my-custodies', icon: Wallet },
+    { name: 'nav.debts', href: '/debts', icon: Banknote },
+    { name: 'nav.projects', href: '/projects', icon: FolderKanban },
+    { name: 'nav.home', href: '/', icon: Home },
 ];
 
 // ─── Pages where the bottom nav should be hidden ──────────────────────────────
@@ -36,10 +37,10 @@ type NavItemDef = {
 };
 
 const allNavItems: NavItemDef[] = [
-    { name: 'الرئيسية', href: '/', icon: Home, check: () => true },
-    { name: 'المشاريع', href: '/projects', icon: FolderKanban, check: (r) => canDo(r, 'projects', 'viewAll') },
-    { name: 'الفواتير', href: '/invoices', icon: FileText, check: (r) => canDo(r, 'invoices', 'viewAll') || canDo(r, 'invoices', 'create') },
-    { name: 'حسابي', href: '/settings', icon: User, check: () => true },
+    { name: 'nav.home', href: '/', icon: Home, check: () => true },
+    { name: 'nav.projects', href: '/projects', icon: FolderKanban, check: (r) => canDo(r, 'projects', 'viewAll') },
+    { name: 'nav.invoices', href: '/invoices', icon: FileText, check: (r) => canDo(r, 'invoices', 'viewAll') || canDo(r, 'invoices', 'create') },
+    { name: 'nav.myAccount', href: '/settings', icon: User, check: () => true },
 ];
 
 type QuickAddDef = {
@@ -53,21 +54,21 @@ type QuickAddDef = {
 
 const quickAddDefs: QuickAddDef[] = [
     {
-        name: 'فاتورة جديدة',
+        name: 'sidebar.newInvoice',
         href: '/invoices/new',
         icon: FileText,
         color: 'bg-green-100 text-green-700',
         check: (r) => canDo(r, 'invoices', 'create') && r !== 'GENERAL_MANAGER',
     },
     {
-        name: 'مشروع جديد',
+        name: 'sidebar.newProject',
         href: '/projects/new',
         icon: FolderKanban,
         color: 'bg-blue-100 text-blue-700',
         check: (r) => canDo(r, 'employees', 'create'),
     },
     {
-        name: 'طلب شراء',
+        name: 'sidebar.purchaseRequest',
         href: '/purchases/new',
         icon: ShoppingCart,
         color: 'bg-teal-100 text-teal-700',
@@ -75,7 +76,7 @@ const quickAddDefs: QuickAddDef[] = [
         check: (r, isCoordinatorInAny) => canDo(r, 'purchases', 'createGlobal') || (r === 'USER' && !!isCoordinatorInAny),
     },
     {
-        name: 'طلب مالي',
+        name: 'sidebar.financeRequest',
         href: '/finance-requests',
         icon: BadgeDollarSign,
         color: 'bg-amber-100 text-amber-700',
@@ -91,6 +92,7 @@ export default function MobileBottomNav({ hiddenBySidebar = false }: { hiddenByS
     const [fabOpen, setFabOpen] = useState(false);
     const [unreadCount, setUnreadCount] = useState(0);
     const { flags } = useProjectRoles();
+    const { t } = useLanguage();
 
     useEffect(() => {
         // Initial fetch on route change
@@ -118,7 +120,7 @@ export default function MobileBottomNav({ hiddenBySidebar = false }: { hiddenByS
         const isReady = flags.loaded;
         const ctaHref = canAddInvoice ? '/invoices/new' : '/purchases/new';
         const CtaIcon = canAddInvoice ? Camera : ShoppingCart;
-        const ctaLabel = canAddInvoice ? 'رفع فاتورة' : 'طلب شراء';
+        const ctaLabel = canAddInvoice ? t('nav.uploadInvoice') : t('nav.purchaseRequest');
 
         // Split nav items around the center CTA
         // Order (RTL): حسابي | عهدي | الديون | [CTA] | المشاريع | الرئيسية
@@ -126,9 +128,9 @@ export default function MobileBottomNav({ hiddenBySidebar = false }: { hiddenByS
         const rightItems = employeeNavItems.slice(3);      // المشاريع، الرئيسية
 
         return (
-            <nav aria-label="التنقل الرئيسي" className="fixed bottom-0 inset-x-0 z-50 w-full md:hidden pb-[calc(0.5rem+env(safe-area-inset-bottom))]">
+            <nav aria-label={t('nav.mainNav')} className="fixed bottom-0 inset-x-0 z-50 w-full md:hidden pb-[calc(0.5rem+env(safe-area-inset-bottom))]">
                 <div className="mx-3 bg-white/90 backdrop-blur-xl rounded-2xl border border-gray-200/60 shadow-[0_8px_32px_rgba(0,0,0,0.14),0_2px_8px_rgba(0,0,0,0.06)]">
-                    <div className="flex items-center h-16 max-w-lg mx-auto px-2 font-medium" dir="rtl">
+                    <div className="flex items-center h-16 max-w-lg mx-auto px-2 font-medium" dir="auto">
                         {/* ── Right side nav items ─────────────────────────────── */}
                         {leftItems.map((item) => {
                             const isActive = pathname === item.href || (pathname.startsWith(item.href) && item.href !== '/');
@@ -144,7 +146,7 @@ export default function MobileBottomNav({ hiddenBySidebar = false }: { hiddenByS
                                         className={`w-5 h-5 mb-0.5 transition-all duration-200 ${isActive ? 'text-[#102550] scale-110' : 'text-gray-400 group-hover:text-gray-600'}`}
                                     />
                                     <span className={`text-[10px] transition-colors duration-200 ${isActive ? 'text-[#102550] font-bold' : 'text-gray-400 group-hover:text-gray-600'}`}>
-                                        {item.name}
+                                        {t(item.name)}
                                     </span>
                                 </Link>
                             );
@@ -177,7 +179,7 @@ export default function MobileBottomNav({ hiddenBySidebar = false }: { hiddenByS
                                         className={`w-5 h-5 mb-0.5 transition-all duration-200 ${isActive ? 'text-[#102550] scale-110' : 'text-gray-400 group-hover:text-gray-600'}`}
                                     />
                                     <span className={`text-[10px] transition-colors duration-200 ${isActive ? 'text-[#102550] font-bold' : 'text-gray-400 group-hover:text-gray-600'}`}>
-                                        {item.name}
+                                        {t(item.name)}
                                     </span>
                                 </Link>
                             );
@@ -217,7 +219,7 @@ export default function MobileBottomNav({ hiddenBySidebar = false }: { hiddenByS
                         >
                             <div className="bg-white rounded-2xl shadow-2xl border border-gray-100 overflow-hidden max-w-sm mx-auto">
                                 <div className="p-4 border-b border-gray-50">
-                                    <p className="text-xs font-black text-gray-400 uppercase tracking-wider">إضافة سريعة</p>
+                                    <p className="text-xs font-black text-gray-400 uppercase tracking-wider">{t('common.quickAdd')}</p>
                                 </div>
                                 <div className="p-3 space-y-1">
                                     {roleQuickAdd.map((item) => (
@@ -230,11 +232,11 @@ export default function MobileBottomNav({ hiddenBySidebar = false }: { hiddenByS
                                             <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${item.color}`}>
                                                 <item.icon className="w-5 h-5" />
                                             </div>
-                                            <span className="font-bold text-gray-800 group-hover:text-[#102550] transition-colors">{item.name}</span>
+                                            <span className="font-bold text-gray-800 group-hover:text-[#102550] transition-colors">{t(item.name)}</span>
                                         </Link>
                                     ))}
                                     {roleQuickAdd.length === 0 && (
-                                        <p className="text-center text-sm text-gray-400 py-4">لا توجد إجراءات سريعة</p>
+                                        <p className="text-center text-sm text-gray-400 py-4">{t('common.noQuickActions')}</p>
                                     )}
                                 </div>
                             </div>
@@ -244,8 +246,8 @@ export default function MobileBottomNav({ hiddenBySidebar = false }: { hiddenByS
             </AnimatePresence>
 
             {/* Bottom Nav Bar */}
-            <nav aria-label="التنقل الرئيسي" className="fixed bottom-0 inset-x-0 z-50 w-full md:hidden pb-[calc(0.5rem+env(safe-area-inset-bottom))]">
-                <div className="mx-3 flex items-center h-16 max-w-lg mx-auto font-medium px-2 bg-white/90 backdrop-blur-xl rounded-2xl border border-gray-200/60 shadow-[0_8px_32px_rgba(0,0,0,0.14),0_2px_8px_rgba(0,0,0,0.06)]" dir="rtl">
+            <nav aria-label={t('nav.mainNav')} className="fixed bottom-0 inset-x-0 z-50 w-full md:hidden pb-[calc(0.5rem+env(safe-area-inset-bottom))]">
+                <div className="mx-3 flex items-center h-16 max-w-lg mx-auto font-medium px-2 bg-white/90 backdrop-blur-xl rounded-2xl border border-gray-200/60 shadow-[0_8px_32px_rgba(0,0,0,0.14),0_2px_8px_rgba(0,0,0,0.06)]" dir="auto">
                     {navItems.map((item, idx) => {
                         const isActive = pathname === item.href || (pathname.startsWith(item.href) && item.href !== '/');
                         const midIndex = Math.floor(navItems.length / 2);
@@ -260,7 +262,7 @@ export default function MobileBottomNav({ hiddenBySidebar = false }: { hiddenByS
                                                 ? 'bg-gray-800 shadow-gray-400/30 rotate-45'
                                                 : 'bg-[#102550] shadow-blue-300/60'
                                                 }`}
-                                            aria-label={fabOpen ? 'إغلاق قائمة الإضافة السريعة' : 'قائمة الإضافة السريعة'}
+                                            aria-label={fabOpen ? t('nav.closeFab') : t('nav.openFab')}
                                             aria-expanded={fabOpen}
                                         >
                                             {fabOpen
@@ -282,7 +284,7 @@ export default function MobileBottomNav({ hiddenBySidebar = false }: { hiddenByS
                                         />
                                         {/* Notification badge */}
                                         {item.href === '/' && unreadCount > 0 && (
-                                            <span aria-label={`${unreadCount} إشعار غير مقروء`} className="absolute -top-1 -right-1 min-w-[16px] h-4 px-0.5 bg-red-500 rounded-full text-white text-[9px] font-black flex items-center justify-center leading-none">
+                                            <span aria-label={`${unreadCount} ${t('nav.unreadNotifications')}`} className="absolute -top-1 -right-1 min-w-[16px] h-4 px-0.5 bg-red-500 rounded-full text-white text-[9px] font-black flex items-center justify-center leading-none">
                                                 {unreadCount > 9 ? '9+' : unreadCount}
                                             </span>
                                         )}
@@ -290,7 +292,7 @@ export default function MobileBottomNav({ hiddenBySidebar = false }: { hiddenByS
                                     <span
                                         className={`text-[10px] transition-colors duration-200 ${isActive ? 'text-[#102550] font-bold' : 'text-gray-400 group-hover:text-gray-600'}`}
                                     >
-                                        {item.name}
+                                        {t(item.name)}
                                     </span>
                                 </Link>
                             </Fragment>
@@ -299,7 +301,7 @@ export default function MobileBottomNav({ hiddenBySidebar = false }: { hiddenByS
 
                     {/* Edge case: GENERAL_MANAGER has no quick add actions */}
                     {roleQuickAdd.length === 0 && navItems.length === 0 && (
-                        <p className="text-gray-300 text-xs text-center w-full">لا توجد عناصر</p>
+                        <p className="text-gray-300 text-xs text-center w-full">{t('common.noItems')}</p>
                     )}
                 </div>
             </nav>

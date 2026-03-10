@@ -91,6 +91,8 @@ export default function EmployeeCustodiesPage() {
                 { label: "الرصيد المتبقي", value: formatCurrency(totalBalance) },
                 { label: "عدد العهد", value: String(data.length) },
             ],
+            branchName: user?.branchName,
+            branchFlag: user?.branchFlag,
         });
         openPrintWindow(html);
     };

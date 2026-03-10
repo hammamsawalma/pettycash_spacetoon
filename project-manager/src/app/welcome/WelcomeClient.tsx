@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useLanguage } from "@/context/LanguageContext";
 
 type Branch = {
     id: string;
@@ -14,6 +15,7 @@ type Branch = {
 
 export default function WelcomeClient({ branches }: { branches: Branch[] }) {
     const router = useRouter();
+    const { t, locale, setLocale } = useLanguage();
     const [step, setStep] = useState<"welcome" | "branches">("welcome");
     const [selectedBranch, setSelectedBranch] = useState<string | null>(null);
 
@@ -25,7 +27,14 @@ export default function WelcomeClient({ branches }: { branches: Branch[] }) {
     };
 
     return (
-        <div className="welcome-container" dir="rtl">
+        <div className="welcome-container" dir={locale === 'ar' ? 'rtl' : 'ltr'}>
+            {/* Language toggle */}
+            <button
+                onClick={() => setLocale(locale === 'ar' ? 'en' : 'ar')}
+                className="fixed top-4 right-4 z-50 px-3 py-1.5 bg-white/20 backdrop-blur-md rounded-full text-white text-xs font-bold border border-white/30 hover:bg-white/30 transition-colors"
+            >
+                {locale === 'ar' ? 'EN' : 'AR'}
+            </button>
             {/* Background decorations */}
             <div className="welcome-bg-orb welcome-bg-orb-1" />
             <div className="welcome-bg-orb welcome-bg-orb-2" />
@@ -49,37 +58,37 @@ export default function WelcomeClient({ branches }: { branches: Branch[] }) {
                     </h1>
 
                     <p className="welcome-subtitle">
-                        نظام إدارة المصاريف والعهد المالية
+                        {t('welcome.subtitle')}
                     </p>
 
                     <p className="welcome-desc">
-                        حل متكامل لإدارة المشاريع والعهد والفواتير والمشتريات عبر جميع فروع الشركة
+                        {t('welcome.description')}
                     </p>
 
                     {/* Features */}
                     <div className="welcome-features">
                         <div className="welcome-feature">
                             <span className="welcome-feature-icon">📊</span>
-                            <span>إدارة المشاريع</span>
+                            <span>{t('welcome.featureProjects')}</span>
                         </div>
                         <div className="welcome-feature">
                             <span className="welcome-feature-icon">💳</span>
-                            <span>العهد والفواتير</span>
+                            <span>{t('welcome.featureCustody')}</span>
                         </div>
                         <div className="welcome-feature">
                             <span className="welcome-feature-icon">🌍</span>
-                            <span>فروع متعددة</span>
+                            <span>{t('welcome.featureBranches')}</span>
                         </div>
                     </div>
 
                     <button className="welcome-cta" onClick={() => setStep("branches")}>
-                        ابدأ الآن
-                        <span className="welcome-cta-arrow">←</span>
+                        {t('welcome.startNow')}
+                        <span className="welcome-cta-arrow">{locale === 'ar' ? '←' : '→'}</span>
                     </button>
 
                     {/* Powered by badge */}
                     <div className="welcome-powered">
-                        Spacetoon Media Group
+                        {t('welcome.poweredBy')}
                     </div>
                 </div>
             ) : (
@@ -94,12 +103,12 @@ export default function WelcomeClient({ branches }: { branches: Branch[] }) {
                     </div>
 
                     <button className="welcome-back" onClick={() => setStep("welcome")}>
-                        → العودة
+                        {locale === 'ar' ? '→ العودة' : '← Back'}
                     </button>
 
-                    <h2 className="welcome-branch-title">اختر الفرع</h2>
+                    <h2 className="welcome-branch-title">{t('welcome.selectBranch')}</h2>
                     <p className="welcome-branch-subtitle">
-                        حدد فرع الشركة للمتابعة إلى تسجيل الدخول
+                        {t('welcome.selectBranchSubtitle')}
                     </p>
 
                     {branches.length > 0 ? (
@@ -120,14 +129,14 @@ export default function WelcomeClient({ branches }: { branches: Branch[] }) {
                     ) : (
                         <div style={{ textAlign: "center", padding: "2rem 0" }}>
                             <p style={{ color: "#94a3b8", fontSize: "0.9rem", marginBottom: "1.5rem" }}>
-                                لم يتم العثور على فروع — يمكنك تسجيل الدخول مباشرة
+                                {t('welcome.noBranches')}
                             </p>
                             <button
                                 className="welcome-cta"
                                 onClick={() => router.push("/login")}
                             >
-                                تسجيل الدخول
-                                <span className="welcome-cta-arrow">←</span>
+                                {t('welcome.directLogin')}
+                                <span className="welcome-cta-arrow">{locale === 'ar' ? '←' : '→'}</span>
                             </button>
                         </div>
                     )}
@@ -138,7 +147,7 @@ export default function WelcomeClient({ branches }: { branches: Branch[] }) {
                             className="welcome-root-btn"
                             onClick={() => router.push("/login?branch=ROOT")}
                         >
-                            🔑 دخول IT
+                            {t('welcome.rootLogin')}
                         </button>
                     </div>
                 </div>

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getSession } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 import { generateVoucherHTML } from "@/lib/voucher";
+import { getLogoBase64 } from "@/lib/document-branding";
 
 /**
  * GET /api/vouchers/[id]
@@ -25,8 +26,8 @@ export async function GET(
         const custody = await prisma.employeeCustody.findUnique({
             where: { id },
             include: {
-                project: true,
-                employee: true,
+                project: { include: { branch: true } },
+                employee: { include: { branch: true } },
                 confirmation: true,
                 returns: { include: { recorder: true } }
             }
@@ -46,6 +47,10 @@ export async function GET(
         if (!canView) {
             return NextResponse.json({ error: "غير مصرح لك بعرض هذا السند" }, { status: 403 });
         }
+
+        // v9: Get branch info and logo
+        const branch = custody.project?.branch || custody.employee?.branch;
+        const logoBase64 = getLogoBase64();
 
         if (type === "receipt") {
             // Find a specific return
@@ -73,6 +78,9 @@ export async function GET(
                 externalPurpose: custody.externalPurpose || undefined,
                 issuerName: (custodyReturn as any).recorder?.name || session.name || "المحاسب",
                 recipientSignature: (custodyReturn as any).signatureFile || undefined,
+                branchName: branch?.name,
+                branchFlag: branch?.flag,
+                logoBase64,
             });
 
             return new NextResponse(html, {
@@ -96,6 +104,9 @@ export async function GET(
             externalPurpose: custody.externalPurpose || undefined,
             issuerName: session.name || "المحاسب",
             recipientSignature: custody.confirmation?.signatureFile || undefined,
+            branchName: branch?.name,
+            branchFlag: branch?.flag,
+            logoBase64,
         });
 
         return new NextResponse(html, {
@@ -106,3 +117,4 @@ export async function GET(
         return NextResponse.json({ error: "حدث خطأ" }, { status: 500 });
     }
 }
+

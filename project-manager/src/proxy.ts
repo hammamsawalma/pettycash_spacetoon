@@ -57,7 +57,8 @@ const ROUTE_RULES: Array<{ prefix: string; exact?: boolean; allowed: string[] }>
     // Invoices + purchases — all authenticated users
     { prefix: '/invoices', allowed: ['ROOT', 'ADMIN', 'GLOBAL_ACCOUNTANT', 'USER', 'GENERAL_MANAGER'] },
 
-    // Purchases create
+    // Purchases create (single + bulk)
+    { prefix: '/purchases/bulk', allowed: ['ROOT', 'ADMIN', 'GENERAL_MANAGER', 'USER'] },
     { prefix: '/purchases/new', allowed: ['ROOT', 'ADMIN', 'GENERAL_MANAGER', 'USER'] },
     // Purchases list
     { prefix: '/purchases', allowed: ['ROOT', 'ADMIN', 'GLOBAL_ACCOUNTANT', 'USER', 'GENERAL_MANAGER'] },

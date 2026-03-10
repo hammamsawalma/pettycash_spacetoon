@@ -14,7 +14,7 @@ import { downloadExcel, generatePrintableReport, openPrintWindow, formatDate, fo
 import { useCanDo } from "@/components/auth/Protect";
 
 export default function DebtsPage() {
-    const { role } = useAuth();
+    const { role, user } = useAuth();
     const [debts, setDebts] = useState<any[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [isSettling, setIsSettling] = useState<string | null>(null);
@@ -46,6 +46,8 @@ export default function DebtsPage() {
                 { label: "إجمالي الديون", value: formatCurrency(totalAmount) },
                 { label: "عدد الفواتير", value: String(data.length) },
             ],
+            branchName: user?.branchName,
+            branchFlag: user?.branchFlag,
         });
         openPrintWindow(html);
     };

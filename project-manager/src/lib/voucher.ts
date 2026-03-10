@@ -1,9 +1,10 @@
 /**
- * v7: Redesigned Voucher generation — Clean, professional A4 layout
+ * v9: Redesigned Voucher generation — Clean, professional A4 layout with branding
  * Generates HTML that can be printed via browser print (Ctrl+P → Save as PDF)
  */
 
 import { formatNumber, formatDateAr } from './format-utils';
+import { getBrandingCSS, getBrandingHeaderHTML, type BrandingInfo } from './document-branding';
 
 export type VoucherType = "ISSUE" | "RECEIPT";
 
@@ -23,6 +24,10 @@ export interface VoucherData {
     isCompanyExpense?: boolean;
     issuerName: string;
     recipientSignature?: string;
+    // v9: Branding
+    branchName?: string | null;
+    branchFlag?: string | null;
+    logoBase64?: string;
 }
 
 export function generateVoucherHTML(data: VoucherData): string {
@@ -34,6 +39,10 @@ export function generateVoucherHTML(data: VoucherData): string {
     const methodLabel = data.method === "CASH" ? "نقداً" : "تحويل بنكي";
     const vNum = String(data.voucherNumber || 1).padStart(5, '0');
     const scopeLabel = data.isCompanyExpense ? "مصاريف الشركة" : data.projectName;
+
+    const branding: BrandingInfo = { branchName: data.branchName, branchFlag: data.branchFlag };
+    const brandingHeaderHTML = getBrandingHeaderHTML(branding, { logoBase64: data.logoBase64, accentColor: typeColor });
+    const brandingCSS = getBrandingCSS();
 
     return `<!DOCTYPE html>
 <html lang="ar" dir="rtl">
@@ -50,6 +59,7 @@ export function generateVoucherHTML(data: VoucherData): string {
         .print-bar button { padding: 10px 28px; border: none; border-radius: 8px; font-size: 14px; font-weight: 700; cursor: pointer; font-family: inherit; }
         .btn-print { background: ${typeColor}; color: white; }
         .btn-print:hover { opacity: 0.9; }
+        ${brandingCSS}
         
         .header { display: flex; justify-content: space-between; align-items: flex-start; padding-bottom: 20px; border-bottom: 3px solid ${typeColor}; margin-bottom: 28px; }
         .header-right h1 { font-size: 28px; font-weight: 900; color: ${typeColor}; margin-bottom: 6px; }
@@ -90,10 +100,10 @@ export function generateVoucherHTML(data: VoucherData): string {
         <button class="btn-print" onclick="window.print()">🖨️ طباعة السند</button>
     </div>
     <div class="page">
+        ${brandingHeaderHTML}
         <div class="header">
             <div class="header-right">
                 <h1>${typeLabel} ${data.isExternal ? '<span class="badge badge-external">خارجي</span>' : ''}${data.isCompanyExpense ? '<span class="badge badge-company">مصاريف شركة</span>' : ''}</h1>
-                <div class="subtitle">سبيستون بوكيت — إدارة المشاريع</div>
             </div>
             <div class="header-left">
                 <div class="field">رقم السند: <strong>${vNum}</strong></div>
@@ -153,7 +163,7 @@ export function generateVoucherHTML(data: VoucherData): string {
         </div>
         
         <div class="footer">
-            تم إصدار هذا السند إلكترونياً بواسطة نظام سبيستون بوكيت — ${formatDateAr(new Date())}
+            تم إصدار هذا السند إلكترونياً بواسطة نظام سبيستون بوكيت${data.branchName ? ` — فرع ${data.branchName}` : ''} — ${formatDateAr(new Date())}
         </div>
     </div>
 </body>

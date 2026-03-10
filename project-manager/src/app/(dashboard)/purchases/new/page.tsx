@@ -2,7 +2,7 @@
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
-import { useState, useEffect, useActionState } from "react";
+import { useState, useEffect, useActionState, useRef } from "react";
 import { getProjectsForPurchase } from "@/actions/projects";
 import { createPurchase } from "@/actions/purchases";
 import { Project } from "@prisma/client";
@@ -10,17 +10,26 @@ import { useRouter, useSearchParams } from "next/navigation";
 import toast from "react-hot-toast";
 import { Suspense } from "react";
 import { useCanDo } from "@/components/auth/Protect";
+import { useAuth } from "@/context/AuthContext";
 import { FormPageSkeleton } from "@/components/ui/FormPageSkeleton";
+import { Camera, ImagePlus, X } from "lucide-react";
+import Image from "next/image";
 
 function NewPurchaseForm() {
     const router = useRouter();
     const searchParams = useSearchParams();
     const defaultProjectId = searchParams.get('projectId') || "";
-    // v3: Guard — only ADMIN, GM, and coordinators can create purchase orders
-    const canCreate = useCanDo('purchases', 'createGlobal');
+    const { isCoordinatorInAny, role } = useAuth();
+    const canCreate = useCanDo('purchases', 'createGlobal') || (role === 'USER' && isCoordinatorInAny);
 
     const [projects, setProjects] = useState<Project[]>([]);
     const [state, formAction, isPending] = useActionState(createPurchase, null);
+
+    // Image state — single image, two input sources
+    const [imageFile, setImageFile] = useState<File | null>(null);
+    const [imagePreview, setImagePreview] = useState<string | null>(null);
+    const cameraRef = useRef<HTMLInputElement>(null);
+    const galleryRef = useRef<HTMLInputElement>(null);
 
     useEffect(() => {
         if (!canCreate) {
@@ -37,6 +46,45 @@ function NewPurchaseForm() {
             router.push("/purchases");
         }
     }, [state, router]);
+
+    const handleImageSelect = (file: File | null) => {
+        if (!file) {
+            setImageFile(null);
+            setImagePreview(null);
+            return;
+        }
+
+        // Validate type
+        const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'application/pdf'];
+        if (!allowedTypes.includes(file.type)) {
+            toast.error("نوع الملف غير مدعوم. يرجى رفع صورة (JPG/PNG/WEBP) أو PDF");
+            return;
+        }
+
+        // Validate size (5MB)
+        if (file.size > 5 * 1024 * 1024) {
+            toast.error("حجم الملف يتجاوز الحد المسموح (5 ميجابايت)");
+            return;
+        }
+
+        setImageFile(file);
+
+        // Preview for images
+        if (file.type.startsWith('image/')) {
+            const reader = new FileReader();
+            reader.onloadend = () => setImagePreview(reader.result as string);
+            reader.readAsDataURL(file);
+        } else {
+            setImagePreview(null);
+        }
+    };
+
+    const removeImage = () => {
+        setImageFile(null);
+        setImagePreview(null);
+        if (cameraRef.current) cameraRef.current.value = "";
+        if (galleryRef.current) galleryRef.current.value = "";
+    };
 
     return (
         <DashboardLayout title="اضافة طلب شراء جديد">
@@ -63,6 +111,11 @@ function NewPurchaseForm() {
                         if (!quantity) {
                             toast.error("الكمية مطلوبة للمتابعة");
                             return;
+                        }
+
+                        // Inject the selected image file into FormData
+                        if (imageFile) {
+                            formData.set("image", imageFile);
                         }
 
                         formAction(formData);
@@ -114,14 +167,86 @@ function NewPurchaseForm() {
                                     />
                                 </div>
 
-                                <div className="space-y-2 col-span-1 md:col-span-2">
+                                {/* ── Image Upload Section: Dual Buttons ── */}
+                                <div className="space-y-3 col-span-1 md:col-span-2">
                                     <label className="text-xs md:text-sm font-bold text-gray-700">مرفق الشراء (اختياري)</label>
+
+                                    {/* Hidden inputs for camera and gallery */}
                                     <input
+                                        ref={cameraRef}
                                         type="file"
-                                        name="image"
-                                        accept="image/jpeg, image/png, image/webp, application/pdf"
-                                        className="w-full rounded-xl border border-gray-200 outline-none focus:ring-2 focus:ring-[#102550] text-xs md:text-sm shadow-sm font-medium bg-white file:ml-4 file:py-3.5 file:md:py-4 file:px-4 file:border-0 file:text-sm file:font-bold file:bg-[#102550]/10 file:text-[#102550] hover:file:bg-[#102550]/20 transition-colors cursor-pointer"
+                                        accept="image/jpeg,image/png,image/webp"
+                                        capture="environment"
+                                        className="hidden"
+                                        onChange={(e) => {
+                                            if (e.target.files?.[0]) handleImageSelect(e.target.files[0]);
+                                        }}
                                     />
+                                    <input
+                                        ref={galleryRef}
+                                        type="file"
+                                        accept="image/jpeg,image/png,image/webp,application/pdf"
+                                        className="hidden"
+                                        onChange={(e) => {
+                                            if (e.target.files?.[0]) handleImageSelect(e.target.files[0]);
+                                        }}
+                                    />
+
+                                    {/* Show preview if image selected */}
+                                    {imageFile ? (
+                                        <div className="relative group">
+                                            {imagePreview ? (
+                                                <div className="relative w-full aspect-[16/9] max-h-56 rounded-2xl overflow-hidden border-2 border-dashed border-[#102550]/30 bg-gray-50">
+                                                    <Image
+                                                        src={imagePreview}
+                                                        alt="معاينة الصورة"
+                                                        fill
+                                                        className="object-contain"
+                                                    />
+                                                </div>
+                                            ) : (
+                                                <div className="w-full rounded-2xl border-2 border-dashed border-[#102550]/30 bg-gray-50 p-6 text-center">
+                                                    <p className="text-sm font-bold text-gray-600">{imageFile.name}</p>
+                                                    <p className="text-xs text-gray-400 mt-1">{(imageFile.size / 1024 / 1024).toFixed(2)} MB</p>
+                                                </div>
+                                            )}
+                                            <button
+                                                type="button"
+                                                onClick={removeImage}
+                                                className="absolute -top-2 -left-2 bg-red-100 text-red-600 hover:bg-red-500 hover:text-white rounded-full p-1.5 shadow-md transition-all z-10"
+                                            >
+                                                <X className="w-4 h-4" />
+                                            </button>
+                                        </div>
+                                    ) : (
+                                        <div className="grid grid-cols-2 gap-3">
+                                            {/* Camera Button */}
+                                            <button
+                                                type="button"
+                                                onClick={() => cameraRef.current?.click()}
+                                                className="flex flex-col items-center justify-center gap-2 p-6 rounded-2xl border-2 border-dashed border-gray-200 bg-white hover:border-[#102550]/50 hover:bg-[#102550]/5 transition-all duration-200 active:scale-[0.98] group"
+                                            >
+                                                <div className="w-12 h-12 rounded-full bg-blue-50 flex items-center justify-center group-hover:bg-[#102550]/10 transition-colors">
+                                                    <Camera className="w-6 h-6 text-blue-500 group-hover:text-[#102550]" />
+                                                </div>
+                                                <span className="text-xs md:text-sm font-bold text-gray-600 group-hover:text-[#102550]">📷 التقاط صورة</span>
+                                                <span className="text-[10px] text-gray-400">فتح الكاميرا مباشرة</span>
+                                            </button>
+
+                                            {/* Gallery/File Button */}
+                                            <button
+                                                type="button"
+                                                onClick={() => galleryRef.current?.click()}
+                                                className="flex flex-col items-center justify-center gap-2 p-6 rounded-2xl border-2 border-dashed border-gray-200 bg-white hover:border-[#102550]/50 hover:bg-[#102550]/5 transition-all duration-200 active:scale-[0.98] group"
+                                            >
+                                                <div className="w-12 h-12 rounded-full bg-emerald-50 flex items-center justify-center group-hover:bg-[#102550]/10 transition-colors">
+                                                    <ImagePlus className="w-6 h-6 text-emerald-500 group-hover:text-[#102550]" />
+                                                </div>
+                                                <span className="text-xs md:text-sm font-bold text-gray-600 group-hover:text-[#102550]">🖼️ اختيار صورة</span>
+                                                <span className="text-[10px] text-gray-400">من المعرض أو ملف PDF</span>
+                                            </button>
+                                        </div>
+                                    )}
                                 </div>
                             </div>
                         </div>

@@ -123,6 +123,8 @@ export default function ReportsPage() {
                 { label: "معتمدة", value: String(invoices.filter(d => d.status === 'APPROVED').length) },
                 { label: "معلقة", value: String(invoices.filter(d => d.status === 'PENDING').length) },
             ],
+            branchName: user?.branchName,
+            branchFlag: user?.branchFlag,
         });
         openPrintWindow(html);
     };

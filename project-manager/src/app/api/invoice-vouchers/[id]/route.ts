@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getSession } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 import { generateInvoiceVoucherHTML } from "@/lib/invoice-voucher";
+import { getLogoBase64 } from "@/lib/document-branding";
 
 /**
  * GET /api/invoice-vouchers/[id]
@@ -22,8 +23,8 @@ export async function GET(
         const invoice = await prisma.invoice.findUnique({
             where: { id },
             include: {
-                project: { select: { name: true } },
-                creator: { select: { name: true } },
+                project: { select: { name: true, branch: { select: { name: true, flag: true } } } },
+                creator: { select: { name: true, branch: { select: { name: true, flag: true } } } },
                 category: { select: { name: true } },
             }
         });
@@ -43,6 +44,10 @@ export async function GET(
             return NextResponse.json({ error: "غير مصرح لك بعرض هذه الفاتورة" }, { status: 403 });
         }
 
+        // v9: Get branch info and logo
+        const branch = invoice.project?.branch || invoice.creator?.branch;
+        const logoBase64 = getLogoBase64();
+
         const html = generateInvoiceVoucherHTML({
             invoiceNumber: invoice.reference || invoice.id.slice(0, 8).toUpperCase(),
             date: invoice.date || invoice.createdAt,
@@ -53,6 +58,10 @@ export async function GET(
             categoryName: invoice.category?.name,
             description: invoice.notes || undefined,
             paymentSource: invoice.paymentSource || undefined,
+            externalNumber: invoice.externalNumber,
+            branchName: branch?.name,
+            branchFlag: branch?.flag,
+            logoBase64,
         });
 
         return new NextResponse(html, {
@@ -63,3 +72,4 @@ export async function GET(
         return NextResponse.json({ error: "حدث خطأ" }, { status: 500 });
     }
 }
+
