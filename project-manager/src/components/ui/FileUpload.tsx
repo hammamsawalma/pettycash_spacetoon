@@ -181,7 +181,7 @@ export function FileUpload({
     const isImagePreview = preview || (file && file.type.startsWith('image/'));
 
     return (
-        <div className="w-full overflow-hidden">
+        <div className="w-full">
             <input
                 ref={inputRef}
                 type="file"
