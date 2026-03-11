@@ -99,29 +99,36 @@ jobs:
           sudo docker pull ${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}:latest
 
           # ══════════════════════════════════════════════════════════
-          # PRIMARY: GitHub Secrets (encrypted, auditable, correct)
-          # FALLBACK: /home/ec2-user/.env.production (safety net)
+          # GitHub Secrets for most vars + server file for GEMINI
+          # GEMINI_API_KEY consistently arrives empty via GitHub Secrets
+          # due to appleboy/ssh-action escaping. Read it from server.
           # ══════════════════════════════════════════════════════════
+          ENV_FILE="/home/ec2-user/.env.production"
+
+          # GEMINI: ALWAYS from server file (GitHub Secrets doesn't work for this key)
+          GEMINI=$(grep '^GEMINI_API_KEY=' "$ENV_FILE" | cut -d= -f2-)
+
+          # Other vars: GitHub Secrets (work correctly)
           DB_URL="${{ secrets.DATABASE_URL }}"
           JWT="${{ secrets.JWT_SECRET }}"
-          GEMINI="${{ secrets.GEMINI_API_KEY }}"
           VAPID_PRIV="${{ secrets.VAPID_PRIVATE_KEY }}"
           VAPID_PUB="${{ secrets.VAPID_PUBLIC_KEY }}"
 
-          # Fallback: if any GitHub Secret is empty, read from server file
-          ENV_FILE="/home/ec2-user/.env.production"
-          if [ -z "$DB_URL" ] || [ -z "$JWT" ] || [ -z "$GEMINI" ]; then
-            echo "⚠️ Some GitHub Secrets are empty, falling back to $ENV_FILE"
-            if [ -f "$ENV_FILE" ]; then
-              [ -z "$DB_URL" ] && DB_URL=$(grep '^DATABASE_URL=' "$ENV_FILE" | cut -d= -f2-)
-              [ -z "$JWT" ] && JWT=$(grep '^JWT_SECRET=' "$ENV_FILE" | cut -d= -f2-)
-              [ -z "$GEMINI" ] && GEMINI=$(grep '^GEMINI_API_KEY=' "$ENV_FILE" | cut -d= -f2-)
-              [ -z "$VAPID_PRIV" ] && VAPID_PRIV=$(grep '^VAPID_PRIVATE_KEY=' "$ENV_FILE" | cut -d= -f2-)
-              [ -z "$VAPID_PUB" ] && VAPID_PUB=$(grep '^NEXT_PUBLIC_VAPID_PUBLIC_KEY=' "$ENV_FILE" | cut -d= -f2-)
-            fi
+          # Fallback for other vars if GitHub Secrets are empty
+          if [ -z "$DB_URL" ] && [ -f "$ENV_FILE" ]; then
+            DB_URL=$(grep '^DATABASE_URL=' "$ENV_FILE" | cut -d= -f2-)
+          fi
+          if [ -z "$JWT" ] && [ -f "$ENV_FILE" ]; then
+            JWT=$(grep '^JWT_SECRET=' "$ENV_FILE" | cut -d= -f2-)
+          fi
+          if [ -z "$VAPID_PRIV" ] && [ -f "$ENV_FILE" ]; then
+            VAPID_PRIV=$(grep '^VAPID_PRIVATE_KEY=' "$ENV_FILE" | cut -d= -f2-)
+          fi
+          if [ -z "$VAPID_PUB" ] && [ -f "$ENV_FILE" ]; then
+            VAPID_PUB=$(grep '^NEXT_PUBLIC_VAPID_PUBLIC_KEY=' "$ENV_FILE" | cut -d= -f2-)
           fi
 
-          # Final validation — fail loudly if anything is still missing
+          # Final validation
           if [ -z "$DB_URL" ] || [ -z "$JWT" ] || [ -z "$GEMINI" ]; then
             echo "❌ FATAL: Missing critical env vars!"
             echo "  DATABASE_URL: $([ -n "$DB_URL" ] && echo 'OK' || echo 'MISSING')"
@@ -129,6 +136,8 @@ jobs:
             echo "  GEMINI_API_KEY: $([ -n "$GEMINI" ] && echo 'OK' || echo 'MISSING')"
             exit 1
           fi
+
+          echo "✅ All env vars loaded. GEMINI: ${#GEMINI} chars"
 
           # Stop and remove old container
           sudo docker stop spacetoon-pocket 2>/dev/null || true
