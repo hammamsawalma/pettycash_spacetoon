@@ -118,14 +118,23 @@ jobs:
           VAPID_PRIV="$VAPID_PRIV_SECRET"
           VAPID_PUB="$VAPID_PUB_SECRET"
 
+          echo "🔍 STAGE 1 (GitHub Secrets):"
+          echo "DB_URL_SECRET len: ${#DB_URL_SECRET}, DB_URL len: ${#DB_URL}"
+          echo "GEMINI_API_KEY_SECRET len: ${#GEMINI_API_KEY_SECRET}, GEMINI len: ${#GEMINI}"
+
           # Fallback for ANY empty var: Read from server file
           if [ -f "$ENV_FILE" ]; then
-            [ -z "$DB_URL" ] && DB_URL=$(grep '^DATABASE_URL=' "$ENV_FILE" | cut -d= -f2-)
-            [ -z "$JWT" ] && JWT=$(grep '^JWT_SECRET=' "$ENV_FILE" | cut -d= -f2-)
-            [ -z "$GEMINI" ] && GEMINI=$(grep '^GEMINI_API_KEY=' "$ENV_FILE" | cut -d= -f2-)
+            echo "🔍 ENV_FILE found. Applying fallbacks if needed..."
+            [ -z "$DB_URL" ] && DB_URL=$(grep '^DATABASE_URL=' "$ENV_FILE" | cut -d= -f2-) && echo "DB_URL fallen back"
+            [ -z "$JWT" ] && JWT=$(grep '^JWT_SECRET=' "$ENV_FILE" | cut -d= -f2-) && echo "JWT fallen back"
+            [ -z "$GEMINI" ] && GEMINI=$(grep '^GEMINI_API_KEY=' "$ENV_FILE" | cut -d= -f2-) && echo "GEMINI fallen back"
             [ -z "$VAPID_PRIV" ] && VAPID_PRIV=$(grep '^VAPID_PRIVATE_KEY=' "$ENV_FILE" | cut -d= -f2-)
             [ -z "$VAPID_PUB" ] && VAPID_PUB=$(grep '^NEXT_PUBLIC_VAPID_PUBLIC_KEY=' "$ENV_FILE" | cut -d= -f2-)
           fi
+
+          echo "🔍 STAGE 2 (After Fallback):"
+          echo "DB_URL len: ${#DB_URL}"
+          echo "GEMINI len: ${#GEMINI}"
 
           # Final validation
           if [ -z "$DB_URL" ] || [ -z "$JWT" ] || [ -z "$GEMINI" ]; then
