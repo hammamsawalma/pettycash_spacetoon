@@ -10,6 +10,7 @@ import Image from "next/image";
 import toast from "react-hot-toast";
 import { togglePurchaseRedFlag, softDeletePurchase } from "@/actions/purchases";
 import { useAuth } from "@/context/AuthContext";
+import { useLanguage } from "@/context/LanguageContext";
 
 export default function PurchaseDetailsClient({ initialPurchase }: { initialPurchase: any }) {
     const router = useRouter();
@@ -20,10 +21,11 @@ export default function PurchaseDetailsClient({ initialPurchase }: { initialPurc
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isDeleting, setIsDeleting] = useState(false);
     const { role } = useAuth();
+    const { locale } = useLanguage();
 
     const handleToggleFlag = async (isRemoving: boolean) => {
         if (!isRemoving && !flagReason.trim()) {
-            toast.error("الرجاء إدخال سبب الرفع");
+            toast.error(locale === 'ar' ? "الرجاء إدخال سبب الرفع" : "Please enter a reason");
             return;
         }
 
@@ -32,36 +34,36 @@ export default function PurchaseDetailsClient({ initialPurchase }: { initialPurc
         setIsSubmitting(false);
 
         if (res.success) {
-            toast.success(isRemoving ? "تم إزالة الراية الحمراء بنجاح" : "تم وضع الراية الحمراء 🚩");
+            toast.success(isRemoving ? (locale === 'ar' ? "تم إزالة الراية الحمراء بنجاح" : "Red flag removed successfully") : (locale === 'ar' ? "تم وضع الراية الحمراء 🚩" : "Red flag set 🚩"));
             setIsFlagging(false);
             setFlagReason("");
             router.refresh();
         } else {
-            toast.error(res.error || "حدث خطأ");
+            toast.error(res.error || (locale === 'ar' ? "حدث خطأ" : "An error occurred"));
         }
     };
 
     const handleDelete = async () => {
-        if (!confirm("هل أنت متأكد من نقل هذا الطلب إلى سلة المهملات؟")) return;
+        if (!confirm(locale === 'ar' ? "هل أنت متأكد من نقل هذا الطلب إلى سلة المهملات؟" : "Are you sure you want to move this request to trash?")) return;
         setIsDeleting(true);
         const res = await softDeletePurchase(purchase.id);
         setIsDeleting(false);
         if (res?.error) toast.error(res.error);
         else {
-            toast.success("تم نقل طلب الشراء إلى سلة المهملات");
+            toast.success(locale === 'ar' ? "تم نقل طلب الشراء إلى سلة المهملات" : "Purchase request moved to trash");
             router.push('/purchases');
         }
     };
 
     return (
-        <DashboardLayout title="تفاصيل طلب الشراء">
+        <DashboardLayout title={locale === 'ar' ? "تفاصيل طلب الشراء" : "Purchase Request Details"}>
             <div className="space-y-6 max-w-5xl mx-auto">
                 {/* Header Back Button */}
                 <button
                     onClick={() => router.back()}
                     className="flex items-center gap-2 text-gray-500 hover:text-primary transition-colors text-sm font-semibold mb-2"
                 >
-                    <ArrowLeft className="w-4 h-4" /> العودة للمشتريات
+                    <ArrowLeft className="w-4 h-4" /> {locale === 'ar' ? 'العودة للمشتريات' : 'Back to Purchases'}
                 </button>
 
                 {/* Main Content Grid */}
@@ -74,15 +76,15 @@ export default function PurchaseDetailsClient({ initialPurchase }: { initialPurc
                                 {purchase.imageUrl ? (
                                     <Image
                                         src={purchase.imageUrl}
-                                        alt="صورة المنتج"
+                                        alt={locale === 'ar' ? "صورة المنتج" : "Product image"}
                                         fill
                                         className="object-cover hover:scale-105 transition-transform duration-500"
                                     />
                                 ) : (
                                     <div className="text-center px-4 flex flex-col items-center opacity-60">
                                         <ShoppingCart className="w-16 h-16 text-gray-400 mb-3" />
-                                        <p className="text-sm font-bold text-gray-600 mb-1">لا توجد صورة مرفقة</p>
-                                        <p className="text-xs text-gray-400">الاعتماد على الوصف النصي أدناه للبحث عن المنتج</p>
+                                        <p className="text-sm font-bold text-gray-600 mb-1">{locale === 'ar' ? 'لا توجد صورة مرفقة' : 'No image attached'}</p>
+                                        <p className="text-xs text-gray-400">{locale === 'ar' ? 'الاعتماد على الوصف النصي أدناه للبحث عن المنتج' : 'Rely on the text description below to find the product'}</p>
                                     </div>
                                 )}
                             </div>
@@ -95,7 +97,7 @@ export default function PurchaseDetailsClient({ initialPurchase }: { initialPurc
                                         rel="noopener noreferrer"
                                         className="inline-flex items-center justify-center w-full gap-2 text-xs font-bold text-primary hover:bg-primary/5 py-3 rounded-lg transition-colors border border-transparent hover:border-primary/10"
                                     >
-                                        <ExternalLink className="w-4 h-4" /> فتح الصورة بملف كامل
+                                        <ExternalLink className="w-4 h-4" /> {locale === 'ar' ? 'فتح الصورة بملف كامل' : 'Open Full Image'}
                                     </a>
                                 </div>
                             )}
@@ -112,7 +114,7 @@ export default function PurchaseDetailsClient({ initialPurchase }: { initialPurc
                                         <Flag className="w-5 h-5 fill-current" />
                                     </div>
                                     <div className="flex-1">
-                                        <h3 className="text-sm font-black text-red-800 mb-1">المنتج غير متوفر - راية حمراء</h3>
+                                        <h3 className="text-sm font-black text-red-800 mb-1">{locale === 'ar' ? 'المنتج غير متوفر - راية حمراء' : 'Product Unavailable - Red Flag'}</h3>
                                         <p className="text-sm text-red-600 font-medium leading-relaxed">{purchase.redFlagReason}</p>
                                     </div>
                                     <Button
@@ -121,7 +123,7 @@ export default function PurchaseDetailsClient({ initialPurchase }: { initialPurc
                                         disabled={isSubmitting}
                                         className="shrink-0 h-9 font-bold border-red-200 text-red-600 hover:bg-red-100"
                                     >
-                                        إزالة الراية
+                                        {locale === 'ar' ? 'إزالة الراية' : 'Remove Flag'}
                                     </Button>
                                 </div>
                             </div>
@@ -150,25 +152,25 @@ export default function PurchaseDetailsClient({ initialPurchase }: { initialPurc
                                 {/* Meta Data */}
                                 <div className="grid grid-cols-2 gap-6">
                                     <div>
-                                        <p className="text-xs text-gray-500 font-bold mb-1 flex items-center gap-1.5"><Building className="w-3.5 h-3.5" />المشروع</p>
-                                        <p className="text-sm font-bold text-primary">{purchase.project?.name || "مشروع عام"}</p>
+                                        <p className="text-xs text-gray-500 font-bold mb-1 flex items-center gap-1.5"><Building className="w-3.5 h-3.5" />{locale === 'ar' ? 'المشروع' : 'Project'}</p>
+                                        <p className="text-sm font-bold text-primary">{purchase.project?.name || (locale === 'ar' ? "مشروع عام" : "General")}</p>
                                     </div>
                                     <div>
-                                        <p className="text-xs text-gray-500 font-bold mb-1 flex items-center gap-1.5"><CalendarDays className="w-3.5 h-3.5" />الموعد النهائي</p>
-                                        <p className="text-sm font-bold text-gray-900">{purchase.deadline ? new Date(purchase.deadline).toLocaleDateString('en-GB') : "غير محدد"}</p>
+                                        <p className="text-xs text-gray-500 font-bold mb-1 flex items-center gap-1.5"><CalendarDays className="w-3.5 h-3.5" />{locale === 'ar' ? 'الموعد النهائي' : 'Deadline'}</p>
+                                        <p className="text-sm font-bold text-gray-900">{purchase.deadline ? new Date(purchase.deadline).toLocaleDateString('en-GB') : (locale === 'ar' ? "غير محدد" : "Not specified")}</p>
                                     </div>
                                 </div>
 
                                 {/* Financial */}
                                 <div className="bg-gray-50 p-4 rounded-xl flex justify-between items-center border border-gray-100">
                                     <div>
-                                        <p className="text-xs font-bold text-gray-500 mb-1">الكمية المطلوبة / العدد</p>
+                                        <p className="text-xs font-bold text-gray-500 mb-1">{locale === 'ar' ? 'الكمية المطلوبة / العدد' : 'Requested Quantity'}</p>
                                         <p className="text-2xl font-black text-gray-900 drop-shadow-sm">
                                             {purchase.quantity || 1}
                                         </p>
                                     </div>
                                     <div className="text-left">
-                                        <p className="text-xs font-bold text-gray-500 mb-1">طالب الشراء</p>
+                                        <p className="text-xs font-bold text-gray-500 mb-1">{locale === 'ar' ? 'طالب الشراء' : 'Requested By'}</p>
                                         <p className="text-sm font-bold text-gray-900">
                                             {purchase.creator?.name}
                                         </p>
@@ -178,7 +180,7 @@ export default function PurchaseDetailsClient({ initialPurchase }: { initialPurc
                                 {/* Notes if any */}
                                 {purchase.notes && (
                                     <div>
-                                        <p className="text-xs font-bold text-gray-500 mb-2 flex items-center gap-1.5"><Info className="w-4 h-4" /> ملاحظات إضافية</p>
+                                        <p className="text-xs font-bold text-gray-500 mb-2 flex items-center gap-1.5"><Info className="w-4 h-4" /> {locale === 'ar' ? 'ملاحظات إضافية' : 'Additional Notes'}</p>
                                         <div className="bg-yellow-50/50 p-4 rounded-xl border border-yellow-100/50">
                                             <p className="text-sm font-medium text-gray-700 leading-relaxed whitespace-pre-wrap">{purchase.notes}</p>
                                         </div>
@@ -192,7 +194,7 @@ export default function PurchaseDetailsClient({ initialPurchase }: { initialPurc
                                             onClick={() => router.push(`/invoices/new?purchaseId=${purchase.id}&projectId=${purchase.projectId || ''}&description=${encodeURIComponent(purchase.description)}`)}
                                             className="flex-1 py-6 text-base font-black"
                                         >
-                                            <ShoppingCart className="w-5 h-5 mr-[-2px] ml-2" /> إتمام عملية الشراء (رفع فاتورة)
+                                            <ShoppingCart className="w-5 h-5 mr-[-2px] ml-2" /> {locale === 'ar' ? 'إتمام عملية الشراء (رفع فاتورة)' : 'Complete Purchase (Submit Invoice)'}
                                         </Button>
                                     )}
 
@@ -202,7 +204,7 @@ export default function PurchaseDetailsClient({ initialPurchase }: { initialPurc
                                             onClick={() => setIsFlagging(true)}
                                             className="px-6 py-6 text-sm font-bold border-red-200 text-red-500 hover:bg-red-50 stroke-[3px]"
                                         >
-                                            <Flag className="w-5 h-5 ml-2" /> غير متوفر
+                                            <Flag className="w-5 h-5 ml-2" /> {locale === 'ar' ? 'غير متوفر' : 'Unavailable'}
                                         </Button>
                                     )}
 
@@ -214,7 +216,7 @@ export default function PurchaseDetailsClient({ initialPurchase }: { initialPurc
                                             isLoading={isDeleting}
                                             className="px-6 py-6 text-sm font-bold border-red-200 text-red-600 hover:bg-red-50"
                                         >
-                                            <Trash2 className="w-4 h-4 ml-2" /> حذف
+                                            <Trash2 className="w-4 h-4 ml-2" /> {locale === 'ar' ? 'حذف' : 'Delete'}
                                         </Button>
                                     )}
                                 </div>
@@ -223,12 +225,12 @@ export default function PurchaseDetailsClient({ initialPurchase }: { initialPurc
                                 {isFlagging && (
                                     <div className="mt-4 p-5 bg-red-50 border border-red-200 rounded-xl space-y-4 animate-in fade-in slide-in-from-top-4">
                                         <label className="text-sm font-bold text-red-900 flex items-center gap-2">
-                                            <Flag className="w-4 h-4" /> ما سبب عدم توفر المنتج؟
+                                            <Flag className="w-4 h-4" /> {locale === 'ar' ? 'ما سبب عدم توفر المنتج؟' : 'Why is the product unavailable?'}
                                         </label>
                                         <textarea
                                             value={flagReason}
                                             onChange={(e) => setFlagReason(e.target.value)}
-                                            placeholder="مثال: المنتج غير متوفر في فرع جرير، يوجد بديل أغلى..."
+                                            placeholder={locale === 'ar' ? "مثال: المنتج غير متوفر في فرع جرير، يوجد بديل أغلى..." : "e.g. Product not available at this branch, alternative is more expensive..."}
                                             className="w-full p-3 rounded-lg border border-red-200 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-red-500/50 resize-none"
                                             rows={3}
                                             autoFocus
@@ -239,14 +241,14 @@ export default function PurchaseDetailsClient({ initialPurchase }: { initialPurc
                                                 disabled={!flagReason.trim() || isSubmitting}
                                                 className="bg-red-600 hover:bg-red-700 text-white flex-1 font-bold"
                                             >
-                                                {isSubmitting ? <RefreshCw className="w-4 h-4 animate-spin mx-auto" /> : "إرسال الراية الحمراء كإشعار"}
+                                                {isSubmitting ? <RefreshCw className="w-4 h-4 animate-spin mx-auto" /> : (locale === 'ar' ? "إرسال الراية الحمراء كإشعار" : "Send Red Flag Notification")}
                                             </Button>
                                             <Button
                                                 variant="outline"
                                                 onClick={() => { setIsFlagging(false); setFlagReason(""); }}
                                                 className="bg-white"
                                             >
-                                                إلغاء
+                                                {locale === 'ar' ? 'إلغاء' : 'Cancel'}
                                             </Button>
                                         </div>
                                     </div>

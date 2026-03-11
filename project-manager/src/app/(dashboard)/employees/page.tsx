@@ -1,5 +1,6 @@
 "use client"
 import DashboardLayout from "@/components/layout/DashboardLayout";
+import { useLanguage } from "@/context/LanguageContext";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Search, PlusSquare, Phone, MessageSquare } from "lucide-react";
@@ -18,7 +19,7 @@ type EmployeeWithRelations = User & {
 };
 
 export default function EmployeesPage() {
-    const [filter, setFilter] = useState("الكل");
+    const [filter, setFilter] = useState("ALL");
     const [searchQuery, setSearchQuery] = useState("");
     const debouncedSearchQuery = useDebounce(searchQuery, 300);
     const [employees, setEmployees] = useState<EmployeeWithRelations[]>([]);
@@ -27,6 +28,7 @@ export default function EmployeesPage() {
 
     const { user } = useAuth();
     const router = useRouter();
+    const { t, locale } = useLanguage();
     const canCreateEmployee = useCanDo('employees', 'create');
     // Derived from permissions.ts — replaces hardcoded role array
     const canAccess = useCanDo('employees', 'viewAll');
@@ -56,40 +58,48 @@ export default function EmployeesPage() {
 
     if (!user || !canAccess) return null;
 
-    const roleMap: Record<string, string> = {
-        "ADMIN": "مدير نظام",
-        "USER": "موظف",
-        "GLOBAL_ACCOUNTANT": "محاسب عام",
-        "GENERAL_MANAGER": "المدير العام"
+    const roleMap: Record<string, { ar: string; en: string }> = {
+        "ADMIN": { ar: "مدير نظام", en: "System Admin" },
+        "USER": { ar: "موظف", en: "Employee" },
+        "GLOBAL_ACCOUNTANT": { ar: "محاسب عام", en: "Accountant" },
+        "GENERAL_MANAGER": { ar: "المدير العام", en: "General Manager" }
     };
 
+    const filterTabs = [
+        { key: "ALL", label: t('common.all') },
+        { key: "USER", label: locale === 'ar' ? 'موظف' : 'Employee' },
+        { key: "GLOBAL_ACCOUNTANT", label: locale === 'ar' ? 'محاسب عام' : 'Accountant' },
+        { key: "GENERAL_MANAGER", label: locale === 'ar' ? 'المدير العام' : 'General Manager' },
+        { key: "ADMIN", label: locale === 'ar' ? 'مدير نظام' : 'System Admin' },
+    ];
+
     const filteredEmployees = employees.filter(emp => {
-        const arabicRole = roleMap[emp.role] || emp.role;
-        const matchesFilter = filter === "الكل" || arabicRole === filter;
+        const matchesFilter = filter === "ALL" || emp.role === filter;
+        const displayRole = roleMap[emp.role] ? (locale === 'ar' ? roleMap[emp.role].ar : roleMap[emp.role].en) : emp.role;
         const matchesSearch = matchArabicText(debouncedSearchQuery, [
             emp.name,
-            arabicRole
+            displayRole
         ]);
         return matchesFilter && matchesSearch;
     });
 
     return (
-        <DashboardLayout title="قائمة الموظفين">
+        <DashboardLayout title={t('sidebar.employeesList')}>
             <div className="space-y-6 md:space-y-8 pb-6">
 
                 {/* Header Actions */}
                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                     <div className="flex bg-white rounded-xl md:rounded-lg p-1 shadow-sm border border-gray-100 overflow-x-auto max-w-full custom-scrollbar w-full sm:w-auto">
-                        {["الكل", "موظف", "محاسب عام", "المدير العام", "مدير نظام"].map((tab) => (
+                        {filterTabs.map(({ key, label }) => (
                             <button
-                                key={tab}
-                                onClick={() => setFilter(tab)}
-                                className={`px-3 md:px-4 py-2 text-xs md:text-sm font-bold rounded-lg whitespace-nowrap transition-colors flex-1 sm:flex-none ${filter === tab
+                                key={key}
+                                onClick={() => setFilter(key)}
+                                className={`px-3 md:px-4 py-2 text-xs md:text-sm font-bold rounded-lg whitespace-nowrap transition-colors flex-1 sm:flex-none ${filter === key
                                     ? "bg-[#102550] text-white shadow-sm"
                                     : "text-gray-500 hover:text-gray-900 hover:bg-gray-50"
                                     }`}
                             >
-                                {tab}
+                                {label}
                             </button>
                         ))}
                     </div>
@@ -98,7 +108,7 @@ export default function EmployeesPage() {
                         <div className="relative flex-1 sm:w-64">
                             <input
                                 type="text"
-                                placeholder="البحث هنا..."
+                                placeholder={t('common.search') + '...'}
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
                                 className="w-full pl-10 pr-4 py-2.5 md:py-2 text-xs md:text-sm font-bold rounded-xl border border-gray-100 focus:outline-primary bg-white shadow-sm"
@@ -107,7 +117,7 @@ export default function EmployeesPage() {
                         </div>
                         {canCreateEmployee && <Button onClick={() => router.push('/employees/new')} variant="primary" className="gap-2 shrink-0 py-2.5 md:py-2 h-auto text-xs md:text-sm">
                             <PlusSquare className="h-4 w-4 md:h-5 md:w-5" />
-                            <span className="inline">اضافة موظف</span>
+                            <span className="inline">{t('sidebar.addEmployee')}</span>
                         </Button>}
                     </div>
                 </div>
@@ -115,21 +125,21 @@ export default function EmployeesPage() {
                 {/* Employees Grid */}
                 {errorMsg && (
                     <div className="p-4 mb-6 bg-red-100 border border-red-200 text-red-700 rounded-xl text-sm font-medium">
-                        حدث خطأ أثناء تحميل الموظفين: {errorMsg}
+                        {locale === 'ar' ? 'حدث خطأ أثناء تحميل الموظفين' : 'Error loading employees'}: {errorMsg}
                     </div>
                 )}
                 {isLoading ? (
                     <div className="text-center py-20 bg-gray-50 rounded-2xl border border-gray-100">
-                        <p className="text-sm font-medium text-gray-500">جاري تحميل الموظفين...</p>
+                        <p className="text-sm font-medium text-gray-500">{locale === 'ar' ? 'جاري تحميل الموظفين...' : 'Loading employees...'}</p>
                     </div>
                 ) : filteredEmployees.length === 0 ? (
                     <div className="text-center py-20 bg-gray-50 rounded-2xl border border-gray-100">
-                        <p className="text-sm font-medium text-gray-500">لا يوجد موظفين مطابقين للبحث.</p>
+                        <p className="text-sm font-medium text-gray-500">{locale === 'ar' ? 'لا يوجد موظفين مطابقين للبحث.' : 'No employees match your search.'}</p>
                     </div>
                 ) : (
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
                         {filteredEmployees.map(emp => {
-                            const arabicRole = emp.jobTitle || roleMap[emp.role] || emp.role;
+                            const displayRole = emp.jobTitle || (roleMap[emp.role] ? (locale === 'ar' ? roleMap[emp.role].ar : roleMap[emp.role].en) : emp.role);
                             return (
                                 <Card key={emp.id} className="p-5 md:p-6 flex flex-col items-center text-center shadow-sm border border-gray-100 hover:border-[#102550]/50 transition-all cursor-default hover:shadow-md rounded-2xl group">
 
@@ -141,26 +151,26 @@ export default function EmployeesPage() {
                                     </div>
 
                                     <h4 className="font-bold text-base md:text-lg text-gray-900 line-clamp-1">{emp.name}</h4>
-                                    <p className="text-[10px] md:text-xs text-[#102550] font-bold mt-1 bg-blue-50 px-2.5 py-1 rounded-md">{arabicRole}</p>
+                                    <p className="text-[10px] md:text-xs text-[#102550] font-bold mt-1 bg-blue-50 px-2.5 py-1 rounded-md">{displayRole}</p>
 
                                     <div className="w-full grid grid-cols-3 gap-2 mt-5 md:mt-6 mb-5 md:mb-6 bg-gray-50 rounded-xl p-3 md:p-4">
                                         <div>
                                             <p className="text-sm md:text-base font-black text-gray-900">{emp._count.memberships}</p>
-                                            <p className="text-[9px] md:text-[10px] text-gray-500 mt-0.5 md:mt-1 font-bold">مشاريع مسندة</p>
+                                            <p className="text-[9px] md:text-[10px] text-gray-500 mt-0.5 md:mt-1 font-bold">{locale === 'ar' ? 'مشاريع مسندة' : 'Projects'}</p>
                                         </div>
                                         <div className="border-x border-gray-200">
                                             <p className="text-sm md:text-base font-black text-gray-900">{emp._count.receivedMessages}</p>
-                                            <p className="text-[9px] md:text-[10px] text-gray-500 mt-0.5 md:mt-1 font-bold">رسائل مستلمة</p>
+                                            <p className="text-[9px] md:text-[10px] text-gray-500 mt-0.5 md:mt-1 font-bold">{locale === 'ar' ? 'رسائل مستلمة' : 'Messages'}</p>
                                         </div>
                                         <div>
                                             <p className={`text-sm md:text-base font-black text-gray-900`}>0</p>
-                                            <p className="text-[9px] md:text-[10px] text-gray-500 mt-0.5 md:mt-1 font-bold">مهام متأخرة</p>
+                                            <p className="text-[9px] md:text-[10px] text-gray-500 mt-0.5 md:mt-1 font-bold">{locale === 'ar' ? 'مهام متأخرة' : 'Overdue'}</p>
                                         </div>
                                     </div>
 
                                     <div className="flex gap-2 w-full mt-auto pt-4 border-t border-gray-50">
                                         <Button onClick={() => router.push(`/employees/${emp.id}`)} variant="secondary" className="flex-1 text-[11px] md:text-xs h-9 font-bold bg-white border-gray-200 hover:bg-gray-50 hover:text-[#102550]">
-                                            المزيد
+                                            {locale === 'ar' ? 'المزيد' : 'More'}
                                         </Button>
                                         <Button variant="secondary" className="w-9 h-9 md:w-10 md:h-10 p-0 text-[#102550] bg-blue-50 border-transparent hover:bg-blue-100 flex items-center justify-center shrink-0" onClick={() => router.push('/chat')}>
                                             <MessageSquare className="w-3.5 h-3.5 md:w-4 md:h-4" />

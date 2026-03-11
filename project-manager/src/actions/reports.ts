@@ -19,19 +19,19 @@ export async function getReportStats(period: string) {
         let dateFilter = {};
         const now = new Date();
 
-        if (period === "آخر 30 يوم") {
+        if (period === "last30" || period === "آخر 30 يوم") {
             const thirtyDaysAgo = new Date();
             thirtyDaysAgo.setDate(now.getDate() - 30);
             dateFilter = { gte: thirtyDaysAgo };
-        } else if (period === "هذا العام") {
+        } else if (period === "thisYear" || period === "هذا العام") {
             const startOfYear = new Date(now.getFullYear(), 0, 1);
             dateFilter = { gte: startOfYear };
-        } else if (period === "العام الماضي") {
+        } else if (period === "lastYear" || period === "العام الماضي") {
             const startOfLastYear = new Date(now.getFullYear() - 1, 0, 1);
             const endOfLastYear = new Date(now.getFullYear() - 1, 11, 31, 23, 59, 59);
             dateFilter = { gte: startOfLastYear, lte: endOfLastYear };
         } else {
-            // Default to all time or specific logic if needed
+            // Default to all time
             dateFilter = {};
         }
 
@@ -133,7 +133,7 @@ export async function getReportStats(period: string) {
         const categoryExpenses = expensesByCategory.map((item: any) => {
             const c = categories.find((cat: any) => cat.id === item.categoryId);
             return {
-                name: c?.name || 'غير مصنف',
+                name: c?.name || 'Uncategorized',
                 icon: c?.icon || '📁',
                 value: item._sum?.amount || 0
             };

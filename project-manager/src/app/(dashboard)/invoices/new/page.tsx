@@ -16,6 +16,7 @@ import { Camera, FileText, CheckCircle, Trash2, Plus, ImageIcon, FolderOpen } fr
 import { CurrencyDisplay } from "@/components/ui/CurrencyDisplay";
 import { getProjectsForInvoice, getManagerAvailableCustody } from "@/actions/projects";
 import { useAuth } from "@/context/AuthContext";
+import { useLanguage } from "@/context/LanguageContext";
 import Image from "next/image";
 import { FormPageSkeleton } from "@/components/ui/FormPageSkeleton";
 
@@ -39,7 +40,7 @@ function EmployeeInvoiceFlow({ projects, categories, defaultProjectId, defaultAm
     purchaseId: string;
 }) {
     const router = useRouter();
-    // الخطوات: 1=صورة, 2=المبلغ, 3=المشروع, 4=ملاحظات+إرسال
+    const { locale } = useLanguage();
     const [currentStep, setCurrentStep] = useState<1 | 2 | 3 | 4>(1);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [file, setFile] = useState<File | null>(null);
@@ -74,9 +75,9 @@ function EmployeeInvoiceFlow({ projects, categories, defaultProjectId, defaultAm
     };
 
     const handleSubmit = async () => {
-        if (!selectedProjectId) { toast.error("يرجى اختيار المشروع"); return; }
-        if (!amount || parseFloat(amount) <= 0) { toast.error("يرجى إدخال مبلغ صحيح"); return; }
-        if (!file) { toast.error("صورة الفاتورة إلزامية"); return; }
+        if (!selectedProjectId) { toast.error(locale === 'ar' ? "يرجى اختيار المشروع" : "Please select a project"); return; }
+        if (!amount || parseFloat(amount) <= 0) { toast.error(locale === 'ar' ? "يرجى إدخال مبلغ صحيح" : "Please enter a valid amount"); return; }
+        if (!file) { toast.error(locale === 'ar' ? "صورة الفاتورة إلزامية" : "Invoice image is required"); return; }
 
         setIsSubmitting(true);
         const fd = new FormData();
@@ -96,15 +97,15 @@ function EmployeeInvoiceFlow({ projects, categories, defaultProjectId, defaultAm
         if (res?.error) {
             toast.error(res.error);
         } else if (res?.success) {
-            toast.success(res.autoApproved ? "تم إنشاء الفاتورة واعتمادها تلقائياً ✅" : "تم تقديم الفاتورة للمراجعة ⏳");
+            toast.success(res.autoApproved ? (locale === 'ar' ? "تم إنشاء الفاتورة واعتمادها تلقائياً ✅" : "Invoice created and auto-approved ✅") : (locale === 'ar' ? "تم تقديم الفاتورة للمراجعة ⏳" : "Invoice submitted for review ⏳"));
             sessionStorage.removeItem("invoices_cache");
             router.push("/invoices");
         }
     };
 
     return (
-        <DashboardLayout title="رفع فاتورة">
-            <div className="pb-40 px-4 max-w-lg mx-auto" dir="rtl">
+        <DashboardLayout title={locale === 'ar' ? "رفع فاتورة" : "Upload Invoice"}>
+            <div className={`pb-40 px-4 max-w-lg mx-auto ${locale === 'ar' ? '' : 'text-left'}`} dir={locale === 'ar' ? 'rtl' : 'ltr'}>
 
                 {/* Progress dots */}
                 <div className="flex items-center justify-center gap-2 pt-4 pb-6">
@@ -127,8 +128,8 @@ function EmployeeInvoiceFlow({ projects, categories, defaultProjectId, defaultAm
                             <div className="w-16 h-16 bg-blue-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
                                 <Camera className="w-8 h-8 text-blue-600" />
                             </div>
-                            <h1 className="text-2xl font-black text-gray-900">صوّر الفاتورة</h1>
-                            <p className="text-gray-500 text-sm mt-1">الخطوة 1 من 4 — صورة واضحة للإيصال أو الفاتورة</p>
+                            <h1 className="text-2xl font-black text-gray-900">{locale === 'ar' ? 'صوّر الفاتورة' : 'Capture Invoice'}</h1>
+                            <p className="text-gray-500 text-sm mt-1">{locale === 'ar' ? 'الخطوة 1 من 4 — صورة واضحة للإيصال أو الفاتورة' : 'Step 1 of 4 — Clear photo of receipt or invoice'}</p>
                         </div>
 
                         <button onClick={() => cameraInputRef.current?.click()}
@@ -137,8 +138,8 @@ function EmployeeInvoiceFlow({ projects, categories, defaultProjectId, defaultAm
                                 <Camera className="w-9 h-9" />
                             </div>
                             <div>
-                                <p className="text-lg font-black">صوّر الفاتورة</p>
-                                <p className="text-blue-200 text-sm">افتح الكاميرا مباشرة</p>
+                                <p className="text-lg font-black">{locale === 'ar' ? 'صوّر الفاتورة' : 'Capture Invoice'}</p>
+                                <p className="text-blue-200 text-sm">{locale === 'ar' ? 'افتح الكاميرا مباشرة' : 'Open camera directly'}</p>
                             </div>
                         </button>
 
@@ -148,12 +149,12 @@ function EmployeeInvoiceFlow({ projects, categories, defaultProjectId, defaultAm
                                 <ImageIcon className="w-6 h-6 text-gray-500" />
                             </div>
                             <div className="text-right">
-                                <p className="font-bold text-gray-900">اختر من المعرض</p>
-                                <p className="text-gray-400 text-xs">صورة أو ملف PDF</p>
+                                <p className="font-bold text-gray-900">{locale === 'ar' ? 'اختر من المعرض' : 'Choose from gallery'}</p>
+                                <p className="text-gray-400 text-xs">{locale === 'ar' ? 'صورة أو ملف PDF' : 'Image or PDF file'}</p>
                             </div>
                         </button>
 
-                        <p className="text-center text-xs text-gray-400">⚠️ صورة الفاتورة إلزامية للمتابعة</p>
+                        <p className="text-center text-xs text-gray-400">{locale === 'ar' ? '⚠️ صورة الفاتورة إلزامية للمتابعة' : '⚠️ Invoice image is required to proceed'}</p>
                     </div>
                 )}
 
@@ -163,13 +164,13 @@ function EmployeeInvoiceFlow({ projects, categories, defaultProjectId, defaultAm
                         {/* thumbnail */}
                         {preview ? (
                             <div className="relative w-full aspect-[4/3] max-h-44 rounded-2xl overflow-hidden shadow-sm border border-gray-100">
-                                <Image src={preview} alt="فاتورة" fill className="object-cover" />
+                                <Image src={preview} alt={locale === 'ar' ? 'فاتورة' : 'Invoice'} fill className="object-cover" />
                                 <button onClick={() => { setFile(null); setPreview(null); setCurrentStep(1); }}
                                     className="absolute top-2 left-2 bg-red-500 text-white rounded-full p-1.5 shadow-md">
                                     <Trash2 className="w-4 h-4" />
                                 </button>
                                 <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/50 to-transparent p-3">
-                                    <p className="text-white text-xs font-bold">✓ تم رفع الفاتورة</p>
+                                    <p className="text-white text-xs font-bold">{locale === 'ar' ? '✓ تم رفع الفاتورة' : '✓ Invoice uploaded'}</p>
                                 </div>
                             </div>
                         ) : file ? (
@@ -186,12 +187,12 @@ function EmployeeInvoiceFlow({ projects, categories, defaultProjectId, defaultAm
                         ) : null}
 
                         <div className="text-center pb-2">
-                            <h1 className="text-2xl font-black text-gray-900">كم المبلغ؟</h1>
-                            <p className="text-gray-500 text-sm mt-1">الخطوة 2 من 4</p>
+                            <h1 className="text-2xl font-black text-gray-900">{locale === 'ar' ? 'كم المبلغ؟' : 'What is the amount?'}</h1>
+                            <p className="text-gray-500 text-sm mt-1">{locale === 'ar' ? 'الخطوة 2 من 4' : 'Step 2 of 4'}</p>
                         </div>
 
                         <Card className="p-5 border-gray-100 shadow-sm rounded-2xl">
-                            <label className="text-xs font-black text-gray-500 uppercase tracking-wider block mb-3">المبلغ الإجمالي *</label>
+                            <label className="text-xs font-black text-gray-500 uppercase tracking-wider block mb-3">{locale === 'ar' ? 'المبلغ الإجمالي *' : 'Total Amount *'}</label>
                             <div className="flex items-baseline gap-2 overflow-hidden">
                                 <input
                                     autoFocus
@@ -211,10 +212,10 @@ function EmployeeInvoiceFlow({ projects, categories, defaultProjectId, defaultAm
                     <div className="fixed bottom-0 inset-x-0 z-50 bg-white/90 backdrop-blur-xl border-t border-gray-100 p-4 pb-[calc(1rem+env(safe-area-inset-bottom))] shadow-2xl flex gap-3">
                         <Button type="button" onClick={() => setCurrentStep(1)} variant="secondary" className="flex-none px-5 py-4 rounded-2xl font-bold">←</Button>
                         <Button type="button" onClick={() => {
-                            if (!amount || parseFloat(amount) <= 0) { toast.error("يرجى إدخال مبلغ صحيح"); return; }
+                            if (!amount || parseFloat(amount) <= 0) { toast.error(locale === 'ar' ? "يرجى إدخال مبلغ صحيح" : "Please enter a valid amount"); return; }
                             setCurrentStep(3);
                         }} variant="primary" className="flex-1 py-4 text-base font-black rounded-2xl shadow-lg shadow-blue-200">
-                            التالي ←
+                            {locale === 'ar' ? 'التالي ←' : 'Next →'}
                         </Button>
                     </div>
                 )}
@@ -226,14 +227,14 @@ function EmployeeInvoiceFlow({ projects, categories, defaultProjectId, defaultAm
                             <div className="w-16 h-16 bg-blue-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
                                 <FolderOpen className="w-8 h-8 text-blue-600" />
                             </div>
-                            <h1 className="text-2xl font-black text-gray-900">اختر المشروع</h1>
-                            <p className="text-gray-500 text-sm mt-1">الخطوة 3 من 4</p>
+                            <h1 className="text-2xl font-black text-gray-900">{locale === 'ar' ? 'اختر المشروع' : 'Select Project'}</h1>
+                            <p className="text-gray-500 text-sm mt-1">{locale === 'ar' ? 'الخطوة 3 من 4' : 'Step 3 of 4'}</p>
                         </div>
 
                         {projects.length === 0 ? (
                             <div className="bg-gray-50 rounded-2xl p-6 text-center">
                                 <FolderOpen className="w-8 h-8 text-gray-300 mx-auto mb-2" />
-                                <p className="text-gray-500 text-sm">لا توجد مشاريع مسندة إليك</p>
+                                <p className="text-gray-500 text-sm">{locale === 'ar' ? 'لا توجد مشاريع مسندة إليك' : 'No projects assigned to you'}</p>
                             </div>
                         ) : (
                             <div className="grid grid-cols-2 gap-3 pb-4">
@@ -267,7 +268,7 @@ function EmployeeInvoiceFlow({ projects, categories, defaultProjectId, defaultAm
                 )}
                 {currentStep === 3 && (
                     <div className="fixed bottom-0 inset-x-0 z-50 bg-white/90 backdrop-blur-xl border-t border-gray-100 p-4 pb-[calc(1rem+env(safe-area-inset-bottom))] shadow-2xl">
-                        <Button type="button" onClick={() => setCurrentStep(2)} variant="secondary" className="w-full py-4 rounded-2xl font-bold">← رجوع</Button>
+                        <Button type="button" onClick={() => setCurrentStep(2)} variant="secondary" className="w-full py-4 rounded-2xl font-bold">{locale === 'ar' ? '← رجوع' : '← Back'}</Button>
                     </div>
                 )}
 
@@ -278,8 +279,8 @@ function EmployeeInvoiceFlow({ projects, categories, defaultProjectId, defaultAm
                             <div className="w-16 h-16 bg-green-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
                                 <CheckCircle className="w-8 h-8 text-green-600" />
                             </div>
-                            <h1 className="text-2xl font-black text-gray-900">تفاصيل إضافية</h1>
-                            <p className="text-gray-500 text-sm mt-1">الخطوة 4 من 4 — يمكن تخطي كل الحقول</p>
+                            <h1 className="text-2xl font-black text-gray-900">{locale === 'ar' ? 'تفاصيل إضافية' : 'Additional Details'}</h1>
+                            <p className="text-gray-500 text-sm mt-1">{locale === 'ar' ? 'الخطوة 4 من 4 — يمكن تخطي كل الحقول' : 'Step 4 of 4 — All fields are optional'}</p>
                         </div>
 
                         {/* Summary chip */}
@@ -292,10 +293,10 @@ function EmployeeInvoiceFlow({ projects, categories, defaultProjectId, defaultAm
                                         : <div className="w-9 h-9 rounded-lg bg-blue-100 flex items-center justify-center text-base font-black text-blue-700">{proj.name.charAt(0)}</div>
                                     }
                                     <div className="flex-1 min-w-0">
-                                        <p className="text-[10px] text-blue-400 font-bold">المشروع</p>
+                                        <p className="text-[10px] text-blue-400 font-bold">{locale === 'ar' ? 'المشروع' : 'Project'}</p>
                                         <p className="text-sm font-black text-blue-900 truncate">{proj.name}</p>
                                     </div>
-                                    <button onClick={() => setCurrentStep(3)} className="text-xs text-blue-400 underline shrink-0">تغيير</button>
+                                    <button onClick={() => setCurrentStep(3)} className="text-xs text-blue-400 underline shrink-0">{locale === 'ar' ? 'تغيير' : 'Change'}</button>
                                 </div>
                             ) : null;
                         })()}
@@ -303,11 +304,11 @@ function EmployeeInvoiceFlow({ projects, categories, defaultProjectId, defaultAm
                         {/* Category chips */}
                         {categories.length > 0 && (
                             <div>
-                                <label className="text-xs font-black text-gray-500 uppercase tracking-wider block mb-2">التصنيف (اختياري)</label>
+                                <label className="text-xs font-black text-gray-500 uppercase tracking-wider block mb-2">{locale === 'ar' ? 'التصنيف (اختياري)' : 'Category (Optional)'}</label>
                                 <div className="flex flex-wrap gap-2">
                                     <button type="button" onClick={() => setCategoryId("")}
                                         className={`px-3 py-2 rounded-xl text-xs font-bold border transition-colors ${categoryId === "" ? "bg-gray-800 text-white border-gray-800" : "bg-white text-gray-600 border-gray-200"
-                                            }`}>غير مصنف</button>
+                                            }`}>{locale === 'ar' ? 'غير مصنف' : 'Uncategorized'}</button>
                                     {categories.map((c) => (
                                         <button key={c.id} type="button" onClick={() => setCategoryId(c.id)}
                                             className={`px-3 py-2 rounded-xl text-xs font-bold border transition-colors ${categoryId === c.id ? "bg-blue-600 text-white border-blue-600" : "bg-white text-gray-600 border-gray-200"
@@ -318,9 +319,9 @@ function EmployeeInvoiceFlow({ projects, categories, defaultProjectId, defaultAm
                         )}
 
                         <div>
-                            <label className="text-xs font-black text-gray-500 uppercase tracking-wider block mb-2">ملاحظة (اختياري)</label>
+                            <label className="text-xs font-black text-gray-500 uppercase tracking-wider block mb-2">{locale === 'ar' ? 'ملاحظة (اختياري)' : 'Notes (Optional)'}</label>
                             <textarea value={notes} onChange={e => setNotes(e.target.value)} rows={3}
-                                placeholder="أي تفاصيل إضافية عن الفاتورة..."
+                                placeholder={locale === 'ar' ? "أي تفاصيل إضافية عن الفاتورة..." : "Any additional details about the invoice..."}
                                 className="w-full rounded-2xl border border-gray-200 p-4 outline-none focus:ring-2 focus:ring-blue-400 resize-none text-sm shadow-sm bg-white" />
                         </div>
                     </div>
@@ -331,7 +332,7 @@ function EmployeeInvoiceFlow({ projects, categories, defaultProjectId, defaultAm
                         <Button type="button" onClick={() => setCurrentStep(3)} variant="secondary" className="flex-none px-5 py-4 rounded-2xl font-bold">←</Button>
                         <Button type="button" onClick={handleSubmit} disabled={isSubmitting} isLoading={isSubmitting}
                             variant="primary" className="flex-1 py-4 text-base font-black rounded-2xl shadow-lg shadow-blue-200">
-                            {isSubmitting ? "جاري الرفع..." : "تقديم الفاتورة ✓"}
+                            {isSubmitting ? (locale === 'ar' ? "جاري الرفع..." : "Uploading...") : (locale === 'ar' ? "تقديم الفاتورة ✓" : "Submit Invoice ✓")}
                         </Button>
                     </div>
                 )}
@@ -346,6 +347,7 @@ function EmployeeInvoiceFlow({ projects, categories, defaultProjectId, defaultAm
 function FullInvoiceForm() {
     const router = useRouter();
     const searchParams = useSearchParams();
+    const { locale } = useLanguage();
     const defaultProjectId = searchParams.get('projectId') || "";
     const purchaseId = searchParams.get('purchaseId') || "";
     const defaultAmount = searchParams.get('amount') || "";
@@ -388,17 +390,17 @@ function FullInvoiceForm() {
     const handleNextStep = () => {
         if (currentStep === 1) {
             if (!file) {
-                toast.error("صورة الفاتورة إلزامية — لا يمكن المتابعة بدون إرفاق صورة أو ملف");
+                toast.error(locale === 'ar' ? "صورة الفاتورة إلزامية — لا يمكن المتابعة بدون إرفاق صورة أو ملف" : "Invoice image is required — cannot proceed without attachment");
                 return;
             }
             setCurrentStep(2);
         } else if (currentStep === 2) {
             if (!isCompanyExpense && (!formData.projectId || !formData.amount)) {
-                toast.error("يرجى تعبئة جميع الحقول الإلزامية (المشروع، المبلغ)");
+                toast.error(locale === 'ar' ? "يرجى تعبئة جميع الحقول الإلزامية (المشروع، المبلغ)" : "Please fill all required fields (project, amount)");
                 return;
             }
             if (isCompanyExpense && (!formData.amount || !formData.categoryId)) {
-                toast.error("المبلغ والتصنيف إلزامي لمصاريف الشركة");
+                toast.error(locale === 'ar' ? "المبلغ والتصنيف إلزامي لمصاريف الشركة" : "Amount and category are required for company expenses");
                 return;
             }
             if (!formData.reference.trim()) {
@@ -437,7 +439,7 @@ function FullInvoiceForm() {
         e.preventDefault();
 
         if (!file) {
-            toast.error("صورة الفاتورة إلزامية");
+            toast.error(locale === 'ar' ? "صورة الفاتورة إلزامية" : "Invoice image is required");
             setCurrentStep(1);
             return;
         }
@@ -446,7 +448,7 @@ function FullInvoiceForm() {
         const invoiceAmount = Number(formData.amount);
 
         if (items.length > 0 && Math.abs(totalItemsPrice - invoiceAmount) > 0.1) {
-            toast.error(`إجمالي التنسيقات (${totalItemsPrice}) لا يطابق مبلغ الفاتورة (${invoiceAmount})`);
+            toast.error(locale === 'ar' ? `إجمالي التنسيقات (${totalItemsPrice}) لا يطابق مبلغ الفاتورة (${invoiceAmount})` : `Items total (${totalItemsPrice}) does not match invoice amount (${invoiceAmount})`);
             return;
         }
 
@@ -467,15 +469,15 @@ function FullInvoiceForm() {
         if (res?.error) {
             toast.error(res.error);
         } else if (res?.success) {
-            toast.success(res.autoApproved ? "تم إنشاء الفاتورة واعتمادها تلقائياً ✅" : "تم حفظ الفاتورة بنجاح وتحويلها للمراجعة ⏳");
+            toast.success(res.autoApproved ? (locale === 'ar' ? "تم إنشاء الفاتورة واعتمادها تلقائياً ✅" : "Invoice created and auto-approved ✅") : (locale === 'ar' ? "تم حفظ الفاتورة بنجاح وتحويلها للمراجعة ⏳" : "Invoice saved and sent for review ⏳"));
             sessionStorage.removeItem("invoices_cache");
             router.push("/invoices");
         }
     };
 
     return (
-        <DashboardLayout title="إضافة فاتورة جديدة">
-            <div className="pb-10 px-4 md:px-0" dir="rtl">
+        <DashboardLayout title={locale === 'ar' ? "إضافة فاتورة جديدة" : "Add New Invoice"}>
+            <div className="pb-10 px-4 md:px-0" dir={locale === 'ar' ? 'rtl' : 'ltr'}>
 
                 {/* Stepper Progress */}
                 <div className="max-w-4xl mx-auto mb-8 relative">
@@ -491,19 +493,19 @@ function FullInvoiceForm() {
                             <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm transition-colors ${currentStep >= 1 ? 'bg-blue-600 text-white shadow-md shadow-blue-200' : 'bg-white text-gray-400 border-2 border-gray-200'}`}>
                                 <Camera className="w-5 h-5" />
                             </div>
-                            <span className={`text-xs font-bold ${currentStep >= 1 ? 'text-blue-700' : 'text-gray-400'}`}>المرفق</span>
+                            <span className={`text-xs font-bold ${currentStep >= 1 ? 'text-blue-700' : 'text-gray-400'}`}>{locale === 'ar' ? 'المرفق' : 'Attachment'}</span>
                         </div>
                         <div className="flex flex-col items-center gap-2">
                             <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm transition-colors ${currentStep >= 2 ? 'bg-blue-600 text-white shadow-md shadow-blue-200' : 'bg-white text-gray-400 border-2 border-gray-200'}`}>
                                 <FileText className="w-5 h-5" />
                             </div>
-                            <span className={`text-xs font-bold ${currentStep >= 2 ? 'text-blue-700' : 'text-gray-400'}`}>البيانات</span>
+                            <span className={`text-xs font-bold ${currentStep >= 2 ? 'text-blue-700' : 'text-gray-400'}`}>{locale === 'ar' ? 'البيانات' : 'Details'}</span>
                         </div>
                         <div className="flex flex-col items-center gap-2">
                             <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm transition-colors ${currentStep >= 3 ? 'bg-blue-600 text-white shadow-md shadow-blue-200' : 'bg-white text-gray-400 border-2 border-gray-200'}`}>
                                 <CheckCircle className="w-5 h-5" />
                             </div>
-                            <span className={`text-xs font-bold ${currentStep >= 3 ? 'text-blue-700' : 'text-gray-400'}`}>التنسيق (اختياري)</span>
+                            <span className={`text-xs font-bold ${currentStep >= 3 ? 'text-blue-700' : 'text-gray-400'}`}>{locale === 'ar' ? 'التنسيق (اختياري)' : 'Items (Optional)'}</span>
                         </div>
                     </div>
                 </div>
@@ -515,20 +517,20 @@ function FullInvoiceForm() {
                         {currentStep === 1 && (
                             <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
                                 <div className="text-center mb-6">
-                                    <h2 className="text-xl font-bold text-gray-900">صوّر الفاتورة</h2>
-                                    <p className="text-gray-500 text-sm mt-1">التقط صورة واضحة للفاتورة أو ارفع ملف PDF</p>
+                                    <h2 className="text-xl font-bold text-gray-900">{locale === 'ar' ? 'صوّر الفاتورة' : 'Upload Invoice'}</h2>
+                                    <p className="text-gray-500 text-sm mt-1">{locale === 'ar' ? 'التقط صورة واضحة للفاتورة أو ارفع ملف PDF' : 'Take a clear photo or upload a PDF file'}</p>
                                 </div>
                                 <FileUpload
                                     name="file"
                                     accept="application/pdf, image/png, image/jpeg"
                                     maxSizeMB={10}
-                                    placeholder="اضغط لرفع الفاتورة"
-                                    description="أو اسحب واسقط الصورة هنا"
+                                    placeholder={locale === 'ar' ? "اضغط لرفع الفاتورة" : "Click to upload invoice"}
+                                    description={locale === 'ar' ? "أو اسحب واسقط الصورة هنا" : "Or drag and drop the file here"}
                                     onChange={(uploadedFile) => setFile(uploadedFile)}
                                 />
                                 <div className="flex justify-end pt-4">
                                     <Button type="button" onClick={handleNextStep} variant="primary" disabled={!file} className="px-8 py-3 rounded-xl font-bold">
-                                        التالي ←
+                                        {locale === 'ar' ? 'التالي ←' : 'Next →'}
                                     </Button>
                                 </div>
                             </div>
@@ -537,7 +539,7 @@ function FullInvoiceForm() {
                         {/* STEP 2: INVOICE DATA */}
                         {currentStep === 2 && (
                             <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500 pb-32 md:pb-0">
-                                <h3 className="text-lg font-bold text-gray-900 border-b border-gray-100 pb-2">تفاصيل الفاتورة الأساسية</h3>
+                                <h3 className="text-lg font-bold text-gray-900 border-b border-gray-100 pb-2">{locale === 'ar' ? 'تفاصيل الفاتورة الأساسية' : 'Basic Invoice Details'}</h3>
 
                                 {/* v5: Company Expense Toggle — only for ADMIN + GLOBAL_ACCOUNTANT */}
                                 {canToggleCompanyExpense && (
@@ -549,9 +551,9 @@ function FullInvoiceForm() {
                                                 onChange={e => { setIsCompanyExpense(e.target.checked); if (e.target.checked) setFormData(prev => ({ ...prev, projectId: "" })); }}
                                                 className="w-4 h-4 rounded accent-purple-600"
                                             />
-                                            <span className="text-sm font-bold text-purple-900">مصاريف شركة</span>
+                                            <span className="text-sm font-bold text-purple-900">{locale === 'ar' ? 'مصاريف شركة' : 'Company Expense'}</span>
                                         </label>
-                                        <span className="text-xs text-purple-600">{isCompanyExpense ? "بلا مشروع — تصنيف إلزامي" : "فاتورة مشروع عادية"}</span>
+                                        <span className="text-xs text-purple-600">{isCompanyExpense ? (locale === 'ar' ? 'بلا مشروع — تصنيف إلزامي' : 'No project — category required') : (locale === 'ar' ? 'فاتورة مشروع عادية' : 'Regular project invoice')}</span>
                                     </div>
                                 )}
 
@@ -559,9 +561,9 @@ function FullInvoiceForm() {
                                     {/* Project selection — hidden for company expenses */}
                                     {!isCompanyExpense && (
                                         <div className="space-y-2 md:col-span-2">
-                                            <label className="text-sm font-bold text-gray-700">المشروع *</label>
+                                            <label className="text-sm font-bold text-gray-700">{locale === 'ar' ? 'المشروع *' : 'Project *'}</label>
                                             {projects.length === 0 ? (
-                                                <div className="bg-gray-50 rounded-xl p-4 text-center text-gray-400 text-sm">لا توجد مشاريع</div>
+                                                <div className="bg-gray-50 rounded-xl p-4 text-center text-gray-400 text-sm">{locale === 'ar' ? 'لا توجد مشاريع' : 'No projects available'}</div>
                                             ) : projects.length <= 6 ? (
                                                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                                                     {projects.map((p) => (
@@ -598,7 +600,7 @@ function FullInvoiceForm() {
                                                     required
                                                     className="w-full rounded-xl border border-gray-200 p-3.5 min-h-[52px] outline-none focus:ring-2 focus:ring-blue-400 bg-white shadow-sm font-medium"
                                                 >
-                                                    <option value="">اختر المشروع</option>
+                                                    <option value="">{locale === 'ar' ? 'اختر المشروع' : 'Select Project'}</option>
                                                     {projects.map((p) => (
                                                         <option key={p.id} value={p.id}>{p.name}</option>
                                                     ))}
@@ -608,14 +610,14 @@ function FullInvoiceForm() {
                                     )}
 
                                     <div className="space-y-2">
-                                        <label className="text-sm font-bold text-gray-700">تصنيف المصروف {isCompanyExpense ? '*' : ''}</label>
+                                        <label className="text-sm font-bold text-gray-700">{locale === 'ar' ? `تصنيف المصروف ${isCompanyExpense ? '*' : ''}` : `Expense Category ${isCompanyExpense ? '*' : ''}`}</label>
                                         <select
                                             value={formData.categoryId}
                                             onChange={e => setFormData({ ...formData, categoryId: e.target.value })}
                                             required={isCompanyExpense}
                                             className="w-full rounded-xl border border-gray-200 p-3.5 outline-none focus:ring-2 focus:ring-blue-400 bg-white shadow-sm font-medium"
                                         >
-                                            <option value="">{isCompanyExpense ? 'اختر التصنيف (إلزامي)' : 'غير مصنف...'}</option>
+                                            <option value="">{isCompanyExpense ? (locale === 'ar' ? 'اختر التصنيف (إلزامي)' : 'Select Category (Required)') : (locale === 'ar' ? 'غير مصنف...' : 'Uncategorized...')}</option>
                                             {categories.map(c => (
                                                 <option key={c.id} value={c.id}>{c.icon} {c.name}</option>
                                             ))}
@@ -623,7 +625,7 @@ function FullInvoiceForm() {
                                     </div>
 
                                     <div className="space-y-2">
-                                        <label className="text-sm font-bold text-gray-700">المبلغ الإجمالي *</label>
+                                        <label className="text-sm font-bold text-gray-700">{locale === 'ar' ? 'المبلغ الإجمالي *' : 'Total Amount *'}</label>
                                         <div className="flex items-baseline gap-2 border-b-2 border-blue-200 focus-within:border-blue-500 transition-colors pb-1 overflow-hidden">
                                             <input
                                                 type="number"
@@ -639,12 +641,12 @@ function FullInvoiceForm() {
                                     </div>
 
                                     <div className="space-y-2">
-                                        <label className="text-sm font-bold text-gray-700">الرقم المرجعي (اختياري)</label>
+                                        <label className="text-sm font-bold text-gray-700">{locale === 'ar' ? 'الرقم المرجعي (اختياري)' : 'Reference Number (Optional)'}</label>
                                         <input
                                             type="text"
                                             value={formData.reference}
                                             onChange={e => setFormData({ ...formData, reference: e.target.value })}
-                                            placeholder="يتولد تلقائياً إذا تُرك فارغاً"
+                                            placeholder={locale === 'ar' ? "يتولد تلقائياً إذا تُرك فارغاً" : "Auto-generated if left empty"}
                                             className="w-full rounded-xl border border-gray-200 p-3.5 min-h-[52px] outline-none focus:ring-2 focus:ring-blue-400 shadow-sm font-medium"
                                         />
                                     </div>
@@ -655,10 +657,10 @@ function FullInvoiceForm() {
                                 {/* Fixed bottom nav bar for mobile step navigation */}
                                 <div className="fixed bottom-0 inset-x-0 z-50 md:static bg-white/95 backdrop-blur-xl border-t border-gray-100 p-4 pb-[calc(1rem+env(safe-area-inset-bottom))] md:p-0 md:border-0 md:bg-transparent md:flex md:justify-between md:pt-4 flex gap-3">
                                     <Button type="button" onClick={() => setCurrentStep(1)} variant="secondary" className="flex-1 md:flex-none md:px-6 py-3 rounded-xl font-bold">
-                                        ← رجوع
+                                        {locale === 'ar' ? '← رجوع' : '← Back'}
                                     </Button>
                                     <Button type="button" onClick={handleNextStep} variant="primary" className="flex-1 md:flex-none md:px-8 py-3 rounded-xl font-bold">
-                                        التالي (التنسيق) ←
+                                        {locale === 'ar' ? 'التالي (التنسيق) ←' : 'Next (Items) →'}
                                     </Button>
                                 </div>
                             </div>
@@ -668,16 +670,16 @@ function FullInvoiceForm() {
                         {currentStep === 3 && (
                             <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
                                 <div className="flex items-center justify-between border-b border-gray-100 pb-2">
-                                    <h3 className="text-lg font-bold text-gray-900">تنسيق الفاتورة (البنود)</h3>
+                                    <h3 className="text-lg font-bold text-gray-900">{locale === 'ar' ? 'تنسيق الفاتورة (البنود)' : 'Invoice Items'}</h3>
                                     <Button type="button" onClick={addItem} variant="outline" className="text-sm bg-blue-50 text-blue-700 border-blue-200 hover:bg-blue-100 flex items-center gap-1 px-3 py-1.5 rounded-lg">
-                                        <Plus className="w-4 h-4" /> إضافة مشتريات
+                                        <Plus className="w-4 h-4" /> {locale === 'ar' ? 'إضافة مشتريات' : 'Add Item'}
                                     </Button>
                                 </div>
-                                <p className="text-sm text-gray-500 mb-4">اختياري - يمكنك تفريغ محتوى الفاتورة هنا ليسهل مراجعتها.</p>
+                                <p className="text-sm text-gray-500 mb-4">{locale === 'ar' ? 'اختياري - يمكنك تفريغ محتوى الفاتورة هنا ليسهل مراجعتها.' : 'Optional - You can itemize the invoice contents for easier review.'}</p>
 
                                 {items.length === 0 ? (
                                     <div className="bg-gray-50 border border-gray-200 border-dashed rounded-xl p-8 text-center text-gray-400">
-                                        لم تقم بإضافة بنود. الفاتورة ستُسجل كمبلغ إجمالي فقط.
+                                        {locale === 'ar' ? 'لم تقم بإضافة بنود. الفاتورة ستُسجل كمبلغ إجمالي فقط.' : 'No items added. The invoice will be recorded as a lump sum only.'}
                                     </div>
                                 ) : (
                                     <div className="space-y-4">
@@ -690,23 +692,23 @@ function FullInvoiceForm() {
                                                 <div className="flex-1 space-y-3">
                                                     <div className="flex gap-2">
                                                         <span className="bg-gray-100 text-gray-500 text-xs px-2 py-1 rounded font-mono">{index + 1}</span>
-                                                        <input type="text" placeholder="اسم المشتريات / السلعة" value={item.name} onChange={e => updateItem(item.id, 'name', e.target.value)} className="flex-1 bg-transparent border-b border-gray-200 focus:border-blue-400 outline-none text-sm font-semibold pb-1" required />
+                                                        <input type="text" placeholder={locale === 'ar' ? 'اسم المشتريات / السلعة' : 'Item Name'} value={item.name} onChange={e => updateItem(item.id, 'name', e.target.value)} className="flex-1 bg-transparent border-b border-gray-200 focus:border-blue-400 outline-none text-sm font-semibold pb-1" required />
                                                     </div>
                                                     <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
                                                         <div>
-                                                            <label className="text-[10px] text-gray-400 block mb-1">الرقم/الكود</label>
+                                                            <label className="text-[10px] text-gray-400 block mb-1">{locale === 'ar' ? 'الرقم/الكود' : 'Code/SKU'}</label>
                                                             <input type="text" value={item.itemNumber} onChange={e => updateItem(item.id, 'itemNumber', e.target.value)} className="w-full bg-gray-50 rounded p-1.5 focus:bg-white border focus:border-blue-300 outline-none" />
                                                         </div>
                                                         <div>
-                                                            <label className="text-[10px] text-gray-400 block mb-1">الكمية</label>
+                                                            <label className="text-[10px] text-gray-400 block mb-1">{locale === 'ar' ? 'الكمية' : 'Qty'}</label>
                                                             <input type="number" min="1" step="any" value={item.quantity} onChange={e => updateItem(item.id, 'quantity', e.target.value)} className="w-full bg-gray-50 rounded p-1.5 focus:bg-white border focus:border-blue-300 outline-none" required />
                                                         </div>
                                                         <div>
-                                                            <label className="text-[10px] text-gray-400 block mb-1">سعر الإفرادي</label>
+                                                            <label className="text-[10px] text-gray-400 block mb-1">{locale === 'ar' ? 'سعر الإفرادي' : 'Unit Price'}</label>
                                                             <input type="number" min="0" step="any" value={item.unitPrice} onChange={e => updateItem(item.id, 'unitPrice', e.target.value)} className="w-full bg-gray-50 rounded p-1.5 focus:bg-white border focus:border-blue-300 outline-none" />
                                                         </div>
                                                         <div>
-                                                            <label className="text-[10px] text-blue-600 font-bold block mb-1">الإجمالي</label>
+                                                            <label className="text-[10px] text-blue-600 font-bold block mb-1">{locale === 'ar' ? 'الإجمالي' : 'Total'}</label>
                                                             <input type="number" min="0" step="any" value={item.totalPrice} onChange={e => updateItem(item.id, 'totalPrice', e.target.value)} className="w-full bg-blue-50 text-blue-800 rounded p-1.5 font-bold border-none outline-none" required />
                                                         </div>
                                                     </div>
@@ -715,29 +717,29 @@ function FullInvoiceForm() {
                                         ))}
 
                                         <div className="flex justify-between items-center bg-gray-50 p-3 rounded-lg border border-gray-200 mt-2">
-                                            <span className="text-sm font-bold text-gray-600">مجموع التنسيقات:</span>
+                                            <span className="text-sm font-bold text-gray-600">{locale === 'ar' ? 'مجموع التنسيقات:' : 'Items Total:'}</span>
                                             <span className="font-bold text-lg text-gray-900">{items.reduce((s, i) => s + Number(i.totalPrice), 0).toLocaleString("en-GB")} <CurrencyDisplay /></span>
                                         </div>
                                     </div>
                                 )}
 
                                 <div className="space-y-2 mt-4">
-                                    <label className="text-sm font-bold text-gray-700">ملاحظة عامة للإدارة (اختياري)</label>
+                                    <label className="text-sm font-bold text-gray-700">{locale === 'ar' ? 'ملاحظة عامة للإدارة (اختياري)' : 'General Notes for Management (Optional)'}</label>
                                     <textarea
                                         value={formData.notes}
                                         onChange={e => setFormData({ ...formData, notes: e.target.value })}
                                         rows={2}
-                                        placeholder="أي ملاحظات إضافية بخصوص الفاتورة..."
+                                        placeholder={locale === 'ar' ? "أي ملاحظات إضافية بخصوص الفاتورة..." : "Any additional notes about the invoice..."}
                                         className="w-full rounded-xl border border-gray-200 p-3 outline-none focus:ring-2 focus:ring-blue-400 resize-none text-sm shadow-sm"
                                     />
                                 </div>
 
                                 <div className="flex justify-between pt-6 mt-6 border-t border-gray-100">
                                     <Button type="button" onClick={() => setCurrentStep(2)} variant="outline" className="px-6 py-3 rounded-xl font-bold bg-gray-50 text-gray-700">
-                                        ← رجوع للمعلومات
+                                        {locale === 'ar' ? '← رجوع للمعلومات' : '← Back to Details'}
                                     </Button>
                                     <Button type="submit" disabled={isSubmitting} isLoading={isSubmitting} variant="primary" className="px-10 py-3 text-lg rounded-xl font-bold shadow-sm animate-pulse-once">
-                                        {isSubmitting ? "جاري الحفظ..." : "تقديم الفاتورة للتدقيق ✓"}
+                                        {isSubmitting ? (locale === 'ar' ? 'جاري الحفظ...' : 'Saving...') : (locale === 'ar' ? 'تقديم الفاتورة للتدقيق ✓' : 'Submit Invoice for Review ✓')}
                                     </Button>
                                 </div>
                             </div>
@@ -753,6 +755,7 @@ function FullInvoiceForm() {
 // ─── Root — choose flow by role ─────────────────────────────────────────────────
 function NewInvoicePageInner() {
     const { role } = useAuth();
+    const { locale } = useLanguage();
     const searchParams = useSearchParams();
     const defaultProjectId = searchParams.get('projectId') || "";
     const purchaseId = searchParams.get('purchaseId') || "";
@@ -784,15 +787,15 @@ function NewInvoicePageInner() {
     // GENERAL_MANAGER is view-only — redirect to invoice list
     if (role === "GENERAL_MANAGER") {
         return (
-            <DashboardLayout title="غير مصرح">
-                <div className="flex flex-col items-center justify-center py-24 gap-4 text-center" dir="rtl">
+            <DashboardLayout title={locale === 'ar' ? "غير مصرح" : "Not Authorized"}>
+                <div className="flex flex-col items-center justify-center py-24 gap-4 text-center" dir={locale === 'ar' ? 'rtl' : 'ltr'}>
                     <div className="w-16 h-16 rounded-2xl bg-red-50 flex items-center justify-center">
                         <span className="text-3xl">🚫</span>
                     </div>
-                    <h2 className="text-xl font-bold text-gray-800">غير مصرح لك بإضافة فاتورة</h2>
-                    <p className="text-gray-500 text-sm max-w-xs">المدير العام لديه صلاحية العرض فقط. إضافة الفواتير متاحة للموظفين والمحاسبين ومدراء المشاريع.</p>
+                    <h2 className="text-xl font-bold text-gray-800">{locale === 'ar' ? 'غير مصرح لك بإضافة فاتورة' : 'You are not authorized to add an invoice'}</h2>
+                    <p className="text-gray-500 text-sm max-w-xs">{locale === 'ar' ? 'المدير العام لديه صلاحية العرض فقط. إضافة الفواتير متاحة للموظفين والمحاسبين ومدراء المشاريع.' : 'General Manager has view-only access. Adding invoices is available for employees, accountants, and project managers.'}</p>
                     <Link href="/invoices" className="mt-2 px-6 py-2.5 rounded-xl bg-slate-800 text-white font-semibold text-sm hover:bg-slate-700 transition-all">
-                        العودة لقائمة الفواتير
+                        {locale === 'ar' ? 'العودة لقائمة الفواتير' : 'Back to Invoices'}
                     </Link>
                 </div>
             </DashboardLayout>
@@ -805,7 +808,7 @@ function NewInvoicePageInner() {
 
 export default function NewInvoicePage() {
     return (
-        <Suspense fallback={<FormPageSkeleton title="إضافة فاتورة جديدة" />}>
+        <Suspense fallback={<FormPageSkeleton title="Add New Invoice" />}>
             <NewInvoicePageInner />
         </Suspense>
     );

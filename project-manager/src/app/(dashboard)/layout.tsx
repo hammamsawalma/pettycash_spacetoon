@@ -11,23 +11,39 @@ export default async function DashboardLayout({
 }: Readonly<{
     children: React.ReactNode;
 }>) {
-    const user = await getSession();
-    const currency = await getGlobalCurrency();
+    // ── Session check ───────────────────────────────────────────────────────
+    let user;
+    try {
+        user = await getSession();
+    } catch (err) {
+        console.error("[DashboardLayout] getSession() crashed:", err);
+        redirect("/login");
+    }
 
     if (!user) {
         redirect("/login");
     }
 
-    // ── Fetch project memberships for the current user ──────────────────────
-    // We fetch for USER and GLOBAL_ACCOUNTANT roles.
-    // ADMIN and GENERAL_MANAGER don't need project-level roles — they have system-level access.
+    // ── Currency (fallback on error) ────────────────────────────────────────
+    let currency = "ر.ق";
+    try {
+        currency = await getGlobalCurrency();
+    } catch (err) {
+        console.error("[DashboardLayout] getGlobalCurrency() crashed:", err);
+    }
+
+    // ── Project memberships (fallback on error) ─────────────────────────────
     let memberships: ProjectMembership[] = [];
     if (user.role === "USER" || user.role === "GLOBAL_ACCOUNTANT") {
-        const rawMemberships = await prisma.projectMember.findMany({
-            where: { userId: user.id },
-            select: { projectId: true, projectRoles: true },
-        });
-        memberships = rawMemberships;
+        try {
+            const rawMemberships = await prisma.projectMember.findMany({
+                where: { userId: user.id },
+                select: { projectId: true, projectRoles: true },
+            });
+            memberships = rawMemberships;
+        } catch (err) {
+            console.error("[DashboardLayout] projectMember.findMany() crashed:", err);
+        }
     }
 
     return (

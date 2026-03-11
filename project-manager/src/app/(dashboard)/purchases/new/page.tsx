@@ -11,6 +11,7 @@ import toast from "react-hot-toast";
 import { Suspense } from "react";
 import { useCanDo } from "@/components/auth/Protect";
 import { useAuth } from "@/context/AuthContext";
+import { useLanguage } from "@/context/LanguageContext";
 import { FormPageSkeleton } from "@/components/ui/FormPageSkeleton";
 import { Camera, ImagePlus, X } from "lucide-react";
 import Image from "next/image";
@@ -20,6 +21,7 @@ function NewPurchaseForm() {
     const searchParams = useSearchParams();
     const defaultProjectId = searchParams.get('projectId') || "";
     const { isCoordinatorInAny, role } = useAuth();
+    const { locale } = useLanguage();
     const canCreate = useCanDo('purchases', 'createGlobal') || (role === 'USER' && isCoordinatorInAny);
 
     const [projects, setProjects] = useState<Project[]>([]);
@@ -33,7 +35,7 @@ function NewPurchaseForm() {
 
     useEffect(() => {
         if (!canCreate) {
-            toast.error("ليس لديك صلاحية لإنشاء طلبات الشراء");
+            toast.error(locale === 'ar' ? "ليس لديك صلاحية لإنشاء طلبات الشراء" : "You do not have permission to create purchase requests");
             router.replace("/purchases");
             return;
         }
@@ -57,13 +59,13 @@ function NewPurchaseForm() {
         // Validate type
         const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'application/pdf'];
         if (!allowedTypes.includes(file.type)) {
-            toast.error("نوع الملف غير مدعوم. يرجى رفع صورة (JPG/PNG/WEBP) أو PDF");
+            toast.error(locale === 'ar' ? "نوع الملف غير مدعوم. يرجى رفع صورة (JPG/PNG/WEBP) أو PDF" : "Unsupported file type. Please upload an image (JPG/PNG/WEBP) or PDF");
             return;
         }
 
         // Validate size (5MB)
         if (file.size > 5 * 1024 * 1024) {
-            toast.error("حجم الملف يتجاوز الحد المسموح (5 ميجابايت)");
+            toast.error(locale === 'ar' ? "حجم الملف يتجاوز الحد المسموح (5 ميجابايت)" : "File size exceeds limit (5MB)");
             return;
         }
 
@@ -87,7 +89,7 @@ function NewPurchaseForm() {
     };
 
     return (
-        <DashboardLayout title="اضافة طلب شراء جديد">
+        <DashboardLayout title={locale === 'ar' ? "اضافة طلب شراء جديد" : "New Purchase Request"}>
             <div className="pb-6">
                 <Card className="max-w-4xl mx-auto p-5 md:p-8 rounded-2xl border border-gray-100 shadow-sm">
                     {state?.error && (
@@ -101,15 +103,15 @@ function NewPurchaseForm() {
                         const description = formData.get("description");
 
                         if (!projectId) {
-                            toast.error("يرجى اختيار المشروع");
+                            toast.error(locale === 'ar' ? "يرجى اختيار المشروع" : "Please select a project");
                             return;
                         }
                         if (!description) {
-                            toast.error("يرجى كتابة وصف تفصيلي للطلب");
+                            toast.error(locale === 'ar' ? "يرجى كتابة وصف تفصيلي للطلب" : "Please write a detailed description");
                             return;
                         }
                         if (!quantity) {
-                            toast.error("الكمية مطلوبة للمتابعة");
+                            toast.error(locale === 'ar' ? "الكمية مطلوبة للمتابعة" : "Quantity is required");
                             return;
                         }
 
@@ -122,13 +124,13 @@ function NewPurchaseForm() {
                     }}>
 
                         <div className="space-y-4">
-                            <h3 className="text-base md:text-lg font-bold text-gray-900 border-b border-gray-100 pb-2">تفاصيل الطلب</h3>
+                            <h3 className="text-base md:text-lg font-bold text-gray-900 border-b border-gray-100 pb-2">{locale === 'ar' ? 'تفاصيل الطلب' : 'Request Details'}</h3>
 
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
                                 <div className="space-y-2">
-                                    <label className="text-xs md:text-sm font-bold text-gray-700">المشروع</label>
+                                    <label className="text-xs md:text-sm font-bold text-gray-700">{locale === 'ar' ? 'المشروع' : 'Project'}</label>
                                     <select name="projectId" required defaultValue={defaultProjectId} className="w-full rounded-xl border border-gray-200 p-3.5 md:p-4 outline-none focus:ring-2 focus:ring-[#102550] bg-white text-gray-700 text-xs md:text-sm shadow-sm font-medium min-h-[52px]">
-                                        <option value="">اختر المشروع</option>
+                                        <option value="">{locale === 'ar' ? 'اختر المشروع' : 'Select Project'}</option>
                                         {projects.map(p => (
                                             <option key={p.id} value={p.id}>{p.name}</option>
                                         ))}
@@ -136,7 +138,7 @@ function NewPurchaseForm() {
                                 </div>
 
                                 <div className="space-y-2">
-                                    <label className="text-xs md:text-sm font-bold text-gray-700">الموعد النهائي لموافقة الطلب (اختياري)</label>
+                                    <label className="text-xs md:text-sm font-bold text-gray-700">{locale === 'ar' ? 'الموعد النهائي لموافقة الطلب (اختياري)' : 'Request Approval Deadline (Optional)'}</label>
                                     <input
                                         type="date"
                                         name="deadline"
@@ -145,31 +147,31 @@ function NewPurchaseForm() {
                                 </div>
 
                                 <div className="space-y-2">
-                                    <label className="text-xs md:text-sm font-bold text-gray-700">الكمية</label>
+                                    <label className="text-xs md:text-sm font-bold text-gray-700">{locale === 'ar' ? 'الكمية' : 'Quantity'}</label>
                                     <input
                                         type="text"
                                         name="quantity"
                                         required
                                         inputMode="numeric"
-                                        placeholder="مثال: 3 حبات، 2 كرتون..."
+                                        placeholder={locale === 'ar' ? "مثال: 3 حبات، 2 كرتون..." : "e.g. 3 pieces, 2 boxes..."}
                                         className="w-full rounded-xl border border-gray-200 p-3.5 md:p-4 outline-none focus:ring-2 focus:ring-[#102550] text-xs md:text-sm shadow-sm font-medium min-h-[52px]"
                                     />
                                 </div>
 
                                 <div className="space-y-2 col-span-1 md:col-span-2">
-                                    <label className="text-xs md:text-sm font-bold text-gray-700">وصف الطلب</label>
+                                    <label className="text-xs md:text-sm font-bold text-gray-700">{locale === 'ar' ? 'وصف الطلب' : 'Request Description'}</label>
                                     <textarea
                                         name="description"
                                         required
                                         rows={4}
-                                        placeholder="اكتب وصف تفصيلي للمشتريات..."
+                                        placeholder={locale === 'ar' ? "اكتب وصف تفصيلي للمشتريات..." : "Write a detailed description of purchases..."}
                                         className="w-full rounded-xl border border-gray-200 p-3.5 md:p-4 outline-none focus:ring-2 focus:ring-[#102550] resize-none text-xs md:text-sm shadow-sm font-medium"
                                     />
                                 </div>
 
                                 {/* ── Image Upload Section: Dual Buttons ── */}
                                 <div className="space-y-3 col-span-1 md:col-span-2">
-                                    <label className="text-xs md:text-sm font-bold text-gray-700">مرفق الشراء (اختياري)</label>
+                                    <label className="text-xs md:text-sm font-bold text-gray-700">{locale === 'ar' ? 'مرفق الشراء (اختياري)' : 'Purchase Attachment (Optional)'}</label>
 
                                     {/* Hidden inputs for camera and gallery */}
                                     <input
@@ -199,7 +201,7 @@ function NewPurchaseForm() {
                                                 <div className="relative w-full aspect-[16/9] max-h-56 rounded-2xl overflow-hidden border-2 border-dashed border-[#102550]/30 bg-gray-50">
                                                     <Image
                                                         src={imagePreview}
-                                                        alt="معاينة الصورة"
+                                                        alt={locale === 'ar' ? "معاينة الصورة" : "Image preview"}
                                                         fill
                                                         className="object-contain"
                                                     />
@@ -229,8 +231,8 @@ function NewPurchaseForm() {
                                                 <div className="w-12 h-12 rounded-full bg-blue-50 flex items-center justify-center group-hover:bg-[#102550]/10 transition-colors">
                                                     <Camera className="w-6 h-6 text-blue-500 group-hover:text-[#102550]" />
                                                 </div>
-                                                <span className="text-xs md:text-sm font-bold text-gray-600 group-hover:text-[#102550]">📷 التقاط صورة</span>
-                                                <span className="text-[10px] text-gray-400">فتح الكاميرا مباشرة</span>
+                                                <span className="text-xs md:text-sm font-bold text-gray-600 group-hover:text-[#102550]">📷 {locale === 'ar' ? 'التقاط صورة' : 'Take Photo'}</span>
+                                                <span className="text-[10px] text-gray-400">{locale === 'ar' ? 'فتح الكاميرا مباشرة' : 'Open camera directly'}</span>
                                             </button>
 
                                             {/* Gallery/File Button */}
@@ -242,8 +244,8 @@ function NewPurchaseForm() {
                                                 <div className="w-12 h-12 rounded-full bg-emerald-50 flex items-center justify-center group-hover:bg-[#102550]/10 transition-colors">
                                                     <ImagePlus className="w-6 h-6 text-emerald-500 group-hover:text-[#102550]" />
                                                 </div>
-                                                <span className="text-xs md:text-sm font-bold text-gray-600 group-hover:text-[#102550]">🖼️ اختيار صورة</span>
-                                                <span className="text-[10px] text-gray-400">من المعرض أو ملف PDF</span>
+                                                <span className="text-xs md:text-sm font-bold text-gray-600 group-hover:text-[#102550]">🖼️ {locale === 'ar' ? 'اختيار صورة' : 'Choose Image'}</span>
+                                                <span className="text-[10px] text-gray-400">{locale === 'ar' ? 'من المعرض أو ملف PDF' : 'From gallery or PDF file'}</span>
                                             </button>
                                         </div>
                                     )}
@@ -260,14 +262,14 @@ function NewPurchaseForm() {
                                 variant="primary"
                                 className="w-full md:w-auto px-8 py-4 rounded-2xl font-bold shadow-sm text-sm active:scale-[0.98] transition-transform"
                             >
-                                حفظ الطلب ✓
+                                {locale === 'ar' ? 'حفظ الطلب ✓' : 'Save Request ✓'}
                             </Button>
                             <button
                                 type="button"
                                 onClick={() => router.push('/purchases')}
                                 className="w-full md:w-auto py-3 text-sm text-gray-500 hover:text-gray-800 font-medium transition-colors text-center"
                             >
-                                إلغاء
+                                {locale === 'ar' ? 'إلغاء' : 'Cancel'}
                             </button>
                         </div>
 
@@ -280,8 +282,9 @@ function NewPurchaseForm() {
 }
 
 export default function NewPurchasePage() {
+    const { locale } = useLanguage();
     return (
-        <Suspense fallback={<FormPageSkeleton title="اضافة طلب شراء جديد" />}>
+        <Suspense fallback={<FormPageSkeleton title={locale === 'ar' ? "اضافة طلب شراء جديد" : "New Purchase Request"} />}>
             <NewPurchaseForm />
         </Suspense>
     );

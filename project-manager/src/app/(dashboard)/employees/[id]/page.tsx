@@ -8,6 +8,7 @@ import { getEmployeeById } from "@/actions/employees";
 import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
 import { useCanDo } from "@/components/auth/Protect";
+import { useLanguage } from "@/context/LanguageContext";
 
 type EmployeeData = {
     name: string;
@@ -30,6 +31,7 @@ export default function EmployeeDetailsPage({ params }: { params: Promise<{ id: 
     const { id: employeeId } = use(params);
     const { role } = useAuth();
     const canEditEmployee = useCanDo('employees', 'edit');
+    const { locale } = useLanguage();
     const [employee, setEmployee] = useState<EmployeeData | null>(null);
 
     useEffect(() => {
@@ -37,8 +39,8 @@ export default function EmployeeDetailsPage({ params }: { params: Promise<{ id: 
     }, [employeeId]);
 
     if (!employee) return (
-        <DashboardLayout title="تفاصيل الموظف - جاري التحميل">
-            <div className="py-20 text-center text-gray-500">جاري تحميل بيانات الموظف...</div>
+        <DashboardLayout title={locale === 'ar' ? "تفاصيل الموظف - جاري التحميل" : "Employee Details - Loading"}>
+            <div className="py-20 text-center text-gray-500">{locale === 'ar' ? 'جاري تحميل بيانات الموظف...' : 'Loading employee data...'}</div>
         </DashboardLayout>
     );
 
@@ -46,7 +48,7 @@ export default function EmployeeDetailsPage({ params }: { params: Promise<{ id: 
     const inProgressProjectsCount = employee.memberships?.filter((m: { project: { status: string } }) => m.project.status === "IN_PROGRESS").length || 0;
 
     return (
-        <DashboardLayout title={`تفاصيل الموظف - ${employee.name}`}>
+        <DashboardLayout title={`${locale === 'ar' ? 'تفاصيل الموظف' : 'Employee Details'} - ${employee.name}`}>
             <div className="flex flex-col lg:flex-row gap-6">
 
                 {/* Profile Widget */}
@@ -62,7 +64,7 @@ export default function EmployeeDetailsPage({ params }: { params: Promise<{ id: 
                         {canEditEmployee && (
                             <Button variant="outline" size="sm" onClick={() => window.location.href = `/employees/${employeeId}/edit`} className="mb-4 gap-2 h-8 text-xs font-bold w-full rounded-xl">
                                 <Edit className="w-3.5 h-3.5" />
-                                تعديل بيانات الموظف
+                                {locale === 'ar' ? 'تعديل بيانات الموظف' : 'Edit Employee'}
                             </Button>
                         )}
 
@@ -71,12 +73,12 @@ export default function EmployeeDetailsPage({ params }: { params: Promise<{ id: 
 
                         <div className="w-full text-right mt-6 space-y-4">
                             <div>
-                                <p className="text-xs text-gray-500">رقم الهاتف</p>
-                                <p className="font-medium text-gray-900 mt-1" dir="ltr">{employee.phone || "غير محدد"}</p>
+                                <p className="text-xs text-gray-500">{locale === 'ar' ? 'رقم الهاتف' : 'Phone'}</p>
+                                <p className="font-medium text-gray-900 mt-1" dir="ltr">{employee.phone || (locale === 'ar' ? "غير محدد" : "Not specified")}</p>
                             </div>
                             <div>
-                                <p className="text-xs text-gray-500">البريد الالكتروني</p>
-                                <p className="font-medium text-gray-900 mt-1">{employee.email || "غير محدد"}</p>
+                                <p className="text-xs text-gray-500">{locale === 'ar' ? 'البريد الالكتروني' : 'Email'}</p>
+                                <p className="font-medium text-gray-900 mt-1">{employee.email || (locale === 'ar' ? "غير محدد" : "Not specified")}</p>
                             </div>
                         </div>
 
@@ -84,7 +86,7 @@ export default function EmployeeDetailsPage({ params }: { params: Promise<{ id: 
                             <Link href="/chat" className="flex-1">
                                 <Button variant="primary" className="w-full gap-2 bg-[#102550] hover:bg-blue-700">
                                     <MessageSquare className="w-4 h-4" />
-                                    ارسال رسالة
+                                    {locale === 'ar' ? 'ارسال رسالة' : 'Send Message'}
                                 </Button>
                             </Link>
                             <Button variant="outline" className="px-4 border-gray-200 text-gray-600 hover:text-[#102550]">
@@ -105,7 +107,7 @@ export default function EmployeeDetailsPage({ params }: { params: Promise<{ id: 
                             </div>
                             <div>
                                 <p className="text-2xl font-bold text-gray-900">{employee.memberships?.length || 0}</p>
-                                <p className="text-xs text-gray-600">اجمالي المشاريع</p>
+                                <p className="text-xs text-gray-600">{locale === 'ar' ? 'اجمالي المشاريع' : 'Total Projects'}</p>
                             </div>
                         </Card>
                         <Card className="p-4 flex items-center gap-4 bg-green-50/50 border-green-100">
@@ -114,7 +116,7 @@ export default function EmployeeDetailsPage({ params }: { params: Promise<{ id: 
                             </div>
                             <div>
                                 <p className="text-2xl font-bold text-gray-900">{completedProjectsCount}</p>
-                                <p className="text-xs text-gray-600">مشاريع مكتملة</p>
+                                <p className="text-xs text-gray-600">{locale === 'ar' ? 'مشاريع مكتملة' : 'Completed'}</p>
                             </div>
                         </Card>
                         <Card className="p-4 flex items-center gap-4 bg-blue-50/50 border-blue-100">
@@ -123,7 +125,7 @@ export default function EmployeeDetailsPage({ params }: { params: Promise<{ id: 
                             </div>
                             <div>
                                 <p className="text-2xl font-bold text-gray-900">{inProgressProjectsCount}</p>
-                                <p className="text-xs text-gray-600">قيد التنفيذ</p>
+                                <p className="text-xs text-gray-600">{locale === 'ar' ? 'قيد التنفيذ' : 'In Progress'}</p>
                             </div>
                         </Card>
                         <Card className="p-4 flex items-center gap-4 bg-red-50/50 border-red-100">
@@ -132,7 +134,7 @@ export default function EmployeeDetailsPage({ params }: { params: Promise<{ id: 
                             </div>
                             <div>
                                 <p className="text-2xl font-bold text-red-600">0</p>
-                                <p className="text-xs text-gray-600">مهام متأخرة</p>
+                                <p className="text-xs text-gray-600">{locale === 'ar' ? 'مهام متأخرة' : 'Overdue'}</p>
                             </div>
                         </Card>
                     </div>
@@ -140,34 +142,34 @@ export default function EmployeeDetailsPage({ params }: { params: Promise<{ id: 
                     {/* Assigned Projects */}
                     <Card className="p-6">
                         <div className="flex justify-between items-center mb-6 border-b border-gray-100 pb-4">
-                            <h3 className="font-bold text-lg text-gray-900">المشاريع الحالية</h3>
-                            <Link href="/projects" className="text-sm text-[#102550] font-medium hover:underline">عرض الكل</Link>
+                            <h3 className="font-bold text-lg text-gray-900">{locale === 'ar' ? 'المشاريع الحالية' : 'Current Projects'}</h3>
+                            <Link href="/projects" className="text-sm text-[#102550] font-medium hover:underline">{locale === 'ar' ? 'عرض الكل' : 'View All'}</Link>
                         </div>
 
                         <div className="space-y-4">
                             {employee.memberships?.length === 0 ? (
-                                <div className="text-center py-10 text-gray-500 text-sm">لا توجد مشاريع مسندة إلى هذا الموظف حالياً.</div>
+                                <div className="text-center py-10 text-gray-500 text-sm">{locale === 'ar' ? 'لا توجد مشاريع مسندة إلى هذا الموظف حالياً.' : 'No projects assigned to this employee currently.'}</div>
                             ) : employee.memberships?.map((m: { id: string, project: { name: string, description: string | null, status: string, endDate: Date | string | null } }) => (
                                 <div key={m.id} className="p-4 border border-gray-100 rounded-xl hover:bg-gray-50 hover:border-[#102550] transition-colors cursor-pointer group">
                                     <div className="flex justify-between items-start">
                                         <div>
                                             <h4 className="font-bold text-lg text-gray-900 group-hover:text-[#102550] transition-colors">{m.project.name}</h4>
-                                            <p className="text-sm text-gray-500 mt-1">{m.project.description || "لا يوجد وصف"}</p>
+                                            <p className="text-sm text-gray-500 mt-1">{m.project.description || (locale === 'ar' ? "لا يوجد وصف" : "No description")}</p>
                                         </div>
                                         <span className={`px-3 py-1 text-xs font-semibold rounded-full ${m.project.status === 'COMPLETED' ? 'bg-green-100 text-green-700' : 'bg-blue-100 text-blue-700'}`}>
-                                            {m.project.status === 'COMPLETED' ? 'مكتمل' : 'قيد التنفيذ'}
+                                            {m.project.status === 'COMPLETED' ? (locale === 'ar' ? 'مكتمل' : 'Completed') : (locale === 'ar' ? 'قيد التنفيذ' : 'In Progress')}
                                         </span>
                                     </div>
                                     <div className="mt-4 pt-4 border-t border-gray-50 flex justify-between items-center">
                                         <div className="flex items-center gap-4">
-                                            <span className="text-xs text-gray-500">التقدم:</span>
+                                            <span className="text-xs text-gray-500">{locale === 'ar' ? 'التقدم:' : 'Progress:'}</span>
                                             <div className="w-32 h-2 bg-gray-200 rounded-full overflow-hidden">
                                                 <div className={`h-full rounded-full ${m.project.status === 'COMPLETED' ? 'bg-green-500 w-full' : 'bg-[#102550] w-1/2'}`}></div>
                                             </div>
                                             <span className="text-xs font-medium text-gray-700">{m.project.status === 'COMPLETED' ? '100%' : '50%'}</span>
                                         </div>
                                         <span className="text-xs text-gray-500">
-                                            تاريخ الانتهاء: {m.project.endDate ? new Date(m.project.endDate).toLocaleDateString("en-GB") : "غير محدد"}
+                                            {locale === 'ar' ? 'تاريخ الانتهاء:' : 'End Date:'} {m.project.endDate ? new Date(m.project.endDate).toLocaleDateString("en-GB") : (locale === 'ar' ? "غير محدد" : "Not specified")}
                                         </span>
                                     </div>
                                 </div>

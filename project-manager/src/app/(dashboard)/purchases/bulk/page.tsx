@@ -10,6 +10,7 @@ import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import { useCanDo } from "@/components/auth/Protect";
 import { useAuth } from "@/context/AuthContext";
+import { useLanguage } from "@/context/LanguageContext";
 import { FileSpreadsheet, Upload, Loader2, Trash2, Plus, Check, ArrowLeft, Sparkles, Edit3 } from "lucide-react";
 
 interface ParsedItem {
@@ -25,6 +26,7 @@ export default function BulkPurchasePage() {
     const router = useRouter();
     const { isCoordinatorInAny, role } = useAuth();
     const canCreate = useCanDo('purchases', 'createGlobal') || (role === 'USER' && isCoordinatorInAny);
+    const { locale } = useLanguage();
 
     const [step, setStep] = useState<Step>('upload');
     const [projects, setProjects] = useState<Project[]>([]);
@@ -37,7 +39,7 @@ export default function BulkPurchasePage() {
 
     useEffect(() => {
         if (!canCreate) {
-            toast.error("ليس لديك صلاحية لإنشاء طلبات الشراء");
+            toast.error(locale === 'ar' ? "ليس لديك صلاحية لإنشاء طلبات الشراء" : "You do not have permission to create purchase requests");
             router.replace("/purchases");
             return;
         }
@@ -48,11 +50,11 @@ export default function BulkPurchasePage() {
     const handleFileUpload = async () => {
         const file = fileRef.current?.files?.[0];
         if (!file) {
-            toast.error("يرجى اختيار ملف Excel أولاً");
+            toast.error(locale === 'ar' ? "يرجى اختيار ملف Excel أولاً" : "Please select an Excel file first");
             return;
         }
         if (!projectId) {
-            toast.error("يرجى اختيار المشروع أولاً");
+            toast.error(locale === 'ar' ? "يرجى اختيار المشروع أولاً" : "Please select a project first");
             return;
         }
 
@@ -70,7 +72,7 @@ export default function BulkPurchasePage() {
             const data = await res.json();
 
             if (!res.ok || data.error) {
-                toast.error(data.error || 'حدث خطأ في التحليل');
+                toast.error(data.error || (locale === 'ar' ? 'حدث خطأ في التحليل' : 'Analysis error occurred'));
                 setIsUploading(false);
                 return;
             }
@@ -82,9 +84,9 @@ export default function BulkPurchasePage() {
 
             setItems(parsed);
             setStep('review');
-            toast.success(`تم تحليل ${parsed.length} عنصر بنجاح ✨`);
+            toast.success(locale === 'ar' ? `تم تحليل ${parsed.length} عنصر بنجاح ✨` : `Successfully analyzed ${parsed.length} items ✨`);
         } catch (err) {
-            toast.error("حدث خطأ في الاتصال بالخادم");
+            toast.error(locale === 'ar' ? "حدث خطأ في الاتصال بالخادم" : "Server connection error");
         } finally {
             setIsUploading(false);
         }
@@ -118,7 +120,7 @@ export default function BulkPurchasePage() {
     const handleSubmit = async () => {
         const selectedItems = items.filter(i => i.selected && i.description.trim());
         if (selectedItems.length === 0) {
-            toast.error("يرجى اختيار عنصر واحد على الأقل");
+            toast.error(locale === 'ar' ? "يرجى اختيار عنصر واحد على الأقل" : "Please select at least one item");
             return;
         }
 
@@ -126,7 +128,7 @@ export default function BulkPurchasePage() {
 
         const result = await createBatchPurchases({
             projectId,
-            batchLabel: batchLabel || `دفعة مشتريات`,
+            batchLabel: batchLabel || (locale === 'ar' ? `دفعة مشتريات` : `Purchase Batch`),
             items: selectedItems.map(({ description, quantity, notes }) => ({
                 description, quantity, notes
             })),
@@ -137,7 +139,7 @@ export default function BulkPurchasePage() {
         if (result.error) {
             toast.error(result.error);
         } else {
-            toast.success(`تم إنشاء ${result.count} طلب شراء بنجاح! 🎉`);
+            toast.success(locale === 'ar' ? `تم إنشاء ${result.count} طلب شراء بنجاح! 🎉` : `Successfully created ${result.count} purchase requests! 🎉`);
             router.push('/purchases');
         }
     };
@@ -145,22 +147,22 @@ export default function BulkPurchasePage() {
     const selectedCount = items.filter(i => i.selected && i.description.trim()).length;
 
     return (
-        <DashboardLayout title="إضافة مشتريات مجمعة">
+        <DashboardLayout title={locale === 'ar' ? "إضافة مشتريات مجمعة" : "Bulk Purchase Import"}>
             <div className="pb-6 max-w-5xl mx-auto">
                 {/* Back */}
                 <button
                     onClick={() => router.back()}
                     className="flex items-center gap-2 text-gray-500 hover:text-primary transition-colors text-sm font-semibold mb-4"
                 >
-                    <ArrowLeft className="w-4 h-4" /> العودة
+                    <ArrowLeft className="w-4 h-4" /> {locale === 'ar' ? 'العودة' : 'Back'}
                 </button>
 
                 {/* Step Indicator */}
                 <div className="flex items-center justify-center gap-2 mb-6">
                     {[
-                        { key: 'upload' as Step, label: 'رفع الملف', num: 1 },
-                        { key: 'review' as Step, label: 'مراجعة', num: 2 },
-                        { key: 'confirm' as Step, label: 'تأكيد', num: 3 },
+                        { key: 'upload' as Step, label: locale === 'ar' ? 'رفع الملف' : 'Upload File', num: 1 },
+                        { key: 'review' as Step, label: locale === 'ar' ? 'مراجعة' : 'Review', num: 2 },
+                        { key: 'confirm' as Step, label: locale === 'ar' ? 'تأكيد' : 'Confirm', num: 3 },
                     ].map(({ key, label, num }) => (
                         <div key={key} className="flex items-center gap-2">
                             <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-black transition-colors ${
@@ -183,21 +185,21 @@ export default function BulkPurchasePage() {
                             <div className="w-16 h-16 mx-auto bg-[#102550]/10 rounded-2xl flex items-center justify-center mb-4">
                                 <FileSpreadsheet className="w-8 h-8 text-[#102550]" />
                             </div>
-                            <h2 className="text-xl font-black text-gray-900">إضافة مشتريات من ملف Excel</h2>
+                            <h2 className="text-xl font-black text-gray-900">{locale === 'ar' ? 'إضافة مشتريات من ملف Excel' : 'Import Purchases from Excel'}</h2>
                             <p className="text-sm text-gray-500 max-w-md mx-auto">
-                                ارفع ملف Excel يحتوي على قائمة مشتريات. الذكاء الاصطناعي سيحلل المحتوى تلقائياً بغض النظر عن شكل الملف.
+                                {locale === 'ar' ? 'ارفع ملف Excel يحتوي على قائمة مشتريات. الذكاء الاصطناعي سيحلل المحتوى تلقائياً بغض النظر عن شكل الملف.' : 'Upload an Excel file with a list of purchases. AI will automatically analyze the content regardless of file format.'}
                             </p>
                         </div>
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div className="space-y-2">
-                                <label className="text-xs md:text-sm font-bold text-gray-700">المشروع *</label>
+                                <label className="text-xs md:text-sm font-bold text-gray-700">{locale === 'ar' ? 'المشروع *' : 'Project *'}</label>
                                 <select
                                     value={projectId}
                                     onChange={(e) => setProjectId(e.target.value)}
                                     className="w-full rounded-xl border border-gray-200 p-3.5 md:p-4 outline-none focus:ring-2 focus:ring-[#102550] bg-white text-gray-700 text-xs md:text-sm shadow-sm font-medium min-h-[52px]"
                                 >
-                                    <option value="">اختر المشروع</option>
+                                    <option value="">{locale === 'ar' ? 'اختر المشروع' : 'Select Project'}</option>
                                     {projects.map(p => (
                                         <option key={p.id} value={p.id}>{p.name}</option>
                                     ))}
@@ -205,12 +207,12 @@ export default function BulkPurchasePage() {
                             </div>
 
                             <div className="space-y-2">
-                                <label className="text-xs md:text-sm font-bold text-gray-700">تسمية الدفعة (اختياري)</label>
+                                <label className="text-xs md:text-sm font-bold text-gray-700">{locale === 'ar' ? 'تسمية الدفعة (اختياري)' : 'Batch Name (Optional)'}</label>
                                 <input
                                     type="text"
                                     value={batchLabel}
                                     onChange={(e) => setBatchLabel(e.target.value)}
-                                    placeholder="مثال: مستلزمات مكتبية - مارس 2026"
+                                    placeholder={locale === 'ar' ? "مثال: مستلزمات مكتبية - مارس 2026" : "e.g. Office supplies - March 2026"}
                                     className="w-full rounded-xl border border-gray-200 p-3.5 md:p-4 outline-none focus:ring-2 focus:ring-[#102550] text-xs md:text-sm shadow-sm font-medium min-h-[52px]"
                                 />
                             </div>
@@ -235,8 +237,8 @@ export default function BulkPurchasePage() {
                                 }}
                             />
                             <Upload className="w-12 h-12 text-gray-300 mx-auto mb-4 group-hover:text-[#102550] transition-colors" />
-                            <p className="text-sm font-bold text-gray-600 group-hover:text-[#102550]">اضغط لاختيار ملف Excel</p>
-                            <p className="text-xs text-gray-400 mt-2">يدعم: .xlsx, .xls, .csv — حتى 10 ميجابايت</p>
+                            <p className="text-sm font-bold text-gray-600 group-hover:text-[#102550]">{locale === 'ar' ? 'اضغط لاختيار ملف Excel' : 'Click to select Excel file'}</p>
+                            <p className="text-xs text-gray-400 mt-2">{locale === 'ar' ? 'يدعم: .xlsx, .xls, .csv — حتى 10 ميجابايت' : 'Supports: .xlsx, .xls, .csv — up to 10MB'}</p>
                         </div>
 
                         <Button
@@ -249,12 +251,12 @@ export default function BulkPurchasePage() {
                             {isUploading ? (
                                 <span className="flex items-center gap-2">
                                     <Sparkles className="w-4 h-4 animate-pulse" />
-                                    جاري تحليل الملف بالذكاء الاصطناعي...
+                                    {locale === 'ar' ? 'جاري تحليل الملف بالذكاء الاصطناعي...' : 'Analyzing file with AI...'}
                                 </span>
                             ) : (
                                 <span className="flex items-center gap-2">
                                     <Sparkles className="w-4 h-4" />
-                                    تحليل الملف
+                                    {locale === 'ar' ? 'تحليل الملف' : 'Analyze File'}
                                 </span>
                             )}
                         </Button>
@@ -268,9 +270,9 @@ export default function BulkPurchasePage() {
                             <div>
                                 <h2 className="text-lg font-black text-gray-900 flex items-center gap-2">
                                     <Sparkles className="w-5 h-5 text-amber-500" />
-                                    نتائج التحليل ({items.length} عنصر)
+                                    {locale === 'ar' ? `نتائج التحليل (${items.length} عنصر)` : `Analysis Results (${items.length} items)`}
                                 </h2>
-                                <p className="text-xs text-gray-500 mt-1">راجع البيانات المستخرجة وعدّل ما يلزم</p>
+                                <p className="text-xs text-gray-500 mt-1">{locale === 'ar' ? 'راجع البيانات المستخرجة وعدّل ما يلزم' : 'Review extracted data and edit as needed'}</p>
                             </div>
                             <div className="flex gap-2">
                                 <Button
@@ -278,7 +280,7 @@ export default function BulkPurchasePage() {
                                     onClick={() => { setStep('upload'); setItems([]); }}
                                     className="text-xs font-bold"
                                 >
-                                    إعادة الرفع
+                                    {locale === 'ar' ? 'إعادة الرفع' : 'Re-upload'}
                                 </Button>
                                 <Button
                                     variant="outline"
@@ -286,7 +288,7 @@ export default function BulkPurchasePage() {
                                     className="text-xs font-bold gap-1 border-emerald-200 text-emerald-600 hover:bg-emerald-50"
                                 >
                                     <Plus className="w-3.5 h-3.5" />
-                                    إضافة يدوي
+                                    {locale === 'ar' ? 'إضافة يدوي' : 'Add Manually'}
                                 </Button>
                             </div>
                         </div>
@@ -318,17 +320,17 @@ export default function BulkPurchasePage() {
                                         {/* Fields */}
                                         <div className="flex-1 grid grid-cols-1 sm:grid-cols-12 gap-3">
                                             <div className="sm:col-span-5 space-y-1">
-                                                <label className="text-[10px] font-bold text-gray-400 uppercase">الوصف</label>
+                                                <label className="text-[10px] font-bold text-gray-400 uppercase">{locale === 'ar' ? 'الوصف' : 'Description'}</label>
                                                 <input
                                                     type="text"
                                                     value={item.description}
                                                     onChange={(e) => editItem(index, 'description', e.target.value)}
                                                     className="w-full rounded-lg border border-gray-200 p-2.5 text-sm font-medium outline-none focus:ring-2 focus:ring-[#102550]/30"
-                                                    placeholder="وصف المنتج"
+                                                    placeholder={locale === 'ar' ? "وصف المنتج" : "Product description"}
                                                 />
                                             </div>
                                             <div className="sm:col-span-2 space-y-1">
-                                                <label className="text-[10px] font-bold text-gray-400 uppercase">الكمية</label>
+                                                <label className="text-[10px] font-bold text-gray-400 uppercase">{locale === 'ar' ? 'الكمية' : 'Qty'}</label>
                                                 <input
                                                     type="text"
                                                     value={item.quantity}
@@ -338,13 +340,13 @@ export default function BulkPurchasePage() {
                                                 />
                                             </div>
                                             <div className="sm:col-span-4 space-y-1">
-                                                <label className="text-[10px] font-bold text-gray-400 uppercase">ملاحظات</label>
+                                                <label className="text-[10px] font-bold text-gray-400 uppercase">{locale === 'ar' ? 'ملاحظات' : 'Notes'}</label>
                                                 <input
                                                     type="text"
                                                     value={item.notes}
                                                     onChange={(e) => editItem(index, 'notes', e.target.value)}
                                                     className="w-full rounded-lg border border-gray-200 p-2.5 text-sm font-medium outline-none focus:ring-2 focus:ring-[#102550]/30"
-                                                    placeholder="ملاحظات اختيارية"
+                                                    placeholder={locale === 'ar' ? "ملاحظات اختيارية" : "Optional notes"}
                                                 />
                                             </div>
                                             <div className="sm:col-span-1 flex items-end justify-center">
@@ -364,7 +366,7 @@ export default function BulkPurchasePage() {
                         {/* Summary + Submit */}
                         <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-4 border-t border-gray-100">
                             <p className="text-sm text-gray-600 font-bold">
-                                {selectedCount} عنصر مختار من أصل {items.length}
+                                {locale === 'ar' ? `${selectedCount} عنصر مختار من أصل ${items.length}` : `${selectedCount} selected out of ${items.length}`}
                             </p>
                             <Button
                                 onClick={() => setStep('confirm')}
@@ -372,7 +374,7 @@ export default function BulkPurchasePage() {
                                 variant="primary"
                                 className="w-full sm:w-auto px-8 py-4 rounded-2xl font-bold text-sm"
                             >
-                                متابعة للتأكيد ({selectedCount} عنصر) ←
+                                {locale === 'ar' ? `متابعة للتأكيد (${selectedCount} عنصر) ←` : `Proceed to Confirm (${selectedCount} items) →`}
                             </Button>
                         </div>
                     </Card>
@@ -385,14 +387,15 @@ export default function BulkPurchasePage() {
                             <div className="w-16 h-16 mx-auto bg-emerald-50 rounded-2xl flex items-center justify-center mb-4">
                                 <Check className="w-8 h-8 text-emerald-500" />
                             </div>
-                            <h2 className="text-xl font-black text-gray-900">تأكيد الإنشاء</h2>
+                            <h2 className="text-xl font-black text-gray-900">{locale === 'ar' ? 'تأكيد الإنشاء' : 'Confirm Creation'}</h2>
                             <p className="text-sm text-gray-500">
-                                سيتم إنشاء <strong className="text-[#102550]">{selectedCount} طلب شراء</strong> في مشروع{' '}
-                                <strong className="text-[#102550]">{projects.find(p => p.id === projectId)?.name}</strong>
+                                {locale === 'ar'
+                                    ? <>سيتم إنشاء <strong className="text-[#102550]">{selectedCount} طلب شراء</strong> في مشروع{' '}<strong className="text-[#102550]">{projects.find(p => p.id === projectId)?.name}</strong></>
+                                    : <>Will create <strong className="text-[#102550]">{selectedCount} purchase requests</strong> in project{' '}<strong className="text-[#102550]">{projects.find(p => p.id === projectId)?.name}</strong></>}
                             </p>
                             {batchLabel && (
                                 <p className="text-xs text-gray-400 bg-gray-50 inline-block px-3 py-1 rounded-lg mt-2">
-                                    تسمية الدفعة: {batchLabel}
+                                    {locale === 'ar' ? 'تسمية الدفعة:' : 'Batch Name:'} {batchLabel}
                                 </p>
                             )}
                         </div>
@@ -403,9 +406,9 @@ export default function BulkPurchasePage() {
                                 <thead className="bg-gray-50 text-xs text-gray-500 font-bold">
                                     <tr>
                                         <th className="px-4 py-3">#</th>
-                                        <th className="px-4 py-3">الوصف</th>
-                                        <th className="px-4 py-3">الكمية</th>
-                                        <th className="px-4 py-3">ملاحظات</th>
+                                        <th className="px-4 py-3">{locale === 'ar' ? 'الوصف' : 'Description'}</th>
+                                        <th className="px-4 py-3">{locale === 'ar' ? 'الكمية' : 'Qty'}</th>
+                                        <th className="px-4 py-3">{locale === 'ar' ? 'ملاحظات' : 'Notes'}</th>
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-gray-100 bg-white">
@@ -428,7 +431,7 @@ export default function BulkPurchasePage() {
                                 className="flex-1 py-4 rounded-2xl font-bold text-sm"
                             >
                                 <Edit3 className="w-4 h-4 ml-2" />
-                                العودة للتعديل
+                                {locale === 'ar' ? 'العودة للتعديل' : 'Back to Edit'}
                             </Button>
                             <Button
                                 onClick={handleSubmit}
@@ -437,7 +440,7 @@ export default function BulkPurchasePage() {
                                 variant="primary"
                                 className="flex-1 py-4 rounded-2xl font-bold text-sm"
                             >
-                                {isSubmitting ? 'جاري الإنشاء...' : `إنشاء ${selectedCount} طلب شراء ✓`}
+                                {isSubmitting ? (locale === 'ar' ? 'جاري الإنشاء...' : 'Creating...') : (locale === 'ar' ? `إنشاء ${selectedCount} طلب شراء ✓` : `Create ${selectedCount} Purchase Requests ✓`)}
                             </Button>
                         </div>
                     </Card>

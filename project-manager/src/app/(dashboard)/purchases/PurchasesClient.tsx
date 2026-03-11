@@ -9,6 +9,7 @@ import { useState } from "react";
 import { Purchase, Project, User } from "@prisma/client";
 import { useCanDo } from "@/components/auth/Protect";
 import { useAuth } from "@/context/AuthContext";
+import { useLanguage } from "@/context/LanguageContext";
 import { useRouter } from "next/navigation";
 import { useDebounce } from "@/hooks/useDebounce";
 import { matchArabicText } from "@/utils/arabic";
@@ -30,37 +31,38 @@ export default function PurchasesClient({ initialPurchases }: Props) {
     const canCreatePurchase = useCanDo('purchases', 'createGlobal') || (role === 'USER' && isCoordinatorInAny);
     const canExport = useCanDo('exports', 'view');
     const router = useRouter();
+    const { locale } = useLanguage();
     const [searchQuery, setSearchQuery] = useState("");
-    const [filter, setFilter] = useState("الكل");
+    const [filter, setFilter] = useState(locale === 'ar' ? "الكل" : "All");
     const debouncedSearchQuery = useDebounce(searchQuery, 300);
 
     const purchExportCols: ExportColumn[] = [
-        { key: "orderNumber", label: "رقم الطلب" },
-        { key: "description", label: "الوصف" },
-        { key: "status", label: "الحالة", format: (v) => purchaseStatusLabel[v as string] || String(v) },
-        { key: "priority", label: "الأولوية", format: (v) => purchasePriorityLabel[v as string] || String(v) },
-        { key: "projectName", label: "المشروع" },
-        { key: "creatorName", label: "الطالب" },
-        { key: "deadline", label: "الموعد", format: (v) => v ? formatDate(v as string) : "-" },
-        { key: "createdAt", label: "التاريخ", format: (v) => formatDate(v as string) },
+        { key: "orderNumber", label: locale === 'ar' ? "رقم الطلب" : "Order #" },
+        { key: "description", label: locale === 'ar' ? "الوصف" : "Description" },
+        { key: "status", label: locale === 'ar' ? "الحالة" : "Status", format: (v) => purchaseStatusLabel[v as string] || String(v) },
+        { key: "priority", label: locale === 'ar' ? "الأولوية" : "Priority", format: (v) => purchasePriorityLabel[v as string] || String(v) },
+        { key: "projectName", label: locale === 'ar' ? "المشروع" : "Project" },
+        { key: "creatorName", label: locale === 'ar' ? "الطالب" : "Requester" },
+        { key: "deadline", label: locale === 'ar' ? "الموعد" : "Deadline", format: (v) => v ? formatDate(v as string) : "-" },
+        { key: "createdAt", label: locale === 'ar' ? "التاريخ" : "Date", format: (v) => formatDate(v as string) },
     ];
 
     const handlePurchasesExcel = async () => {
         const data = await getPurchasesExportData();
-        downloadExcel([{ name: "المشتريات", columns: purchExportCols, data: data as Record<string, unknown>[] }], "تقرير_المشتريات");
+        downloadExcel([{ name: locale === 'ar' ? "المشتريات" : "Purchases", columns: purchExportCols, data: data as Record<string, unknown>[] }], locale === 'ar' ? "تقرير_المشتريات" : "purchases_report");
     };
 
     const handlePurchasesPDF = async () => {
         const data = await getPurchasesExportData();
         const html = generatePrintableReport({
-            title: "تقرير المشتريات",
-            subtitle: "أوامر الشراء عبر جميع المشاريع",
+            title: locale === 'ar' ? "تقرير المشتريات" : "Purchases Report",
+            subtitle: locale === 'ar' ? "أوامر الشراء عبر جميع المشاريع" : "Purchase orders across all projects",
             columns: purchExportCols,
             data: data as Record<string, unknown>[],
             summary: [
-                { label: "إجمالي الطلبات", value: String(data.length) },
-                { label: "تم الشراء", value: String(data.filter(d => d.status === 'PURCHASED').length) },
-                { label: "قيد التنفيذ", value: String(data.filter(d => d.status === 'IN_PROGRESS').length) },
+                { label: locale === 'ar' ? "إجمالي الطلبات" : "Total Requests", value: String(data.length) },
+                { label: locale === 'ar' ? "تم الشراء" : "Purchased", value: String(data.filter(d => d.status === 'PURCHASED').length) },
+                { label: locale === 'ar' ? "قيد التنفيذ" : "In Progress", value: String(data.filter(d => d.status === 'IN_PROGRESS').length) },
             ],
             branchName: user?.branchName,
             branchFlag: user?.branchFlag,
@@ -84,13 +86,18 @@ export default function PurchasesClient({ initialPurchases }: Props) {
         ]);
 
         let matchesFilter = true;
-        if (filter === "غير متوفر") {
+        const filterUnavailable = locale === 'ar' ? "غير متوفر" : "Unavailable";
+        const filterAwaitingPurchase = locale === 'ar' ? "بانتظار الشراء" : "Awaiting Purchase";
+        const filterInProgress = locale === 'ar' ? "قيد الشراء" : "In Progress";
+        const filterCompleted = locale === 'ar' ? "مكتملة" : "Completed";
+
+        if (filter === filterUnavailable) {
             matchesFilter = !!purchase.isRedFlagged;
-        } else if (filter === "بانتظار الشراء") {
+        } else if (filter === filterAwaitingPurchase) {
             matchesFilter = purchase.status === "REQUESTED" && !purchase.isRedFlagged;
-        } else if (filter === "قيد الشراء") {
+        } else if (filter === filterInProgress) {
             matchesFilter = purchase.status === "IN_PROGRESS" && !purchase.isRedFlagged;
-        } else if (filter === "مكتملة") {
+        } else if (filter === filterCompleted) {
             matchesFilter = purchase.status === "PURCHASED";
         }
 
@@ -98,17 +105,17 @@ export default function PurchasesClient({ initialPurchases }: Props) {
     });
 
     return (
-        <DashboardLayout title="المشتريات">
+        <DashboardLayout title={locale === 'ar' ? "المشتريات" : "Purchases"}>
             <div className="space-y-4 pb-6">
 
                 {/* ─── Summary Stats ────────────────────────────────────────────── */}
                 <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 md:gap-3">
                     {[
-                        { label: "الإجمالي", count: totalCount, color: "text-gray-700", bg: "bg-gray-50", border: "border-gray-100" },
-                        { label: "بانتظار الشراء", count: requestedCount, color: "text-blue-700", bg: "bg-blue-50", border: "border-blue-100" },
-                        { label: "قيد الشراء", count: inProgressCount, color: "text-amber-700", bg: "bg-amber-50", border: "border-amber-100" },
-                        { label: "مكتملة", count: purchasedCount, color: "text-emerald-700", bg: "bg-emerald-50", border: "border-emerald-100" },
-                        { label: "غير متوفر", count: flaggedCount, color: "text-red-700", bg: "bg-red-50", border: "border-red-100" },
+                        { label: locale === 'ar' ? "الإجمالي" : "Total", count: totalCount, color: "text-gray-700", bg: "bg-gray-50", border: "border-gray-100" },
+                        { label: locale === 'ar' ? "بانتظار الشراء" : "Awaiting Purchase", count: requestedCount, color: "text-blue-700", bg: "bg-blue-50", border: "border-blue-100" },
+                        { label: locale === 'ar' ? "قيد الشراء" : "In Progress", count: inProgressCount, color: "text-amber-700", bg: "bg-amber-50", border: "border-amber-100" },
+                        { label: locale === 'ar' ? "مكتملة" : "Completed", count: purchasedCount, color: "text-emerald-700", bg: "bg-emerald-50", border: "border-emerald-100" },
+                        { label: locale === 'ar' ? "غير متوفر" : "Unavailable", count: flaggedCount, color: "text-red-700", bg: "bg-red-50", border: "border-red-100" },
                     ].map((stat) => (
                         <div key={stat.label} className={`${stat.bg} ${stat.border} border rounded-xl p-3 text-center`}>
                             <p className={`text-lg md:text-xl font-black ${stat.color}`}>{stat.count}</p>
@@ -124,7 +131,7 @@ export default function PurchasesClient({ initialPurchases }: Props) {
                         <div className="relative w-full sm:w-96">
                             <input
                                 type="text"
-                                placeholder="ابحث عن مشتريات..."
+                                placeholder={locale === 'ar' ? "ابحث عن مشتريات..." : "Search purchases..."}
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
                                 className="w-full ps-4 pe-10 py-3 text-xs md:text-sm font-bold rounded-xl border border-gray-100 focus:outline-none focus:ring-2 focus:ring-[#102550]/40 bg-white shadow-sm"
@@ -137,7 +144,7 @@ export default function PurchasesClient({ initialPurchases }: Props) {
                                 <ExportButton
                                     onExportExcel={handlePurchasesExcel}
                                     onExportPDF={handlePurchasesPDF}
-                                    label="تصدير المشتريات"
+                                    label={locale === 'ar' ? "تصدير المشتريات" : "Export Purchases"}
                                     compact
                                 />
                             )}
@@ -145,11 +152,11 @@ export default function PurchasesClient({ initialPurchases }: Props) {
                                 <>
                                     <Button onClick={() => router.push('/purchases/bulk')} variant="outline" className="gap-1.5 w-auto py-3 text-xs md:text-sm h-auto justify-center active:scale-95 transition-transform border-[#102550]/30 text-[#102550] hover:bg-[#102550]/5">
                                         <FileSpreadsheet className="w-3.5 h-3.5 md:w-4 md:h-4" />
-                                        إضافة مجمعة
+                                        {locale === 'ar' ? 'إضافة مجمعة' : 'Bulk Import'}
                                     </Button>
                                     <Button onClick={() => router.push('/purchases/new')} variant="primary" className="gap-2 w-full sm:w-auto py-3 text-xs md:text-sm h-auto justify-center active:scale-95 transition-transform">
                                         <Plus className="w-3.5 h-3.5 md:w-4 md:h-4" />
-                                        إضافة طلب شراء
+                                        {locale === 'ar' ? 'إضافة طلب شراء' : 'Add Purchase'}
                                     </Button>
                                 </>
                             )}
@@ -158,11 +165,16 @@ export default function PurchasesClient({ initialPurchases }: Props) {
 
                     {/* Filter Tabs — horizontal scroll, no squashing */}
                     <div className="flex bg-white rounded-xl p-1 shadow-sm border border-gray-100 overflow-x-auto mobile-tabs-scroll whitespace-nowrap gap-1">
-                        {["الكل", "بانتظار الشراء", "قيد الشراء", "مكتملة", "غير متوفر"].map((tab) => {
-                            const countForTab = tab === "الكل" ? totalCount
-                                : tab === "بانتظار الشراء" ? requestedCount
-                                    : tab === "قيد الشراء" ? inProgressCount
-                                        : tab === "مكتملة" ? purchasedCount
+                        {[locale === 'ar' ? "الكل" : "All", locale === 'ar' ? "بانتظار الشراء" : "Awaiting Purchase", locale === 'ar' ? "قيد الشراء" : "In Progress", locale === 'ar' ? "مكتملة" : "Completed", locale === 'ar' ? "غير متوفر" : "Unavailable"].map((tab) => {
+                            const unavailableLabel = locale === 'ar' ? "غير متوفر" : "Unavailable";
+                            const allLabel = locale === 'ar' ? "الكل" : "All";
+                            const awaitingLabel = locale === 'ar' ? "بانتظار الشراء" : "Awaiting Purchase";
+                            const inProgressLabel = locale === 'ar' ? "قيد الشراء" : "In Progress";
+                            const completedLabel = locale === 'ar' ? "مكتملة" : "Completed";
+                            const countForTab = tab === allLabel ? totalCount
+                                : tab === awaitingLabel ? requestedCount
+                                    : tab === inProgressLabel ? inProgressCount
+                                        : tab === completedLabel ? purchasedCount
                                             : flaggedCount;
                             return (
                                 <button
@@ -170,12 +182,12 @@ export default function PurchasesClient({ initialPurchases }: Props) {
                                     onClick={() => setFilter(tab)}
                                     className={`px-3 py-2.5 shrink-0 text-[11px] font-bold rounded-lg transition-all duration-150 active:scale-95 ${filter === tab
                                         ? "bg-[#102550] text-white shadow-sm"
-                                        : tab === "غير متوفر"
+                                        : tab === unavailableLabel
                                             ? "text-red-500 hover:text-red-700 hover:bg-red-50"
                                             : "text-gray-500 hover:text-gray-900 hover:bg-gray-50"
                                         }`}
                                 >
-                                    {tab === "غير متوفر"
+                                    {tab === unavailableLabel
                                         ? <span className="flex items-center justify-center gap-1"><Flag className="w-3 h-3" /> {tab} ({countForTab})</span>
                                         : `${tab} (${countForTab})`}
                                 </button>
@@ -188,8 +200,8 @@ export default function PurchasesClient({ initialPurchases }: Props) {
                 {filteredPurchases.length === 0 && (
                     <div className="py-12">
                         <EmptyState
-                            title="لا توجد طلبات شراء"
-                            description={searchQuery ? "لم يتم العثور على طلبات مطابقة لبحثك." : "قم بإضافة طلب شراء جديد للبدء بتتبع المدفوعات."}
+                            title={locale === 'ar' ? "لا توجد طلبات شراء" : "No Purchase Requests"}
+                            description={searchQuery ? (locale === 'ar' ? "لم يتم العثور على طلبات مطابقة لبحثك." : "No requests match your search.") : (locale === 'ar' ? "قم بإضافة طلب شراء جديد للبدء بتتبع المدفوعات." : "Add a new purchase request to start tracking payments.")}
                             icon={ShoppingCart}
                         />
                     </div>
@@ -212,7 +224,7 @@ export default function PurchasesClient({ initialPurchases }: Props) {
                                             <div className="relative w-full h-40 bg-gray-100">
                                                 <img
                                                     src={purchase.imageUrl}
-                                                    alt="صورة الطلب"
+                                                    alt={locale === 'ar' ? "صورة الطلب" : "Order image"}
                                                     className="w-full h-full object-cover"
                                                 />
                                                 <div className="absolute top-2 left-2">
@@ -221,7 +233,7 @@ export default function PurchasesClient({ initialPurchases }: Props) {
                                                 {isFlagged && (
                                                     <div className="absolute top-2 right-2">
                                                         <span className="inline-flex items-center gap-1 text-[10px] font-bold text-white bg-red-500 px-2 py-1 rounded-lg shadow-sm">
-                                                            <Flag className="w-2.5 h-2.5" /> غير متوفر
+                                                            <Flag className="w-2.5 h-2.5" /> {locale === 'ar' ? 'غير متوفر' : 'Unavailable'}
                                                         </span>
                                                     </div>
                                                 )}
@@ -235,7 +247,7 @@ export default function PurchasesClient({ initialPurchases }: Props) {
                                                 {isFlagged && (
                                                     <div className="absolute top-2 right-2">
                                                         <span className="inline-flex items-center gap-1 text-[10px] font-bold text-white bg-red-500 px-2 py-1 rounded-lg shadow-sm">
-                                                            <Flag className="w-2.5 h-2.5" /> غير متوفر
+                                                            <Flag className="w-2.5 h-2.5" /> {locale === 'ar' ? 'غير متوفر' : 'Unavailable'}
                                                         </span>
                                                     </div>
                                                 )}
@@ -280,14 +292,14 @@ export default function PurchasesClient({ initialPurchases }: Props) {
                                                     </span>
                                                 )}
                                                 <span className="inline-flex items-center gap-1 text-xs font-medium text-gray-500 bg-gray-50 px-2 py-1 rounded-lg">
-                                                    الكمية: {purchase.quantity || 1}
+                                                    {locale === 'ar' ? 'الكمية:' : 'Qty:'} {purchase.quantity || 1}
                                                 </span>
                                             </div>
 
                                             {/* Creator */}
                                             <div className="flex items-center gap-1.5 mb-3 text-xs text-gray-400">
                                                 <UserIcon className="w-3 h-3" />
-                                                <span className="font-medium">طالب الشراء: <span className="text-gray-600 font-bold">{purchase.creator?.name}</span></span>
+                                                <span className="font-medium">{locale === 'ar' ? 'طالب الشراء:' : 'Requested by:'} <span className="text-gray-600 font-bold">{purchase.creator?.name}</span></span>
                                             </div>
 
                                             {/* CTA for open purchases */}
@@ -300,7 +312,7 @@ export default function PurchasesClient({ initialPurchases }: Props) {
                                                         window.location.href = `/invoices/new?purchaseId=${purchase.id}&projectId=${purchase.projectId || ''}&description=${encodeURIComponent(purchase.description)}`;
                                                     }}
                                                 >
-                                                    إتمام الشراء ←
+                                                    {locale === 'ar' ? 'إتمام الشراء ←' : 'Complete Purchase →'}
                                                 </Button>
                                             )}
                                         </div>
@@ -315,13 +327,13 @@ export default function PurchasesClient({ initialPurchases }: Props) {
                                 <table className="w-full text-xs md:text-sm text-right min-w-[700px]">
                                     <thead className="bg-gray-50/50 border-b border-gray-100 text-gray-500">
                                         <tr>
-                                            <th className="px-4 md:px-6 py-3 md:py-4 font-bold">رقم الطلب</th>
-                                            <th className="px-4 md:px-6 py-3 md:py-4 font-bold">الصورة</th>
-                                            <th className="px-4 md:px-6 py-3 md:py-4 font-bold">المشروع المرتبط</th>
-                                            <th className="px-4 md:px-6 py-3 md:py-4 font-bold">الموعد النهائي</th>
-                                            <th className="px-4 md:px-6 py-3 md:py-4 font-bold">الوصف</th>
-                                            <th className="px-4 md:px-6 py-3 md:py-4 font-bold">الكمية</th>
-                                            <th className="px-4 md:px-6 py-3 md:py-4 font-bold">الحالة</th>
+                                            <th className="px-4 md:px-6 py-3 md:py-4 font-bold">{locale === 'ar' ? 'رقم الطلب' : 'Order #'}</th>
+                                            <th className="px-4 md:px-6 py-3 md:py-4 font-bold">{locale === 'ar' ? 'الصورة' : 'Image'}</th>
+                                            <th className="px-4 md:px-6 py-3 md:py-4 font-bold">{locale === 'ar' ? 'المشروع المرتبط' : 'Project'}</th>
+                                            <th className="px-4 md:px-6 py-3 md:py-4 font-bold">{locale === 'ar' ? 'الموعد النهائي' : 'Deadline'}</th>
+                                            <th className="px-4 md:px-6 py-3 md:py-4 font-bold">{locale === 'ar' ? 'الوصف' : 'Description'}</th>
+                                            <th className="px-4 md:px-6 py-3 md:py-4 font-bold">{locale === 'ar' ? 'الكمية' : 'Qty'}</th>
+                                            <th className="px-4 md:px-6 py-3 md:py-4 font-bold">{locale === 'ar' ? 'الحالة' : 'Status'}</th>
                                         </tr>
                                     </thead>
                                     <tbody className="divide-y divide-gray-100 bg-white">
@@ -338,7 +350,7 @@ export default function PurchasesClient({ initialPurchases }: Props) {
                                                     </td>
                                                     <td className="px-4 md:px-6 py-4">
                                                         {purchase.imageUrl ? (
-                                                            <img src={purchase.imageUrl} alt="صورة الطلب" className="w-10 h-10 md:w-12 md:h-12 rounded-lg object-cover border border-gray-200" />
+                                                            <img src={purchase.imageUrl} alt={locale === 'ar' ? "صورة الطلب" : "Order image"} className="w-10 h-10 md:w-12 md:h-12 rounded-lg object-cover border border-gray-200" />
                                                         ) : (
                                                             <div className="w-10 h-10 md:w-12 md:h-12 bg-gray-100 rounded-lg flex items-center justify-center text-gray-400">
                                                                 <ShoppingCart className="w-5 h-5 opacity-50" />
@@ -346,7 +358,7 @@ export default function PurchasesClient({ initialPurchases }: Props) {
                                                         )}
                                                     </td>
                                                     <td className="px-4 md:px-6 py-4 text-[#102550] font-bold">
-                                                        {purchase.project?.name || "عام"}
+                                                        {purchase.project?.name || (locale === 'ar' ? "عام" : "General")}
                                                     </td>
                                                     <td className="px-4 md:px-6 py-4 text-gray-500 font-medium text-[11px] md:text-sm">
                                                         {purchase.deadline ? new Date(purchase.deadline).toLocaleDateString('en-GB') : "-"}
@@ -357,7 +369,7 @@ export default function PurchasesClient({ initialPurchases }: Props) {
                                                                 <span className={isFlagged ? 'text-red-800 font-bold' : ''}>{purchase.description || "-"}</span>
                                                                 {isFlagged && <Flag className="w-4 h-4 text-red-500 fill-current" />}
                                                             </div>
-                                                            <span className="text-[10px] text-gray-400 font-medium">طالب الشراء: {purchase.creator?.name}</span>
+                                                            <span className="text-[10px] text-gray-400 font-medium">{locale === 'ar' ? 'طالب الشراء:' : 'By:'} {purchase.creator?.name}</span>
                                                         </div>
                                                     </td>
                                                     <td className="px-4 md:px-6 py-4 font-bold text-[#102550] text-left" dir="ltr">
@@ -374,7 +386,7 @@ export default function PurchasesClient({ initialPurchases }: Props) {
                                                                     window.location.href = `/invoices/new?purchaseId=${purchase.id}&projectId=${purchase.projectId || ''}&description=${encodeURIComponent(purchase.description)}`;
                                                                 }}
                                                             >
-                                                                إتمام الشراء
+                                                                {locale === 'ar' ? 'إتمام الشراء' : 'Complete Purchase'}
                                                             </Button>
                                                         )}
                                                     </td>
