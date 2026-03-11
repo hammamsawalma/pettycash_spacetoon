@@ -49,10 +49,10 @@ export async function POST(request: Request) {
 
         const token = await signToken(sessionData);
 
-        // Await the cookies function from next/headers
-        const cookieStore = await cookies();
+        // We MUST use the explicit Response Cookies API, Next.js 15 blocks `cookies().set()` in some edge Route Handlers.
+        const response = NextResponse.json({ success: true, user: sessionData });
         
-        cookieStore.set("session", token, {
+        response.cookies.set("session", token, {
             httpOnly: true,
             secure: process.env.COOKIE_SECURE === "true",
             sameSite: "lax",
@@ -60,7 +60,7 @@ export async function POST(request: Request) {
             path: "/",
         });
 
-        return NextResponse.json({ success: true, user: sessionData });
+        return response;
 
     } catch (error) {
         console.error("[POST /api/auth/login] Error:", error);
