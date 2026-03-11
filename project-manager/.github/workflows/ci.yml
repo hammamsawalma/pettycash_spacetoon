@@ -116,10 +116,9 @@ jobs:
             --log-opt max-file=3 \
             ${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}:latest
 
-          # Apply schema changes + seed data
+          # Apply schema changes securely in production (non-interactive)
           sleep 5
-          sudo docker exec spacetoon-pocket npx prisma db push --accept-data-loss 2>&1 || echo "⚠️ Prisma push failed (may be fine if no changes)"
-          sudo docker exec spacetoon-pocket npx prisma db seed 2>&1 || echo "⚠️ Seed skipped (data may already exist)"
+          sudo docker exec spacetoon-pocket npx prisma migrate deploy 2>&1 || echo "⚠️ Prisma migrate deploy failed"
 
           # Verify container is running
           sleep 3
