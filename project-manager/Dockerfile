@@ -25,9 +25,11 @@ COPY . .
 # Build arguments for environment variables
 ARG DATABASE_URL
 ARG JWT_SECRET
+ARG GEMINI_API_KEY
 
 ENV DATABASE_URL=${DATABASE_URL}
 ENV JWT_SECRET=${JWT_SECRET}
+ENV GEMINI_API_KEY=${GEMINI_API_KEY}
 ENV NEXT_TELEMETRY_DISABLED=1
 
 RUN npm run build
@@ -38,6 +40,10 @@ WORKDIR /app
 
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
+
+# Important: pass the API key to runtime as well
+ARG GEMINI_API_KEY
+ENV GEMINI_API_KEY=${GEMINI_API_KEY}
 
 # Create non-root user for security
 RUN addgroup --system --gid 1001 nodejs
