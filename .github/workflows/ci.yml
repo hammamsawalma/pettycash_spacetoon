@@ -78,12 +78,22 @@ jobs:
 
     - name: Deploy to EC2
       uses: appleboy/ssh-action@v1
+      env:
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        AWS_DEFAULT_REGION: eu-central-1
       with:
         host: ${{ env.EC2_HOST }}
         username: ec2-user
         key: ${{ secrets.EC2_SSH_KEY }}
+        envs: AWS_ACCESS_KEY_ID,AWS_SECRET_ACCESS_KEY,AWS_DEFAULT_REGION
         script: |
           set -e
+          
+          # Export AWS credentials to authorize ECR login over SSH
+          export AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+          export AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+          export AWS_DEFAULT_REGION=${AWS_DEFAULT_REGION}
           
           # Login to ECR
           aws ecr get-login-password --region eu-central-1 | sudo docker login --username AWS --password-stdin ${{ env.ECR_REGISTRY }}
