@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getSession } from '@/lib/auth';
 import { parseExcelToRawText, analyzeWithGemini } from '@/lib/parse-excel';
 
+export const maxDuration = 60; // Allow maximum 60 seconds execution time
+
 export async function POST(req: NextRequest) {
     try {
         // Auth check

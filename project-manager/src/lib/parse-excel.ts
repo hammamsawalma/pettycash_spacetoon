@@ -83,67 +83,91 @@ export async function analyzeWithGemini(rawText: string): Promise<ParsedPurchase
 محتوى الملف:
 ${rawText}`;
 
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 30000); // 30s timeout
+    const maxRetries = 2;
+    let attempt = 0;
 
-    try {
-        const response = await fetch(
-            `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
-            {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    contents: [{ parts: [{ text: prompt }] }],
-                    generationConfig: {
-                        temperature: 0.1,
-                        maxOutputTokens: 8192,
-                        responseMimeType: 'application/json',
-                    },
-                }),
-                signal: controller.signal,
+    while (attempt <= maxRetries) {
+        attempt++;
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), 55000); // 55s timeout
+
+        try {
+            const response = await fetch(
+                `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
+                {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        contents: [{ parts: [{ text: prompt }] }],
+                        generationConfig: {
+                            temperature: 0.1,
+                            maxOutputTokens: 8192,
+                            responseMimeType: 'application/json',
+                        },
+                    }),
+                    signal: controller.signal,
+                }
+            );
+
+            clearTimeout(timeout);
+
+            if (!response.ok) {
+                const errorText = await response.text();
+                console.error(`Gemini API Error (Attempt ${attempt}):`, errorText);
+                
+                if (response.status === 429) {
+                    if (attempt <= maxRetries) {
+                        await new Promise(res => setTimeout(res, 2000 * attempt));
+                        continue;
+                    }
+                    throw new Error('تم تجاوز حد الطلبات. يرجى المحاولة بعد قليل.');
+                }
+                
+                if (response.status >= 500 && attempt <= maxRetries) {
+                    await new Promise(res => setTimeout(res, 2000 * attempt));
+                    continue;
+                }
+                
+                throw new Error(`خطأ في الاتصال بالذكاء الاصطناعي (${response.status})`);
             }
-        );
 
-        clearTimeout(timeout);
+            const data = await response.json();
 
-        if (!response.ok) {
-            const errorText = await response.text();
-            console.error('Gemini API Error:', errorText);
-            if (response.status === 429) {
-                throw new Error('تم تجاوز حد الطلبات. يرجى المحاولة بعد قليل.');
+            // Check for safety blocks
+            if (data?.candidates?.[0]?.finishReason === 'SAFETY') {
+                throw new Error('تم حظر المحتوى من قبل فلتر الأمان');
             }
-            throw new Error(`خطأ في الاتصال بالذكاء الاصطناعي (${response.status})`);
-        }
 
-        const data = await response.json();
+            // Extract text from Gemini response
+            const text = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+            if (!text) {
+                throw new Error('لم يتم الحصول على رد من الذكاء الاصطناعي');
+            }
 
-        // Check for safety blocks
-        if (data?.candidates?.[0]?.finishReason === 'SAFETY') {
-            throw new Error('تم حظر المحتوى من قبل فلتر الأمان');
-        }
+            // Parse the JSON response
+            const parsed = JSON.parse(text);
+            if (!Array.isArray(parsed)) {
+                throw new Error('الرد ليس بالتنسيق المتوقع');
+            }
 
-        // Extract text from Gemini response
-        const text = data?.candidates?.[0]?.content?.parts?.[0]?.text;
-        if (!text) {
-            throw new Error('لم يتم الحصول على رد من الذكاء الاصطناعي');
+            return parsed.map((item: any) => ({
+                description: String(item.description || '').trim(),
+                quantity: String(item.quantity || '1').trim(),
+                notes: String(item.notes || '').trim(),
+            })).filter((item: ParsedPurchaseItem) => item.description.length > 0);
+            
+        } catch (error: any) {
+            clearTimeout(timeout);
+            if (error.name === 'AbortError') {
+                if (attempt <= maxRetries) {
+                    console.warn(`Gemini Timeout on attempt ${attempt}. Retrying...`);
+                    continue;
+                }
+                throw new Error('انتهت مهلة الاتصال بالذكاء الاصطناعي. يرجى تقسيم الملف لمحاولة ثانية أو المحاولة مجدداً.');
+            }
+            throw error;
         }
-
-        // Parse the JSON response
-        const parsed = JSON.parse(text);
-        if (!Array.isArray(parsed)) {
-            throw new Error('الرد ليس بالتنسيق المتوقع');
-        }
-
-        return parsed.map((item: any) => ({
-            description: String(item.description || '').trim(),
-            quantity: String(item.quantity || '1').trim(),
-            notes: String(item.notes || '').trim(),
-        })).filter((item: ParsedPurchaseItem) => item.description.length > 0);
-    } catch (error: any) {
-        clearTimeout(timeout);
-        if (error.name === 'AbortError') {
-            throw new Error('انتهت مهلة الاتصال بالذكاء الاصطناعي. يرجى المحاولة مرة أخرى.');
-        }
-        throw error;
     }
+    
+    throw new Error('فشل الاتصال بالذكاء الاصطناعي بعد عدة محاولات.');
 }
