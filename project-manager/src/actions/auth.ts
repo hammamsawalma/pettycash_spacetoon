@@ -22,9 +22,6 @@ export async function login(prevState: unknown, formData: FormData) {
 
     const { email, password } = validatedFields.data;
 
-    // Flag to track if login succeeded (redirect must be OUTSIDE try-catch)
-    let shouldRedirect = false;
-
     try {
         const user = await prisma.user.findUnique({
             where: { email },
@@ -72,17 +69,11 @@ export async function login(prevState: unknown, formData: FormData) {
             path: "/",
         });
 
-        shouldRedirect = true;
+        return { success: true };
 
     } catch (e) {
         console.error("[login] Error:", e);
         return { error: "حدث خطأ أثناء تسجيل الدخول" };
-    }
-
-    // IMPORTANT: redirect() throws NEXT_REDIRECT internally.
-    // It MUST be outside of try-catch, otherwise catch swallows the redirect.
-    if (shouldRedirect) {
-        redirect("/");
     }
 }
 

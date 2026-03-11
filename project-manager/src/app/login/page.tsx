@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useEffect } from "react";
 import { EyeOff, Fingerprint, GripHorizontal } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { login } from "@/actions/auth";
@@ -10,6 +10,12 @@ import { useLanguage } from "@/context/LanguageContext";
 export default function LoginPage() {
     const [state, formAction, isPending] = useActionState(login, null);
     const { t, locale } = useLanguage();
+
+    useEffect(() => {
+        if (state?.success) {
+            window.location.href = "/"; // Client-side redirect to bypass Next.js 15+ Server Action redirect loops
+        }
+    }, [state]);
 
     return (
         <div className="min-h-screen flex flex-col md:flex-row bg-white">
