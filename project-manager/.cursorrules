@@ -1,0 +1,12 @@
+# Spacetoon Pocket Project Rules
+
+These rules apply to all AI interactions, deployments, and development within this project.
+
+## CI/CD and Database Deployment (Prisma)
+- **NEVER** use `npx prisma db push` in any CI/CD or automated deployment scripts (e.g., GitHub Actions `ci.yml`). `db push` is interactive and may prompt for data loss confirmation (even with the `--accept-data-loss` flag), which will cause the CI/CD pipeline to hang indefinitely and fail silently.
+- **ALWAYS** use `npx prisma migrate deploy` in production or CI/CD environments. It applies existing migrations securely and non-interactively.
+- **Local Workflow Requirement**: Before pushing any changes to `schema.prisma`, you MUST generate a migration locally using `npx prisma migrate dev --name <descriptive_name>`. This ensures that when the CI/CD pipeline runs `migrate deploy`, the migration files are present and can be applied to the production database automatically.
+
+## SSH & AWS Deployment Scripts
+- Always include `set -e` at the top of deployment bash scripts or SSH payload scripts in GitHub Actions to ensure that any failure (like AWS CLI authentication errors) stops the pipeline rather than failing silently and starting an old container.
+- When using SSH actions to pull AWS ECR images from an EC2 instance, ensure AWS credentials (`AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `AWS_DEFAULT_REGION`) are explicitly exported *inside* the SSH script payload, as GitHub Actions does not forward local environment variables over SSH by default.
