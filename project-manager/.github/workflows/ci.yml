@@ -131,3 +131,20 @@ jobs:
         sleep 10
         curl -sf http://${{ env.EC2_HOST }}:3000/ -o /dev/null -w "%{http_code}" || echo "⚠️ Health check returned non-zero (may need time to warm up)"
 
+    - name: Verify Critical Environment Variables
+      uses: appleboy/ssh-action@v1
+      with:
+        host: ${{ env.EC2_HOST }}
+        username: ec2-user
+        key: ${{ secrets.EC2_SSH_KEY }}
+        script: |
+          echo "🔍 Verifying critical environment variables..."
+          GEMINI=$(sudo docker exec spacetoon-pocket printenv GEMINI_API_KEY 2>/dev/null || echo "")
+          if [ -z "$GEMINI" ]; then
+            echo "❌ FATAL: GEMINI_API_KEY is missing from the container!"
+            echo "   → Check GitHub Secrets → Settings → Secrets → GEMINI_API_KEY"
+            exit 1
+          fi
+          echo "✅ GEMINI_API_KEY is set (${#GEMINI} chars)"
+          echo "✅ All critical environment variables verified."
+
