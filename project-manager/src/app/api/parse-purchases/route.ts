@@ -10,8 +10,8 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ error: 'غير مسجل الدخول' }, { status: 401 });
         }
 
-        // Only ADMIN, GM, and coordinators can use bulk import
-        if (!['ADMIN', 'GENERAL_MANAGER'].includes(session.role) && session.role !== 'USER') {
+        // Only ROOT, ADMIN, GM, and coordinators can use bulk import
+        if (!['ROOT', 'ADMIN', 'GENERAL_MANAGER'].includes(session.role) && session.role !== 'USER') {
             return NextResponse.json({ error: 'صلاحية مرفوضة' }, { status: 403 });
         }
 
