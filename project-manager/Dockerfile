@@ -41,9 +41,7 @@ WORKDIR /app
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
 
-# Important: pass the API key to runtime as well
-ARG GEMINI_API_KEY
-ENV GEMINI_API_KEY=${GEMINI_API_KEY}
+# (Removed ARG and ENV for GEMINI_API_KEY to allow docker run -e to work properly)
 
 # Create non-root user for security
 RUN addgroup --system --gid 1001 nodejs
