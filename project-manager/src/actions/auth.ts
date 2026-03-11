@@ -69,6 +69,10 @@ export async function login(prevState: unknown, formData: FormData) {
             path: "/",
         });
 
+        // Workaround for Next.js 15 bug: ensure cookies are flushed by forcing revalidation
+        const { revalidatePath } = require("next/cache");
+        revalidatePath("/");
+
         return { success: true };
 
     } catch (e) {
