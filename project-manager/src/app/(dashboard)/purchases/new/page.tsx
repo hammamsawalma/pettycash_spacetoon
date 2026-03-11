@@ -121,12 +121,16 @@ function NewPurchaseForm() {
         setIsUploading(true);
 
         try {
-            const formData = new FormData();
-            formData.append('file', bulkFile);
+            // Read file as ArrayBuffer
+            const buffer = await bulkFile.arrayBuffer();
 
             const res = await fetch('/api/parse-purchases', {
                 method: 'POST',
-                body: formData,
+                headers: {
+                    'Content-Type': 'application/octet-stream',
+                    'Content-Disposition': `attachment; filename="${encodeURIComponent(bulkFile.name)}"`,
+                },
+                body: buffer,
             });
 
             const data = await res.json();

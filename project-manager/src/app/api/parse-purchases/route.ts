@@ -17,32 +17,39 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ error: 'صلاحية مرفوضة' }, { status: 403 });
         }
 
-        const formData = await req.formData();
-        const file = formData.get('file') as File | null;
+        // Read file directly as ArrayBuffer to bypass Next.js 16 FormData stream bugs
+        let buffer: Buffer;
+        let fileName = 'upload.xlsx';
 
-        if (!file || file.size === 0) {
-            return NextResponse.json({ error: 'يرجى رفع ملف Excel' }, { status: 400 });
+        try {
+            // Read headers to get filename if provided
+            const contentDisposition = req.headers.get('content-disposition');
+            if (contentDisposition) {
+                const match = contentDisposition.match(/filename="?([^"]+)"?/);
+                if (match) fileName = match[1];
+            }
+
+            // NextJS 16 Edge has a bug with req.formData() streams, so we read the ArrayBuffer directly
+            const bytes = await req.arrayBuffer();
+            if (!bytes || bytes.byteLength === 0) {
+                return NextResponse.json({ error: 'يرجى رفع ملف Excel (الملف فارغ)' }, { status: 400 });
+            }
+            buffer = Buffer.from(bytes);
+        } catch (e: any) {
+            console.error('[POST /api/parse-purchases] Failed to read request body:', e);
+            return NextResponse.json({ error: 'فشل في قراءة الملف المرفوع' }, { status: 400 });
         }
 
-        // Validate file type
-        const allowedTypes = [
-            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', // .xlsx
-            'application/vnd.ms-excel', // .xls
-            'text/csv', // .csv
-        ];
-        const ext = file.name.split('.').pop()?.toLowerCase();
-        if (!allowedTypes.includes(file.type) && !['xlsx', 'xls', 'csv'].includes(ext || '')) {
+        // Validate file type based on extension
+        const ext = fileName.split('.').pop()?.toLowerCase();
+        if (!['xlsx', 'xls', 'csv'].includes(ext || '')) {
             return NextResponse.json({ error: 'نوع الملف غير مدعوم. يرجى رفع ملف Excel (.xlsx, .xls) أو CSV' }, { status: 400 });
         }
 
         // Size limit: 10MB
-        if (file.size > 10 * 1024 * 1024) {
+        if (buffer.length > 10 * 1024 * 1024) {
             return NextResponse.json({ error: 'حجم الملف يتجاوز الحد المسموح (10 ميجابايت)' }, { status: 400 });
         }
-
-        // Read file and convert to buffer
-        const bytes = await file.arrayBuffer();
-        const buffer = Buffer.from(bytes);
 
         // Step 1: Parse Excel to raw text
         const rawText = parseExcelToRawText(buffer);
