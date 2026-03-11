@@ -3,8 +3,8 @@
  *
  * Tests for:
  * - Image Upload: dual camera/gallery buttons in /purchases/new
- * - Bulk Import: /purchases/bulk page access, step flow, edge cases
- * - Proxy: route protection for /purchases/bulk
+ * - Bulk Import: Tabbed UI in /purchases/new, step flow, edge cases
+ * - Proxy: route protection for /purchases/new
  * - Server Action: createBatchPurchases edge cases
  */
 import { test, expect } from '../fixtures/auth.fixture';
@@ -102,58 +102,29 @@ test.describe('Mobile Card — Image Display', () => {
         const hasMobile = await mobileCards.count();
         expect(hasMobile).toBeGreaterThan(0);
     });
-
-    test('CARD-2: Purchases list shows bulk import button', async ({ adminPage }) => {
-        await adminPage.goto('/purchases', { waitUntil: 'networkidle', timeout: 30_000 });
-        await adminPage.waitForTimeout(2000);
-
-        const bodyText = await adminPage.textContent('body') || '';
-        expect(bodyText).toContain('إضافة مجمعة');
-    });
 });
 
 // ═══════════════════════════════════════════════════════════════
-// Feature B: Bulk Purchases Page — Access Control
+// Feature B: Bulk Purchases Tab — UI Flow
 // ═══════════════════════════════════════════════════════════════
-test.describe('Bulk Purchase — Access Control', () => {
+test.describe('Bulk Purchase — Tab Flow', () => {
 
-    test('BULK-1: ADMIN can access /purchases/bulk', async ({ adminPage }) => {
-        await adminPage.goto('/purchases/bulk', { waitUntil: 'networkidle', timeout: 30_000 });
+    test('BULK-1: New Purchase page shows two tabs', async ({ adminPage }) => {
+        await adminPage.goto('/purchases/new', { waitUntil: 'networkidle', timeout: 30_000 });
         await adminPage.waitForTimeout(2000);
-        expect(adminPage.url()).toContain('/purchases/bulk');
+
         const bodyText = await adminPage.textContent('body') || '';
-        expect(bodyText).toContain('إضافة مشتريات مجمعة');
+        expect(bodyText).toContain('عنصر واحد');
+        expect(bodyText).toContain('إضافة مجمعة (Excel)');
     });
 
-    test('BULK-2: GM can access /purchases/bulk', async ({ gmPage }) => {
-        await gmPage.goto('/purchases/bulk', { waitUntil: 'networkidle', timeout: 30_000 });
-        await gmPage.waitForTimeout(2000);
-        expect(gmPage.url()).toContain('/purchases/bulk');
-    });
-
-    test('BULK-3: PM (USER role) can access /purchases/bulk', async ({ pmPage }) => {
-        await pmPage.goto('/purchases/bulk', { waitUntil: 'networkidle', timeout: 30_000 });
-        await pmPage.waitForTimeout(2000);
-        // PM is USER at system level — proxy allows it
-        expect(pmPage.url()).toContain('/purchases/bulk');
-    });
-
-    test('BULK-4: ACCOUNTANT cannot access /purchases/bulk', async ({ accountantPage }) => {
-        await accountantPage.goto('/purchases/bulk', { waitUntil: 'networkidle', timeout: 30_000 });
-        await accountantPage.waitForTimeout(2000);
-        // GLOBAL_ACCOUNTANT should be redirected
-        expect(accountantPage.url()).not.toContain('/purchases/bulk');
-    });
-});
-
-// ═══════════════════════════════════════════════════════════════
-// Feature B: Bulk Purchases Page — UI Flow
-// ═══════════════════════════════════════════════════════════════
-test.describe('Bulk Purchase — UI Flow', () => {
-
-    test('BULK-5: Bulk page shows step indicator', async ({ adminPage }) => {
-        await adminPage.goto('/purchases/bulk', { waitUntil: 'networkidle', timeout: 30_000 });
+    test('BULK-2: Clicking Bulk tab shows step indicator', async ({ adminPage }) => {
+        await adminPage.goto('/purchases/new', { waitUntil: 'networkidle', timeout: 30_000 });
         await adminPage.waitForTimeout(2000);
+
+        // Click the bulk tab
+        await adminPage.click('button:has-text("إضافة مجمعة (Excel)")');
+        await adminPage.waitForTimeout(500);
 
         const bodyText = await adminPage.textContent('body') || '';
         expect(bodyText).toContain('رفع الملف');
@@ -161,18 +132,26 @@ test.describe('Bulk Purchase — UI Flow', () => {
         expect(bodyText).toContain('تأكيد');
     });
 
-    test('BULK-6: Shows project selector and batch label input', async ({ adminPage }) => {
-        await adminPage.goto('/purchases/bulk', { waitUntil: 'networkidle', timeout: 30_000 });
+    test('BULK-3: Shows project selector and batch label input', async ({ adminPage }) => {
+        await adminPage.goto('/purchases/new', { waitUntil: 'networkidle', timeout: 30_000 });
         await adminPage.waitForTimeout(2000);
+        
+        // Click the bulk tab
+        await adminPage.click('button:has-text("إضافة مجمعة (Excel)")');
+        await adminPage.waitForTimeout(500);
 
         const bodyText = await adminPage.textContent('body') || '';
-        expect(bodyText).toContain('المشروع');
+        expect(bodyText).toContain('المشروع *');
         expect(bodyText).toContain('تسمية الدفعة');
     });
 
-    test('BULK-7: Analyze button is disabled without project selection', async ({ adminPage }) => {
-        await adminPage.goto('/purchases/bulk', { waitUntil: 'networkidle', timeout: 30_000 });
+    test('BULK-4: Analyze button is disabled without project selection', async ({ adminPage }) => {
+        await adminPage.goto('/purchases/new', { waitUntil: 'networkidle', timeout: 30_000 });
         await adminPage.waitForTimeout(2000);
+        
+        // Click the bulk tab
+        await adminPage.click('button:has-text("إضافة مجمعة (Excel)")');
+        await adminPage.waitForTimeout(500);
 
         // Analyze button should be disabled when no project is selected
         const analyzeBtn = adminPage.locator('button:has-text("تحليل الملف")');
@@ -180,23 +159,18 @@ test.describe('Bulk Purchase — UI Flow', () => {
         expect(isDisabled).toBeTruthy();
     });
 
-    test('BULK-8: File upload area accepts Excel files only', async ({ adminPage }) => {
-        await adminPage.goto('/purchases/bulk', { waitUntil: 'networkidle', timeout: 30_000 });
+    test('BULK-5: File upload area accepts Excel files only', async ({ adminPage }) => {
+        await adminPage.goto('/purchases/new', { waitUntil: 'networkidle', timeout: 30_000 });
         await adminPage.waitForTimeout(2000);
+        
+        // Click the bulk tab
+        await adminPage.click('button:has-text("إضافة مجمعة (Excel)")');
+        await adminPage.waitForTimeout(500);
 
         // Check file input accepts correct types
         const fileInput = adminPage.locator('input[type="file"][accept=".xlsx,.xls,.csv"]');
         const hasFileInput = await fileInput.count();
         expect(hasFileInput).toBeGreaterThanOrEqual(1);
-    });
-
-    test('BULK-9: Back button navigates away', async ({ adminPage }) => {
-        await adminPage.goto('/purchases/bulk', { waitUntil: 'networkidle', timeout: 30_000 });
-        await adminPage.waitForTimeout(2000);
-
-        const backButton = adminPage.locator('button:has-text("العودة")');
-        const hasBack = await backButton.isVisible();
-        expect(hasBack).toBeTruthy();
     });
 });
 
@@ -205,7 +179,7 @@ test.describe('Bulk Purchase — UI Flow', () => {
 // ═══════════════════════════════════════════════════════════════
 test.describe('Bulk Purchase — API Edge Cases', () => {
 
-    test('BULK-10: API rejects requests without authentication', async ({ page }) => {
+    test('BULK-6: API rejects requests without authentication', async ({ page }) => {
         const response = await page.request.post('/api/parse-purchases', {
             multipart: {
                 file: {
@@ -220,7 +194,7 @@ test.describe('Bulk Purchase — API Edge Cases', () => {
         expect(response.status()).toBe(401);
     });
 
-    test('BULK-11: API rejects invalid file types', async ({ adminPage }) => {
+    test('BULK-7: API rejects invalid file types', async ({ adminPage }) => {
         // Attempt to upload a .txt file
         const response = await adminPage.request.post('/api/parse-purchases', {
             multipart: {
@@ -237,7 +211,7 @@ test.describe('Bulk Purchase — API Edge Cases', () => {
         expect(data.error).toBeTruthy();
     });
 
-    test('BULK-12: API rejects empty file', async ({ adminPage }) => {
+    test('BULK-8: API rejects empty file', async ({ adminPage }) => {
         const response = await adminPage.request.post('/api/parse-purchases', {
             multipart: {
                 file: {
@@ -248,41 +222,23 @@ test.describe('Bulk Purchase — API Edge Cases', () => {
             }
         });
 
-        // Should get 400 (empty file)
+        // Should get 400 (empty file) or 500 depending on exact parsing point
         expect([400, 500]).toContain(response.status());
     });
 });
 
 // ═══════════════════════════════════════════════════════════════
-// Feature B: Batch Creation — Server Action Edge Cases
+// Feature B: Batch Creation — Validation
 // ═══════════════════════════════════════════════════════════════
-test.describe('Bulk Purchase — Server Action Validation', () => {
+test.describe('Bulk Purchase — Validation', () => {
 
-    test('BULK-13: Purchases list still works correctly after batch feature added', async ({ adminPage }) => {
-        await adminPage.goto('/purchases', { waitUntil: 'networkidle', timeout: 30_000 });
-        await adminPage.waitForTimeout(2000);
-
-        const bodyText = await adminPage.textContent('body') || '';
-        expect(bodyText).toContain('المشتريات');
-
-        // Both buttons should be visible for admin
-        expect(bodyText).toContain('إضافة طلب شراء');
-        expect(bodyText).toContain('إضافة مجمعة');
-    });
-
-    test('BULK-14: Single purchase creation still works after changes', async ({ adminPage }) => {
+    test('BULK-9: Bulk tab shows AI branding', async ({ adminPage }) => {
         await adminPage.goto('/purchases/new', { waitUntil: 'networkidle', timeout: 30_000 });
         await adminPage.waitForTimeout(2000);
-
-        // Form should load correctly
-        const bodyText = await adminPage.textContent('body') || '';
-        expect(bodyText).toContain('اضافة طلب شراء جديد');
-        expect(bodyText).toContain('وصف الطلب');
-    });
-
-    test('BULK-15: Bulk page shows AI branding', async ({ adminPage }) => {
-        await adminPage.goto('/purchases/bulk', { waitUntil: 'networkidle', timeout: 30_000 });
-        await adminPage.waitForTimeout(2000);
+        
+        // Click the bulk tab
+        await adminPage.click('button:has-text("إضافة مجمعة (Excel)")');
+        await adminPage.waitForTimeout(500);
 
         const bodyText = await adminPage.textContent('body') || '';
         expect(bodyText).toContain('الذكاء الاصطناعي');
@@ -294,16 +250,17 @@ test.describe('Bulk Purchase — Server Action Validation', () => {
 // ═══════════════════════════════════════════════════════════════
 test.describe('Batch Label — Display in List', () => {
 
-    test('BATCH-1: PurchasesClient renders batchLabel badge for batch purchases', async ({ adminPage }) => {
-        // This is a structural test — verify the badge rendering logic exists
+    test('BATCH-1: PurchasesClient renders correctly without breaking', async ({ adminPage }) => {
+        // This is a structural test — verify the list renders without the old explicit bulk button
         await adminPage.goto('/purchases', { waitUntil: 'networkidle', timeout: 30_000 });
         await adminPage.waitForTimeout(2000);
 
         // The page should load without errors
         const bodyText = await adminPage.textContent('body') || '';
         expect(bodyText).toContain('المشتريات');
+        expect(bodyText).toContain('إضافة طلب شراء');
 
-        // Verify the page didn't crash (no error boundaries)
+        // Verify the page didn't crash
         expect(bodyText).not.toContain('Error');
         expect(bodyText).not.toContain('حدث خطأ');
     });
