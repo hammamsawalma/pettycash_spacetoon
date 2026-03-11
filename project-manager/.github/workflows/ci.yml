@@ -99,26 +99,31 @@ jobs:
           sudo docker pull ${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}:latest
 
           # ══════════════════════════════════════════════════════════
-          # Read ALL secrets from the server-side .env.production file
-          # This is the SINGLE SOURCE OF TRUTH for production secrets.
-          # To update a secret, edit /home/ec2-user/.env.production on the server.
+          # PRIMARY: GitHub Secrets (encrypted, auditable, correct)
+          # FALLBACK: /home/ec2-user/.env.production (safety net)
           # ══════════════════════════════════════════════════════════
+          DB_URL="${{ secrets.DATABASE_URL }}"
+          JWT="${{ secrets.JWT_SECRET }}"
+          GEMINI="${{ secrets.GEMINI_API_KEY }}"
+          VAPID_PRIV="${{ secrets.VAPID_PRIVATE_KEY }}"
+          VAPID_PUB="${{ secrets.VAPID_PUBLIC_KEY }}"
+
+          # Fallback: if any GitHub Secret is empty, read from server file
           ENV_FILE="/home/ec2-user/.env.production"
-          if [ ! -f "$ENV_FILE" ]; then
-            echo "❌ FATAL: $ENV_FILE not found on server!"
-            exit 1
+          if [ -z "$DB_URL" ] || [ -z "$JWT" ] || [ -z "$GEMINI" ]; then
+            echo "⚠️ Some GitHub Secrets are empty, falling back to $ENV_FILE"
+            if [ -f "$ENV_FILE" ]; then
+              [ -z "$DB_URL" ] && DB_URL=$(grep '^DATABASE_URL=' "$ENV_FILE" | cut -d= -f2-)
+              [ -z "$JWT" ] && JWT=$(grep '^JWT_SECRET=' "$ENV_FILE" | cut -d= -f2-)
+              [ -z "$GEMINI" ] && GEMINI=$(grep '^GEMINI_API_KEY=' "$ENV_FILE" | cut -d= -f2-)
+              [ -z "$VAPID_PRIV" ] && VAPID_PRIV=$(grep '^VAPID_PRIVATE_KEY=' "$ENV_FILE" | cut -d= -f2-)
+              [ -z "$VAPID_PUB" ] && VAPID_PUB=$(grep '^NEXT_PUBLIC_VAPID_PUBLIC_KEY=' "$ENV_FILE" | cut -d= -f2-)
+            fi
           fi
 
-          DB_URL=$(grep '^DATABASE_URL=' "$ENV_FILE" | cut -d= -f2-)
-          DIRECT=$(grep '^DIRECT_URL=' "$ENV_FILE" | cut -d= -f2-)
-          JWT=$(grep '^JWT_SECRET=' "$ENV_FILE" | cut -d= -f2-)
-          VAPID_PRIV=$(grep '^VAPID_PRIVATE_KEY=' "$ENV_FILE" | cut -d= -f2-)
-          VAPID_PUB=$(grep '^NEXT_PUBLIC_VAPID_PUBLIC_KEY=' "$ENV_FILE" | cut -d= -f2-)
-          GEMINI=$(grep '^GEMINI_API_KEY=' "$ENV_FILE" | cut -d= -f2-)
-
-          # Validate critical secrets
+          # Final validation — fail loudly if anything is still missing
           if [ -z "$DB_URL" ] || [ -z "$JWT" ] || [ -z "$GEMINI" ]; then
-            echo "❌ FATAL: Missing critical env vars in $ENV_FILE!"
+            echo "❌ FATAL: Missing critical env vars!"
             echo "  DATABASE_URL: $([ -n "$DB_URL" ] && echo 'OK' || echo 'MISSING')"
             echo "  JWT_SECRET: $([ -n "$JWT" ] && echo 'OK' || echo 'MISSING')"
             echo "  GEMINI_API_KEY: $([ -n "$GEMINI" ] && echo 'OK' || echo 'MISSING')"
@@ -129,13 +134,13 @@ jobs:
           sudo docker stop spacetoon-pocket 2>/dev/null || true
           sudo docker rm spacetoon-pocket 2>/dev/null || true
 
-          # Run new container with env vars from .env.production
+          # Run new container
           sudo docker run -d \
             --name spacetoon-pocket \
             --restart always \
             -p 3000:3000 \
             -e DATABASE_URL="$DB_URL" \
-            -e DIRECT_URL="$DIRECT" \
+            -e DIRECT_URL="$DB_URL" \
             -e JWT_SECRET="$JWT" \
             -e VAPID_PRIVATE_KEY="$VAPID_PRIV" \
             -e NEXT_PUBLIC_VAPID_PUBLIC_KEY="$VAPID_PUB" \
@@ -145,11 +150,11 @@ jobs:
             --log-opt max-file=3 \
             ${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}:latest
 
-          # Apply schema changes securely in production (non-interactive)
+          # Apply schema changes
           sleep 5
           sudo docker exec spacetoon-pocket npx prisma migrate deploy 2>&1 || echo "⚠️ Prisma migrate deploy failed"
 
-          # Verify container is running
+          # Verify container
           sleep 3
           sudo docker logs spacetoon-pocket --tail 5
 
