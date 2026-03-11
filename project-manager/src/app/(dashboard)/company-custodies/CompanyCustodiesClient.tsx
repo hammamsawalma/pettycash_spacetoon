@@ -31,7 +31,7 @@ interface CompanyCustodyData {
     employee: { id: string; name: string; image?: string | null };
 }
 
-export default function CompanyCustodiesClient({ custodies, role }: { custodies: CompanyCustodyData[]; role: string }) {
+export default function CompanyCustodiesClient({ custodies, role, accountants = [] }: { custodies: CompanyCustodyData[]; role: string; accountants?: { id: string; name: string | null }[] }) {
     const router = useRouter();
     const { user } = useAuth();
     const { locale } = useLanguage();
@@ -53,6 +53,35 @@ export default function CompanyCustodiesClient({ custodies, role }: { custodies:
     const rejected = custodies.filter(c => c.status === 'REJECTED');
     const totalActive = active.reduce((sum, c) => sum + c.balance, 0);
     const canExport = useCanDo('exports', 'view');
+    const canReturn = ["ROOT", "ADMIN", "GLOBAL_ACCOUNTANT", "ACCOUNTANT"].includes(role);
+
+    const [returnModal, setReturnModal] = useState<{ id: string, balance: number } | null>(null);
+    const [isReturning, setIsReturning] = useState(false);
+
+    const handleReturn = async (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        if (!returnModal) return;
+        setIsReturning(true);
+        const fd = new FormData(e.currentTarget);
+        const amount = parseFloat(fd.get("amount") as string);
+        const note = fd.get("note") as string;
+        
+        try {
+            const { returnCustodyBalance } = await import("@/actions/custody");
+            const res = await returnCustodyBalance(returnModal.id, amount, note);
+            if (res.error) {
+                toast.error(res.error);
+            } else {
+                toast.success(locale === 'ar' ? "تم تسجيل المرتجع بنجاح ✅" : "Return recorded successfully ✅");
+                setReturnModal(null);
+                router.refresh();
+            }
+        } catch (err) {
+            toast.error("Error returning balance");
+        } finally {
+            setIsReturning(false);
+        }
+    };
 
     const compColumns: ExportColumn[] = [
         { key: "employeeName", label: locale === 'ar' ? "المستلم" : "Recipient" },
@@ -139,8 +168,8 @@ export default function CompanyCustodiesClient({ custodies, role }: { custodies:
                     </Card>
                 </div>
 
-                {/* Issue Form (ADMIN only) */}
-                {role === "ADMIN" && (
+                {/* Issue Form (ADMIN and ACCOUNTANT) */}
+                {(role === "ADMIN" || role === "GLOBAL_ACCOUNTANT" || role === "ACCOUNTANT") && (
                     <div>
                         {!showForm ? (
                             <Button onClick={() => setShowForm(true)} className="bg-[#102550] hover:bg-[#0d1d40] text-white">
@@ -153,7 +182,16 @@ export default function CompanyCustodiesClient({ custodies, role }: { custodies:
                                     {locale === 'ar' ? 'صرف عهدة مصاريف الشركة' : 'Issue Company Expense Custody'}
                                 </h3>
                                 <form action={formAction} className="space-y-4">
-                                    <input type="hidden" name="employeeId" value="" id="company-custody-employee" />
+                                    <div>
+                                        <label className="block text-sm font-bold text-gray-700 mb-1">{locale === 'ar' ? 'المحاسب المستلم' : 'Receiving Accountant'}</label>
+                                        <select name="employeeId" required
+                                            className="w-full p-3 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-blue-500">
+                                            <option value="">{locale === 'ar' ? 'اختر المحاسب...' : 'Select Accountant...'}</option>
+                                            {accountants.map(acc => (
+                                                <option key={acc.id} value={acc.id}>{acc.name}</option>
+                                            ))}
+                                        </select>
+                                    </div>
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                         <div>
                                             <label className="block text-sm font-bold text-gray-700 mb-1">{locale === 'ar' ? 'المبلغ' : 'Amount'}</label>
@@ -221,7 +259,16 @@ export default function CompanyCustodiesClient({ custodies, role }: { custodies:
                                         </div>
                                         {c.note && <p className="text-xs text-gray-500 line-clamp-2">{c.note}</p>}
                                     </div>
-                                    <div className="mt-4 pt-3 border-t border-gray-50 flex justify-end">
+                                    <div className="mt-4 pt-3 border-t border-gray-50 flex justify-end gap-2">
+                                        {canReturn && (
+                                            <Button 
+                                                onClick={() => setReturnModal({ id: c.id, balance: c.balance })} 
+                                                variant="outline" 
+                                                className="h-8 text-xs font-bold border-gray-200"
+                                            >
+                                                {locale === 'ar' ? 'تسجيل مرتجع' : 'Record Return'}
+                                            </Button>
+                                        )}
                                         <a href={`/api/vouchers/${c.id}`} target="_blank" rel="noopener noreferrer"
                                             className="inline-flex items-center gap-1.5 h-8 px-3 text-xs font-bold text-[#102550] border border-[#102550]/20 hover:bg-blue-50 rounded-xl transition-colors">
                                             <FileOutput className="w-3.5 h-3.5" /> {locale === 'ar' ? 'سند الصرف' : 'Voucher'}
@@ -304,6 +351,43 @@ export default function CompanyCustodiesClient({ custodies, role }: { custodies:
                     </section>
                 )}
             </div>
+
+            {/* Return Modal Overlay */}
+            {returnModal && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+                    <Card className="w-full max-w-md p-6 bg-white shadow-2xl">
+                        <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+                            <Wallet className="w-5 h-5 text-emerald-600" />
+                            {locale === 'ar' ? 'تسجيل مرتجع مصاريف' : 'Record Expenses Return'}
+                        </h3>
+                        <p className="text-sm text-gray-500 mb-6">
+                            {locale === 'ar' ? 'الرصيد المتبقي للعهدة:' : 'Remaining custody balance:'} <strong className="text-gray-900">{returnModal.balance.toLocaleString('en-US')} <CurrencyDisplay /></strong>
+                        </p>
+                        <form onSubmit={handleReturn} className="space-y-4">
+                            <div>
+                                <label className="block text-sm font-bold text-gray-700 mb-1">{locale === 'ar' ? 'مبلغ المرتجع' : 'Return Amount'}</label>
+                                <input type="number" name="amount" step="0.01" min="1" max={returnModal.balance} required
+                                    className="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500"
+                                    placeholder={locale === 'ar' ? "أدخل المبلغ المسترجع" : "Enter returned amount"} />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-bold text-gray-700 mb-1">{locale === 'ar' ? 'ملاحظات والتفاصيل' : 'Notes & Details'}</label>
+                                <textarea name="note" rows={2} required
+                                    className="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 resize-none"
+                                    placeholder={locale === 'ar' ? "مثال: فواتير بقيمة ٢٥٠٠ ومرتجع نقدي ٥٠٠" : "E.g: Invoices for 2500 and cash return 500"} />
+                            </div>
+                            <div className="flex justify-end gap-3 mt-6">
+                                <Button type="button" variant="outline" onClick={() => setReturnModal(null)}>
+                                    {locale === 'ar' ? 'إلغاء' : 'Cancel'}
+                                </Button>
+                                <Button type="submit" disabled={isReturning} className="bg-emerald-600 hover:bg-emerald-700 text-white">
+                                    {isReturning ? (locale === 'ar' ? "جاري الحفظ..." : "Processing...") : (locale === 'ar' ? "تأكيد المرتجع" : "Confirm Return")}
+                                </Button>
+                            </div>
+                        </form>
+                    </Card>
+                </div>
+            )}
         </DashboardLayout>
     );
 }

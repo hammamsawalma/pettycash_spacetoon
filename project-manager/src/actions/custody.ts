@@ -583,8 +583,8 @@ export async function getExternalCustodiesReport() {
 export async function issueCompanyCustody(prevState: unknown, formData: FormData) {
     try {
         const session = await getSession();
-        if (!session || !["ROOT", "ADMIN"].includes(session.role)) {
-            return { error: "فقط المدير يمكنه صرف عهدة مصاريف الشركة" };
+        if (!session || !["ROOT", "ADMIN", "GLOBAL_ACCOUNTANT", "ACCOUNTANT"].includes(session.role as string)) {
+            return { error: "فقط المدير أو المحاسب يمكنه صرف عهدة مصاريف الشركة" };
         }
 
         const employeeId = formData.get("employeeId") as string;
@@ -674,8 +674,8 @@ export async function getCompanyCustodies() {
         const session = await getSession();
         if (!session) return [];
 
-        // ROOT, ADMIN, GLOBAL_ACCOUNTANT, GM can view
-        const canView = ["ROOT", "ADMIN", "GLOBAL_ACCOUNTANT", "GENERAL_MANAGER"].includes(session.role);
+        // ROOT, ADMIN, GLOBAL_ACCOUNTANT, ACCOUNTANT, GM can view
+        const canView = ["ROOT", "ADMIN", "GLOBAL_ACCOUNTANT", "ACCOUNTANT", "GENERAL_MANAGER"].includes(session.role as string);
         if (!canView) return [];
 
         // Branch isolation: filter by employee's branchId
