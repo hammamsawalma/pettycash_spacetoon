@@ -97,6 +97,10 @@ jobs:
           # Pull latest image
           sudo docker pull ${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}:latest
 
+          # Stop and remove old container
+          sudo docker stop spacetoon-pocket 2>/dev/null || true
+          sudo docker rm spacetoon-pocket 2>/dev/null || true
+
           # Run new container natively using the production environment file
           sudo docker run -d \
             --name spacetoon-pocket \
