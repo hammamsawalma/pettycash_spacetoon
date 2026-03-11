@@ -6,7 +6,7 @@ import { test, expect } from '../fixtures/auth.fixture';
 const wait = async (p: any) => { await p.waitForLoadState('networkidle').catch(() => { }); await p.waitForTimeout(2000); };
 const bd = async (p: any) => (await p.textContent('body')) || '';
 const goProj = async (p: any) => { await p.goto('/projects', { waitUntil: 'domcontentloaded' }); await wait(p); };
-const goProjDetail = async (p: any) => { await goProj(p); const l = p.locator('a[href*="/projects/"]').first(); if (await l.count() > 0) { await l.click(); await wait(p); } };
+const goProjDetail = async (p: any) => { await goProj(p); await p.evaluate(() => { const links = Array.from(document.querySelectorAll('a[href*="/projects/"]')); const visibleLink = links.find(l => { const style = window.getComputedStyle(l); return style.display !== 'none' && style.visibility !== 'hidden' && style.opacity !== '0'; }); if (visibleLink) (visibleLink as HTMLElement).click(); }); await wait(p); };
 
 test.describe('P11-PCF: Project Close Financial (25)', () => {
     test('P11-PCF1: Close project button visible', async ({ adminPage }) => { await goProjDetail(adminPage); const b = await bd(adminPage); expect(b.length).toBeGreaterThan(100); });
