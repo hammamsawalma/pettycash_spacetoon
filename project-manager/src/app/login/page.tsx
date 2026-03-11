@@ -1,21 +1,54 @@
 "use client";
 
-import { useActionState, useEffect } from "react";
+import { useState } from "react";
 import { EyeOff, Fingerprint, GripHorizontal } from "lucide-react";
 import { Button } from "@/components/ui/Button";
-import { login } from "@/actions/auth";
 import toast from "react-hot-toast";
 import { useLanguage } from "@/context/LanguageContext";
 
 export default function LoginPage() {
-    const [state, formAction, isPending] = useActionState(login, null);
+    const [isPending, setIsPending] = useState(false);
     const { t, locale } = useLanguage();
 
-    useEffect(() => {
-        if (state?.success) {
-            window.location.href = "/"; // Client-side redirect to bypass Next.js 15+ Server Action redirect loops
+    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        
+        const formData = new FormData(e.currentTarget);
+        const email = formData.get("email");
+        const password = formData.get("password");
+
+        if (!email || !password) {
+            toast.error(locale === 'ar' ? 'الرجاء إدخال البريد الإلكتروني وكلمة المرور' : 'Please enter email and password');
+            return;
         }
-    }, [state]);
+
+        if (typeof email === "string" && !email.includes("@")) {
+            toast.error(locale === 'ar' ? 'صيغة البريد الإلكتروني غير صحيحة' : 'Invalid email format');
+            return;
+        }
+
+        setIsPending(true);
+        try {
+            const res = await fetch('/api/auth/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, password })
+            });
+
+            const data = await res.json();
+
+            if (!res.ok) {
+                toast.error(data.error || (locale === 'ar' ? 'حدث خطأ' : 'An error occurred'));
+            } else if (data.success) {
+                window.location.href = "/";
+            }
+        } catch (error) {
+            console.error("Login error:", error);
+            toast.error(locale === 'ar' ? 'حدث خطأ بالاتصال. يرجى المحاولة لاحقاً.' : 'Connection error. Please try again later.');
+        } finally {
+            setIsPending(false);
+        }
+    };
 
     return (
         <div className="min-h-screen flex flex-col md:flex-row bg-white">
@@ -39,26 +72,7 @@ export default function LoginPage() {
                         <p className="text-gray-500">{locale === 'ar' ? 'تسجيل الدخول إلى حسابك' : 'Sign in to your account'}</p>
                     </div>
 
-                    {state?.error && (
-                        <div className="p-4 text-sm text-red-800 rounded-lg bg-red-50 dark:text-red-400" role="alert">
-                            {state.error}
-                        </div>
-                    )}
-
-                    <form className="space-y-6" action={(formData) => {
-                        const email = formData.get("email");
-                        const password = formData.get("password");
-                        if (!email || !password) {
-                            toast.error(locale === 'ar' ? 'الرجاء إدخال البريد الإلكتروني وكلمة المرور' : 'Please enter email and password');
-                            return;
-                        }
-                        if (typeof email === "string" && !email.includes("@")) {
-                            toast.error(locale === 'ar' ? 'صيغة البريد الإلكتروني غير صحيحة' : 'Invalid email format');
-                            return;
-                        }
-                        // Then proceed with the server action
-                        formAction(formData);
-                    }}>
+                    <form className="space-y-6" onSubmit={handleSubmit}>
                         {/* Quick Login for testing */}
                         <div className="space-y-2 pb-4 border-b border-gray-100">
                             <p className="text-[10px] text-center font-bold text-gray-400 uppercase tracking-widest mb-2">
