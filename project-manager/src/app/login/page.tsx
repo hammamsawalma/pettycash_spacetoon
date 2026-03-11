@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { EyeOff, Fingerprint, GripHorizontal } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import toast from "react-hot-toast";
@@ -9,6 +9,18 @@ import { useLanguage } from "@/context/LanguageContext";
 export default function LoginPage() {
     const [isPending, setIsPending] = useState(false);
     const { t, locale } = useLanguage();
+    const [branchContext, setBranchContext] = useState<{ name: string, flag: string } | null>(null);
+
+    useEffect(() => {
+        try {
+            const code = localStorage.getItem("selectedBranchCode");
+            const name = localStorage.getItem("selectedBranchName");
+            const flag = localStorage.getItem("selectedBranchFlag");
+            if (code && name && flag && code !== 'ROOT') {
+                setBranchContext({ name, flag });
+            }
+        } catch(e) {}
+    }, []);
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -53,14 +65,23 @@ export default function LoginPage() {
     return (
         <div className="min-h-screen flex flex-col md:flex-row bg-white">
             {/* Brand Section */}
-            <div className="md:w-1/2 bg-[#102550] flex flex-col justify-center items-center p-8 text-white min-h-[30vh] md:min-h-screen">
-                <img
-                    src="/spacetoon-logo.png"
-                    alt="Spacetoon Logo"
-                    className="w-48 h-auto object-contain mb-4 drop-shadow-[0_0_3px_rgba(255,255,255,1)]"
-                />
-                <p className="text-blue-200 text-center max-w-sm hidden md:block">
-                    {locale === 'ar' ? 'النظام الأذكى لإدارة مشاريعك وفريق عملك بكفاءة عالية' : 'The smartest system for managing your projects and team efficiently'}
+            <div className="md:w-1/2 bg-[#102550] flex flex-col justify-center items-center p-8 text-white min-h-[30vh] md:min-h-[100dvh]">
+                <div className="relative">
+                    <img
+                        src="/spacetoon-logo.png"
+                        alt="Spacetoon Logo"
+                        className="w-48 h-auto object-contain mb-4 drop-shadow-[0_0_3px_rgba(255,255,255,1)]"
+                    />
+                    {branchContext && (
+                        <div className="absolute -bottom-4 -right-4 bg-white/10 backdrop-blur-md rounded-full w-16 h-16 flex items-center justify-center text-3xl border border-white/20 shadow-lg animate-bounce">
+                            {branchContext.flag}
+                        </div>
+                    )}
+                </div>
+                <p className="text-blue-200 text-center text-sm md:text-base max-w-sm hidden md:block mt-6">
+                    {branchContext 
+                        ? (locale === 'ar' ? `بوابة الأعمال الرسمية — ${branchContext.name}` : `Official Business Portal — ${branchContext.name}`)
+                        : (locale === 'ar' ? 'النظام الأذكى لإدارة مشاريعك وفريق عملك بكفاءة عالية' : 'The smartest system for managing your projects and team efficiently')}
                 </p>
             </div>
 
@@ -68,7 +89,11 @@ export default function LoginPage() {
             <div className="md:w-1/2 flex justify-center items-center p-6 md:p-12">
                 <div className="w-full max-w-md space-y-8">
                     <div className="text-center">
-                        <h2 className="text-3xl font-bold text-gray-900 mb-2">{locale === 'ar' ? 'مرحبًا بعودتك!' : 'Welcome back!'}</h2>
+                        <h2 className="text-3xl font-bold text-gray-900 mb-2">
+                            {branchContext 
+                                ? (locale === 'ar' ? `مرحباً بك في فرع ${branchContext.name}` : `Welcome to ${branchContext.name} Branch`)
+                                : (locale === 'ar' ? 'مرحبًا بعودتك!' : 'Welcome back!')}
+                        </h2>
                         <p className="text-gray-500">{locale === 'ar' ? 'تسجيل الدخول إلى حسابك' : 'Sign in to your account'}</p>
                     </div>
 
