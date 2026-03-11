@@ -73,9 +73,9 @@ export const PERMISSIONS = {
     },
 
     wallet: {
-        deposit: ["ROOT", "ADMIN"] as UserRole[],
+        deposit: ["ROOT", "ADMIN", "GLOBAL_ACCOUNTANT", "ACCOUNTANT" as any] as UserRole[],
         allocate: ["ROOT", "ADMIN"] as UserRole[],
-        view: ["ROOT", "ADMIN", "GENERAL_MANAGER", "GLOBAL_ACCOUNTANT"] as UserRole[],
+        view: ["ROOT", "ADMIN", "GENERAL_MANAGER", "GLOBAL_ACCOUNTANT", "ACCOUNTANT" as any] as UserRole[],
     },
 
     financialRequests: {

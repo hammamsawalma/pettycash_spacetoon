@@ -36,6 +36,7 @@ export default function FinanceRequestsPage() {
     // Derived from central permissions matrix — no hardcoded role strings in UI
     const isAdmin = useCanDo('financialRequests', 'approve');
     const isFinanceRole = useCanDo('financialRequests', 'view');
+    const canExport = useCanDo('exports', 'view');
     const { locale } = useLanguage();
 
     const [requests, setRequests] = useState<Request[]>([]);
@@ -65,7 +66,6 @@ export default function FinanceRequestsPage() {
 
     // ADMIN and GLOBAL_ACCOUNTANT can create finance requests
     const canCreate = isAdmin || user.role === 'GLOBAL_ACCOUNTANT';
-    const canExport = useCanDo('exports', 'view');
 
     const frColumns: ExportColumn[] = [
         { key: "type", label: locale === 'ar' ? "النوع" : "Type", format: (v) => financeRequestTypeLabel[v as string] || String(v) },

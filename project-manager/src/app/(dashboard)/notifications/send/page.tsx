@@ -51,8 +51,7 @@ export default function SendNotificationPage() {
         }
     }, [user, canSend]);
 
-    if (!user || !canSend) return null;
-
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     useEffect(() => {
         if (state?.success) {
             toast.success(locale === 'ar' ? "تم إرسال الإشعار بنجاح" : "Notification sent successfully", { id: "notify-toast" });
@@ -62,6 +61,8 @@ export default function SendNotificationPage() {
             toast.error(state.error, { id: "notify-toast" });
         }
     }, [state]);
+
+    if (!user || !canSend) return null;
 
     const timeAgo = (date: Date) => {
         const seconds = Math.floor((new Date().getTime() - new Date(date).getTime()) / 1000);

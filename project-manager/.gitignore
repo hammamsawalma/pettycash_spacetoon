@@ -48,3 +48,9 @@ tests/.auth/
 # Playwright test results
 test-results/
 playwright-report/
+
+# Debug & temp files
+*.debug.png
+dev_server.log
+*.log
+*.txt

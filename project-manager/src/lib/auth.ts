@@ -55,21 +55,11 @@ export async function getSession(): Promise<SessionData | null> {
     const cookieStore = await cookies();
     const token = cookieStore.get("session")?.value;
 
-    if (!token) {
-        console.log("[getSession] Session cookie not found in request");
-        return null;
-    }
+    if (!token) return null;
 
     try {
-        const decoded = await verifyToken(token);
-        if (!decoded) {
-            console.log("[getSession] verifyToken returned null for token:", token.substring(0, 10) + "...");
-        } else {
-            console.log("[getSession] Session verified for user:", decoded.email);
-        }
-        return decoded;
-    } catch (err) {
-        console.error("[getSession] verifyToken threw an error:", err);
+        return await verifyToken(token);
+    } catch {
         return null;
     }
 }

@@ -17,14 +17,14 @@ export default function DepositToWalletPage() {
     const { user } = useAuth();
     const { locale } = useLanguage();
 
-    // Only ADMIN can deposit — redirect others
+    // Only ADMIN and ACCOUNTANT can deposit — redirect others
     useEffect(() => {
-        if (user && user.role !== "ADMIN") {
+        if (user && !["ROOT", "ADMIN", "GLOBAL_ACCOUNTANT", "ACCOUNTANT"].includes(user.role)) {
             router.push("/wallet");
         }
     }, [user, router]);
 
-    if (!user || user.role !== "ADMIN") return null;
+    if (!user || !["ROOT", "ADMIN", "GLOBAL_ACCOUNTANT", "ACCOUNTANT"].includes(user.role)) return null;
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();

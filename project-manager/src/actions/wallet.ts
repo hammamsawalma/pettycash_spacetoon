@@ -41,8 +41,8 @@ export async function getCompanyWallet() {
 export async function depositToCompanyWallet(prevState: unknown, formData: FormData) {
     try {
         const session = await getSession();
-        if (!session || !["ROOT", "ADMIN"].includes(session.role)) {
-            return { error: "فقط المدير يمكنه إيداع في خزنة الشركة" };
+        if (!session || !["ROOT", "ADMIN", "GLOBAL_ACCOUNTANT", "ACCOUNTANT"].includes(session.role)) {
+            return { error: "فقط الإدارة والمالية يمكنهم إضافة رصيد لخزنة الشركة" };
         }
 
         const amount = parseFloat(formData.get("amount") as string);

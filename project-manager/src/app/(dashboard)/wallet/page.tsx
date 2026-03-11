@@ -12,7 +12,7 @@ import { WalletExportButton } from "./WalletExportButton";
 
 export default async function WalletPage() {
     const session = await getSession();
-    if (!session || !canDo(session.role as UserRole, 'wallet', 'view')) {
+    if (!session || (!canDo(session.role as UserRole, 'wallet', 'view') && (session.role as any) !== 'ACCOUNTANT')) {
         redirect("/");
     }
 

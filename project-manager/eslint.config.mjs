@@ -23,10 +23,19 @@ const eslintConfig = defineConfig([
       "@typescript-eslint/no-unused-expressions": "warn",
       "react/no-unescaped-entities": "warn",
       "react-hooks/set-state-in-effect": "warn",
-      "react-hooks/rules-of-hooks": "warn",
+      "react-hooks/rules-of-hooks": "error",  // fundamental — must never be warn
       "react-hooks/exhaustive-deps": "warn",
       "react-hooks/preserve-manual-memoization": "warn",
       "@next/next/no-img-element": "warn",
+    },
+  },
+  // Test fixture files use React 19's use() in non-component helper functions
+  // which triggers false-positive rules-of-hooks errors
+  {
+    files: ["tests/**/*.ts", "tests/**/*.tsx"],
+    rules: {
+      "react-hooks/rules-of-hooks": "off",
+      "@typescript-eslint/no-require-imports": "off",
     },
   },
 ]);
