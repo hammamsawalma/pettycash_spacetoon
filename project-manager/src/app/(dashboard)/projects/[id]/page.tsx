@@ -104,11 +104,11 @@ export default function ProjectDetailsPage({ params }: { params: Promise<{ id: s
     const userProjectRoles = userMember ? (userMember.projectRoles || "PROJECT_EMPLOYEE").split(",") : [];
     const isProjectCoordinator = userProjectRoles.includes("PROJECT_MANAGER");
     // v4: GLOBAL_ACCOUNTANT handles all projects directly
-    const isFinancialViewer = role === "GLOBAL_ACCOUNTANT" || role === "GENERAL_MANAGER";
+    const isFinancialViewer = role === "ROOT" || role === "ADMIN" || role === "GLOBAL_ACCOUNTANT" || role === "GENERAL_MANAGER";
 
     // Dynamic tabs based on role
     const tabs = [locale === 'ar' ? "تفاصيل المشروع" : "Project Details"];
-    if (role === "ADMIN" || isProjectCoordinator || isFinancialViewer) {
+    if (isFinancialViewer || isProjectCoordinator) {
         tabs.push(locale === 'ar' ? "فريق المشروع والعُهد" : "Team & Custodies");
     }
     tabs.push(locale === 'ar' ? "الفواتير" : "Invoices", locale === 'ar' ? "المشتريات" : "Purchases");
@@ -562,8 +562,9 @@ export default function ProjectDetailsPage({ params }: { params: Promise<{ id: s
                                         ) : (
                                             /* Internal employee selector */
                                             <div className="space-y-1">
-                                                <label className="text-xs font-bold text-gray-700">{locale === 'ar' ? 'اختر موظفاً' : 'Select Employee'}</label>
+                                                <label htmlFor="employee-select" className="text-xs font-bold text-gray-700">{locale === 'ar' ? 'اختر موظفاً' : 'Select Employee'}</label>
                                                 <select
+                                                    id="employee-select"
                                                     value={custodyEmployeeId}
                                                     onChange={e => setCustodyEmployeeId(e.target.value)}
                                                     required={!isExternalCustody}
@@ -590,8 +591,9 @@ export default function ProjectDetailsPage({ params }: { params: Promise<{ id: s
                                                 />
                                             </div>
                                             <div className="space-y-1">
-                                                <label className="text-xs font-bold text-gray-700">{locale === 'ar' ? 'طريقة الصرف' : 'Payment Method'}</label>
+                                                <label htmlFor="custody-method" className="text-xs font-bold text-gray-700">{locale === 'ar' ? 'طريقة الصرف' : 'Payment Method'}</label>
                                                 <select
+                                                    id="custody-method"
                                                     value={custodyMethod}
                                                     onChange={e => setCustodyMethod(e.target.value)}
                                                     className="w-full rounded-xl border border-gray-200 p-3 outline-none focus:ring-2 focus:ring-[#102550] text-sm bg-white"

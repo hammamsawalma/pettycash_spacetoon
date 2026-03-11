@@ -3,6 +3,8 @@ import { getSession } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 import { generateInvoiceVoucherHTML } from "@/lib/invoice-voucher";
 import { getLogoBase64 } from "@/lib/document-branding";
+import { generateVerificationToken } from "@/lib/verification";
+import QRCode from "qrcode";
 
 /**
  * GET /api/invoice-vouchers/[id]
@@ -48,6 +50,26 @@ export async function GET(
         const branch = invoice.project?.branch || invoice.creator?.branch;
         const logoBase64 = getLogoBase64();
 
+        // Generate QR code for Trust Portal if invoice is approved
+        let qrCodeBase64: string | undefined = undefined;
+        if (invoice.status === "APPROVED") {
+            try {
+                const token = generateVerificationToken(invoice.id);
+                // Requires full origin for the URL, getting it from request headers
+                const host = request.headers.get("x-forwarded-host") || request.headers.get("host") || "localhost:3000";
+                const protocol = request.headers.get("x-forwarded-proto") || "http";
+                const verifyUrl = `${protocol}://${host}/verify/invoice/${invoice.reference}?token=${token}`;
+                
+                qrCodeBase64 = await QRCode.toDataURL(verifyUrl, {
+                    width: 256,
+                    margin: 1,
+                    color: { dark: '#1e3a5f', light: '#ffffff' }
+                });
+            } catch (err) {
+                console.error("Failed to generate QR Code for voucher", err);
+            }
+        }
+
         const html = generateInvoiceVoucherHTML({
             invoiceNumber: invoice.reference || invoice.id.slice(0, 8).toUpperCase(),
             date: invoice.date || invoice.createdAt,
@@ -62,6 +84,7 @@ export async function GET(
             branchName: branch?.name,
             branchFlag: branch?.flag,
             logoBase64,
+            qrCodeBase64,
         });
 
         return new NextResponse(html, {

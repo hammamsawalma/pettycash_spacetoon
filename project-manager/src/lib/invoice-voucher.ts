@@ -23,6 +23,7 @@ export interface InvoiceVoucherData {
     branchName?: string | null;
     branchFlag?: string | null;
     logoBase64?: string;
+    qrCodeBase64?: string;
 }
 
 const statusLabels: Record<string, { label: string; color: string; bg: string }> = {
@@ -101,7 +102,12 @@ export function generateInvoiceVoucherHTML(data: InvoiceVoucherData): string {
                 <div class="field">رقم الفاتورة: <strong>${data.invoiceNumber}</strong></div>
                 ${externalNumHTML}
                 <div class="field">التاريخ: <strong>${dateStr}</strong></div>
-                <div class="field" style="margin-top:8px"><span class="status-badge">${st.label}</span></div>
+                <div class="field" style="margin-top:8px; display:flex; align-items:center; gap: 8px;">
+                    <span class="status-badge">${st.label}</span>
+                    ${data.qrCodeBase64 
+                        ? `<div style="text-align:center"><img src="${data.qrCodeBase64}" width="56" height="56" style="border-radius:4px" alt="QR Code" /><div style="font-size:8px;color:#6b7280;margin-top:2px">امسح للتحقق</div></div>` 
+                        : ''}
+                </div>
             </div>
         </div>
         

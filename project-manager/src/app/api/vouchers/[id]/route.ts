@@ -3,6 +3,8 @@ import { getSession } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 import { generateVoucherHTML } from "@/lib/voucher";
 import { getLogoBase64 } from "@/lib/document-branding";
+import { generateVerificationToken } from "@/lib/verification";
+import QRCode from "qrcode";
 
 /**
  * GET /api/vouchers/[id]
@@ -51,6 +53,13 @@ export async function GET(
         // v9: Get branch info and logo
         const branch = custody.project?.branch || custody.employee?.branch;
         const logoBase64 = getLogoBase64();
+
+        // Setup QR code for verify portal
+        // Since custody IDs are not currently integrated with verification portal, we only
+        // provide placeholder setup, or we can use the employee/project id as a minimal check.
+        // For now, we will add the verification link for Custody Issue only if needed in the future.
+        // Note: The previous task only explicitly required Invoice and Purchase verification. 
+        // We'll leave the qrCodeBase64 optional for standard vouchers until Custody verification is requested.
 
         if (type === "receipt") {
             // Find a specific return

@@ -28,6 +28,9 @@ export interface VoucherData {
     branchName?: string | null;
     branchFlag?: string | null;
     logoBase64?: string;
+    
+    // QR Code Verification
+    qrCodeBase64?: string;
 }
 
 export function generateVoucherHTML(data: VoucherData): string {
@@ -108,6 +111,12 @@ export function generateVoucherHTML(data: VoucherData): string {
             <div class="header-left">
                 <div class="field">رقم السند: <strong>${vNum}</strong></div>
                 <div class="field">التاريخ: <strong>${dateStr}</strong></div>
+                ${data.qrCodeBase64 
+                    ? `<div style="margin-top:10px; text-align:center;">
+                         <img src="${data.qrCodeBase64}" width="64" height="64" style="border-radius:4px" alt="QR Code" />
+                         <div style="font-size:9px;color:#6b7280;margin-top:2px">امسح للتحقق</div>
+                       </div>` 
+                    : ''}
             </div>
         </div>
         
