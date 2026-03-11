@@ -134,12 +134,6 @@ jobs:
             echo "  GEMINI_API_KEY: $([ -n "$GEMINI" ] && echo 'OK' || echo 'MISSING')"
             exit 1
           fi
-            echo "❌ FATAL: Missing critical env vars!"
-            echo "  DATABASE_URL: $([ -n "$DB_URL" ] && echo 'OK' || echo 'MISSING')"
-            echo "  JWT_SECRET: $([ -n "$JWT" ] && echo 'OK' || echo 'MISSING')"
-            echo "  GEMINI_API_KEY: $([ -n "$GEMINI" ] && echo 'OK' || echo 'MISSING')"
-            exit 1
-          fi
 
           echo "✅ All env vars loaded. GEMINI: ${#GEMINI} chars"
 

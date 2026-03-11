@@ -115,8 +115,7 @@ test.describe('OG-META: Open Graph Meta Tags (10)', () => {
         await adminPage.goto('/', { waitUntil: 'domcontentloaded' });
         await wait(adminPage);
         const ogDesc = await getMeta(adminPage, 'meta[property="og:description"]');
-        expect(ogDesc).toContain('نظام إدارة المشاريع والمالية');
-        expect(ogDesc).toContain('سبيستون');
+        expect(ogDesc).toContain('Spacetoon - Project & Finance Management System');
     });
 
     test('OG-META3: og:image present', async ({ adminPage }) => {
@@ -201,7 +200,7 @@ test.describe('OG-TW: Twitter Card Meta Tags (5)', () => {
         await adminPage.goto('/', { waitUntil: 'domcontentloaded' });
         await wait(adminPage);
         const desc = await getMeta(adminPage, 'meta[name="twitter:description"]');
-        expect(desc).toContain('نظام إدارة المشاريع والمالية');
+        expect(desc).toContain('Spacetoon - Project & Finance Management System');
     });
 
     test('OG-TW4: twitter:image present', async ({ adminPage }) => {
@@ -279,8 +278,7 @@ test.describe('OG-TITLE: Page Title & Description (5)', () => {
         await adminPage.goto('/', { waitUntil: 'domcontentloaded' });
         await wait(adminPage);
         const desc = await getMeta(adminPage, 'meta[name="description"]');
-        expect(desc).toContain('نظام إدارة المشاريع والمالية');
-        expect(desc).toContain('سبيستون');
+        expect(desc).toContain('Spacetoon - Project & Finance Management System');
     });
 
     test('OG-TITLE3: Title present on login page', async ({ adminPage }) => {

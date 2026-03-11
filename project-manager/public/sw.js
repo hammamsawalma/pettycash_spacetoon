@@ -4,7 +4,7 @@
 //   • API / navigation requests → Network-First with offline fallback
 //   • Offline fallback page → /offline.html
 
-const CACHE_NAME = 'spacetoon-pocket-v1';
+const CACHE_NAME = 'spacetoon-pocket-v2';
 const OFFLINE_URL = '/offline.html';
 
 const STATIC_ASSETS = [

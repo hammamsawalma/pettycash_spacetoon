@@ -251,7 +251,7 @@ test.describe('Bulk Purchase — Validation', () => {
 
     test('BULK-11: UI gracefully handles AI connection timeout or quota errors', async ({ adminPage, page }) => {
         // Intercept the API call and force a timeout/500 to see UI behavior
-        await page.route('/api/parse-purchases', async route => {
+        await adminPage.route('**/api/parse-purchases', async route => {
             // Simulate 500 error representing Gemini Timeout
             await route.fulfill({
                 status: 500,
@@ -280,7 +280,7 @@ test.describe('Bulk Purchase — Validation', () => {
         await adminPage.click('button:has-text("تحليل الملف")');
 
         // Wait for the toast error we mocked
-        await expect(adminPage.locator('text="انتهت مهلة الاتصال بالذكاء الاصطناعي"').first()).toBeVisible({ timeout: 15000 });
+        await expect(adminPage.getByText('انتهت مهلة الاتصال بالذكاء الاصطناعي').first()).toBeVisible({ timeout: 15000 });
     });
 
     test('BULK-12: API prevents files larger than 10MB', async ({ adminPage }) => {
@@ -304,7 +304,7 @@ test.describe('Bulk Purchase — Validation', () => {
 
     test('BULK-13: API handles Gemini Safety block gracefully', async ({ adminPage, page }) => {
         // Intercept and simulate a safety filter block from Gemini
-        await page.route('/api/parse-purchases', async route => {
+        await adminPage.route('**/api/parse-purchases', async route => {
             await route.fulfill({
                 status: 500,
                 contentType: 'application/json',
@@ -326,7 +326,7 @@ test.describe('Bulk Purchase — Validation', () => {
         });
 
         await adminPage.click('button:has-text("تحليل الملف")');
-        await expect(adminPage.locator('text="تم حظر المحتوى من قبل فلتر الأمان"').first()).toBeVisible({ timeout: 15000 });
+        await expect(adminPage.getByText('تم حظر المحتوى من قبل فلتر الأمان').first()).toBeVisible({ timeout: 15000 });
     });
 
     test('BULK-14: User can manually add an item in the Review step', async ({ adminPage, page }) => {

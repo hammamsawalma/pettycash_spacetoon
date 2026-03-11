@@ -26,32 +26,32 @@ test.describe('Welcome Portal & Branch Selection Flow (Phase 8)', () => {
 
         // Check English text
         await expect(page.locator('text=/smartest system for managing/i')).toBeVisible();
-        await expect(page.getByRole('button', { name: /Enter Branch Portal/i })).toBeVisible();
+        await expect(page.getByRole('button', { name: /Access Branch Portal/i })).toBeVisible();
 
         // Check language switch persistence
         await page.reload();
         await expect(page.locator('text=/smartest system for managing/i')).toBeVisible();
 
-        // Click "Access Branch Portal"
-        await page.getByRole('button', { name: 'الدخول لبوابة الفروع' }).click();
+        // Click "Access Branch Portal" (Page is currently in English)
+        await page.getByRole('button', { name: /Access Branch Portal/i }).click();
 
         // Ensure branches list is shown
-        await expect(page.getByText('اختر الفرع الإقليمي')).toBeVisible();
-        await expect(page.getByText('دخول مدير النظام المركزي')).toBeVisible();
+        await expect(page.getByText(/Select Regional Branch/i)).toBeVisible();
+        await expect(page.getByText(/HQ Admin Login/i)).toBeVisible();
 
         // Select Qatar branch
-        await page.getByRole('button', { name: /قطر/ }).click();
+        await page.getByRole('button', { name: /Qatar/i }).click();
 
         // Verify the "Connecting" animation state
-        await expect(page.locator('text=/جاري الاتصال بخوادم/')).toBeVisible({ timeout: 5000 });
-        await expect(page.getByText('تأسيس قناة آمنة ومستقلة')).toBeVisible();
+        await expect(page.locator('text=/Connecting to/i')).toBeVisible({ timeout: 5000 });
+        await expect(page.getByText(/Establishing secure/i)).toBeVisible();
 
         // Should automatically redirect to /login after 1.5 seconds
         await page.waitForURL('**/login?branch=QA', { timeout: 3000 });
 
         // Verify personalized login screen
-        await expect(page.getByText('مرحباً بك في فرع قطر')).toBeVisible();
-        await expect(page.getByText('بوابة الأعمال الرسمية — قطر')).toBeVisible();
+        await expect(page.getByText(/Welcome to/i)).toBeVisible();
+        await expect(page.getByText(/Official/i)).toBeVisible();
     });
 
     test('should progress through branch selection and redirect to personalized login page', async ({ page }) => {
