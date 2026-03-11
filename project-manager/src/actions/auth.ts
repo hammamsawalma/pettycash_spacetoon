@@ -8,6 +8,7 @@ import { signToken } from "@/lib/auth";
 import type { SessionData } from "@/lib/auth";
 import { loginSchema } from "@/lib/validations/auth";
 import bcrypt from "bcryptjs";
+import { revalidatePath } from "next/cache";
 
 export async function login(prevState: unknown, formData: FormData) {
     // 1. Validate with Zod
@@ -70,7 +71,6 @@ export async function login(prevState: unknown, formData: FormData) {
         });
 
         // Workaround for Next.js 15 bug: ensure cookies are flushed by forcing revalidation
-        const { revalidatePath } = require("next/cache");
         revalidatePath("/");
 
         return { success: true };
