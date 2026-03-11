@@ -285,6 +285,7 @@ function BranchComparisonTable({ data }: { data: BranchComparison }) {
 // ═══════════════════════════════════════════════════════════════
 export default function GeneralManagerDashboard() {
     const router = useRouter();
+    const { locale: gmLocale } = useLanguage();
     const [stats, setStats] = useState<GMStats>(null);
     const [flow, setFlow] = useState<FlowStats>(null);
     const [branches, setBranches] = useState<BranchItem[]>([]);
@@ -327,7 +328,7 @@ export default function GeneralManagerDashboard() {
 
     if (!isMounted || !stats) {
         return (
-            <DashboardLayout title="لوحة المدير العام">
+            <DashboardLayout title={gmLocale === 'ar' ? "لوحة المدير العام" : "General Manager Dashboard"}>
                 <GeneralManagerDashboardSkeleton />
             </DashboardLayout>
         );
@@ -338,45 +339,45 @@ export default function GeneralManagerDashboard() {
 
     const kpis = [
         {
-            title: "رصيد الخزنة",
+            title: gmLocale === 'ar' ? "رصيد الخزنة" : "Wallet Balance",
             value: stats.wallet.balance,
             icon: Wallet,
             color: "text-emerald-600",
             bg: "from-emerald-500 to-emerald-600",
             isCurrency: true,
-            sub: `إجمالي الإيداعات: ${stats.wallet.totalIn.toLocaleString('en-US')}`,
+            sub: gmLocale === 'ar' ? `إجمالي الإيداعات: ${stats.wallet.totalIn.toLocaleString('en-US')}` : `Total deposits: ${stats.wallet.totalIn.toLocaleString('en-US')}`,
         },
         {
-            title: "المشاريع النشطة",
+            title: gmLocale === 'ar' ? "المشاريع النشطة" : "Active Projects",
             value: stats.projects.inProgress,
             icon: FolderKanban,
             color: "text-blue-600",
             bg: "from-blue-500 to-blue-600",
             isCurrency: false,
-            sub: `إجمالي: ${stats.projects.total} مشروع`,
+            sub: gmLocale === 'ar' ? `إجمالي: ${stats.projects.total} مشروع` : `Total: ${stats.projects.total} projects`,
         },
         {
-            title: "الموظفون",
+            title: gmLocale === 'ar' ? "الموظفون" : "Employees",
             value: stats.employees,
             icon: Users,
             color: "text-blue-600",
             bg: "from-[#102550] to-[#2563eb]",
             isCurrency: false,
-            sub: selectedBranch ? `فرع ${selectedBranch.name}` : "العدد الكلي للموظفين",
+            sub: selectedBranch ? (gmLocale === 'ar' ? `فرع ${selectedBranch.name}` : `Branch ${selectedBranch.name}`) : (gmLocale === 'ar' ? "العدد الكلي للموظفين" : "Total employees"),
         },
         {
-            title: "الفواتير المعلّقة",
+            title: gmLocale === 'ar' ? "الفواتير المعلّقة" : "Pending Invoices",
             value: stats.invoices.pendingCount,
             icon: FileText,
             color: "text-amber-600",
             bg: "from-amber-500 to-orange-500",
             isCurrency: false,
-            sub: `بقيمة: ${stats.invoices.pending.toLocaleString('en-US')}`,
+            sub: gmLocale === 'ar' ? `بقيمة: ${stats.invoices.pending.toLocaleString('en-US')}` : `Worth: ${stats.invoices.pending.toLocaleString('en-US')}`,
         },
     ];
 
     return (
-        <DashboardLayout title="لوحة المدير العام">
+        <DashboardLayout title={gmLocale === 'ar' ? "لوحة المدير العام" : "General Manager Dashboard"}>
             <div className="space-y-6 md:space-y-8">
 
                 {/* Welcome Banner + Branch Selector */}
@@ -390,12 +391,12 @@ export default function GeneralManagerDashboard() {
                     <div className="absolute bottom-0 left-0 w-64 h-32 rounded-full bg-white/05 blur-3xl pointer-events-none" />
                     <div className="relative z-10 flex items-center justify-between gap-4 flex-col sm:flex-row">
                         <div className="space-y-1 text-center sm:text-right">
-                            <p className="text-white/70 text-sm font-medium">مرحباً بك</p>
-                            <h1 className="text-2xl md:text-3xl font-black tracking-tight">لوحة المدير العام</h1>
+                            <p className="text-white/70 text-sm font-medium">{gmLocale === 'ar' ? 'مرحباً بك' : 'Welcome'}</p>
+                            <h1 className="text-2xl md:text-3xl font-black tracking-tight">{gmLocale === 'ar' ? 'لوحة المدير العام' : 'General Manager Dashboard'}</h1>
                             <p className="text-white/60 text-sm">
                                 {selectedBranch
-                                    ? `${selectedBranch.flag || '🏢'} عرض بيانات فرع ${selectedBranch.name}`
-                                    : 'نظرة شاملة على أداء الشركة — كل الفروع'}
+                                    ? (gmLocale === 'ar' ? `${selectedBranch.flag || '🏢'} عرض بيانات فرع ${selectedBranch.name}` : `${selectedBranch.flag || '🏢'} Viewing ${selectedBranch.name} branch data`)
+                                    : (gmLocale === 'ar' ? 'نظرة شاملة على أداء الشركة — كل الفروع' : 'Company performance overview — all branches')}
                             </p>
                         </div>
                         <div className="flex items-center gap-3">
@@ -417,7 +418,7 @@ export default function GeneralManagerDashboard() {
                     <div className="flex justify-center py-2">
                         <div className="flex items-center gap-2 bg-[#102550]/10 px-4 py-2 rounded-xl">
                             <div className="w-4 h-4 border-2 border-[#102550] border-t-transparent rounded-full animate-spin" />
-                            <span className="text-sm font-semibold text-[#102550]">جاري التحديث...</span>
+                            <span className="text-sm font-semibold text-[#102550]">{gmLocale === 'ar' ? 'جاري التحديث...' : 'Updating...'}</span>
                         </div>
                     </div>
                 )}
@@ -462,18 +463,18 @@ export default function GeneralManagerDashboard() {
                     <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
                         <Card className="p-5 md:p-6">
                             <div className="flex justify-between items-center mb-5">
-                                <h3 className="font-bold text-lg text-gray-900">التدفق المالي الشامل</h3>
+                                <h3 className="font-bold text-lg text-gray-900">{gmLocale === 'ar' ? 'التدفق المالي الشامل' : 'Comprehensive Financial Flow'}</h3>
                                 <TrendingUp className="w-5 h-5 text-[#102550]" />
                             </div>
                             <div className="grid grid-cols-3 md:grid-cols-4 gap-3">
                                 {[
-                                    { label: "وارد الخزنة", value: walletFlow.walletReceived, color: "text-emerald-600", bg: "bg-emerald-50" },
-                                    { label: "موزَّع للمشاريع", value: walletFlow.projectsAllocated, color: "text-blue-600", bg: "bg-blue-50" },
-                                    { label: "عهد للموظفين", value: walletFlow.custodyIssued, color: "text-amber-600", bg: "bg-amber-50" },
-                                    { label: "عهد مُرجَعة", value: walletFlow.custodyReturned, color: "text-blue-600", bg: "bg-blue-50" },
-                                    { label: "فواتير معتمدة", value: walletFlow.invoicesApproved, color: "text-rose-600", bg: "bg-rose-50" },
-                                    { label: "مصاريف شركة", value: walletFlow.companyExpenses ?? 0, color: "text-purple-600", bg: "bg-purple-50" },
-                                    { label: "رصيد الخزنة", value: walletFlow.walletRemaining, color: "text-emerald-700", bg: "bg-emerald-100 ring-1 ring-emerald-200" },
+                                    { label: gmLocale === 'ar' ? "وارد الخزنة" : "Wallet Incoming", value: walletFlow.walletReceived, color: "text-emerald-600", bg: "bg-emerald-50" },
+                                    { label: gmLocale === 'ar' ? "موزَّع للمشاريع" : "Allocated to Projects", value: walletFlow.projectsAllocated, color: "text-blue-600", bg: "bg-blue-50" },
+                                    { label: gmLocale === 'ar' ? "عهد للموظفين" : "Employee Custody", value: walletFlow.custodyIssued, color: "text-amber-600", bg: "bg-amber-50" },
+                                    { label: gmLocale === 'ar' ? "عهد مُرجَعة" : "Custody Returns", value: walletFlow.custodyReturned, color: "text-blue-600", bg: "bg-blue-50" },
+                                    { label: gmLocale === 'ar' ? "فواتير معتمدة" : "Approved Invoices", value: walletFlow.invoicesApproved, color: "text-rose-600", bg: "bg-rose-50" },
+                                    { label: gmLocale === 'ar' ? "مصاريف شركة" : "Company Expenses", value: walletFlow.companyExpenses ?? 0, color: "text-purple-600", bg: "bg-purple-50" },
+                                    { label: gmLocale === 'ar' ? "رصيد الخزنة" : "Wallet Balance", value: walletFlow.walletRemaining, color: "text-emerald-700", bg: "bg-emerald-100 ring-1 ring-emerald-200" },
                                 ].map((item, i) => (
                                     <div key={i} className={`rounded-xl p-3 text-center ${item.bg}`}>
                                         <p className={`text-base font-black ${item.color}`}>
@@ -496,7 +497,7 @@ export default function GeneralManagerDashboard() {
                                 <div className="w-8 h-8 rounded-lg bg-amber-50 flex items-center justify-center">
                                     <Clock className="w-4 h-4 text-amber-600" />
                                 </div>
-                                <h3 className="font-bold text-gray-900">الفواتير المعلّقة</h3>
+                                <h3 className="font-bold text-gray-900">{gmLocale === 'ar' ? 'الفواتير المعلّقة' : 'Pending Invoices'}</h3>
                                 {stats.invoices.pendingCount > 0 && (
                                     <span className="bg-amber-100 text-amber-700 text-xs font-bold px-2 py-0.5 rounded-lg">
                                         {stats.invoices.pendingCount}
@@ -507,7 +508,7 @@ export default function GeneralManagerDashboard() {
                                 onClick={() => router.push('/invoices')}
                                 className="text-xs text-[#102550] font-semibold flex items-center gap-1 hover:gap-2 transition-all"
                             >
-                                عرض الكل <ArrowRight className="w-3 h-3" />
+                                {gmLocale === 'ar' ? 'عرض الكل' : 'View All'} <ArrowRight className="w-3 h-3" />
                             </button>
                         </div>
                         <div className="flex-1 overflow-y-auto custom-scrollbar">
@@ -524,7 +525,7 @@ export default function GeneralManagerDashboard() {
                                             </div>
                                             <div className="flex-1 min-w-0">
                                                 <p className="text-sm font-bold text-gray-800 truncate">{inv.reference}</p>
-                                                <p className="text-xs text-gray-500">{(inv as PendingInvoice).creator?.name ?? '—'} · {(inv as PendingInvoice).project?.name ?? 'بدون مشروع'}</p>
+                                                <p className="text-xs text-gray-500">{(inv as PendingInvoice).creator?.name ?? '—'} · {(inv as PendingInvoice).project?.name ?? (gmLocale === 'ar' ? 'بدون مشروع' : 'No project')}</p>
                                             </div>
                                             <div className="text-right shrink-0">
                                                 <p className="text-sm font-black text-gray-900">{inv.amount.toLocaleString('en-US')}</p>
@@ -536,7 +537,7 @@ export default function GeneralManagerDashboard() {
                             ) : (
                                 <div className="flex flex-col items-center justify-center py-12 text-gray-400">
                                     <CheckCircle2 className="w-12 h-12 mb-3 opacity-30" />
-                                    <p className="font-semibold text-sm">لا توجد فواتير معلقة</p>
+                                    <p className="font-semibold text-sm">{gmLocale === 'ar' ? 'لا توجد فواتير معلقة' : 'No pending invoices'}</p>
                                 </div>
                             )}
                         </div>
@@ -550,13 +551,13 @@ export default function GeneralManagerDashboard() {
                                 <div className="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center">
                                     <ShoppingCart className="w-4 h-4 text-blue-600" />
                                 </div>
-                                <h3 className="font-bold text-gray-900">المشتريات</h3>
+                                <h3 className="font-bold text-gray-900">{gmLocale === 'ar' ? 'المشتريات' : 'Purchases'}</h3>
                             </div>
                             <div className="space-y-2.5">
                                 {[
-                                    { label: "مطلوب", value: stats.purchaseStats.requested, color: "bg-amber-400" },
-                                    { label: "جارٍ", value: stats.purchaseStats.inProgress, color: "bg-blue-400" },
-                                    { label: "تم الشراء", value: stats.purchaseStats.purchased, color: "bg-emerald-400" },
+                                    { label: gmLocale === 'ar' ? "مطلوب" : "Requested", value: stats.purchaseStats.requested, color: "bg-amber-400" },
+                                    { label: gmLocale === 'ar' ? "جارٍ" : "In Progress", value: stats.purchaseStats.inProgress, color: "bg-blue-400" },
+                                    { label: gmLocale === 'ar' ? "تم الشراء" : "Purchased", value: stats.purchaseStats.purchased, color: "bg-emerald-400" },
                                 ].map((item, i) => {
                                     const total = stats.purchaseStats.requested + stats.purchaseStats.inProgress + stats.purchaseStats.purchased || 1;
                                     const pct = Math.round((item.value / total) * 100);
@@ -581,7 +582,7 @@ export default function GeneralManagerDashboard() {
                                     onClick={() => router.push('/purchases')}
                                     className="w-full mt-2 text-xs text-[#102550] font-semibold flex items-center justify-center gap-1 hover:gap-2 transition-all pt-1"
                                 >
-                                    عرض كل المشتريات <ArrowRight className="w-3 h-3" />
+                                    {gmLocale === 'ar' ? 'عرض كل المشتريات' : 'View All Purchases'} <ArrowRight className="w-3 h-3" />
                                 </button>
                             </div>
                         </Card>
@@ -592,13 +593,13 @@ export default function GeneralManagerDashboard() {
                                 <div className="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center">
                                     <Building2 className="w-4 h-4 text-blue-600" />
                                 </div>
-                                <h3 className="font-bold text-gray-900">العُهَد</h3>
+                                <h3 className="font-bold text-gray-900">{gmLocale === 'ar' ? 'العُهَد' : 'Custody'}</h3>
                             </div>
                             <div className="space-y-2">
                                 {[
-                                    { label: "موزَّع للمشاريع", value: stats.custody.allocated, color: "text-blue-600" },
-                                    { label: "مصروف للموظفين", value: stats.custody.issued, color: "text-rose-600" },
-                                    { label: "مُرجَع من الموظفين", value: stats.custody.returned, color: "text-emerald-600" },
+                                    { label: gmLocale === 'ar' ? "موزَّع للمشاريع" : "Allocated to Projects", value: stats.custody.allocated, color: "text-blue-600" },
+                                    { label: gmLocale === 'ar' ? "مصروف للموظفين" : "Issued to Employees", value: stats.custody.issued, color: "text-rose-600" },
+                                    { label: gmLocale === 'ar' ? "مُرجَع من الموظفين" : "Returned by Employees", value: stats.custody.returned, color: "text-emerald-600" },
                                 ].map((item, i) => (
                                     <div key={i} className="flex justify-between items-center py-1.5 border-b border-gray-50 last:border-0">
                                         <span className="text-xs font-semibold text-gray-600">{item.label}</span>
@@ -616,13 +617,13 @@ export default function GeneralManagerDashboard() {
                                 <div className="w-8 h-8 rounded-lg bg-emerald-50 flex items-center justify-center">
                                     <TrendingUp className="w-4 h-4 text-emerald-600" />
                                 </div>
-                                <h3 className="font-bold text-gray-900">الفواتير</h3>
+                                <h3 className="font-bold text-gray-900">{gmLocale === 'ar' ? 'الفواتير' : 'Invoices'}</h3>
                             </div>
                             <div className="space-y-2">
                                 {[
-                                    { label: "معتمدة", value: stats.invoices.approved, color: "text-emerald-600", icon: CheckCircle2 },
-                                    { label: "معلّقة", value: stats.invoices.pending, color: "text-amber-600", icon: Clock },
-                                    { label: "مرفوضة", value: stats.invoices.rejected, color: "text-red-500", icon: TrendingDown },
+                                    { label: gmLocale === 'ar' ? "معتمدة" : "Approved", value: stats.invoices.approved, color: "text-emerald-600", icon: CheckCircle2 },
+                                    { label: gmLocale === 'ar' ? "معلّقة" : "Pending", value: stats.invoices.pending, color: "text-amber-600", icon: Clock },
+                                    { label: gmLocale === 'ar' ? "مرفوضة" : "Rejected", value: stats.invoices.rejected, color: "text-red-500", icon: TrendingDown },
                                 ].map((item, i) => (
                                     <div key={i} className="flex justify-between items-center py-1 border-b border-gray-50 last:border-0">
                                         <div className="flex items-center gap-1.5">
@@ -649,8 +650,8 @@ export default function GeneralManagerDashboard() {
                                         <AlertTriangle className="w-4 h-4 text-red-600" />
                                     </div>
                                     <div>
-                                        <h3 className="font-bold text-gray-900">مشترياتي العاجلة</h3>
-                                        <p className="text-xs text-gray-500">الطلبات ذات الأولوية القصوى</p>
+                                        <h3 className="font-bold text-gray-900">{gmLocale === 'ar' ? 'مشترياتي العاجلة' : 'My Urgent Purchases'}</h3>
+                                        <p className="text-xs text-gray-500">{gmLocale === 'ar' ? 'الطلبات ذات الأولوية القصوى' : 'Top priority requests'}</p>
                                     </div>
                                 </div>
                                 <span className="bg-red-100 text-red-700 text-xs font-bold px-2 py-0.5 rounded-lg">
@@ -669,7 +670,7 @@ export default function GeneralManagerDashboard() {
                                         </div>
                                         <div className="flex-1 min-w-0">
                                             <p className="text-sm font-bold text-gray-800 truncate">{p.description}</p>
-                                            <p className="text-xs text-gray-400">{(p as UrgentPurchase).project?.name ?? 'بدون مشروع'} · {p.orderNumber}</p>
+                                            <p className="text-xs text-gray-400">{(p as UrgentPurchase).project?.name ?? (gmLocale === 'ar' ? 'بدون مشروع' : 'No project')} · {p.orderNumber}</p>
                                         </div>
                                         <div className="text-right shrink-0">
                                             <p className="text-sm font-black text-gray-900">{p.amount > 0 ? `${p.amount.toLocaleString('en-US')}` : '—'}</p>
@@ -685,12 +686,12 @@ export default function GeneralManagerDashboard() {
                 {/* آخر المشاريع */}
                 <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}>
                     <div className="flex justify-between items-center mb-4">
-                        <h3 className="font-bold text-lg text-gray-900">آخر المشاريع</h3>
+                        <h3 className="font-bold text-lg text-gray-900">{gmLocale === 'ar' ? 'آخر المشاريع' : 'Recent Projects'}</h3>
                         <button
                             onClick={() => router.push('/projects')}
                             className="text-xs text-[#102550] font-semibold flex items-center gap-1 hover:gap-2 transition-all"
                         >
-                            عرض الكل <ArrowRight className="w-3 h-3" />
+                            {gmLocale === 'ar' ? 'عرض الكل' : 'View All'} <ArrowRight className="w-3 h-3" />
                         </button>
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
@@ -705,21 +706,21 @@ export default function GeneralManagerDashboard() {
                                     <div className="flex justify-between items-start">
                                         <div>
                                             <h4 className="font-bold text-gray-900 group-hover:text-[#102550] transition-colors">{project.name}</h4>
-                                            <p className="text-xs text-gray-500 mt-0.5">{(project as RecentProject).manager?.name ?? 'بلا مدير'}</p>
+                                            <p className="text-xs text-gray-500 mt-0.5">{(project as RecentProject).manager?.name ?? (gmLocale === 'ar' ? 'بلا مدير' : 'No manager')}</p>
                                         </div>
                                         <StatusBadge status={project.status} />
                                     </div>
                                     <div className="grid grid-cols-3 gap-2 text-center">
                                         <div className="bg-blue-50 rounded-lg p-2">
-                                            <p className="text-[10px] text-gray-500 font-semibold">الميزانية</p>
+                                                <p className="text-[10px] text-gray-500 font-semibold">{gmLocale === 'ar' ? 'الميزانية' : 'Budget'}</p>
                                             <p className="text-xs font-black text-blue-700">{((project as RecentProject).budgetAllocated ?? 0).toLocaleString('en-US')}</p>
                                         </div>
                                         <div className="bg-rose-50 rounded-lg p-2">
-                                            <p className="text-[10px] text-gray-500 font-semibold">العُهد</p>
+                                                <p className="text-[10px] text-gray-500 font-semibold">{gmLocale === 'ar' ? 'العُهد' : 'Custody'}</p>
                                             <p className="text-xs font-black text-rose-700">{((project as RecentProject).custodyIssued ?? 0).toLocaleString('en-US')}</p>
                                         </div>
                                         <div className="bg-emerald-50 rounded-lg p-2">
-                                            <p className="text-[10px] text-gray-500 font-semibold">الأعضاء</p>
+                                                <p className="text-[10px] text-gray-500 font-semibold">{gmLocale === 'ar' ? 'الأعضاء' : 'Members'}</p>
                                             <p className="text-xs font-black text-emerald-700">{project.members.length}</p>
                                         </div>
                                     </div>
