@@ -58,8 +58,13 @@ export async function POST(req: NextRequest) {
         }
 
         // Step 2: Analyze with Gemini AI
-        const items = await analyzeWithGemini(rawText);
+        // We dynamically read the key here to prevent Next.js from statically optimizing it into an empty string during build
+        const apiKey = process.env.GEMINI_API_KEY || (process.env as any)['GEMINI_API_KEY'];
+        if (!apiKey) {
+            return NextResponse.json({ error: 'GEMINI_API_KEY is missing from the server environment. Please contact support.' }, { status: 500 });
+        }
 
+        const items = await analyzeWithGemini(rawText, apiKey);
         if (items.length === 0) {
             return NextResponse.json({ error: 'لم يتم العثور على عناصر مشتريات في الملف' }, { status: 400 });
         }

@@ -53,8 +53,7 @@ export interface ParsedPurchaseItem {
  * Send raw Excel text to Google Gemini for intelligent parsing.
  * Returns structured purchase items.
  */
-export async function analyzeWithGemini(rawText: string): Promise<ParsedPurchaseItem[]> {
-    const apiKey = process.env.GEMINI_API_KEY;
+export async function analyzeWithGemini(rawText: string, apiKey: string): Promise<ParsedPurchaseItem[]> {
     if (!apiKey) {
         throw new Error('GEMINI_API_KEY is not configured');
     }
