@@ -143,8 +143,33 @@ ${rawText}`;
                 throw new Error('لم يتم الحصول على رد من الذكاء الاصطناعي');
             }
 
-            // Parse the JSON response
-            const parsed = JSON.parse(text);
+            // Clean and parse the JSON response
+            let cleanText = text.trim();
+
+            // Remove markdown code fences if present (```json ... ```)
+            cleanText = cleanText.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/i, '');
+
+            // If Gemini truncated the response mid-string or mid-object,
+            // try to recover by closing the JSON array gracefully
+            if (!cleanText.endsWith(']')) {
+                // Find the last complete object (ending with })
+                const lastCloseBrace = cleanText.lastIndexOf('}');
+                if (lastCloseBrace > 0) {
+                    cleanText = cleanText.substring(0, lastCloseBrace + 1) + ']';
+                }
+            }
+
+            // Remove trailing commas before ] (invalid JSON but common in AI output)
+            cleanText = cleanText.replace(/,\s*]/g, ']');
+
+            let parsed: any;
+            try {
+                parsed = JSON.parse(cleanText);
+            } catch (parseError) {
+                console.error('JSON parse failed. Raw text:', text.substring(0, 500));
+                throw new Error('فشل في تحليل رد الذكاء الاصطناعي. يرجى المحاولة مرة أخرى أو تقسيم الملف إلى أجزاء أصغر.');
+            }
+
             if (!Array.isArray(parsed)) {
                 throw new Error('الرد ليس بالتنسيق المتوقع');
             }
