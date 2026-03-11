@@ -10,6 +10,7 @@ import { useEffect, useState } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { useCanDo } from "@/components/auth/Protect";
 import { useRouter } from "next/navigation";
+import { useLanguage } from "@/context/LanguageContext";
 import {
     Building2,
     Phone,
@@ -46,21 +47,22 @@ export default function ExternalCustodiesPage() {
     const [custodies, setCustodies] = useState<ExternalCustody[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [filter, setFilter] = useState<"all" | "open" | "closed">("all");
+    const { locale } = useLanguage();
 
     const extColumns: ExportColumn[] = [
-        { key: "externalName", label: "الطرف الخارجي" },
-        { key: "projectName", label: "المشروع" },
-        { key: "externalPhone", label: "الهاتف" },
-        { key: "externalPurpose", label: "الغرض" },
-        { key: "amount", label: "المبلغ", format: (v) => formatCurrency(v as number) },
-        { key: "balance", label: "المتبقي", format: (v) => formatCurrency(v as number) },
-        { key: "isClosed", label: "الحالة", format: (v) => v ? "مغلقة" : "مفتوحة" },
-        { key: "createdAt", label: "التاريخ", format: (v) => formatDate(v as string) },
+        { key: "externalName", label: locale === 'ar' ? "الطرف الخارجي" : "External Party" },
+        { key: "projectName", label: locale === 'ar' ? "المشروع" : "Project" },
+        { key: "externalPhone", label: locale === 'ar' ? "الهاتف" : "Phone" },
+        { key: "externalPurpose", label: locale === 'ar' ? "الغرض" : "Purpose" },
+        { key: "amount", label: locale === 'ar' ? "المبلغ" : "Amount", format: (v) => formatCurrency(v as number) },
+        { key: "balance", label: locale === 'ar' ? "المتبقي" : "Remaining", format: (v) => formatCurrency(v as number) },
+        { key: "isClosed", label: locale === 'ar' ? "الحالة" : "Status", format: (v) => v ? (locale === 'ar' ? "مغلقة" : "Closed") : (locale === 'ar' ? "مفتوحة" : "Open") },
+        { key: "createdAt", label: locale === 'ar' ? "التاريخ" : "Date", format: (v) => formatDate(v as string) },
     ];
 
     const handleExportExcel = async () => {
         const data = await getCustodiesExportData("external");
-        downloadExcel([{ name: "العهد الخارجية", columns: extColumns, data: data as Record<string, unknown>[] }], "تقرير_العهد_الخارجية");
+        downloadExcel([{ name: locale === 'ar' ? "العهد الخارجية" : "External Custodies", columns: extColumns, data: data as Record<string, unknown>[] }], locale === 'ar' ? "تقرير_العهد_الخارجية" : "External_Custodies_Report");
     };
 
     const handleExportPDF = async () => {
@@ -68,14 +70,14 @@ export default function ExternalCustodiesPage() {
         const totalAmount = data.reduce((s, d) => s + d.amount, 0);
         const totalBalance = data.reduce((s, d) => s + d.balance, 0);
         const html = generatePrintableReport({
-            title: "تقرير العهد الخارجية",
-            subtitle: "العهد المصروفة لأطراف خارجية عبر جميع المشاريع",
+            title: locale === 'ar' ? "تقرير العهد الخارجية" : "External Custodies Report",
+            subtitle: locale === 'ar' ? "العهد المصروفة لأطراف خارجية عبر جميع المشاريع" : "Custodies issued to external parties across all projects",
             columns: extColumns,
             data: data as Record<string, unknown>[],
             summary: [
-                { label: "إجمالي العهد", value: formatCurrency(totalAmount) },
-                { label: "الرصيد المتبقي", value: formatCurrency(totalBalance) },
-                { label: "عدد العهد", value: String(data.length) },
+                { label: locale === 'ar' ? "إجمالي العهد" : "Total Custodies", value: formatCurrency(totalAmount) },
+                { label: locale === 'ar' ? "الرصيد المتبقي" : "Remaining Balance", value: formatCurrency(totalBalance) },
+                { label: locale === 'ar' ? "عدد العهد" : "Custody Count", value: String(data.length) },
             ],
             branchName: user?.branchName,
             branchFlag: user?.branchFlag,
@@ -112,22 +114,22 @@ export default function ExternalCustodiesPage() {
     const closedCount = custodies.filter((c) => c.isClosed).length;
 
     return (
-        <DashboardLayout title="تقرير العهد الخارجية">
+        <DashboardLayout title={locale === 'ar' ? "تقرير العهد الخارجية" : "External Custodies Report"}>
             <div className="space-y-6 md:space-y-8 pb-6">
                 {/* Header */}
                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-4 md:p-5 rounded-2xl shadow-sm border border-gray-100">
                     <div>
                         <h2 className="text-base md:text-lg font-bold text-gray-900">
-                            العهد الخارجية عبر جميع المشاريع
+                            {locale === 'ar' ? 'العهد الخارجية عبر جميع المشاريع' : 'External Custodies Across All Projects'}
                         </h2>
                         <p className="text-xs md:text-sm text-gray-500 font-medium mt-1">
-                            تتبع وإدارة كل العهد المصروفة لأطراف خارجية
+                            {locale === 'ar' ? 'تتبع وإدارة كل العهد المصروفة لأطراف خارجية' : 'Track and manage all custodies issued to external parties'}
                         </p>
                     </div>
                     <ExportButton
                         onExportExcel={handleExportExcel}
                         onExportPDF={handleExportPDF}
-                        label="تصدير العهد الخارجية"
+                        label={locale === 'ar' ? "تصدير العهد الخارجية" : "Export External Custodies"}
                     />
                 </div>
 
@@ -140,7 +142,7 @@ export default function ExternalCustodiesPage() {
                             </div>
                             <div>
                                 <p className="text-[10px] md:text-xs text-gray-400 font-bold mb-0.5">
-                                    إجمالي العهد الخارجية
+                                    {locale === 'ar' ? 'إجمالي العهد الخارجية' : 'Total External Custodies'}
                                 </p>
                                 <p className="text-lg md:text-xl font-black text-gray-900">
                                     {isLoading ? "..." : <AnimatedNumber value={totalAmount} />}{" "}
@@ -159,7 +161,7 @@ export default function ExternalCustodiesPage() {
                             </div>
                             <div>
                                 <p className="text-[10px] md:text-xs text-gray-400 font-bold mb-0.5">
-                                    الرصيد المتبقي
+                                    {locale === 'ar' ? 'الرصيد المتبقي' : 'Remaining Balance'}
                                 </p>
                                 <p className="text-lg md:text-xl font-black text-red-600">
                                     {isLoading ? "..." : <AnimatedNumber value={totalBalance} />}{" "}
@@ -178,7 +180,7 @@ export default function ExternalCustodiesPage() {
                             </div>
                             <div>
                                 <p className="text-[10px] md:text-xs text-gray-400 font-bold mb-0.5">
-                                    عهد مفتوحة
+                                    {locale === 'ar' ? 'عهد مفتوحة' : 'Open Custodies'}
                                 </p>
                                 <p className="text-lg md:text-xl font-black text-emerald-600">
                                     {isLoading ? "..." : openCount}
@@ -194,7 +196,7 @@ export default function ExternalCustodiesPage() {
                             </div>
                             <div>
                                 <p className="text-[10px] md:text-xs text-gray-400 font-bold mb-0.5">
-                                    عهد مغلقة
+                                    {locale === 'ar' ? 'عهد مغلقة' : 'Closed Custodies'}
                                 </p>
                                 <p className="text-lg md:text-xl font-black text-gray-600">
                                     {isLoading ? "..." : closedCount}
@@ -208,9 +210,9 @@ export default function ExternalCustodiesPage() {
                 <div className="flex items-center gap-2 bg-white p-1.5 rounded-xl shadow-sm border border-gray-100 w-fit">
                     {(
                         [
-                            ["all", "الكل"],
-                            ["open", "مفتوحة"],
-                            ["closed", "مغلقة"],
+                            ["all", locale === 'ar' ? "الكل" : "All"],
+                            ["open", locale === 'ar' ? "مفتوحة" : "Open"],
+                            ["closed", locale === 'ar' ? "مغلقة" : "Closed"],
                         ] as const
                     ).map(([val, label]) => (
                         <button
@@ -234,13 +236,13 @@ export default function ExternalCustodiesPage() {
                     <div className="overflow-x-auto custom-scrollbar">
                         {isLoading ? (
                             <div className="py-16 text-center text-gray-400 text-sm font-medium">
-                                جاري تحميل البيانات...
+                                {locale === 'ar' ? 'جاري تحميل البيانات...' : 'Loading data...'}
                             </div>
                         ) : filtered.length === 0 ? (
                             <div className="py-12">
                                 <EmptyState
-                                    title="لا توجد عهد خارجية"
-                                    description="لم يتم العثور على أي عهد خارجية مطابقة للفلتر المحدد."
+                                    title={locale === 'ar' ? "لا توجد عهد خارجية" : "No External Custodies"}
+                                    description={locale === 'ar' ? "لم يتم العثور على أي عهد خارجية مطابقة للفلتر المحدد." : "No external custodies found matching the selected filter."}
                                     icon={Building2}
                                 />
                             </div>
@@ -251,37 +253,37 @@ export default function ExternalCustodiesPage() {
                                         <th className="px-4 md:px-5 py-3 md:py-4 font-bold">
                                             <div className="flex items-center gap-1.5">
                                                 <FolderKanban className="w-3.5 h-3.5" />
-                                                المشروع
+                                                {locale === 'ar' ? 'المشروع' : 'Project'}
                                             </div>
                                         </th>
                                         <th className="px-4 md:px-5 py-3 md:py-4 font-bold">
                                             <div className="flex items-center gap-1.5">
                                                 <Building2 className="w-3.5 h-3.5" />
-                                                الطرف الخارجي
+                                                {locale === 'ar' ? 'الطرف الخارجي' : 'External Party'}
                                             </div>
                                         </th>
                                         <th className="px-4 md:px-5 py-3 md:py-4 font-bold">
                                             <div className="flex items-center gap-1.5">
                                                 <Phone className="w-3.5 h-3.5" />
-                                                الهاتف
+                                                {locale === 'ar' ? 'الهاتف' : 'Phone'}
                                             </div>
                                         </th>
                                         <th className="px-4 md:px-5 py-3 md:py-4 font-bold">
                                             <div className="flex items-center gap-1.5">
                                                 <Target className="w-3.5 h-3.5" />
-                                                الغرض
+                                                {locale === 'ar' ? 'الغرض' : 'Purpose'}
                                             </div>
                                         </th>
-                                        <th className="px-4 md:px-5 py-3 md:py-4 font-bold">المبلغ</th>
-                                        <th className="px-4 md:px-5 py-3 md:py-4 font-bold">المتبقي</th>
-                                        <th className="px-4 md:px-5 py-3 md:py-4 font-bold">الحالة</th>
+                                        <th className="px-4 md:px-5 py-3 md:py-4 font-bold">{locale === 'ar' ? 'المبلغ' : 'Amount'}</th>
+                                        <th className="px-4 md:px-5 py-3 md:py-4 font-bold">{locale === 'ar' ? 'المتبقي' : 'Remaining'}</th>
+                                        <th className="px-4 md:px-5 py-3 md:py-4 font-bold">{locale === 'ar' ? 'الحالة' : 'Status'}</th>
                                         <th className="px-4 md:px-5 py-3 md:py-4 font-bold">
                                             <div className="flex items-center gap-1.5">
                                                 <Calendar className="w-3.5 h-3.5" />
-                                                التاريخ
+                                                {locale === 'ar' ? 'التاريخ' : 'Date'}
                                             </div>
                                         </th>
-                                        <th className="px-4 md:px-5 py-3 md:py-4 font-bold">السند</th>
+                                        <th className="px-4 md:px-5 py-3 md:py-4 font-bold">{locale === 'ar' ? 'السند' : 'Voucher'}</th>
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-gray-50">
@@ -335,11 +337,11 @@ export default function ExternalCustodiesPage() {
                                                 >
                                                     {c.isClosed ? (
                                                         <>
-                                                            <Lock className="w-2.5 h-2.5" /> مغلقة
+                                                            <Lock className="w-2.5 h-2.5" /> {locale === 'ar' ? 'مغلقة' : 'Closed'}
                                                         </>
                                                     ) : (
                                                         <>
-                                                            <Unlock className="w-2.5 h-2.5" /> مفتوحة
+                                                            <Unlock className="w-2.5 h-2.5" /> {locale === 'ar' ? 'مفتوحة' : 'Open'}
                                                         </>
                                                     )}
                                                 </span>
@@ -355,7 +357,7 @@ export default function ExternalCustodiesPage() {
                                                     className="inline-flex items-center gap-1 text-[10px] font-bold text-[#102550] hover:text-blue-700 hover:underline"
                                                 >
                                                     <FileOutput className="w-3 h-3" />
-                                                    عرض
+                                                    {locale === 'ar' ? 'عرض' : 'View'}
                                                 </a>
                                             </td>
                                         </tr>
@@ -368,7 +370,7 @@ export default function ExternalCustodiesPage() {
                                             colSpan={4}
                                             className="px-4 md:px-5 py-3 md:py-4 font-black text-gray-700 text-xs"
                                         >
-                                            الإجمالي ({filtered.length} عهدة)
+                                            {locale === 'ar' ? `الإجمالي (${filtered.length} عهدة)` : `Total (${filtered.length} custodies)`}
                                         </td>
                                         <td className="px-4 md:px-5 py-3 md:py-4 font-black text-gray-900">
                                             {filtered

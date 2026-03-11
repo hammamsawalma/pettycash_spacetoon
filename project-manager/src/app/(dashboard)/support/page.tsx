@@ -134,42 +134,42 @@ export default function SupportPage() {
                         <form ref={formRef} className="space-y-6" action={formAction}>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-5 md:gap-6">
                                 <div className="space-y-2">
-                                    <label className="text-xs md:text-sm font-bold text-gray-700">نوع المشكلة</label>
+                                    <label className="text-xs md:text-sm font-bold text-gray-700">{locale === 'ar' ? 'نوع المشكلة' : 'Issue Type'}</label>
                                     <select name="type" className="w-full rounded-xl border border-gray-200 p-3.5 md:p-4 outline-none focus:ring-2 focus:ring-[#102550] bg-white text-gray-900 text-xs md:text-sm font-bold shadow-sm">
-                                        <option>مشكلة في تسجيل الدخول / الصلاحيات</option>
-                                        <option>مشكلة في الفواتير أو الماليّات</option>
-                                        <option>مشكلة في إدارة المشاريع</option>
-                                        <option>اقتراح / تحسين</option>
-                                        <option>أخرى</option>
+                                        <option value="LOGIN">{locale === 'ar' ? 'مشكلة في تسجيل الدخول / الصلاحيات' : 'Login / Permissions Issue'}</option>
+                                        <option value="FINANCE">{locale === 'ar' ? 'مشكلة في الفواتير أو الماليّات' : 'Invoices or Financial Issue'}</option>
+                                        <option value="PROJECTS">{locale === 'ar' ? 'مشكلة في إدارة المشاريع' : 'Project Management Issue'}</option>
+                                        <option value="SUGGESTION">{locale === 'ar' ? 'اقتراح / تحسين' : 'Suggestion / Improvement'}</option>
+                                        <option value="OTHER">{locale === 'ar' ? 'أخرى' : 'Other'}</option>
                                     </select>
                                 </div>
                                 <div className="space-y-2">
-                                    <label className="text-xs md:text-sm font-bold text-gray-700">أولوية التذكرة</label>
+                                    <label className="text-xs md:text-sm font-bold text-gray-700">{locale === 'ar' ? 'أولوية التذكرة' : 'Ticket Priority'}</label>
                                     <select name="priority" className="w-full rounded-xl border border-gray-200 p-3.5 md:p-4 outline-none focus:ring-2 focus:ring-[#102550] bg-white text-gray-900 text-xs md:text-sm font-bold shadow-sm">
-                                        <option>عادية</option>
-                                        <option>متوسطة</option>
-                                        <option>عاجلة (حرجة)</option>
+                                        <option value="NORMAL">{locale === 'ar' ? 'عادية' : 'Normal'}</option>
+                                        <option value="MEDIUM">{locale === 'ar' ? 'متوسطة' : 'Medium'}</option>
+                                        <option value="URGENT">{locale === 'ar' ? 'عاجلة (حرجة)' : 'Urgent (Critical)'}</option>
                                     </select>
                                 </div>
                             </div>
 
                             <div className="space-y-2">
-                                <label className="text-xs md:text-sm font-bold text-gray-700">عنوان التذكرة</label>
+                                <label className="text-xs md:text-sm font-bold text-gray-700">{locale === 'ar' ? 'عنوان التذكرة' : 'Ticket Title'}</label>
                                 <input
                                     type="text"
                                     name="title"
-                                    placeholder="اكتب عنواناً يصف المشكلة باختصار..."
+                                    placeholder={locale === 'ar' ? "اكتب عنواناً يصف المشكلة باختصار..." : "Write a brief title describing the issue..."}
                                     className="w-full rounded-xl border border-gray-200 p-3.5 md:p-4 outline-none focus:ring-2 focus:ring-[#102550] bg-white text-xs md:text-sm font-bold shadow-sm placeholder:font-normal placeholder:text-gray-400"
                                     required
                                 />
                             </div>
 
                             <div className="space-y-2">
-                                <label className="text-xs md:text-sm font-bold text-gray-700">وصف المشكلة تفصيلياً</label>
+                                <label className="text-xs md:text-sm font-bold text-gray-700">{locale === 'ar' ? 'وصف المشكلة تفصيلياً' : 'Detailed Description'}</label>
                                 <textarea
                                     name="description"
                                     rows={5}
-                                    placeholder="يرجى كتابة كافة التفاصيل التي تساعدنا في حل مشكلتك..."
+                                    placeholder={locale === 'ar' ? "يرجى كتابة كافة التفاصيل التي تساعدنا في حل مشكلتك..." : "Please write all details that can help us solve your issue..."}
                                     className="w-full rounded-xl border border-gray-200 p-3.5 md:p-4 outline-none focus:ring-2 focus:ring-[#102550] resize-none bg-white text-xs md:text-sm font-bold shadow-sm placeholder:font-normal placeholder:text-gray-400"
                                     required
                                 />
@@ -191,8 +191,8 @@ export default function SupportPage() {
                                 <MessageCircle className="w-6 h-6 md:w-7 md:h-7" />
                             </div>
                             <div>
-                                <h4 className="font-bold text-gray-900 text-sm md:text-base mb-1">المحادثة المباشرة</h4>
-                                <p className="text-[11px] md:text-xs text-gray-500 font-medium leading-relaxed">تحدث مع أحد ممثلي خدمة العملاء بشكل مباشر الآن.</p>
+                                <h4 className="font-bold text-gray-900 text-sm md:text-base mb-1">{locale === 'ar' ? 'المحادثة المباشرة' : 'Live Chat'}</h4>
+                                <p className="text-[11px] md:text-xs text-gray-500 font-medium leading-relaxed">{locale === 'ar' ? 'تحدث مع أحد ممثلي خدمة العملاء بشكل مباشر الآن.' : 'Talk to a customer service representative instantly.'}</p>
                             </div>
                             <Button
                                 variant="primary"
@@ -208,8 +208,8 @@ export default function SupportPage() {
                                 <FileText className="w-6 h-6 md:w-7 md:h-7" />
                             </div>
                             <div>
-                                <h4 className="font-bold text-gray-900 text-sm md:text-base mb-1">دليل المستخدم</h4>
-                                <p className="text-[11px] md:text-xs text-gray-500 font-medium leading-relaxed">تصفح الأسئلة الشائعة والمقالات التعليمية حول النظام.</p>
+                                <h4 className="font-bold text-gray-900 text-sm md:text-base mb-1">{locale === 'ar' ? 'دليل المستخدم' : 'User Guide'}</h4>
+                                <p className="text-[11px] md:text-xs text-gray-500 font-medium leading-relaxed">{locale === 'ar' ? 'تصفح الأسئلة الشائعة والمقالات التعليمية حول النظام.' : 'Browse FAQs and instructional articles about the system.'}</p>
                             </div>
                             <Button variant="secondary" className="w-full text-xs md:text-sm h-11 md:h-12 font-bold text-gray-700 bg-gray-100 border-transparent hover:bg-gray-200" onClick={() => window.open("/manual", "_blank")}>{locale === 'ar' ? 'تصفح الدليل' : 'Browse Guide'}</Button>
                         </Card>
@@ -218,8 +218,8 @@ export default function SupportPage() {
                             <div className="flex gap-4 items-start">
                                 <AlertCircle className="w-5 h-5 md:w-6 md:h-6 text-yellow-500 shrink-0 mt-0.5" />
                                 <div>
-                                    <h4 className="font-bold text-gray-900 text-xs md:text-sm mb-1.5">أوقات العمل</h4>
-                                    <p className="text-[10px] md:text-[11px] text-gray-600 leading-relaxed font-bold">فريق الدعم متاح من السبت إلى الخميس، من الساعة 9 صباحاً حتى 6 مساءً بتوقيت مكة المكرمة.</p>
+                                    <h4 className="font-bold text-gray-900 text-xs md:text-sm mb-1.5">{locale === 'ar' ? 'أوقات العمل' : 'Working Hours'}</h4>
+                                    <p className="text-[10px] md:text-[11px] text-gray-600 leading-relaxed font-bold">{locale === 'ar' ? 'فريق الدعم متاح من السبت إلى الخميس، من الساعة 9 صباحاً حتى 6 مساءً بتوقيت مكة المكرمة.' : 'The support team is available from Saturday to Thursday, 9 AM to 6 PM (Mecca time).'}</p>
                                 </div>
                             </div>
                         </Card>
@@ -242,8 +242,8 @@ export default function SupportPage() {
                                     <HeadphonesIcon className="w-5 h-5" />
                                 </div>
                                 <div>
-                                    <h3 className="font-bold text-sm">الدعم الفني</h3>
-                                    <p className="text-[10px] text-blue-200">محادثة مباشرة مع فريق الدعم</p>
+                                    <h3 className="font-bold text-sm">{locale === 'ar' ? 'الدعم الفني' : 'Technical Support'}</h3>
+                                    <p className="text-[10px] text-blue-200">{locale === 'ar' ? 'محادثة مباشرة مع فريق الدعم' : 'Live chat with the support team'}</p>
                                 </div>
                             </div>
                             <button onClick={closeChat} className="p-2 hover:bg-white/10 rounded-lg transition-colors">

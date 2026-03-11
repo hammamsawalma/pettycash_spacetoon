@@ -4,8 +4,8 @@ import { getBranches } from "@/actions/branches";
 import WelcomeClient from "./WelcomeClient";
 
 export const metadata = {
-    title: "Spacetoon Pocket | اختر الفرع",
-    description: "مرحباً بك في نظام سبيستون بوكيت — اختر الفرع للمتابعة",
+    title: "Spacetoon Pocket | Select Branch",
+    description: "Welcome to Spacetoon Pocket — Select a branch to continue",
 };
 
 export default async function WelcomePage() {

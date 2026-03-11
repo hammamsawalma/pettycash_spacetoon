@@ -103,7 +103,7 @@ export default function SettingsPage() {
                             className={`shrink-0 md:w-full flex items-center gap-2 md:gap-3 px-4 py-3 font-bold text-xs md:text-sm rounded-xl transition-colors ${activeTab === 'profile' ? 'bg-[#102550]/10 text-[#102550]' : 'text-gray-500 hover:bg-gray-50 hover:text-gray-900'}`}
                         >
                             <User className="w-4 h-4 md:w-5 md:h-5" />
-                            الملف الشخصي
+                            {locale === 'ar' ? 'الملف الشخصي' : 'Profile'}
                         </button>
                         <button
                             onClick={() => setActiveTab("phone")}
@@ -292,7 +292,7 @@ export default function SettingsPage() {
                         <>
                             <div className="flex items-center gap-3 mb-6 border-b border-gray-100 pb-4">
                                 <ShieldCheck className="w-6 h-6 text-amber-600" />
-                                <h3 className="text-base md:text-xl font-bold text-gray-900">الاعتماد التلقائي للفواتير</h3>
+                                <h3 className="text-base md:text-xl font-bold text-gray-900">{locale === 'ar' ? 'الاعتماد التلقائي للفواتير' : 'Invoice Auto-Approval'}</h3>
                             </div>
 
                             {/* Status badge */}
@@ -372,14 +372,14 @@ export default function SettingsPage() {
                                         }}
                                         className="w-full rounded-xl border border-gray-200 p-4 outline-none focus:ring-2 focus:ring-[#102550] font-bold shadow-sm"
                                     >
-                                        <option value="ر.ق">ريال قطري (ر.ق)</option>
-                                        <option value="ر.س">ريال سعودي (ر.س)</option>
-                                        <option value="د.إ">درهم إماراتي (د.إ)</option>
-                                        <option value="د.ك">دينار كويتي (د.ك)</option>
-                                        <option value="ر.ع">ريال عماني (ر.ع)</option>
-                                        <option value="د.ب">دينار بحريني (د.ب)</option>
-                                        <option value="USD">دولار أمريكي (USD)</option>
-                                        <option value="EUR">يورو (EUR)</option>
+                                        <option value="QAR">{locale === 'ar' ? 'ريال قطري (ر.ق)' : 'Qatari Riyal (QAR)'}</option>
+                                        <option value="SAR">{locale === 'ar' ? 'ريال سعودي (ر.س)' : 'Saudi Riyal (SAR)'}</option>
+                                        <option value="AED">{locale === 'ar' ? 'درهم إماراتي (د.إ)' : 'UAE Dirham (AED)'}</option>
+                                        <option value="KWD">{locale === 'ar' ? 'دينار كويتي (د.ك)' : 'Kuwaiti Dinar (KWD)'}</option>
+                                        <option value="OMR">{locale === 'ar' ? 'ريال عماني (ر.ع)' : 'Omani Rial (OMR)'}</option>
+                                        <option value="BHD">{locale === 'ar' ? 'دينار بحريني (د.ب)' : 'Bahraini Dinar (BHD)'}</option>
+                                        <option value="USD">{locale === 'ar' ? 'دولار أمريكي (USD)' : 'US Dollar (USD)'}</option>
+                                        <option value="EUR">{locale === 'ar' ? 'يورو (EUR)' : 'Euro (EUR)'}</option>
                                     </select>
                                     <p className="text-xs text-gray-400 mt-2">{locale === 'ar' ? 'تحديث هذه العملة سيؤثر على جميع الحسابات والفواتير في النظام.' : 'Updating currency affects all calculations and invoices in the system.'}</p>
                                 </div>

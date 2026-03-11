@@ -28,13 +28,15 @@ export default function GlobalError({
                     </div>
 
                     {/* Message */}
-                    <h1 className="text-2xl font-black text-white mb-3">حدث خطأ غير متوقع</h1>
+                    <h1 className="text-2xl font-black text-white mb-3">An Unexpected Error Occurred / حدث خطأ غير متوقع</h1>
                     <p className="text-slate-400 text-sm leading-relaxed mb-2">
+                        A system error has occurred. Please try again or return to the homepage.
+                        <br />
                         حدث خطأ في النظام. يرجى المحاولة مجدداً أو العودة للرئيسية.
                     </p>
                     {error?.digest && (
                         <p className="text-slate-600 text-xs font-mono mb-8 bg-white/5 rounded-lg px-3 py-1 inline-block">
-                            معرف الخطأ: {error.digest}
+                            Error ID / معرف الخطأ: {error.digest}
                         </p>
                     )}
 
@@ -45,14 +47,14 @@ export default function GlobalError({
                             className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-white text-slate-900 font-semibold text-sm hover:bg-white/90 transition-all shadow-lg"
                         >
                             <RefreshCw className="w-4 h-4" />
-                            المحاولة مجدداً
+                            Try Again / المحاولة مجدداً
                         </button>
                         <Link
                             href="/"
                             className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-white/10 text-white font-semibold text-sm hover:bg-white/20 transition-all border border-white/20"
                         >
                             <Home className="w-4 h-4" />
-                            العودة للرئيسية
+                            Home / العودة للرئيسية
                         </Link>
                     </div>
                 </div>

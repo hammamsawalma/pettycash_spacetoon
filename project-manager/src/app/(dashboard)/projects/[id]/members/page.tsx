@@ -9,11 +9,12 @@ import { useAuth } from "@/context/AuthContext";
 import { useCanDo } from "@/components/auth/Protect";
 import { useParams, useRouter } from "next/navigation";
 import toast from "react-hot-toast";
+import { useLanguage } from "@/context/LanguageContext";
 
-const ROLE_CONFIG = {
-    PROJECT_EMPLOYEE: { label: "موظف", color: "bg-blue-100 text-blue-700", desc: "يستلم عهدة، يرفع فواتير" },
-    PROJECT_MANAGER: { label: "منسق المشتريات", color: "bg-amber-100 text-amber-700", desc: "يضيف قوائم المشتريات" },
-};
+const getRoleConfig = (locale: string) => ({
+    PROJECT_EMPLOYEE: { label: locale === 'ar' ? "موظف" : "Employee", color: "bg-blue-100 text-blue-700", desc: locale === 'ar' ? "يستلم عهدة، يرفع فواتير" : "Receives custody, uploads invoices" },
+    PROJECT_MANAGER: { label: locale === 'ar' ? "منسق المشتريات" : "Purchases Coordinator", color: "bg-amber-100 text-amber-700", desc: locale === 'ar' ? "يضيف قوائم المشتريات" : "Adds purchase lists" },
+});
 
 type ProjectRole = "PROJECT_EMPLOYEE" | "PROJECT_MANAGER";
 type Member = Awaited<ReturnType<typeof getProjectMembers>>[0];
@@ -29,6 +30,9 @@ export default function ProjectMembersPage() {
     const [loading, setLoading] = useState(true);
     const [expandedId, setExpandedId] = useState<string | null>(null);
     const [savingId, setSavingId] = useState<string | null>(null);
+    const { locale } = useLanguage();
+
+    const ROLE_CONFIG = getRoleConfig(locale);
 
     useEffect(() => {
         getProjectMembers(projectId).then(data => {
@@ -48,7 +52,7 @@ export default function ProjectMembersPage() {
         if (result.error) {
             toast.error(result.error);
         } else {
-            toast.success("تم تحديث الأدوار ✅");
+            toast.success(locale === 'ar' ? "تم تحديث الأدوار ✅" : "Roles updated ✅");
             setMembers(prev => prev.map(m =>
                 m.id === memberId ? { ...m, projectRoles: newRoles.join(","), parsedRoles: newRoles } : m
             ));
@@ -57,18 +61,18 @@ export default function ProjectMembersPage() {
     };
 
     const handleRemove = async (memberId: string, memberName: string) => {
-        if (!confirm(`هل أنت متأكد من إزالة ${memberName} من المشروع؟`)) return;
+        if (!confirm(locale === 'ar' ? `هل أنت متأكد من إزالة ${memberName} من المشروع؟` : `Are you sure you want to remove ${memberName} from the project?`)) return;
         const result = await removeMemberFromProject(memberId);
         if (result.error) {
             toast.error(result.error);
         } else {
-            toast.success("تمت إزالة العضو");
+            toast.success(locale === 'ar' ? "تمت إزالة العضو" : "Member removed");
             setMembers(prev => prev.filter(m => m.id !== memberId));
         }
     };
 
     return (
-        <DashboardLayout title="إدارة أعضاء المشروع">
+        <DashboardLayout title={locale === 'ar' ? "إدارة أعضاء المشروع" : "Manage Project Members"}>
             <div className="max-w-4xl mx-auto space-y-6 pb-10">
 
                 {/* Header */}
@@ -78,18 +82,18 @@ export default function ProjectMembersPage() {
                             <Users className="w-5 h-5 text-blue-600" />
                         </div>
                         <div>
-                            <h1 className="text-xl font-bold text-gray-900">أعضاء المشروع</h1>
-                            <p className="text-sm text-gray-500">{members.length} عضو</p>
+                            <h1 className="text-xl font-bold text-gray-900">{locale === 'ar' ? 'أعضاء المشروع' : 'Project Members'}</h1>
+                            <p className="text-sm text-gray-500">{members.length} {locale === 'ar' ? 'عضو' : 'Member(s)'}</p>
                         </div>
                     </div>
                     <Button onClick={() => router.push(`/projects/${projectId}`)} variant="outline" className="text-sm">
-                        ← العودة للمشروع
+                        {locale === 'ar' ? '← العودة للمشروع' : '← Back to Project'}
                     </Button>
                 </div>
 
                 {/* Role Legend */}
                 <Card className="p-4 bg-gradient-to-br from-gray-50 to-white border border-gray-100">
-                    <p className="text-xs font-bold text-gray-500 mb-3 uppercase tracking-wide">دليل الأدوار</p>
+                    <p className="text-xs font-bold text-gray-500 mb-3 uppercase tracking-wide">{locale === 'ar' ? 'دليل الأدوار' : 'Role Legend'}</p>
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                         {Object.entries(ROLE_CONFIG).map(([role, cfg]) => (
                             <div key={role} className={`px-3 py-2 rounded-xl ${cfg.color} bg-opacity-50`}>
@@ -99,17 +103,17 @@ export default function ProjectMembersPage() {
                         ))}
                     </div>
                     <p className="text-xs text-gray-400 mt-3 italic">
-                        ⚠️ المحاسب العام هو المسؤول عن مراجعة واعتماد الفواتير لجميع المشاريع
+                        ⚠️ {locale === 'ar' ? 'المحاسب العام هو المسؤول عن مراجعة واعتماد الفواتير لجميع المشاريع' : 'The General Accountant is responsible for reviewing and approving invoices for all projects'}
                     </p>
                 </Card>
 
                 {/* Members List */}
                 {loading ? (
-                    <div className="text-center py-16 text-gray-400">جاري التحميل...</div>
+                    <div className="text-center py-16 text-gray-400">{locale === 'ar' ? 'جاري التحميل...' : 'Loading...'}</div>
                 ) : members.length === 0 ? (
                     <div className="text-center py-16 text-gray-400">
                         <Users className="w-12 h-12 mx-auto mb-3 opacity-30" />
-                        <p>لا يوجد أعضاء في هذا المشروع بعد</p>
+                        <p>{locale === 'ar' ? 'لا يوجد أعضاء في هذا المشروع بعد' : 'No members in this project yet'}</p>
                     </div>
                 ) : (
                     <div className="space-y-3">
@@ -136,19 +140,19 @@ export default function ProjectMembersPage() {
                                         {/* Role Badges */}
                                         <div className="flex gap-1.5 flex-wrap justify-end">
                                             {parsedRoles.map(role => {
-                                                const cfg = ROLE_CONFIG[role];
+                                                const cfg = ROLE_CONFIG[role as ProjectRole];
                                                 return (
-                                                    <span key={role} className={`text-xs px-2 py-1 rounded-lg font-semibold ${cfg.color}`}>
-                                                        {cfg.label}
+                                                    <span key={role} className={`text-xs px-2 py-1 rounded-lg font-semibold ${cfg?.color || ''}`}>
+                                                        {cfg?.label || role}
                                                     </span>
                                                 );
                                             })}
                                         </div>
                                         {/* Balance */}
                                         <div className="text-right ml-2">
-                                            <p className="text-xs text-gray-400">العهدة</p>
+                                            <p className="text-xs text-gray-400">{locale === 'ar' ? 'العهدة' : 'Custody'}</p>
                                             <p className={`text-sm font-bold ${member.custodyBalance > 0 ? "text-amber-600" : "text-gray-400"}`}>
-                                                {member.custodyBalance.toLocaleString('en-US')} ر
+                                                {member.custodyBalance.toLocaleString('en-US')} {locale === 'ar' ? 'ر' : 'QAR'}
                                             </p>
                                         </div>
                                         <ChevronDown className={`w-4 h-4 text-gray-400 transition-transform ${isExpanded ? "rotate-180" : ""}`} />
@@ -157,12 +161,12 @@ export default function ProjectMembersPage() {
                                     {/* Expanded Role Editor */}
                                     {isExpanded && canManageMembers && (
                                         <div className="border-t border-gray-100 bg-gray-50 p-4">
-                                            <p className="text-xs font-bold text-gray-500 mb-3">تعديل الأدوار</p>
+                                            <p className="text-xs font-bold text-gray-500 mb-3">{locale === 'ar' ? 'تعديل الأدوار' : 'Edit Roles'}</p>
                                             <div className="flex flex-wrap gap-2 mb-4">
                                                 {(Object.keys(ROLE_CONFIG) as ProjectRole[]).map(role => {
                                                     const isActive = parsedRoles.includes(role);
                                                     const isFixed = role === "PROJECT_EMPLOYEE";
-                                                    const cfg = ROLE_CONFIG[role];
+                                                    const cfg = ROLE_CONFIG[role as ProjectRole];
                                                     return (
                                                         <button
                                                             key={role}
@@ -182,11 +186,11 @@ export default function ProjectMembersPage() {
                                                 onClick={() => handleRemove(member.id, member.user.name)}
                                                 className="flex items-center gap-1.5 text-xs text-red-500 hover:text-red-700 transition-colors"
                                                 disabled={member.custodyBalance > 0}
-                                                title={member.custodyBalance > 0 ? "لا يمكن إزالة عضو لديه عهدة نشطة" : ""}
+                                                title={member.custodyBalance > 0 ? (locale === 'ar' ? "لا يمكن إزالة عضو لديه عهدة نشطة" : "Cannot remove member with active custody") : ""}
                                             >
                                                 <Trash2 className="w-3.5 h-3.5" />
-                                                إزالة من المشروع
-                                                {member.custodyBalance > 0 && " (لديه عهدة)"}
+                                                {locale === 'ar' ? 'إزالة من المشروع' : 'Remove from Project'}
+                                                {member.custodyBalance > 0 && (locale === 'ar' ? " (لديه عهدة)" : " (Has Custody)")}
                                             </button>
                                         </div>
                                     )}

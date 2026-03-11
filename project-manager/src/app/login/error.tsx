@@ -8,7 +8,7 @@ export default function LoginError({
     reset: () => void;
 }) {
     return (
-        <div dir="rtl" style={{
+        <div dir="ltr" style={{
             minHeight: "100vh",
             display: "flex",
             alignItems: "center",
@@ -18,10 +18,10 @@ export default function LoginError({
         }}>
             <div style={{ textAlign: "center", maxWidth: "400px" }}>
                 <h1 style={{ color: "#e2e8f0", fontSize: "1.5rem", fontWeight: 700, marginBottom: "1rem" }}>
-                    خطأ في تحميل صفحة الدخول
+                    Error loading login page / خطأ في تحميل صفحة الدخول
                 </h1>
                 <p style={{ color: "#94a3b8", fontSize: "0.9rem", marginBottom: "1.5rem" }}>
-                    يرجى المحاولة مرة أخرى
+                    Please try again / يرجى المحاولة مرة أخرى
                 </p>
                 <button
                     onClick={reset}
@@ -37,7 +37,7 @@ export default function LoginError({
                         fontFamily: "inherit",
                     }}
                 >
-                    إعادة المحاولة 🔄
+                    Try Again / إعادة المحاولة 🔄
                 </button>
             </div>
         </div>

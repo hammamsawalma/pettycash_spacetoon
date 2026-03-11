@@ -21,7 +21,7 @@ const inter = Inter({
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"),
   title: "Spacetoon Pocket",
-  description: "نظام إدارة المشاريع والمالية - سبيستون",
+  description: "Spacetoon - Project & Finance Management System",
   manifest: "/manifest.json",
   icons: {
     icon: "/favicon.ico",
@@ -29,13 +29,13 @@ export const metadata: Metadata = {
   },
   openGraph: {
     title: "Spacetoon Pocket",
-    description: "نظام إدارة المشاريع والمالية - سبيستون",
+    description: "Spacetoon - Project & Finance Management System",
     images: [
       {
         url: "/og-image.png",
         width: 1200,
         height: 630,
-        alt: "Spacetoon Pocket - نظام إدارة المشاريع والمالية",
+        alt: "Spacetoon Pocket - Project & Finance Management System",
       },
     ],
     locale: "ar_SA",
@@ -45,7 +45,7 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: "Spacetoon Pocket",
-    description: "نظام إدارة المشاريع والمالية - سبيستون",
+    description: "Spacetoon - Project & Finance Management System",
     images: ["/og-image.png"],
   },
   appleWebApp: {

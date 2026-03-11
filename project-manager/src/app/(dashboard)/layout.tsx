@@ -25,7 +25,7 @@ export default async function DashboardLayout({
     }
 
     // ── Currency (fallback on error) ────────────────────────────────────────
-    let currency = "ر.ق";
+    let currency = "QAR";
     try {
         currency = await getGlobalCurrency();
     } catch (err) {

@@ -10,6 +10,7 @@ import { useEffect, useState, useMemo } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { useCanDo } from "@/components/auth/Protect";
 import { useRouter } from "next/navigation";
+import { useLanguage } from "@/context/LanguageContext";
 import {
     Users,
     Wallet,
@@ -59,22 +60,23 @@ export default function EmployeeCustodiesPage() {
     const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
     const [projectFilter, setProjectFilter] = useState<string>("all");
     const [searchQuery, setSearchQuery] = useState("");
+    const { locale } = useLanguage();
 
     const custodyColumns: ExportColumn[] = [
-        { key: "employeeName", label: "الموظف" },
-        { key: "projectName", label: "المشروع" },
-        { key: "amount", label: "المبلغ", format: (v) => formatCurrency(v as number) },
-        { key: "balance", label: "المتبقي", format: (v) => formatCurrency(v as number) },
-        { key: "status", label: "الحالة", format: (v) => custodyStatusLabel[v as string] || String(v) },
-        { key: "method", label: "طريقة الدفع" },
-        { key: "totalReturned", label: "المرجع", format: (v) => formatCurrency(v as number) },
-        { key: "note", label: "ملاحظة" },
-        { key: "createdAt", label: "التاريخ", format: (v) => formatDate(v as string) },
+        { key: "employeeName", label: locale === 'ar' ? "الموظف" : "Employee" },
+        { key: "projectName", label: locale === 'ar' ? "المشروع" : "Project" },
+        { key: "amount", label: locale === 'ar' ? "المبلغ" : "Amount", format: (v) => formatCurrency(v as number) },
+        { key: "balance", label: locale === 'ar' ? "المتبقي" : "Remaining", format: (v) => formatCurrency(v as number) },
+        { key: "status", label: locale === 'ar' ? "الحالة" : "Status", format: (v) => custodyStatusLabel[v as string] || String(v) },
+        { key: "method", label: locale === 'ar' ? "طريقة الدفع" : "Payment Method" },
+        { key: "totalReturned", label: locale === 'ar' ? "المرجع" : "Returned", format: (v) => formatCurrency(v as number) },
+        { key: "note", label: locale === 'ar' ? "ملاحظة" : "Note" },
+        { key: "createdAt", label: locale === 'ar' ? "التاريخ" : "Date", format: (v) => formatDate(v as string) },
     ];
 
     const handleExportExcel = async () => {
         const data = await getCustodiesExportData("employee");
-        downloadExcel([{ name: "عهد الموظفين", columns: custodyColumns, data: data as Record<string, unknown>[] }], "تقرير_عهد_الموظفين");
+        downloadExcel([{ name: locale === 'ar' ? "عهد الموظفين" : "Employee Custodies", columns: custodyColumns, data: data as Record<string, unknown>[] }], locale === 'ar' ? "تقرير_عهد_الموظفين" : "Employee_Custodies_Report");
     };
 
     const handleExportPDF = async () => {
@@ -82,14 +84,14 @@ export default function EmployeeCustodiesPage() {
         const totalAmount = data.reduce((s, d) => s + d.amount, 0);
         const totalBalance = data.reduce((s, d) => s + d.balance, 0);
         const html = generatePrintableReport({
-            title: "تقرير عهد الموظفين",
-            subtitle: "جميع العهد الصادرة للموظفين عبر كل المشاريع",
+            title: locale === 'ar' ? "تقرير عهد الموظفين" : "Employee Custodies Report",
+            subtitle: locale === 'ar' ? "جميع العهد الصادرة للموظفين عبر كل المشاريع" : "All custodies issued to employees across all projects",
             columns: custodyColumns,
             data: data as Record<string, unknown>[],
             summary: [
-                { label: "إجمالي المصروفات", value: formatCurrency(totalAmount) },
-                { label: "الرصيد المتبقي", value: formatCurrency(totalBalance) },
-                { label: "عدد العهد", value: String(data.length) },
+                { label: locale === 'ar' ? "إجمالي المصروفات" : "Total Expenses", value: formatCurrency(totalAmount) },
+                { label: locale === 'ar' ? "الرصيد المتبقي" : "Remaining Balance", value: formatCurrency(totalBalance) },
+                { label: locale === 'ar' ? "عدد العهد" : "Custody Count", value: String(data.length) },
             ],
             branchName: user?.branchName,
             branchFlag: user?.branchFlag,
@@ -156,59 +158,59 @@ export default function EmployeeCustodiesPage() {
     if (!user || !canViewReports) return null;
 
     const statusTabs: { value: StatusFilter; label: string; count: number }[] = [
-        { value: "all", label: "الكل", count: custodies.length },
-        { value: "pending", label: "بانتظار التأكيد", count: pendingCount },
-        { value: "confirmed", label: "نشطة", count: activeCount },
-        { value: "closed", label: "مغلقة", count: closedCount },
-        { value: "rejected", label: "مرفوضة", count: rejectedCount },
+        { value: "all", label: locale === 'ar' ? "الكل" : "All", count: custodies.length },
+        { value: "pending", label: locale === 'ar' ? "بانتظار التأكيد" : "Pending Confirmation", count: pendingCount },
+        { value: "confirmed", label: locale === 'ar' ? "نشطة" : "Active", count: activeCount },
+        { value: "closed", label: locale === 'ar' ? "مغلقة" : "Closed", count: closedCount },
+        { value: "rejected", label: locale === 'ar' ? "مرفوضة" : "Rejected", count: rejectedCount },
     ];
 
     const getStatusBadge = (c: EmployeeCustody) => {
         if (c.status === "REJECTED") {
             return (
                 <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md text-[10px] font-bold bg-red-50 text-red-600">
-                    <XCircle className="w-2.5 h-2.5" /> مرفوضة
+                    <XCircle className="w-2.5 h-2.5" /> {locale === 'ar' ? 'مرفوضة' : 'Rejected'}
                 </span>
             );
         }
         if (c.isClosed) {
             return (
                 <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md text-[10px] font-bold bg-gray-100 text-gray-600">
-                    <Lock className="w-2.5 h-2.5" /> مغلقة
+                    <Lock className="w-2.5 h-2.5" /> {locale === 'ar' ? 'مغلقة' : 'Closed'}
                 </span>
             );
         }
         if (c.isConfirmed) {
             return (
                 <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md text-[10px] font-bold bg-emerald-50 text-emerald-700">
-                    <CheckCircle className="w-2.5 h-2.5" /> نشطة
+                    <CheckCircle className="w-2.5 h-2.5" /> {locale === 'ar' ? 'نشطة' : 'Active'}
                 </span>
             );
         }
         return (
             <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md text-[10px] font-bold bg-amber-50 text-amber-700">
-                <Clock className="w-2.5 h-2.5" /> بانتظار التأكيد
+                <Clock className="w-2.5 h-2.5" /> {locale === 'ar' ? 'بانتظار التأكيد' : 'Pending Confirmation'}
             </span>
         );
     };
 
     return (
-        <DashboardLayout title="عهد الموظفين">
+        <DashboardLayout title={locale === 'ar' ? "عهد الموظفين" : "Employee Custodies"}>
             <div className="space-y-6 md:space-y-8 pb-6">
                 {/* Header */}
                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-4 md:p-5 rounded-2xl shadow-sm border border-gray-100">
                     <div>
                         <h2 className="text-base md:text-lg font-bold text-gray-900">
-                            سندات صرف عهد الموظفين
+                            {locale === 'ar' ? 'سندات صرف عهد الموظفين' : 'Employee Custody Vouchers'}
                         </h2>
                         <p className="text-xs md:text-sm text-gray-500 font-medium mt-1">
-                            جميع العهد الصادرة للموظفين عبر كل المشاريع
+                            {locale === 'ar' ? 'جميع العهد الصادرة للموظفين عبر كل المشاريع' : 'All custodies issued to employees across all projects'}
                         </p>
                     </div>
                     <ExportButton
                         onExportExcel={handleExportExcel}
                         onExportPDF={handleExportPDF}
-                        label="تصدير عهد الموظفين"
+                        label={locale === 'ar' ? "تصدير عهد الموظفين" : "Export Employee Custodies"}
                     />
                 </div>
 
@@ -221,7 +223,7 @@ export default function EmployeeCustodiesPage() {
                             </div>
                             <div>
                                 <p className="text-[10px] md:text-xs text-gray-400 font-bold mb-0.5">
-                                    إجمالي المصروفات
+                                    {locale === 'ar' ? 'إجمالي المصروفات' : 'Total Expenses'}
                                 </p>
                                 <p className="text-lg md:text-xl font-black text-gray-900">
                                     {isLoading ? "..." : <AnimatedNumber value={totalAmount} />}{" "}
@@ -238,7 +240,7 @@ export default function EmployeeCustodiesPage() {
                             </div>
                             <div>
                                 <p className="text-[10px] md:text-xs text-gray-400 font-bold mb-0.5">
-                                    الرصيد المتبقي
+                                    {locale === 'ar' ? 'الرصيد المتبقي' : 'Remaining Balance'}
                                 </p>
                                 <p className="text-lg md:text-xl font-black text-red-600">
                                     {isLoading ? "..." : <AnimatedNumber value={totalBalance} />}{" "}
@@ -255,7 +257,7 @@ export default function EmployeeCustodiesPage() {
                             </div>
                             <div>
                                 <p className="text-[10px] md:text-xs text-gray-400 font-bold mb-0.5">
-                                    عهد نشطة
+                                    {locale === 'ar' ? 'عهد نشطة' : 'Active Custodies'}
                                 </p>
                                 <p className="text-lg md:text-xl font-black text-emerald-600">
                                     {isLoading ? "..." : activeCount}
@@ -271,7 +273,7 @@ export default function EmployeeCustodiesPage() {
                             </div>
                             <div>
                                 <p className="text-[10px] md:text-xs text-gray-400 font-bold mb-0.5">
-                                    بانتظار التأكيد
+                                    {locale === 'ar' ? 'بانتظار التأكيد' : 'Pending Confirmation'}
                                 </p>
                                 <p className="text-lg md:text-xl font-black text-amber-600">
                                     {isLoading ? "..." : pendingCount}
@@ -306,7 +308,7 @@ export default function EmployeeCustodiesPage() {
                         onChange={(e) => setProjectFilter(e.target.value)}
                         className="h-10 px-3 text-xs font-bold border border-gray-200 rounded-xl bg-white shadow-sm focus:ring-2 focus:ring-[#102550]/20 focus:border-[#102550] transition-all"
                     >
-                        <option value="all">كل المشاريع</option>
+                        <option value="all">{locale === 'ar' ? 'كل المشاريع' : 'All Projects'}</option>
                         {projects.map((p) => (
                             <option key={p.id} value={p.id}>{p.name}</option>
                         ))}
@@ -317,7 +319,7 @@ export default function EmployeeCustodiesPage() {
                         <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                         <input
                             type="text"
-                            placeholder="بحث باسم الموظف..."
+                            placeholder={locale === 'ar' ? "بحث باسم الموظف..." : "Search by employee name..."}
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
                             className="w-full h-10 pe-3 ps-10 text-xs font-medium border border-gray-200 rounded-xl bg-white shadow-sm focus:ring-2 focus:ring-[#102550]/20 focus:border-[#102550] transition-all"
@@ -331,13 +333,13 @@ export default function EmployeeCustodiesPage() {
                     <div className="overflow-x-auto custom-scrollbar">
                         {isLoading ? (
                             <div className="py-16 text-center text-gray-400 text-sm font-medium">
-                                جاري تحميل البيانات...
+                                {locale === 'ar' ? 'جاري تحميل البيانات...' : 'Loading data...'}
                             </div>
                         ) : filtered.length === 0 ? (
                             <div className="py-12">
                                 <EmptyState
-                                    title="لا توجد عهد موظفين"
-                                    description="لم يتم العثور على عهد مطابقة للفلتر المحدد."
+                                    title={locale === 'ar' ? "لا توجد عهد موظفين" : "No Employee Custodies"}
+                                    description={locale === 'ar' ? "لم يتم العثور على عهد مطابقة للفلتر المحدد." : "No custodies found matching the selected filter."}
                                     icon={HandCoins}
                                 />
                             </div>
@@ -348,26 +350,26 @@ export default function EmployeeCustodiesPage() {
                                         <th className="px-4 md:px-5 py-3 md:py-4 font-bold">
                                             <div className="flex items-center gap-1.5">
                                                 <Users className="w-3.5 h-3.5" />
-                                                الموظف
+                                                {locale === 'ar' ? 'الموظف' : 'Employee'}
                                             </div>
                                         </th>
                                         <th className="px-4 md:px-5 py-3 md:py-4 font-bold">
                                             <div className="flex items-center gap-1.5">
                                                 <FolderKanban className="w-3.5 h-3.5" />
-                                                المشروع
+                                                {locale === 'ar' ? 'المشروع' : 'Project'}
                                             </div>
                                         </th>
-                                        <th className="px-4 md:px-5 py-3 md:py-4 font-bold">المبلغ</th>
-                                        <th className="px-4 md:px-5 py-3 md:py-4 font-bold">المتبقي</th>
-                                        <th className="px-4 md:px-5 py-3 md:py-4 font-bold">الحالة</th>
+                                        <th className="px-4 md:px-5 py-3 md:py-4 font-bold">{locale === 'ar' ? 'المبلغ' : 'Amount'}</th>
+                                        <th className="px-4 md:px-5 py-3 md:py-4 font-bold">{locale === 'ar' ? 'المتبقي' : 'Remaining'}</th>
+                                        <th className="px-4 md:px-5 py-3 md:py-4 font-bold">{locale === 'ar' ? 'الحالة' : 'Status'}</th>
                                         <th className="px-4 md:px-5 py-3 md:py-4 font-bold">
                                             <div className="flex items-center gap-1.5">
                                                 <Calendar className="w-3.5 h-3.5" />
-                                                التاريخ
+                                                {locale === 'ar' ? 'التاريخ' : 'Date'}
                                             </div>
                                         </th>
-                                        <th className="px-4 md:px-5 py-3 md:py-4 font-bold">ملاحظة</th>
-                                        <th className="px-4 md:px-5 py-3 md:py-4 font-bold">السندات</th>
+                                        <th className="px-4 md:px-5 py-3 md:py-4 font-bold">{locale === 'ar' ? 'ملاحظة' : 'Note'}</th>
+                                        <th className="px-4 md:px-5 py-3 md:py-4 font-bold">{locale === 'ar' ? 'السندات' : 'Vouchers'}</th>
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-gray-50">
@@ -379,7 +381,7 @@ export default function EmployeeCustodiesPage() {
                                             <td className="px-4 md:px-5 py-3 md:py-4">
                                                 <div className="flex items-center gap-2">
                                                     <div className="w-7 h-7 rounded-lg bg-[#102550]/10 text-[#102550] flex items-center justify-center font-black text-xs shrink-0">
-                                                        {c.employee?.name?.charAt(0) || "؟"}
+                                                        {c.employee?.name?.charAt(0) || "?"}
                                                     </div>
                                                     <span className="font-bold text-gray-900 text-xs">
                                                         {c.employee?.name || "—"}
@@ -426,10 +428,10 @@ export default function EmployeeCustodiesPage() {
                                                         target="_blank"
                                                         rel="noopener noreferrer"
                                                         className="inline-flex items-center gap-1 text-[10px] font-bold text-[#102550] hover:text-blue-700 hover:underline"
-                                                        title="سند صرف"
+                                                        title={locale === 'ar' ? "سند صرف" : "Disbursement Voucher"}
                                                     >
                                                         <FileOutput className="w-3 h-3" />
-                                                        صرف
+                                                        {locale === 'ar' ? 'صرف' : 'Disbursement'}
                                                     </a>
                                                     {c.returns && c.returns.length > 0 && (
                                                         <a
@@ -437,10 +439,10 @@ export default function EmployeeCustodiesPage() {
                                                             target="_blank"
                                                             rel="noopener noreferrer"
                                                             className="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-600 hover:text-emerald-700 hover:underline"
-                                                            title="سند قبض"
+                                                            title={locale === 'ar' ? "سند قبض" : "Receipt Voucher"}
                                                         >
                                                             <FileText className="w-3 h-3" />
-                                                            قبض
+                                                            {locale === 'ar' ? 'قبض' : 'Receipt'}
                                                         </a>
                                                     )}
                                                 </div>
@@ -455,7 +457,7 @@ export default function EmployeeCustodiesPage() {
                                             colSpan={2}
                                             className="px-4 md:px-5 py-3 md:py-4 font-black text-gray-700 text-xs"
                                         >
-                                            الإجمالي ({filtered.length} عهدة)
+                                            {locale === 'ar' ? `الإجمالي (${filtered.length} عهدة)` : `Total (${filtered.length} custodies)`}
                                         </td>
                                         <td className="px-4 md:px-5 py-3 md:py-4 font-black text-gray-900">
                                             {filtered.reduce((s, c) => s + c.amount, 0).toLocaleString('en-US')}{" "}

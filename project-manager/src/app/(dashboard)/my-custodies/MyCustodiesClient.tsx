@@ -10,6 +10,7 @@ import { getUserSignature, saveUserSignature } from "@/actions/employees";
 import toast from "react-hot-toast";
 import { AlertTriangle, CheckCircle, XCircle, Wallet, Clock, Check, Briefcase, FileText, Pen, FileOutput } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useLanguage } from "@/context/LanguageContext";
 import { AnimatedNumber } from "@/components/ui/AnimatedNumber";
 import { SignaturePad } from "@/components/ui/SignaturePad";
 
@@ -33,6 +34,7 @@ interface CustodyData {
 
 export default function MyCustodiesClient({ custodies }: { custodies: CustodyData[] }) {
     const router = useRouter();
+    const { locale } = useLanguage();
     const [actionLoading, setActionLoading] = useState<string | null>(null);
     const [rejectReason, setRejectReason] = useState<string>("");
     const [rejectingId, setRejectingId] = useState<string | null>(null);
@@ -50,7 +52,7 @@ export default function MyCustodiesClient({ custodies }: { custodies: CustodyDat
 
     const handleConfirm = async (id: string) => {
         if (!signatureData) {
-            toast.error("يرجى التوقيع أولاً");
+            toast.error(locale === 'ar' ? "يرجى التوقيع أولاً" : "Please sign first");
             return;
         }
         setActionLoading(id);
@@ -58,7 +60,7 @@ export default function MyCustodiesClient({ custodies }: { custodies: CustodyDat
         if (res?.error) {
             toast.error(res.error);
         } else {
-            toast.success("تم تأكيد الاستلام بنجاح ✅");
+            toast.success(locale === 'ar' ? "تم تأكيد الاستلام بنجاح ✅" : "Receipt confirmed successfully ✅");
             setSigningCustodyId(null);
             setSignatureData(null);
             router.refresh();
@@ -68,7 +70,7 @@ export default function MyCustodiesClient({ custodies }: { custodies: CustodyDat
 
     const handleReject = async (id: string) => {
         if (!rejectReason.trim()) {
-            toast.error("يرجى إدخال سبب الرفض");
+            toast.error(locale === 'ar' ? "يرجى إدخال سبب الرفض" : "Please enter a rejection reason");
             return;
         }
         setActionLoading(id);
@@ -76,7 +78,7 @@ export default function MyCustodiesClient({ custodies }: { custodies: CustodyDat
         if (res?.error) {
             toast.error(res.error);
         } else {
-            toast.success("تم رفض العهدة وإعادتها للمشروع بنجاح ❌");
+            toast.success(locale === 'ar' ? "تم رفض العهدة وإعادتها للمشروع بنجاح ❌" : "Custody rejected and returned ❌");
             setRejectingId(null);
             setRejectReason("");
             router.refresh();
@@ -92,7 +94,7 @@ export default function MyCustodiesClient({ custodies }: { custodies: CustodyDat
     const rejected = custodies.filter(c => c.status === 'REJECTED');
 
     return (
-        <DashboardLayout title="إدارة عهدي">
+        <DashboardLayout title={locale === 'ar' ? "إدارة عهدي" : "My Custodies"}>
             <div className="space-y-8 pb-10">
 
                 {/* 1. Pending Custodies Section */}
@@ -102,7 +104,7 @@ export default function MyCustodiesClient({ custodies }: { custodies: CustodyDat
                             <div className="w-8 h-8 rounded-lg bg-amber-100 flex items-center justify-center">
                                 <AlertTriangle className="w-4 h-4 text-amber-600" />
                             </div>
-                            <h2 className="text-xl font-bold text-gray-900">عهد بانتظار التأكيد</h2>
+                            <h2 className="text-xl font-bold text-gray-900">{locale === 'ar' ? 'عهد بانتظار التأكيد' : 'Custodies Pending Confirmation'}</h2>
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
                             {unconfirmed.map(custody => (
@@ -111,7 +113,7 @@ export default function MyCustodiesClient({ custodies }: { custodies: CustodyDat
 
                                     <div className="flex justify-between items-start mb-4">
                                         <div>
-                                            <p className="text-xs font-semibold text-amber-700 mb-1">{custody.project?.name || 'مصاريف الشركة'}</p>
+                                            <p className="text-xs font-semibold text-amber-700 mb-1">{custody.project?.name || (locale === 'ar' ? 'مصاريف الشركة' : 'Company Expenses')}</p>
                                             <h3 className="text-2xl font-black text-gray-900 drop-shadow-sm">
                                                 {custody.amount.toLocaleString('en-US')} <span className="text-sm text-gray-500 font-bold"><CurrencyDisplay /></span>
                                             </h3>
@@ -124,11 +126,11 @@ export default function MyCustodiesClient({ custodies }: { custodies: CustodyDat
                                     <div className="space-y-2 mb-6">
                                         <div className="flex items-center gap-2 text-xs text-gray-600">
                                             <Briefcase className="w-3.5 h-3.5 text-gray-400" />
-                                            <span>المرسِل: <span className="font-semibold">{custody.project?.manager?.name || "مدير النظام"}</span></span>
+                                            <span>{locale === 'ar' ? 'المرسِل' : 'Sender'}: <span className="font-semibold">{custody.project?.manager?.name || (locale === 'ar' ? "مدير النظام" : "System Admin")}</span></span>
                                         </div>
                                         <div className="flex items-center gap-2 text-xs text-gray-600">
                                             <Clock className="w-3.5 h-3.5 text-gray-400" />
-                                            <span>التاريخ: <span className="font-semibold">{new Date(custody.createdAt).toLocaleDateString('en-GB')}</span></span>
+                                            <span>{locale === 'ar' ? 'التاريخ' : 'Date'}: <span className="font-semibold">{new Date(custody.createdAt).toLocaleDateString('en-GB')}</span></span>
                                         </div>
                                         {custody.note && (
                                             <div className="flex items-start gap-2 text-xs text-gray-600 bg-white/50 p-2 rounded-lg border border-amber-100">
@@ -141,7 +143,7 @@ export default function MyCustodiesClient({ custodies }: { custodies: CustodyDat
                                     {rejectingId === custody.id ? (
                                         <div className="mt-auto space-y-3 bg-white p-3 rounded-xl border border-red-100 shadow-sm animate-in fade-in slide-in-from-bottom-2">
                                             <textarea
-                                                placeholder="سبب الرفض (إجباري)..."
+                                                placeholder={locale === 'ar' ? "سبب الرفض (إجباري)..." : "Rejection reason (required)..."}
                                                 className="w-full text-xs p-2 rounded-lg border border-gray-200 focus:border-red-500 focus:ring-1 focus:ring-red-500 resize-none h-16"
                                                 value={rejectReason}
                                                 onChange={(e) => setRejectReason(e.target.value)}
@@ -152,7 +154,7 @@ export default function MyCustodiesClient({ custodies }: { custodies: CustodyDat
                                                     disabled={actionLoading === custody.id}
                                                     className="flex-1 bg-red-600 hover:bg-red-700 text-white text-xs h-8 font-bold rounded-lg"
                                                 >
-                                                    {actionLoading === custody.id ? "جاري..." : "تأكيد الرفض"}
+                                                     {actionLoading === custody.id ? (locale === 'ar' ? "جاري..." : "Processing...") : (locale === 'ar' ? "تأكيد الرفض" : "Confirm Rejection")}
                                                 </Button>
                                                 <Button
                                                     onClick={() => setRejectingId(null)}
@@ -160,7 +162,7 @@ export default function MyCustodiesClient({ custodies }: { custodies: CustodyDat
                                                     variant="secondary"
                                                     className="flex-1 text-xs h-8 font-bold rounded-lg border-gray-200"
                                                 >
-                                                    تراجع
+                                                    {locale === 'ar' ? 'تراجع' : 'Cancel'}
                                                 </Button>
                                             </div>
                                         </div>
@@ -171,7 +173,7 @@ export default function MyCustodiesClient({ custodies }: { custodies: CustodyDat
                                                 disabled={!!actionLoading}
                                                 className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white text-xs h-9 font-bold rounded-xl shadow-sm transition-transform active:scale-95"
                                             >
-                                                <Pen className="w-4 h-4 ml-1.5" /> توقيع واستلام
+                                                <Pen className="w-4 h-4 ml-1.5" /> {locale === 'ar' ? 'توقيع واستلام' : 'Sign & Receive'}
                                             </Button>
                                             <Button
                                                 onClick={() => setRejectingId(custody.id)}
@@ -195,13 +197,13 @@ export default function MyCustodiesClient({ custodies }: { custodies: CustodyDat
                         <div className="w-8 h-8 rounded-lg bg-[#102550]/10 flex items-center justify-center">
                             <Wallet className="w-4 h-4 text-[#102550]" />
                         </div>
-                        <h2 className="text-xl font-bold text-gray-900">العهد النشطة</h2>
+                        <h2 className="text-xl font-bold text-gray-900">{locale === 'ar' ? 'العهد النشطة' : 'Active Custodies'}</h2>
                     </div>
 
                     {active.length === 0 ? (
                         <Card className="p-8 text-center bg-gray-50 border-dashed border-gray-200">
                             <Wallet className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-                            <p className="text-gray-500 font-medium">لا توجد عهد نشطة حالياً.</p>
+                            <p className="text-gray-500 font-medium">{locale === 'ar' ? 'لا توجد عهد نشطة حالياً.' : 'No active custodies.'}</p>
                         </Card>
                     ) : (
                         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
@@ -211,21 +213,21 @@ export default function MyCustodiesClient({ custodies }: { custodies: CustodyDat
                                     <Card key={custody.id} className="p-5 hover:border-[#102550]/30 transition-all group">
                                         <div className="flex justify-between items-start mb-3">
                                             <div>
-                                                <p className="text-xs font-semibold text-gray-500 mb-0.5">{custody.project?.name || 'مصاريف الشركة'}</p>
+                                                <p className="text-xs font-semibold text-gray-500 mb-0.5">{custody.project?.name || (locale === 'ar' ? 'مصاريف الشركة' : 'Company Expenses')}</p>
                                                 <h3 className="text-xl font-black text-gray-900 group-hover:text-[#102550] transition-colors line-clamp-1">
-                                                    المتبقي: {custody.balance.toLocaleString('en-US')} <span className="text-xs text-gray-400 font-bold"><CurrencyDisplay /></span>
+                                                    {locale === 'ar' ? 'المتبقي' : 'Remaining'}: {custody.balance.toLocaleString('en-US')} <span className="text-xs text-gray-400 font-bold"><CurrencyDisplay /></span>
                                                 </h3>
                                             </div>
                                             <span className="px-2.5 py-1 text-[10px] font-bold rounded-lg bg-emerald-50 text-emerald-600 shrink-0">
-                                                نشط
+                                                {locale === 'ar' ? 'نشط' : 'Active'}
                                             </span>
                                         </div>
 
                                         {/* Progress Bar */}
                                         <div className="mb-4">
                                             <div className="flex justify-between text-[10px] font-bold text-gray-500 mb-1">
-                                                <span>تم صرف: {(custody.amount - custody.balance).toLocaleString('en-US')}</span>
-                                                <span>الأصل: {custody.amount.toLocaleString('en-US')}</span>
+                                                <span>{locale === 'ar' ? 'تم صرف' : 'Spent'}: {(custody.amount - custody.balance).toLocaleString('en-US')}</span>
+                                                <span>{locale === 'ar' ? 'الأصل' : 'Original'}: {custody.amount.toLocaleString('en-US')}</span>
                                             </div>
                                             <div className="h-2 w-full bg-gray-100 rounded-full overflow-hidden">
                                                 <div
@@ -239,7 +241,7 @@ export default function MyCustodiesClient({ custodies }: { custodies: CustodyDat
                                         <div className="space-y-2 pt-3 border-t border-gray-50">
                                             <div className="flex items-center gap-2 text-xs text-gray-600">
                                                 <Clock className="w-3.5 h-3.5 text-gray-400" />
-                                                <span>تاريخ الاستلام: <span className="font-semibold">{new Date(custody.createdAt).toLocaleDateString('en-GB')}</span></span>
+                                                <span>{locale === 'ar' ? 'تاريخ الاستلام' : 'Receipt Date'}: <span className="font-semibold">{new Date(custody.createdAt).toLocaleDateString('en-GB')}</span></span>
                                             </div>
                                             {custody.note && (
                                                 <div className="flex items-start gap-2 text-xs text-gray-600">
@@ -257,7 +259,7 @@ export default function MyCustodiesClient({ custodies }: { custodies: CustodyDat
                                                 className="inline-flex items-center gap-1.5 h-8 px-3 text-xs font-bold text-[#102550] border border-[#102550]/20 hover:bg-blue-50 rounded-xl transition-colors"
                                             >
                                                 <FileOutput className="w-3.5 h-3.5" />
-                                                سند الصرف
+                                                {locale === 'ar' ? 'سند الصرف' : 'Voucher'}
                                             </a>
                                         </div>
                                     </Card>
@@ -274,18 +276,18 @@ export default function MyCustodiesClient({ custodies }: { custodies: CustodyDat
                             <div className="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center">
                                 <Check className="w-4 h-4 text-gray-600" />
                             </div>
-                            <h2 className="text-xl font-bold text-gray-900">سجل العهد المغلقة</h2>
+                            <h2 className="text-xl font-bold text-gray-900">{locale === 'ar' ? 'سجل العهد المغلقة' : 'Closed Custodies Log'}</h2>
                         </div>
                         <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden shadow-sm">
                             <div className="overflow-x-auto">
                                 <table className="w-full text-sm text-right">
                                     <thead className="bg-gray-50/50 text-gray-500 font-semibold border-b border-gray-100">
                                         <tr>
-                                            <th className="px-4 py-3">المشروع</th>
-                                            <th className="px-4 py-3">قيمة العهدة</th>
-                                            <th className="px-4 py-3">تاريخ الصرف</th>
-                                            <th className="px-4 py-3">الحالة</th>
-                                            <th className="px-4 py-3">السند</th>
+                                            <th className="px-4 py-3">{locale === 'ar' ? 'المشروع' : 'Project'}</th>
+                                            <th className="px-4 py-3">{locale === 'ar' ? 'قيمة العهدة' : 'Custody Value'}</th>
+                                            <th className="px-4 py-3">{locale === 'ar' ? 'تاريخ الصرف' : 'Issue Date'}</th>
+                                            <th className="px-4 py-3">{locale === 'ar' ? 'الحالة' : 'Status'}</th>
+                                            <th className="px-4 py-3">{locale === 'ar' ? 'السند' : 'Voucher'}</th>
                                         </tr>
                                     </thead>
                                     <tbody className="divide-y divide-gray-50">
@@ -296,7 +298,7 @@ export default function MyCustodiesClient({ custodies }: { custodies: CustodyDat
                                                 <td className="px-4 py-3 text-gray-500">{new Date(c.createdAt).toLocaleDateString('en-GB')}</td>
                                                 <td className="px-4 py-3">
                                                     <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md text-[10px] font-bold bg-gray-100 text-gray-600">
-                                                        مغلقة
+                                                        {locale === 'ar' ? 'مغلقة' : 'Closed'}
                                                     </span>
                                                 </td>
                                                 <td className="px-4 py-3">
@@ -307,7 +309,7 @@ export default function MyCustodiesClient({ custodies }: { custodies: CustodyDat
                                                         className="inline-flex items-center gap-1 text-[10px] font-bold text-[#102550] hover:text-blue-700 hover:underline"
                                                     >
                                                         <FileOutput className="w-3 h-3" />
-                                                        عرض
+                                                        {locale === 'ar' ? 'عرض' : 'View'}
                                                     </a>
                                                 </td>
                                             </tr>
@@ -326,17 +328,17 @@ export default function MyCustodiesClient({ custodies }: { custodies: CustodyDat
                             <div className="w-8 h-8 rounded-lg bg-red-100 flex items-center justify-center">
                                 <XCircle className="w-4 h-4 text-red-600" />
                             </div>
-                            <h2 className="text-xl font-bold text-gray-900">عهد مرفوضة</h2>
+                            <h2 className="text-xl font-bold text-gray-900">{locale === 'ar' ? 'عهد مرفوضة' : 'Rejected Custodies'}</h2>
                         </div>
                         <div className="bg-white rounded-2xl border border-red-100 overflow-hidden shadow-sm">
                             <div className="overflow-x-auto">
                                 <table className="w-full text-sm text-right min-w-[480px]">
                                     <thead className="bg-red-50/50 text-gray-500 font-semibold border-b border-red-100">
                                         <tr>
-                                            <th className="px-4 py-3">المشروع</th>
-                                            <th className="px-4 py-3">المبلغ</th>
-                                            <th className="px-4 py-3">سبب الرفض</th>
-                                            <th className="px-4 py-3">التاريخ</th>
+                                            <th className="px-4 py-3">{locale === 'ar' ? 'المشروع' : 'Project'}</th>
+                                            <th className="px-4 py-3">{locale === 'ar' ? 'المبلغ' : 'Amount'}</th>
+                                            <th className="px-4 py-3">{locale === 'ar' ? 'سبب الرفض' : 'Rejection Reason'}</th>
+                                            <th className="px-4 py-3">{locale === 'ar' ? 'التاريخ' : 'Date'}</th>
                                         </tr>
                                     </thead>
                                     <tbody className="divide-y divide-red-50">
@@ -361,11 +363,11 @@ export default function MyCustodiesClient({ custodies }: { custodies: CustodyDat
                         <div className="bg-white rounded-2xl w-full max-w-md p-6 shadow-xl animate-in fade-in zoom-in-95 duration-200">
                             <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
                                 <Pen className="w-5 h-5 text-emerald-600" />
-                                توقيع استلام العهدة
+                                {locale === 'ar' ? 'توقيع استلام العهدة' : 'Sign Custody Receipt'}
                             </h3>
-                            <p className="text-sm text-gray-500 mb-4">يرجى التوقيع أدناه لتأكيد استلام العهدة.</p>
+                            <p className="text-sm text-gray-500 mb-4">{locale === 'ar' ? 'يرجى التوقيع أدناه لتأكيد استلام العهدة.' : 'Please sign below to confirm custody receipt.'}</p>
                             <SignaturePad
-                                label="وقّع هنا"
+                                label={locale === 'ar' ? "وقّع هنا" : "Sign Here"}
                                 savedSignature={userSavedSignature}
                                 onSave={(dataUrl) => {
                                     setSignatureData(dataUrl);
@@ -377,7 +379,7 @@ export default function MyCustodiesClient({ custodies }: { custodies: CustodyDat
                             />
                             {signatureData && (
                                 <div className="mt-3 p-2 bg-green-50 rounded-lg border border-green-100 text-xs text-green-700 font-bold text-center">
-                                    ✅ تم حفظ التوقيع
+                                    ✅ {locale === 'ar' ? 'تم حفظ التوقيع' : 'Signature saved'}
                                 </div>
                             )}
                             <div className="flex gap-3 mt-4">
@@ -386,14 +388,14 @@ export default function MyCustodiesClient({ custodies }: { custodies: CustodyDat
                                     disabled={!signatureData || actionLoading === signingCustodyId}
                                     className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white py-3 font-bold"
                                 >
-                                    {actionLoading === signingCustodyId ? "جاري..." : "تأكيد الاستلام"}
+                                    {actionLoading === signingCustodyId ? (locale === 'ar' ? "جاري..." : "Processing...") : (locale === 'ar' ? "تأكيد الاستلام" : "Confirm Receipt")}
                                 </Button>
                                 <Button
                                     onClick={() => { setSigningCustodyId(null); setSignatureData(null); }}
                                     variant="outline"
                                     className="flex-1 py-3 text-gray-700"
                                 >
-                                    إلغاء
+                                    {locale === 'ar' ? 'إلغاء' : 'Cancel'}
                                 </Button>
                             </div>
                         </div>

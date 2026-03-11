@@ -18,10 +18,10 @@ type CategoryWithCount = {
     _count: { invoices: number };
 };
 
-const SCOPE_LABELS: Record<string, { label: string; color: string }> = {
-    PROJECT: { label: "مشاريع", color: "bg-blue-100 text-blue-700" },
-    COMPANY: { label: "شركة", color: "bg-purple-100 text-purple-700" },
-    BOTH: { label: "مشترك", color: "bg-green-100 text-green-700" },
+const SCOPE_LABELS: Record<string, { ar: string; en: string; color: string }> = {
+    PROJECT: { ar: "مشاريع", en: "Projects", color: "bg-blue-100 text-blue-700" },
+    COMPANY: { ar: "شركة", en: "Company", color: "bg-purple-100 text-purple-700" },
+    BOTH: { ar: "مشترك", en: "Both", color: "bg-green-100 text-green-700" },
 };
 
 export default function CategoriesPage() {
@@ -148,7 +148,7 @@ export default function CategoriesPage() {
                         <div key={scope} className="space-y-3">
                             <div className="flex items-center gap-2">
                                 <span className={`px-3 py-1 rounded-full text-xs font-bold ${SCOPE_LABELS[scope]?.color}`}>
-                                    {SCOPE_LABELS[scope]?.label}
+                                    {locale === 'ar' ? SCOPE_LABELS[scope]?.ar : SCOPE_LABELS[scope]?.en}
                                 </span>
                                 <span className="text-xs text-gray-400">{cats.length} {locale === 'ar' ? 'تصنيف' : 'categories'}</span>
                             </div>
@@ -167,13 +167,13 @@ export default function CategoriesPage() {
                                                 </div>
                                             </div>
                                             <div className="flex items-center gap-1">
-                                                <button onClick={() => handleToggle(cat.id)} className="p-2 rounded-lg hover:bg-gray-100 transition-colors" title={cat.isActive ? "إلغاء التفعيل" : "تفعيل"}>
+                                                <button onClick={() => handleToggle(cat.id)} className="p-2 rounded-lg hover:bg-gray-100 transition-colors" title={cat.isActive ? (locale === 'ar' ? "إلغاء التفعيل" : "Disable") : (locale === 'ar' ? "تفعيل" : "Enable")}>
                                                     {cat.isActive ? <ToggleRight className="w-5 h-5 text-green-600" /> : <ToggleLeft className="w-5 h-5 text-gray-400" />}
                                                 </button>
-                                                <button onClick={() => startEdit(cat)} className="p-2 rounded-lg hover:bg-gray-100 transition-colors" title="تعديل">
+                                                <button onClick={() => startEdit(cat)} className="p-2 rounded-lg hover:bg-gray-100 transition-colors" title={locale === 'ar' ? "تعديل" : "Edit"}>
                                                     <Pencil className="w-4 h-4 text-blue-600" />
                                                 </button>
-                                                <button onClick={() => handleDelete(cat)} className="p-2 rounded-lg hover:bg-red-50 transition-colors" title="حذف">
+                                                <button onClick={() => handleDelete(cat)} className="p-2 rounded-lg hover:bg-red-50 transition-colors" title={locale === 'ar' ? "حذف" : "Delete"}>
                                                     {cat._count.invoices > 0 ? <AlertTriangle className="w-4 h-4 text-gray-300" /> : <Trash2 className="w-4 h-4 text-red-500" />}
                                                 </button>
                                             </div>

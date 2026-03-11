@@ -13,20 +13,21 @@ import { CurrencyDisplay } from "@/components/ui/CurrencyDisplay";
 import { ExportButton } from "@/components/ui/ExportButton";
 import { getFinanceRequestsExportData } from "@/actions/exports";
 import { downloadExcel, generatePrintableReport, openPrintWindow, formatDate, formatCurrency, financeRequestTypeLabel, financeRequestStatusLabel, type ExportColumn } from "@/lib/export-utils";
+import { useLanguage } from "@/context/LanguageContext";
 
 type Request = Awaited<ReturnType<typeof getPendingFinanceRequests>>[0];
 
-const TYPE_LABELS: Record<string, { label: string; color: string; icon: string }> = {
-    SETTLE_DEBT: { label: "تسوية دين موظف", color: "text-red-600 bg-red-50", icon: "💸" },
-    ALLOCATE_BUDGET: { label: "تخصيص ميزانية", color: "text-blue-600 bg-blue-50", icon: "📊" },
-    RETURN_CUSTODY: { label: "إرجاع عهدة", color: "text-amber-600 bg-amber-50", icon: "🔄" },
-    OTHER: { label: "أخرى", color: "text-gray-600 bg-gray-50", icon: "📝" },
+const TYPE_LABELS: Record<string, { label: string; arLabel: string; color: string; icon: string }> = {
+    SETTLE_DEBT: { label: "Settle Employee Debt", arLabel: "تسوية دين موظف", color: "text-red-600 bg-red-50", icon: "💸" },
+    ALLOCATE_BUDGET: { label: "Allocate Budget", arLabel: "تخصيص ميزانية", color: "text-blue-600 bg-blue-50", icon: "📊" },
+    RETURN_CUSTODY: { label: "Return Custody", arLabel: "إرجاع عهدة", color: "text-amber-600 bg-amber-50", icon: "🔄" },
+    OTHER: { label: "Other", arLabel: "أخرى", color: "text-gray-600 bg-gray-50", icon: "📝" },
 };
 
-const STATUS_CONFIG: Record<string, { label: string; color: string; Icon: any }> = {
-    PENDING: { label: "بانتظار الموافقة", color: "text-amber-600 bg-amber-50", Icon: Clock },
-    APPROVED: { label: "موافق عليه", color: "text-green-600 bg-green-50", Icon: CheckCircle },
-    REJECTED: { label: "مرفوض", color: "text-red-600 bg-red-50", Icon: XCircle },
+const STATUS_CONFIG: Record<string, { label: string; arLabel: string; color: string; Icon: any }> = {
+    PENDING: { label: "Pending Approval", arLabel: "بانتظار الموافقة", color: "text-amber-600 bg-amber-50", Icon: Clock },
+    APPROVED: { label: "Approved", arLabel: "موافق عليه", color: "text-green-600 bg-green-50", Icon: CheckCircle },
+    REJECTED: { label: "Rejected", arLabel: "مرفوض", color: "text-red-600 bg-red-50", Icon: XCircle },
 };
 
 export default function FinanceRequestsPage() {
@@ -35,6 +36,7 @@ export default function FinanceRequestsPage() {
     // Derived from central permissions matrix — no hardcoded role strings in UI
     const isAdmin = useCanDo('financialRequests', 'approve');
     const isFinanceRole = useCanDo('financialRequests', 'view');
+    const { locale } = useLanguage();
 
     const [requests, setRequests] = useState<Request[]>([]);
     const [loading, setLoading] = useState(true);
@@ -66,31 +68,31 @@ export default function FinanceRequestsPage() {
     const canExport = useCanDo('exports', 'view');
 
     const frColumns: ExportColumn[] = [
-        { key: "type", label: "النوع", format: (v) => financeRequestTypeLabel[v as string] || String(v) },
-        { key: "status", label: "الحالة", format: (v) => financeRequestStatusLabel[v as string] || String(v) },
-        { key: "amount", label: "المبلغ", format: (v) => formatCurrency(v as number) },
-        { key: "requesterName", label: "الطالب" },
-        { key: "approverName", label: "الموافق" },
-        { key: "note", label: "ملاحظات" },
-        { key: "createdAt", label: "التاريخ", format: (v) => formatDate(v as string) },
+        { key: "type", label: locale === 'ar' ? "النوع" : "Type", format: (v) => financeRequestTypeLabel[v as string] || String(v) },
+        { key: "status", label: locale === 'ar' ? "الحالة" : "Status", format: (v) => financeRequestStatusLabel[v as string] || String(v) },
+        { key: "amount", label: locale === 'ar' ? "المبلغ" : "Amount", format: (v) => formatCurrency(v as number) },
+        { key: "requesterName", label: locale === 'ar' ? "الطالب" : "Requester" },
+        { key: "approverName", label: locale === 'ar' ? "الموافق" : "Approver" },
+        { key: "note", label: locale === 'ar' ? "ملاحظات" : "Notes" },
+        { key: "createdAt", label: locale === 'ar' ? "التاريخ" : "Date", format: (v) => formatDate(v as string) },
     ];
 
     const handleExportExcel = async () => {
         const data = await getFinanceRequestsExportData();
-        downloadExcel([{ name: "الطلبات المالية", columns: frColumns, data: data as Record<string, unknown>[] }], "تقرير_الطلبات_المالية");
+        downloadExcel([{ name: locale === 'ar' ? "الطلبات المالية" : "Finance Requests", columns: frColumns, data: data as Record<string, unknown>[] }], locale === 'ar' ? "تقرير_الطلبات_المالية" : "Finance_Requests_Report");
     };
 
     const handleExportPDF = async () => {
         const data = await getFinanceRequestsExportData();
         const html = generatePrintableReport({
-            title: "تقرير الطلبات المالية",
-            subtitle: "سجل الطلبات المالية والموافقات",
+            title: locale === 'ar' ? "تقرير الطلبات المالية" : "Finance Requests Report",
+            subtitle: locale === 'ar' ? "سجل الطلبات المالية والموافقات" : "Finance requests and approvals log",
             columns: frColumns,
             data: data as Record<string, unknown>[],
             summary: [
-                { label: "إجمالي الطلبات", value: String(data.length) },
-                { label: "معلقة", value: String(data.filter(d => d.status === 'PENDING').length) },
-                { label: "موافق عليها", value: String(data.filter(d => d.status === 'APPROVED').length) },
+                { label: locale === 'ar' ? "إجمالي الطلبات" : "Total Requests", value: String(data.length) },
+                { label: locale === 'ar' ? "معلقة" : "Pending", value: String(data.filter(d => d.status === 'PENDING').length) },
+                { label: locale === 'ar' ? "موافق عليها" : "Approved", value: String(data.filter(d => d.status === 'APPROVED').length) },
             ],
             branchName: user?.branchName,
             branchFlag: user?.branchFlag,
@@ -99,7 +101,7 @@ export default function FinanceRequestsPage() {
     };
 
     const handleCreate = async () => {
-        if (!newReqType) { toast.error("نوع الطلب مطلوب"); return; }
+        if (!newReqType) { toast.error(locale === 'ar' ? "نوع الطلب مطلوب" : "Request type is required"); return; }
         setIsCreating(true);
         const result = await createFinanceRequest({
             type: newReqType,
@@ -110,7 +112,7 @@ export default function FinanceRequestsPage() {
         if ('error' in result && result.error) {
             toast.error(result.error as string);
         } else {
-            toast.success("تم إنشاء الطلب المالي ✅");
+            toast.success(locale === 'ar' ? "تم إنشاء الطلب المالي ✅" : "Finance request created ✅");
             setShowCreateModal(false);
             setNewReqType("SETTLE_DEBT");
             setNewReqAmount("");
@@ -128,7 +130,7 @@ export default function FinanceRequestsPage() {
         if ('error' in result && result.error) {
             toast.error(result.error as string);
         } else {
-            toast.success("تمت الموافقة وتنفيذ العملية ✅");
+            toast.success(locale === 'ar' ? "تمت الموافقة وتنفيذ العملية ✅" : "Approved and executed ✅");
             setRequests(prev => prev.map(r => r.id === id ? { ...r, status: "APPROVED" } : r));
         }
         setProcessingId(null);
@@ -136,7 +138,7 @@ export default function FinanceRequestsPage() {
 
     const handleReject = async () => {
         if (!rejectModalId || !rejectReason.trim()) {
-            toast.error("سبب الرفض مطلوب");
+            toast.error(locale === 'ar' ? "سبب الرفض مطلوب" : "Rejection reason is required");
             return;
         }
         setProcessingId(rejectModalId);
@@ -144,7 +146,7 @@ export default function FinanceRequestsPage() {
         if ('error' in result && result.error) {
             toast.error(result.error as string);
         } else {
-            toast.success("تم الرفض");
+            toast.success(locale === 'ar' ? "تم الرفض" : "Rejected");
             setRequests(prev => prev.map(r => r.id === rejectModalId ? { ...r, status: "REJECTED" } : r));
             setRejectModalId(null);
             setRejectReason("");
@@ -156,7 +158,7 @@ export default function FinanceRequestsPage() {
     const resolved = requests.filter(r => r.status !== "PENDING");
 
     return (
-        <DashboardLayout title="الطلبات المالية">
+        <DashboardLayout title={locale === 'ar' ? "الطلبات المالية" : "Finance Requests"}>
             <div className="max-w-3xl mx-auto space-y-6 pb-10">
 
                 {/* Header */}
@@ -165,21 +167,21 @@ export default function FinanceRequestsPage() {
                         <BadgeDollarSign className="w-5 h-5 text-green-600" />
                     </div>
                     <div>
-                        <h1 className="text-xl font-bold text-gray-900">الطلبات المالية</h1>
+                        <h1 className="text-xl font-bold text-gray-900">{locale === 'ar' ? 'الطلبات المالية' : 'Finance Requests'}</h1>
                         <p className="text-sm text-gray-500">
-                            {isAdmin ? "طلبات المحاسبين تنتظر موافقتك" : "طلباتي المالية"}
+                            {isAdmin ? (locale === 'ar' ? "طلبات المحاسبين تنتظر موافقتك" : "Accountant requests awaiting your approval") : (locale === 'ar' ? "طلباتي المالية" : "My finance requests")}
                         </p>
                     </div>
                     {pending.length > 0 && (
                         <span className="mr-auto bg-red-500 text-white text-xs font-bold px-2.5 py-1 rounded-full">
-                            {pending.length} معلقة
+                            {pending.length} {locale === 'ar' ? 'معلقة' : 'pending'}
                         </span>
                     )}
                     {canExport && (
                         <ExportButton
                             onExportExcel={handleExportExcel}
                             onExportPDF={handleExportPDF}
-                            label="تصدير الطلبات"
+                            label={locale === 'ar' ? "تصدير الطلبات" : "Export Requests"}
                             compact
                         />
                     )}
@@ -189,19 +191,19 @@ export default function FinanceRequestsPage() {
                             className="flex items-center gap-1.5 bg-[#102550] hover:bg-[#1a3a7c] text-white text-sm font-bold px-4 py-2 rounded-xl transition-colors"
                         >
                             <PlusCircle className="w-4 h-4" />
-                            طلب مالي جديد
+                            {locale === 'ar' ? 'طلب مالي جديد' : 'New Finance Request'}
                         </button>
                     )}
                 </div>
 
                 {loading ? (
-                    <div className="text-center py-16 text-gray-400">جاري التحميل...</div>
+                    <div className="text-center py-16 text-gray-400">{locale === 'ar' ? 'جاري التحميل...' : 'Loading...'}</div>
                 ) : (
                     <>
                         {/* Pending Requests */}
                         {pending.length > 0 && (
                             <div>
-                                <h2 className="text-sm font-bold text-gray-500 uppercase mb-3">🔴 تنتظر الموافقة</h2>
+                                <h2 className="text-sm font-bold text-gray-500 uppercase mb-3">🔴 {locale === 'ar' ? 'تنتظر الموافقة' : 'Pending Approval'}</h2>
                                 <div className="space-y-3">
                                     {pending.map(req => {
                                         const typeInfo = TYPE_LABELS[req.type] || TYPE_LABELS.OTHER;
@@ -212,7 +214,7 @@ export default function FinanceRequestsPage() {
                                                     <div className="flex-1 min-w-0">
                                                         <div className="flex items-center gap-2 mb-1">
                                                             <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${typeInfo.color}`}>
-                                                                {typeInfo.label}
+                                                                {locale === 'ar' ? typeInfo.arLabel : typeInfo.label}
                                                             </span>
                                                             <span className="text-xs text-gray-400">
                                                                 {new Date(req.createdAt).toLocaleDateString("en-GB")}
@@ -221,7 +223,7 @@ export default function FinanceRequestsPage() {
                                                         <p className="text-sm font-bold text-gray-900">{req.requester?.name}</p>
                                                         {req.amount && (
                                                             <p className="text-sm text-amber-700 font-bold mt-1">
-                                                                المبلغ: {req.amount.toLocaleString('en-US')} <CurrencyDisplay />
+                                                                {locale === 'ar' ? 'المبلغ' : 'Amount'}: {req.amount.toLocaleString('en-US')} <CurrencyDisplay />
                                                             </p>
                                                         )}
                                                         {req.note && (
@@ -236,7 +238,7 @@ export default function FinanceRequestsPage() {
                                                                 className="flex items-center gap-1.5 bg-green-500 hover:bg-green-600 text-white text-sm font-bold px-3 py-1.5 rounded-lg transition-colors disabled:opacity-50"
                                                             >
                                                                 <CheckCircle className="w-4 h-4" />
-                                                                موافقة
+                                                                {locale === 'ar' ? 'موافقة' : 'Approve'}
                                                             </button>
                                                             <button
                                                                 onClick={() => { setRejectModalId(req.id); setRejectReason(""); }}
@@ -244,7 +246,7 @@ export default function FinanceRequestsPage() {
                                                                 className="flex items-center gap-1.5 bg-red-500 hover:bg-red-600 text-white text-sm font-bold px-3 py-1.5 rounded-lg transition-colors disabled:opacity-50"
                                                             >
                                                                 <XCircle className="w-4 h-4" />
-                                                                رفض
+                                                                {locale === 'ar' ? 'رفض' : 'Reject'}
                                                             </button>
                                                         </div>
                                                     )}
@@ -259,7 +261,7 @@ export default function FinanceRequestsPage() {
                         {/* Resolved Requests */}
                         {resolved.length > 0 && (
                             <div>
-                                <h2 className="text-sm font-bold text-gray-500 uppercase mb-3">السجل</h2>
+                                <h2 className="text-sm font-bold text-gray-500 uppercase mb-3">{locale === 'ar' ? 'السجل' : 'Log'}</h2>
                                 <div className="space-y-2">
                                     {resolved.map(req => {
                                         const typeInfo = TYPE_LABELS[req.type] || TYPE_LABELS.OTHER;
@@ -270,7 +272,7 @@ export default function FinanceRequestsPage() {
                                                 <div className="flex items-center gap-3">
                                                     <span className="text-lg">{typeInfo.icon}</span>
                                                     <div className="flex-1">
-                                                        <p className="text-sm font-semibold text-gray-800">{typeInfo.label}</p>
+                                                        <p className="text-sm font-semibold text-gray-800">{locale === 'ar' ? typeInfo.arLabel : typeInfo.label}</p>
                                                         <p className="text-xs text-gray-400">{req.requester?.name}</p>
                                                     </div>
                                                     {req.amount && (
@@ -280,7 +282,7 @@ export default function FinanceRequestsPage() {
                                                     )}
                                                     <span className={`flex items-center gap-1 text-xs font-semibold px-2 py-1 rounded-full ${statusInfo.color}`}>
                                                         <StatusIcon className="w-3 h-3" />
-                                                        {statusInfo.label}
+                                                        {locale === 'ar' ? statusInfo.arLabel : statusInfo.label}
                                                     </span>
                                                 </div>
                                             </Card>
@@ -293,7 +295,7 @@ export default function FinanceRequestsPage() {
                         {requests.length === 0 && (
                             <div className="text-center py-20 text-gray-400">
                                 <BadgeDollarSign className="w-12 h-12 mx-auto mb-3 opacity-30" />
-                                <p>لا توجد طلبات مالية</p>
+                                <p>{locale === 'ar' ? 'لا توجد طلبات مالية' : 'No finance requests'}</p>
                             </div>
                         )}
                     </>
@@ -304,22 +306,22 @@ export default function FinanceRequestsPage() {
             {rejectModalId && (
                 <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
                     <Card className="w-full max-w-md p-6 space-y-4">
-                        <h3 className="text-lg font-bold text-gray-900">سبب رفض الطلب</h3>
+                        <h3 className="text-lg font-bold text-gray-900">{locale === 'ar' ? 'سبب رفض الطلب' : 'Rejection Reason'}</h3>
                         <textarea
                             value={rejectReason}
                             onChange={e => setRejectReason(e.target.value)}
-                            placeholder="اكتب سبب الرفض بوضوح..."
+                            placeholder={locale === 'ar' ? "اكتب سبب الرفض بوضوح..." : "Write the rejection reason clearly..."}
                             rows={4}
                             className="w-full rounded-xl border border-gray-200 p-3 outline-none focus:ring-2 focus:ring-red-400 resize-none text-sm"
                         />
                         <div className="flex gap-3 justify-end">
-                            <Button variant="outline" onClick={() => setRejectModalId(null)}>إلغاء</Button>
+                            <Button variant="outline" onClick={() => setRejectModalId(null)}>{locale === 'ar' ? 'إلغاء' : 'Cancel'}</Button>
                             <Button
                                 onClick={handleReject}
                                 disabled={!rejectReason.trim() || processingId !== null}
                                 className="bg-red-500 hover:bg-red-600 text-white"
                             >
-                                تأكيد الرفض
+                                {locale === 'ar' ? 'تأكيد الرفض' : 'Confirm Rejection'}
                             </Button>
                         </div>
                     </Card>
@@ -330,24 +332,24 @@ export default function FinanceRequestsPage() {
             {showCreateModal && (
                 <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
                     <Card className="w-full max-w-md p-6 space-y-5">
-                        <h3 className="text-lg font-bold text-gray-900">إنشاء طلب مالي جديد</h3>
+                        <h3 className="text-lg font-bold text-gray-900">{locale === 'ar' ? 'إنشاء طلب مالي جديد' : 'Create New Finance Request'}</h3>
 
                         <div className="space-y-2">
-                            <label className="text-sm font-bold text-gray-700">نوع الطلب *</label>
+                            <label className="text-sm font-bold text-gray-700">{locale === 'ar' ? 'نوع الطلب *' : 'Request Type *'}</label>
                             <select
                                 value={newReqType}
                                 onChange={e => setNewReqType(e.target.value)}
                                 className="w-full rounded-xl border border-gray-200 p-3 outline-none focus:ring-2 focus:ring-[#102550] text-sm bg-gray-50"
                             >
-                                <option value="SETTLE_DEBT">تسوية دين موظف</option>
-                                <option value="ALLOCATE_BUDGET">تخصيص ميزانية</option>
-                                <option value="RETURN_CUSTODY">إرجاع عهدة</option>
-                                <option value="OTHER">أخرى</option>
+                                <option value="SETTLE_DEBT">{locale === 'ar' ? 'تسوية دين موظف' : 'Settle Employee Debt'}</option>
+                                <option value="ALLOCATE_BUDGET">{locale === 'ar' ? 'تخصيص ميزانية' : 'Allocate Budget'}</option>
+                                <option value="RETURN_CUSTODY">{locale === 'ar' ? 'إرجاع عهدة' : 'Return Custody'}</option>
+                                <option value="OTHER">{locale === 'ar' ? 'أخرى' : 'Other'}</option>
                             </select>
                         </div>
 
                         <div className="space-y-2">
-                            <label className="text-sm font-bold text-gray-700">المبلغ (اختياري)</label>
+                            <label className="text-sm font-bold text-gray-700">{locale === 'ar' ? 'المبلغ (اختياري)' : 'Amount (optional)'}</label>
                             <input
                                 type="number"
                                 value={newReqAmount}
@@ -360,24 +362,24 @@ export default function FinanceRequestsPage() {
                         </div>
 
                         <div className="space-y-2">
-                            <label className="text-sm font-bold text-gray-700">ملاحظات</label>
+                            <label className="text-sm font-bold text-gray-700">{locale === 'ar' ? 'ملاحظات' : 'Notes'}</label>
                             <textarea
                                 value={newReqNote}
                                 onChange={e => setNewReqNote(e.target.value)}
                                 rows={3}
-                                placeholder="وصف الطلب بالتفصيل..."
+                                placeholder={locale === 'ar' ? "وصف الطلب بالتفصيل..." : "Describe the request in detail..."}
                                 className="w-full rounded-xl border border-gray-200 p-3 outline-none focus:ring-2 focus:ring-[#102550] resize-none text-sm bg-gray-50"
                             />
                         </div>
 
                         <div className="flex gap-3 justify-end pt-2">
-                            <Button variant="outline" onClick={() => setShowCreateModal(false)}>إلغاء</Button>
+                            <Button variant="outline" onClick={() => setShowCreateModal(false)}>{locale === 'ar' ? 'إلغاء' : 'Cancel'}</Button>
                             <Button
                                 onClick={handleCreate}
                                 disabled={isCreating}
                                 className="bg-[#102550] hover:bg-[#1a3a7c] text-white"
                             >
-                                {isCreating ? "جاري الإرسال..." : "إرسال الطلب"}
+                                {isCreating ? (locale === 'ar' ? "جاري الإرسال..." : "Submitting...") : (locale === 'ar' ? "إرسال الطلب" : "Submit Request")}
                             </Button>
                         </div>
                     </Card>

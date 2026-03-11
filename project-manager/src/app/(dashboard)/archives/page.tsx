@@ -10,6 +10,7 @@ import { useCanDo } from "@/components/auth/Protect";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import { CurrencyDisplay } from "@/components/ui/CurrencyDisplay";
+import { useLanguage } from "@/context/LanguageContext";
 
 type CompletedProject = {
     id: string;
@@ -31,6 +32,7 @@ export default function ArchivesPage() {
     const [projects, setProjects] = useState<CompletedProject[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [reopeningId, setReopeningId] = useState<string | null>(null);
+    const { locale } = useLanguage();
 
     const fetchArchives = async () => {
         setIsLoading(true);
@@ -49,20 +51,20 @@ export default function ArchivesPage() {
     );
 
     const handleReopen = async (projectId: string, projectName: string) => {
-        if (!confirm(`هل أنت متأكد من إعادة تفعيل مشروع "${projectName}"؟ سيعود إلى حالة "قيد التنفيذ".`)) return;
+        if (!confirm(locale === 'ar' ? `هل أنت متأكد من إعادة تفعيل مشروع "${projectName}"؟ سيعود إلى حالة "قيد التنفيذ".` : `Are you sure you want to reactivate "${projectName}"? It will return to "In Progress" status.`)) return;
         setReopeningId(projectId);
         const res = await reopenProject(projectId);
         setReopeningId(null);
         if (res.error) {
             toast.error(res.error);
         } else {
-            toast.success("تم إعادة تفعيل المشروع ✅");
+            toast.success(locale === 'ar' ? "تم إعادة تفعيل المشروع ✅" : "Project reactivated ✅");
             fetchArchives();
         }
     };
 
     return (
-        <DashboardLayout title="الأرشيف — المشاريع المكتملة">
+        <DashboardLayout title={locale === 'ar' ? "الأرشيف — المشاريع المكتملة" : "Archives — Completed Projects"}>
             <div className="space-y-6 md:space-y-8 pb-6">
 
                 {/* Header */}
@@ -72,14 +74,14 @@ export default function ArchivesPage() {
                             <Archive className="w-5 h-5 text-gray-500" />
                         </div>
                         <div>
-                            <h2 className="text-base font-bold text-gray-800">المشاريع المكتملة</h2>
-                            <p className="text-xs text-gray-400">{filteredProjects.length} مشروع مغلق</p>
+                            <h2 className="text-base font-bold text-gray-800">{locale === 'ar' ? 'المشاريع المكتملة' : 'Completed Projects'}</h2>
+                            <p className="text-xs text-gray-400">{filteredProjects.length} {locale === 'ar' ? 'مشروع مغلق' : 'closed projects'}</p>
                         </div>
                     </div>
                     <div className="relative w-full sm:w-72">
                         <input
                             type="text"
-                            placeholder="ابحث في المشاريع المؤرشفة..."
+                            placeholder={locale === 'ar' ? "ابحث في المشاريع المؤرشفة..." : "Search archived projects..."}
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
                             className="w-full pl-10 pr-4 py-2.5 md:py-3 text-xs md:text-sm font-bold rounded-xl border border-gray-100 focus:outline-none focus:ring-2 focus:ring-[#102550]/50 bg-white shadow-sm"
@@ -90,12 +92,12 @@ export default function ArchivesPage() {
 
                 {/* Content */}
                 {isLoading ? (
-                    <div className="text-center py-20 text-gray-400 text-sm">جاري تحميل المشاريع...</div>
+                    <div className="text-center py-20 text-gray-400 text-sm">{locale === 'ar' ? 'جاري تحميل المشاريع...' : 'Loading projects...'}</div>
                 ) : filteredProjects.length === 0 ? (
                     <div className="text-center py-20 bg-gray-50 rounded-2xl border border-gray-100">
                         <Archive className="w-12 h-12 text-gray-200 mx-auto mb-3" />
                         <p className="text-sm font-medium text-gray-500">
-                            {searchQuery ? "لا توجد سجلات مطابقة للبحث." : "لا توجد مشاريع مكتملة حتى الآن."}
+                            {searchQuery ? (locale === 'ar' ? "لا توجد سجلات مطابقة للبحث." : "No matching records.") : (locale === 'ar' ? "لا توجد مشاريع مكتملة حتى الآن." : "No completed projects yet.")}
                         </p>
                     </div>
                 ) : (
@@ -114,12 +116,12 @@ export default function ArchivesPage() {
                                         <div>
                                             <h4 className="font-bold text-base text-gray-800 leading-tight">{project.name}</h4>
                                             {project.manager && (
-                                                <p className="text-[10px] text-gray-400 mt-0.5">المدير: {project.manager.name}</p>
+                                                <p className="text-[10px] text-gray-400 mt-0.5">{locale === 'ar' ? 'المدير' : 'Manager'}: {project.manager.name}</p>
                                             )}
                                         </div>
                                     </div>
                                     <span className="px-2.5 py-1 text-[10px] font-bold rounded-lg bg-emerald-50 text-emerald-600 border border-emerald-100 shrink-0">
-                                        مكتمل
+                                        {locale === 'ar' ? 'مكتمل' : 'Completed'}
                                     </span>
                                 </div>
 
@@ -133,25 +135,25 @@ export default function ArchivesPage() {
                                 {/* Stats */}
                                 <div className="grid grid-cols-3 gap-2 text-center">
                                     <div className="bg-gray-50 rounded-xl p-2">
-                                        <p className="text-[10px] text-gray-400 font-semibold mb-0.5">الميزانية</p>
+                                        <p className="text-[10px] text-gray-400 font-semibold mb-0.5">{locale === 'ar' ? 'الميزانية' : 'Budget'}</p>
                                         <p className="text-xs font-black text-gray-700">{(project.budgetAllocated ?? 0).toLocaleString('en-US')}</p>
                                         <p className="text-[9px] text-gray-400"><CurrencyDisplay /></p>
                                     </div>
                                     <div className="bg-blue-50 rounded-xl p-2">
                                         <Users className="w-3.5 h-3.5 text-blue-400 mx-auto mb-0.5" />
                                         <p className="text-xs font-black text-blue-700">{project._count.members}</p>
-                                        <p className="text-[9px] text-gray-400">عضو</p>
+                                        <p className="text-[9px] text-gray-400">{locale === 'ar' ? 'عضو' : 'members'}</p>
                                     </div>
                                     <div className="bg-blue-50 rounded-xl p-2">
                                         <FileText className="w-3.5 h-3.5 text-blue-400 mx-auto mb-0.5" />
                                         <p className="text-xs font-black text-blue-700">{project._count.invoices}</p>
-                                        <p className="text-[9px] text-gray-400">فاتورة</p>
+                                        <p className="text-[9px] text-gray-400">{locale === 'ar' ? 'فاتورة' : 'invoices'}</p>
                                     </div>
                                 </div>
 
                                 {/* Closed At */}
                                 <p className="text-[10px] text-gray-400 font-medium">
-                                    تاريخ الإغلاق:{" "}
+                                    {locale === 'ar' ? 'تاريخ الإغلاق' : 'Closed on'}:{" "}
                                     {project.closedAt
                                         ? new Date(project.closedAt).toLocaleDateString("en-GB")
                                         : new Date(project.updatedAt).toLocaleDateString("en-GB")}
@@ -165,7 +167,7 @@ export default function ArchivesPage() {
                                         onClick={() => router.push(`/projects/${project.id}`)}
                                     >
                                         <FolderKanban className="w-3.5 h-3.5" />
-                                        عرض التفاصيل
+                                        {locale === 'ar' ? 'عرض التفاصيل' : 'View Details'}
                                     </Button>
                                     {canReopenProject && (
                                         <Button
@@ -176,7 +178,7 @@ export default function ArchivesPage() {
                                             isLoading={reopeningId === project.id}
                                         >
                                             <RotateCcw className="w-3.5 h-3.5" />
-                                            إعادة تفعيل
+                                            {locale === 'ar' ? 'إعادة تفعيل' : 'Reactivate'}
                                         </Button>
                                     )}
                                 </div>

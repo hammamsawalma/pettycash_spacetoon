@@ -10,6 +10,7 @@ import { VirtualMultiSelect, DropdownOption } from "@/components/ui/VirtualMulti
 import { useActionState } from "react";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
+import { useLanguage } from "@/context/LanguageContext";
 
 export default function EditProjectPage({ params }: { params: Promise<{ id: string }> }) {
     const { id: projectId } = use(params);
@@ -18,6 +19,7 @@ export default function EditProjectPage({ params }: { params: Promise<{ id: stri
     const [selectedEmployees, setSelectedEmployees] = useState<string[]>([]);
     const [employeeRoles, setEmployeeRoles] = useState<Record<string, string[]>>({});
     const [isLoading, setIsLoading] = useState(true);
+    const { locale } = useLanguage();
 
     // We bind the projectId as the first argument to the server action
     const updateProjectWithId = updateProject.bind(null, projectId);
@@ -44,12 +46,12 @@ export default function EditProjectPage({ params }: { params: Promise<{ id: stri
                     });
                     setEmployeeRoles(rolesMap);
                 } else {
-                    toast.error("لم يتم العثور على المشروع");
+                    toast.error(locale === 'ar' ? "لم يتم العثور على المشروع" : "Project not found");
                     router.push("/projects");
                 }
             } catch (err) {
                 console.error(err);
-                toast.error("حدث خطأ في جلب البيانات");
+                toast.error(locale === 'ar' ? "حدث خطأ في جلب البيانات" : "Error fetching data");
             } finally {
                 setIsLoading(false);
             }
@@ -59,7 +61,7 @@ export default function EditProjectPage({ params }: { params: Promise<{ id: stri
 
     useEffect(() => {
         if (state?.success) {
-            toast.success("تم تحديث المشروع بنجاح", { icon: '✨' });
+            toast.success(locale === 'ar' ? "تم تحديث المشروع بنجاح" : "Project updated successfully", { icon: '✨' });
             sessionStorage.removeItem("projects_cache");
             setTimeout(() => {
                 router.push("/projects");
@@ -97,14 +99,14 @@ export default function EditProjectPage({ params }: { params: Promise<{ id: stri
 
     if (isLoading && !initialData) {
         return (
-            <DashboardLayout title="تعديل المشروع">
-                <div className="py-20 text-center text-gray-500 font-bold">جاري تحميل البيانات...</div>
+            <DashboardLayout title={locale === 'ar' ? "تعديل المشروع" : "Edit Project"}>
+                <div className="py-20 text-center text-gray-500 font-bold">{locale === 'ar' ? 'جاري تحميل البيانات...' : 'Loading data...'}</div>
             </DashboardLayout>
         );
     }
 
     return (
-        <DashboardLayout title="تعديل المشروع">
+        <DashboardLayout title={locale === 'ar' ? "تعديل المشروع" : "Edit Project"}>
             <div className="pb-6">
                 <Card className="max-w-4xl mx-auto p-5 md:p-8 border-gray-100 shadow-sm rounded-2xl">
                     {state?.error && (
@@ -118,12 +120,12 @@ export default function EditProjectPage({ params }: { params: Promise<{ id: stri
                         const budget = formData.get("budget");
 
                         if (!name) {
-                            toast.error("اسم المشروع مطلوب");
+                            toast.error(locale === 'ar' ? "اسم المشروع مطلوب" : "Project name is required");
                             return;
                         }
 
                         if (budget && Number(budget) < 0) {
-                            toast.error("لا يمكن أن تكون الميزانية بالسالب");
+                            toast.error(locale === 'ar' ? "لا يمكن أن تكون الميزانية بالسالب" : "Budget cannot be negative");
                             return;
                         }
 
@@ -134,35 +136,35 @@ export default function EditProjectPage({ params }: { params: Promise<{ id: stri
                         )} />
 
                         <div className="space-y-4">
-                            <h3 className="text-base md:text-lg font-bold text-gray-900 border-b border-gray-100 pb-2">التفاصيل الحالية وتعديلها</h3>
+                            <h3 className="text-base md:text-lg font-bold text-gray-900 border-b border-gray-100 pb-2">{locale === 'ar' ? 'التفاصيل الحالية وتعديلها' : 'Current Details & Edit'}</h3>
 
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
                                 <div className="space-y-2 col-span-1 md:col-span-2">
-                                    <label className="text-xs md:text-sm font-bold text-gray-700">اسم المشروع</label>
+                                    <label className="text-xs md:text-sm font-bold text-gray-700">{locale === 'ar' ? 'اسم المشروع' : 'Project Name'}</label>
                                     <input
                                         type="text"
                                         name="name"
                                         required
                                         defaultValue={initialData?.name}
                                         className="w-full rounded-xl border border-gray-200 p-3.5 md:p-4 outline-none focus:ring-2 focus:ring-[#102550] text-xs md:text-sm shadow-sm font-medium"
-                                        placeholder="ادخل اسم المشروع..."
+                                        placeholder={locale === 'ar' ? "ادخل اسم المشروع..." : "Enter project name..."}
                                     />
                                 </div>
 
                                 <div className="space-y-2">
-                                    <label className="text-xs md:text-sm font-bold text-gray-700">حالة المشروع</label>
+                                    <label className="text-xs md:text-sm font-bold text-gray-700">{locale === 'ar' ? 'حالة المشروع' : 'Project Status'}</label>
                                     <select
                                         name="status"
                                         defaultValue={initialData?.status}
                                         className="w-full rounded-xl border border-gray-200 p-3.5 md:p-4 outline-none focus:ring-2 focus:ring-[#102550] text-xs md:text-sm shadow-sm font-medium bg-white"
                                     >
-                                        <option value="IN_PROGRESS">قيد التنفيذ</option>
-                                        <option value="COMPLETED">مكتمل</option>
+                                        <option value="IN_PROGRESS">{locale === 'ar' ? 'قيد التنفيذ' : 'In Progress'}</option>
+                                        <option value="COMPLETED">{locale === 'ar' ? 'مكتمل' : 'Completed'}</option>
                                     </select>
                                 </div>
 
                                 <div className="space-y-2 col-span-1 md:col-span-2">
-                                    <label className="text-xs md:text-sm font-bold text-gray-700">وصف المشروع</label>
+                                    <label className="text-xs md:text-sm font-bold text-gray-700">{locale === 'ar' ? 'وصف المشروع' : 'Project Description'}</label>
                                     <textarea
                                         name="description"
                                         rows={4}
@@ -172,11 +174,11 @@ export default function EditProjectPage({ params }: { params: Promise<{ id: stri
                                 </div>
 
                                 <div className="space-y-2 col-span-1 md:col-span-2">
-                                    <label className="text-xs md:text-sm font-bold text-gray-700">تحديث صورة المشروع <span className="text-gray-400 font-normal">— اختياري</span></label>
+                                    <label className="text-xs md:text-sm font-bold text-gray-700">{locale === 'ar' ? 'تحديث صورة المشروع' : 'Update Project Image'} <span className="text-gray-400 font-normal">— {locale === 'ar' ? 'اختياري' : 'optional'}</span></label>
                                     <div className="flex items-center gap-4 p-4 border border-dashed border-gray-300 rounded-xl bg-gray-50/50 hover:bg-gray-50 transition-colors">
                                         {initialData?.image ? (
                                             <div className="relative w-16 h-16 rounded-xl overflow-hidden shrink-0 border border-gray-200 shadow-sm">
-                                                <img src={initialData.image} alt="صورة المشروع الحالية" className="w-full h-full object-cover" />
+                                                <img src={initialData.image} alt={locale === 'ar' ? "صورة المشروع الحالية" : "Current project image"} className="w-full h-full object-cover" />
                                             </div>
                                         ) : (
                                             <div className="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 shrink-0">
@@ -192,13 +194,13 @@ export default function EditProjectPage({ params }: { params: Promise<{ id: stri
                                                 accept="image/*"
                                                 className="w-full text-xs md:text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 transition-all cursor-pointer"
                                             />
-                                            <p className="mt-1 text-[10px] text-gray-400">سيتم استبدال الصورة الحالية إذا قمت برفع صورة جديدة. صيغ الصور المدعومة: JPG, PNG, GIF</p>
+                                            <p className="mt-1 text-[10px] text-gray-400">{locale === 'ar' ? 'سيتم استبدال الصورة الحالية إذا قمت برفع صورة جديدة. صيغ الصور المدعومة: JPG, PNG, GIF' : 'The current image will be replaced if you upload a new one. Supported formats: JPG, PNG, GIF'}</p>
                                         </div>
                                     </div>
                                 </div>
 
                                 <div className="space-y-2">
-                                    <label className="text-xs md:text-sm font-bold text-gray-700">الميزانية التخطيطية (QAR) <span className="text-gray-400 font-normal">— اختياري</span></label>
+                                    <label className="text-xs md:text-sm font-bold text-gray-700">{locale === 'ar' ? 'الميزانية التخطيطية (QAR)' : 'Planning Budget (QAR)'} <span className="text-gray-400 font-normal">— {locale === 'ar' ? 'اختياري' : 'optional'}</span></label>
                                     <input
                                         type="number"
                                         name="budget"
@@ -207,13 +209,13 @@ export default function EditProjectPage({ params }: { params: Promise<{ id: stri
                                         defaultValue={initialData?.budget}
                                         className="w-full rounded-xl border border-gray-200 p-3.5 md:p-4 outline-none focus:ring-2 focus:ring-[#102550] text-xs md:text-sm shadow-sm font-medium"
                                     />
-                                    <p className="text-[10px] text-gray-400 font-medium">رقم تقديري للتخطيط فقط — الميزانية الفعلية تُحوَّل من خزنة الشركة</p>
+                                    <p className="text-[10px] text-gray-400 font-medium">{locale === 'ar' ? 'رقم تقديري للتخطيط فقط — الميزانية الفعلية تُحوَّل من خزنة الشركة' : 'Estimated for planning only — actual budget is transferred from the company wallet'}</p>
                                 </div>
 
 
 
                                 <div className="col-span-1 md:col-span-2 pt-4">
-                                    <h3 className="text-base md:text-lg font-bold text-gray-900 border-b border-gray-100 pb-2 mb-4">تعديل فريق العمل</h3>
+                                    <h3 className="text-base md:text-lg font-bold text-gray-900 border-b border-gray-100 pb-2 mb-4">{locale === 'ar' ? 'تعديل فريق العمل' : 'Edit Team Members'}</h3>
                                 </div>
 
                                 <div className="col-span-1 md:col-span-2">
@@ -221,7 +223,7 @@ export default function EditProjectPage({ params }: { params: Promise<{ id: stri
                                         options={employeeOptions}
                                         selectedIds={selectedEmployees}
                                         onChange={toggleEmployee}
-                                        placeholder="البحث عن الموظفين بالاسم أو المسمى الوظيفي..."
+                                        placeholder={locale === 'ar' ? "البحث عن الموظفين بالاسم أو المسمى الوظيفي..." : "Search employees by name or job title..."}
                                         maxHeight={320}
                                     />
 
@@ -252,8 +254,8 @@ export default function EditProjectPage({ params }: { params: Promise<{ id: stri
                                                         <div className="flex flex-wrap gap-2">
                                                             {['PROJECT_EMPLOYEE', 'PROJECT_MANAGER'].map(roleOption => {
                                                                 const labels: Record<string, string> = {
-                                                                    'PROJECT_EMPLOYEE': 'موظف',
-                                                                    'PROJECT_MANAGER': 'منسق المشتريات'
+                                                                    'PROJECT_EMPLOYEE': locale === 'ar' ? 'موظف' : 'Employee',
+                                                                    'PROJECT_MANAGER': locale === 'ar' ? 'منسق المشتريات' : 'Purchases Coordinator'
                                                                 };
                                                                 const isActive = currentRoles.includes(roleOption);
                                                                 return (
@@ -279,10 +281,10 @@ export default function EditProjectPage({ params }: { params: Promise<{ id: stri
 
                         <div className="flex flex-col sm:flex-row gap-3 md:gap-4 pt-6 mt-6 border-t border-gray-100">
                             <Button type="submit" disabled={isPending} isLoading={isPending} variant="primary" className="px-8 py-3 rounded-xl font-bold shadow-sm text-sm">
-                                حفظ التعديلات
+                                {locale === 'ar' ? 'حفظ التعديلات' : 'Save Changes'}
                             </Button>
                             <Button variant="outline" type="button" onClick={() => router.push(`/projects/${projectId}`)} className="flex-1 py-4 md:py-6 text-sm md:text-lg rounded-xl font-bold bg-gray-50 hover:bg-gray-100 border-transparent text-gray-700">
-                                إلغاء
+                                {locale === 'ar' ? 'إلغاء' : 'Cancel'}
                             </Button>
                         </div>
 

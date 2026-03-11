@@ -5,10 +5,12 @@ import { Bell, AlertCircle, Info, Bookmark, Ticket } from "lucide-react";
 import { useState, useEffect } from "react";
 import { getNotifications } from "@/actions/notifications";
 import { Notification } from "@prisma/client";
+import { useLanguage } from "@/context/LanguageContext";
 
 export default function NotificationsPage() {
     const [notifications, setNotifications] = useState<Notification[]>([]);
     const [isLoading, setIsLoading] = useState(true);
+    const { locale } = useLanguage();
 
     useEffect(() => {
         getNotifications().then(data => {
@@ -18,21 +20,23 @@ export default function NotificationsPage() {
     }, []);
 
     const getIcon = (title: string) => {
-        if (title.includes("دعم فني") || title.includes("تذكرة")) return <Ticket className="w-5 h-5 text-orange-500" />;
-        if (title.includes("عاجل") || title.includes("تحذير")) return <AlertCircle className="w-5 h-5 text-red-500" />;
-        if (title.includes("فاتورة") || title.includes("مشروع")) return <Bookmark className="w-5 h-5 text-blue-500" />;
+        const t = title.toLowerCase();
+        if (t.includes("دعم فني") || t.includes("تذكرة") || t.includes("support") || t.includes("ticket")) return <Ticket className="w-5 h-5 text-orange-500" />;
+        if (t.includes("عاجل") || t.includes("تحذير") || t.includes("urgent") || t.includes("warning")) return <AlertCircle className="w-5 h-5 text-red-500" />;
+        if (t.includes("فاتورة") || t.includes("مشروع") || t.includes("invoice") || t.includes("project")) return <Bookmark className="w-5 h-5 text-blue-500" />;
         return <Info className="w-5 h-5 text-[#102550]" />;
     };
 
     const getBgColor = (title: string) => {
-        if (title.includes("دعم فني") || title.includes("تذكرة")) return "bg-orange-50";
-        if (title.includes("عاجل") || title.includes("تحذير")) return "bg-red-50";
-        if (title.includes("فاتورة") || title.includes("مشروع")) return "bg-blue-50";
+        const t = title.toLowerCase();
+        if (t.includes("دعم فني") || t.includes("تذكرة") || t.includes("support") || t.includes("ticket")) return "bg-orange-50";
+        if (t.includes("عاجل") || t.includes("تحذير") || t.includes("urgent") || t.includes("warning")) return "bg-red-50";
+        if (t.includes("فاتورة") || t.includes("مشروع") || t.includes("invoice") || t.includes("project")) return "bg-blue-50";
         return "bg-blue-50";
     };
 
     return (
-        <DashboardLayout title="الإشعارات">
+        <DashboardLayout title={locale === 'ar' ? "الإشعارات" : "Notifications"}>
             <div className="space-y-6 md:space-y-8 pb-6 w-full max-w-4xl mx-auto">
                 <Card className="p-0 overflow-hidden shadow-sm border-gray-100 rounded-2xl">
                     <div className="p-5 md:p-6 border-b border-gray-100/50 bg-gray-50/50 flex items-center gap-3">
@@ -40,8 +44,8 @@ export default function NotificationsPage() {
                             <Bell className="w-5 h-5" />
                         </div>
                         <div>
-                            <h3 className="font-bold text-base md:text-lg text-gray-900 mb-1">صندوق الإشعارات</h3>
-                            <p className="text-xs text-gray-500">آخر التنبيهات والأحداث الخاصة بالنظام والمشاريع.</p>
+                            <h3 className="font-bold text-base md:text-lg text-gray-900 mb-1">{locale === 'ar' ? 'صندوق الإشعارات' : 'Notifications Inbox'}</h3>
+                            <p className="text-xs text-gray-500">{locale === 'ar' ? 'آخر التنبيهات والأحداث الخاصة بالنظام والمشاريع.' : 'Latest system and project alerts and events.'}</p>
                         </div>
                     </div>
 
@@ -65,7 +69,7 @@ export default function NotificationsPage() {
                                 <div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center text-gray-300">
                                     <Bell className="w-8 h-8" />
                                 </div>
-                                <p className="font-bold">لا توجد إشعارات حالياً</p>
+                                <p className="font-bold">{locale === 'ar' ? 'لا توجد إشعارات حالياً' : 'No notifications'}</p>
                             </div>
                         ) : (
                             notifications.map((notif) => (

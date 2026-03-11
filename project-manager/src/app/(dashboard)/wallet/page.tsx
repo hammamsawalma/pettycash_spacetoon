@@ -21,8 +21,8 @@ export default async function WalletPage() {
 
     if (!walletData) {
         return (
-            <DashboardLayout title="خزنة الشركة">
-                <div className="py-20 text-center text-gray-500">حدث خطأ أثناء تحميل بيانات الخزنة</div>
+            <DashboardLayout title="Company Wallet">
+                <div className="py-20 text-center text-gray-500">Error loading wallet data</div>
             </DashboardLayout>
         );
     }
@@ -30,14 +30,14 @@ export default async function WalletPage() {
     const { balance, totalIn, totalOut, entries } = walletData;
 
     return (
-        <DashboardLayout title="لوحة تحكم خزنة الشركة">
+        <DashboardLayout title="Company Wallet Dashboard">
             <div className="space-y-6 md:space-y-8" dir="rtl">
 
                 {/* Header Actions */}
                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                     <div>
-                        <h2 className="text-xl md:text-2xl font-bold text-gray-900">خزنة الشركة الرئيسية (Company Wallet)</h2>
-                        <p className="text-sm text-gray-500 mt-1">الرصيد المركزي للشركة وتخصيص الميزانيات للمشاريع</p>
+                        <h2 className="text-xl md:text-2xl font-bold text-gray-900">Company Wallet</h2>
+                        <p className="text-sm text-gray-500 mt-1">Central company balance and project budget allocation</p>
                     </div>
                     <div className="flex items-center gap-3">
                         {canDo(session.role as UserRole, 'exports', 'view') && (
@@ -49,7 +49,7 @@ export default async function WalletPage() {
                                 className="inline-flex items-center justify-center gap-2 h-10 md:h-11 px-4 md:px-6 rounded-xl shadow-sm text-sm font-bold bg-green-600 text-white hover:bg-green-700 transition"
                             >
                                 <Plus className="w-4 h-4 md:w-5 md:h-5" />
-                                إيداع في الخزنة
+                                Deposit to Wallet
                             </Link>
                         )}
                     </div>
@@ -62,7 +62,7 @@ export default async function WalletPage() {
                             <Wallet className="w-7 h-7" />
                         </div>
                         <div>
-                            <p className="text-xs md:text-sm font-bold text-gray-500 mb-1">الرصيد المتاح والمتبقي</p>
+                            <p className="text-xs md:text-sm font-bold text-gray-500 mb-1">Available Balance</p>
                             <p className="text-2xl md:text-3xl font-black text-gray-900">{balance.toLocaleString('en-US')} <span className="text-sm font-bold text-gray-400"><CurrencyDisplay /></span></p>
                         </div>
                     </Card>
@@ -72,7 +72,7 @@ export default async function WalletPage() {
                             <ArrowDownCircle className="w-6 h-6" />
                         </div>
                         <div>
-                            <p className="text-xs md:text-sm font-bold text-gray-500 mb-1">إجمالي الإيداعات (دخول)</p>
+                            <p className="text-xs md:text-sm font-bold text-gray-500 mb-1">Total Deposits (In)</p>
                             <p className="text-xl md:text-2xl font-bold text-gray-900">{totalIn.toLocaleString('en-US')} <span className="text-xs font-bold text-gray-400"><CurrencyDisplay /></span></p>
                         </div>
                     </Card>
@@ -82,7 +82,7 @@ export default async function WalletPage() {
                             <ArrowUpCircle className="w-6 h-6" />
                         </div>
                         <div>
-                            <p className="text-xs md:text-sm font-bold text-gray-500 mb-1">المخصص للمشاريع (خروج)</p>
+                            <p className="text-xs md:text-sm font-bold text-gray-500 mb-1">Allocated to Projects (Out)</p>
                             <p className="text-xl md:text-2xl font-bold text-gray-900">{totalOut.toLocaleString('en-US')} <span className="text-xs font-bold text-gray-400"><CurrencyDisplay /></span></p>
                         </div>
                     </Card>
@@ -91,7 +91,7 @@ export default async function WalletPage() {
                 {/* Ledger / Transaction History */}
                 <Card className="overflow-hidden shadow-sm border-gray-100 rounded-2xl">
                     <div className="p-6 border-b border-gray-100 flex justify-between items-center bg-white">
-                        <h3 className="text-lg font-bold text-gray-900">سجل حركات الخزنة (Ledger)</h3>
+                        <h3 className="text-lg font-bold text-gray-900">Wallet Ledger</h3>
                     </div>
 
                     {entries?.length > 0 ? (
@@ -99,21 +99,21 @@ export default async function WalletPage() {
                             <table className="w-full text-right divide-y divide-gray-100">
                                 <thead className="bg-gray-50/50 text-gray-500 text-xs uppercase font-bold tracking-wider">
                                     <tr>
-                                        <th scope="col" className="px-6 py-4">التاريخ</th>
-                                        <th scope="col" className="px-6 py-4">نوع الحركة</th>
-                                        <th scope="col" className="px-6 py-4">المبلغ</th>
-                                        <th scope="col" className="px-6 py-4">بواسطة</th>
-                                        <th scope="col" className="px-6 py-4 w-1/3">ملاحظات / مرجع</th>
+                                        <th scope="col" className="px-6 py-4">Date</th>
+                                        <th scope="col" className="px-6 py-4">Type</th>
+                                        <th scope="col" className="px-6 py-4">Amount</th>
+                                        <th scope="col" className="px-6 py-4">By</th>
+                                        <th scope="col" className="px-6 py-4 w-1/3">Notes / Reference</th>
                                     </tr>
                                 </thead>
                                 <tbody className="bg-white divide-y divide-gray-50">
                                     {entries.map((entry: any) => {
                                         const typeConfig: Record<string, { label: string; icon: React.ElementType; color: string; bg: string; isOutgoing: boolean }> = {
-                                            DEPOSIT: { label: "إيداع", icon: ArrowDownCircle, color: "text-green-700", bg: "bg-green-50", isOutgoing: false },
-                                            ALLOCATE_TO_PROJECT: { label: "تخصيص لمشروع", icon: FolderKanban, color: "text-amber-700", bg: "bg-amber-50", isOutgoing: true },
-                                            SETTLE_DEBT: { label: "تسوية دين موظف", icon: ArrowUpCircle, color: "text-rose-700", bg: "bg-rose-50", isOutgoing: true },
-                                            RETURN_FROM_PROJECT: { label: "استرجاع رصيد", icon: RefreshCw, color: "text-blue-700", bg: "bg-blue-50", isOutgoing: false },
-                                            RETURN: { label: "استرجاع رصيد", icon: RefreshCw, color: "text-blue-700", bg: "bg-blue-50", isOutgoing: false },
+                                            DEPOSIT: { label: "Deposit", icon: ArrowDownCircle, color: "text-green-700", bg: "bg-green-50", isOutgoing: false },
+                                            ALLOCATE_TO_PROJECT: { label: "Project Allocation", icon: FolderKanban, color: "text-amber-700", bg: "bg-amber-50", isOutgoing: true },
+                                            SETTLE_DEBT: { label: "Debt Settlement", icon: ArrowUpCircle, color: "text-rose-700", bg: "bg-rose-50", isOutgoing: true },
+                                            RETURN_FROM_PROJECT: { label: "Balance Return", icon: RefreshCw, color: "text-blue-700", bg: "bg-blue-50", isOutgoing: false },
+                                            RETURN: { label: "Balance Return", icon: RefreshCw, color: "text-blue-700", bg: "bg-blue-50", isOutgoing: false },
                                         };
                                         const config = typeConfig[entry.type] || { label: entry.type, icon: Wallet, color: "text-gray-700", bg: "bg-gray-50", isOutgoing: false };
                                         const EntryIcon = config.icon;
@@ -152,7 +152,7 @@ export default async function WalletPage() {
                     ) : (
                         <div className="p-12 text-center text-gray-500">
                             <Wallet className="w-12 h-12 mx-auto text-gray-300 mb-4" />
-                            <p className="text-sm font-bold">لا توجد حركات مسجلة في الخزنة حتى الآن</p>
+                            <p className="text-sm font-bold">No wallet transactions recorded yet</p>
                         </div>
                     )}
                 </Card>

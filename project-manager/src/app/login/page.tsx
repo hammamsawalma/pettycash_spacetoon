@@ -61,16 +61,18 @@ export default function LoginPage() {
                     }}>
                         {/* Quick Login for testing */}
                         <div className="space-y-2 pb-4 border-b border-gray-100">
-                            <p className="text-[10px] text-center font-bold text-gray-400 uppercase tracking-widest mb-2">دخول سريع للاختبار — كلمة المرور: 123456</p>
+                            <p className="text-[10px] text-center font-bold text-gray-400 uppercase tracking-widest mb-2">
+                                {locale === 'ar' ? 'دخول سريع للاختبار — كلمة المرور: 123456' : 'Quick Login for Testing — Password: 123456'}
+                            </p>
                             <div className="grid grid-cols-2 gap-2">
                                 {[
-                                    { label: "👑 مدير النظام", email: "admin@pocket.com", color: "bg-blue-50 hover:bg-blue-100 border-blue-200 text-blue-700" },
-                                    { label: "🌟 المدير العام", email: "gm@pocket.com", color: "bg-yellow-50 hover:bg-yellow-100 border-yellow-300 text-yellow-700" },
-                                    { label: "🧾 المحاسب العام", email: "accountant@pocket.com", color: "bg-purple-50 hover:bg-purple-100 border-purple-200 text-purple-700" },
-                                    { label: "🗂️ منسق المشتريات — خالد", email: "coordinator@pocket.com", color: "bg-green-50 hover:bg-green-100 border-green-200 text-green-700" },
-                                    { label: "👤 محمد — عهدة ✅", email: "emp1@pocket.com", color: "bg-orange-50 hover:bg-orange-100 border-orange-200 text-orange-700" },
-                                    { label: "👤 سارة — عهدة ⏳", email: "emp2@pocket.com", color: "bg-rose-50 hover:bg-rose-100 border-rose-200 text-rose-700" },
-                                    { label: "👤 فيصل — طلب 🚨", email: "emp3@pocket.com", color: "bg-amber-50 hover:bg-amber-100 border-amber-200 text-amber-700" },
+                                    { label: locale === 'ar' ? "👑 مدير النظام" : "👑 Admin", email: "admin@pocket.com", color: "bg-blue-50 hover:bg-blue-100 border-blue-200 text-blue-700" },
+                                    { label: locale === 'ar' ? "🌟 المدير العام" : "🌟 Gen. Manager", email: "gm@pocket.com", color: "bg-yellow-50 hover:bg-yellow-100 border-yellow-300 text-yellow-700" },
+                                    { label: locale === 'ar' ? "🧾 المحاسب العام" : "🧾 Accountant", email: "accountant@pocket.com", color: "bg-purple-50 hover:bg-purple-100 border-purple-200 text-purple-700" },
+                                    { label: locale === 'ar' ? "🗂️ منسق المشتريات — خالد" : "🗂️ Coordinator — Khalid", email: "coordinator@pocket.com", color: "bg-green-50 hover:bg-green-100 border-green-200 text-green-700" },
+                                    { label: locale === 'ar' ? "👤 محمد — عهدة ✅" : "👤 Mohd — Custody ✅", email: "emp1@pocket.com", color: "bg-orange-50 hover:bg-orange-100 border-orange-200 text-orange-700" },
+                                    { label: locale === 'ar' ? "👤 سارة — عهدة ⏳" : "👤 Sara — Custody ⏳", email: "emp2@pocket.com", color: "bg-rose-50 hover:bg-rose-100 border-rose-200 text-rose-700" },
+                                    { label: locale === 'ar' ? "👤 فيصل — طلب 🚨" : "👤 Faisal — Request 🚨", email: "emp3@pocket.com", color: "bg-amber-50 hover:bg-amber-100 border-amber-200 text-amber-700" },
                                 ].map(({ label, email, color }) => (
                                     <Button
                                         key={email}
@@ -93,7 +95,11 @@ export default function LoginPage() {
                                     </Button>
                                 ))}
                             </div>
-                            <p className="text-[9px] text-center text-gray-300 mt-1">✅ عهدة مؤكدة &nbsp;|&nbsp; ⏳ عهدة تنتظر توقيع + دين &nbsp;|&nbsp; 🚨 طلب شراء عاجل</p>
+                            <p className="text-[9px] text-center text-gray-300 mt-1">
+                                {locale === 'ar' 
+                                    ? '✅ عهدة مؤكدة  |  ⏳ عهدة تنتظر توقيع + دين  |  🚨 طلب شراء عاجل'
+                                    : '✅ Settled Custody  |  ⏳ Pending Custody + Debt  |  🚨 Urgent POS Request'}
+                            </p>
                         </div>
 
                         <div>

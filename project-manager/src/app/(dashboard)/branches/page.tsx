@@ -5,6 +5,7 @@ import DashboardLayout from "@/components/layout/DashboardLayout";
 import { Card } from "@/components/ui/Card";
 import { getBranchesWithStats, toggleBranchActive } from "@/actions/branches";
 import { Globe2, Users, FolderKanban, Shield, Power } from "lucide-react";
+import { useLanguage } from "@/context/LanguageContext";
 
 type BranchWithStats = Awaited<ReturnType<typeof getBranchesWithStats>>[number];
 
@@ -17,6 +18,7 @@ export default function BranchesPage() {
     const [branches, setBranches] = useState<BranchWithStats[]>([]);
     const [loading, setLoading] = useState(true);
     const [toggling, setToggling] = useState<string | null>(null);
+    const { locale } = useLanguage();
 
     useEffect(() => {
         getBranchesWithStats().then((data) => {
@@ -39,7 +41,7 @@ export default function BranchesPage() {
     };
 
     return (
-        <DashboardLayout title="إدارة الفروع">
+        <DashboardLayout title={locale === 'ar' ? "إدارة الفروع" : "Branch Management"}>
             <div className="space-y-6">
                 {/* Header */}
                 <motion.div
@@ -53,9 +55,9 @@ export default function BranchesPage() {
                             <Globe2 className="w-7 h-7 text-white" />
                         </div>
                         <div>
-                            <h1 className="text-2xl font-black">إدارة الفروع</h1>
+                            <h1 className="text-2xl font-black">{locale === 'ar' ? 'إدارة الفروع' : 'Branch Management'}</h1>
                             <p className="text-white/50 text-sm">
-                                {branches.length} فرع — تفعيل وتعطيل الفروع
+                                {branches.length} {locale === 'ar' ? 'فرع — تفعيل وتعطيل الفروع' : 'branches — activate and deactivate branches'}
                             </p>
                         </div>
                     </div>
@@ -107,7 +109,7 @@ export default function BranchesPage() {
                                                         ? "bg-emerald-50 text-emerald-600 hover:bg-emerald-100"
                                                         : "bg-red-50 text-red-500 hover:bg-red-100"
                                                     } ${toggling === branch.id ? "animate-pulse" : ""}`}
-                                                title={branch.isActive ? "تعطيل الفرع" : "تفعيل الفرع"}
+                                                title={branch.isActive ? (locale === 'ar' ? "تعطيل الفرع" : "Deactivate Branch") : (locale === 'ar' ? "تفعيل الفرع" : "Activate Branch")}
                                             >
                                                 <Power className="w-5 h-5" />
                                             </button>
@@ -121,11 +123,11 @@ export default function BranchesPage() {
                                                         : "bg-red-100 text-red-700"
                                                     }`}
                                             >
-                                                {branch.isActive ? "نشط" : "معطّل"}
+                                                {branch.isActive ? (locale === 'ar' ? "نشط" : "Active") : (locale === 'ar' ? "معطّل" : "Disabled")}
                                             </span>
                                             <span className="text-[10px] text-gray-400">
-                                                منذ{" "}
-                                                {new Date(branch.createdAt).toLocaleDateString("ar-QA")}
+                                                {locale === 'ar' ? 'منذ' : 'Since'}{" "}
+                                                {new Date(branch.createdAt).toLocaleDateString("en-GB")}
                                             </span>
                                         </div>
 
@@ -137,7 +139,7 @@ export default function BranchesPage() {
                                                     {branch.projects}
                                                 </p>
                                                 <p className="text-[9px] text-gray-500 font-semibold">
-                                                    مشروع
+                                                    {locale === 'ar' ? 'مشروع' : 'projects'}
                                                 </p>
                                             </div>
                                             <div className="bg-[#102550]/5 rounded-lg p-2">
@@ -146,7 +148,7 @@ export default function BranchesPage() {
                                                     {branch.users}
                                                 </p>
                                                 <p className="text-[9px] text-gray-500 font-semibold">
-                                                    موظف
+                                                    {locale === 'ar' ? 'موظف' : 'employees'}
                                                 </p>
                                             </div>
                                             <div className="bg-amber-50 rounded-lg p-2">
@@ -155,7 +157,7 @@ export default function BranchesPage() {
                                                     {branch.admins}
                                                 </p>
                                                 <p className="text-[9px] text-gray-500 font-semibold">
-                                                    مدير
+                                                    {locale === 'ar' ? 'مدير' : 'admins'}
                                                 </p>
                                             </div>
                                         </div>

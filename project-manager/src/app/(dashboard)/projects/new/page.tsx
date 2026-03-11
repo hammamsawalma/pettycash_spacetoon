@@ -11,6 +11,7 @@ import { useActionState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import toast from "react-hot-toast";
+import { useLanguage } from "@/context/LanguageContext";
 
 export default function NewProjectPage() {
     const router = useRouter();
@@ -20,6 +21,7 @@ export default function NewProjectPage() {
     const [employeeRoles, setEmployeeRoles] = useState<Record<string, string[]>>({});
     const [isLoading, setIsLoading] = useState(true);
     const [state, formAction, isPending] = useActionState(createProject, null);
+    const { locale } = useLanguage();
 
     useEffect(() => {
         // RBAC: Only ADMIN can create new projects via this page
@@ -37,7 +39,7 @@ export default function NewProjectPage() {
 
     useEffect(() => {
         if (state?.success) {
-            toast.success("تم إنشاء المشروع بنجاح");
+            toast.success(locale === 'ar' ? "تم إنشاء المشروع بنجاح" : "Project created successfully");
             router.push(`/projects/${(state as { projectId?: string }).projectId}?tab=team`);
         }
     }, [state, router]);
@@ -73,7 +75,7 @@ export default function NewProjectPage() {
     }));
 
     return (
-        <DashboardLayout title="اضافة مشروع جديد">
+        <DashboardLayout title={locale === 'ar' ? "اضافة مشروع جديد" : "Add New Project"}>
             <div className="pb-6">
                 <Card className="max-w-4xl mx-auto p-5 md:p-8 border-gray-100 shadow-sm rounded-2xl">
                     {state?.error && (
@@ -87,12 +89,12 @@ export default function NewProjectPage() {
                         const budget = formData.get("budget");
 
                         if (!name) {
-                            toast.error("اسم المشروع مطلوب");
+                            toast.error(locale === 'ar' ? "اسم المشروع مطلوب" : "Project name is required");
                             return;
                         }
 
                         if (budget && Number(budget) < 0) {
-                            toast.error("لا يمكن أن تكون الميزانية بالسالب");
+                            toast.error(locale === 'ar' ? "لا يمكن أن تكون الميزانية بالسالب" : "Budget cannot be negative");
                             return;
                         }
 
@@ -103,22 +105,22 @@ export default function NewProjectPage() {
                         )} />
 
                         <div className="space-y-4">
-                            <h3 className="text-base md:text-lg font-bold text-gray-900 border-b border-gray-100 pb-2">تفاصيل المشروع الأساسية</h3>
+                            <h3 className="text-base md:text-lg font-bold text-gray-900 border-b border-gray-100 pb-2">{locale === 'ar' ? 'تفاصيل المشروع الأساسية' : 'Basic Project Details'}</h3>
 
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
                                 <div className="space-y-2 col-span-1 md:col-span-2">
-                                    <label className="text-xs md:text-sm font-bold text-gray-700">اسم المشروع</label>
+                                    <label className="text-xs md:text-sm font-bold text-gray-700">{locale === 'ar' ? 'اسم المشروع' : 'Project Name'}</label>
                                     <input
                                         type="text"
                                         name="name"
                                         required
                                         className="w-full rounded-xl border border-gray-200 p-3.5 md:p-4 outline-none focus:ring-2 focus:ring-[#102550] text-xs md:text-sm shadow-sm font-medium"
-                                        placeholder="ادخل اسم المشروع..."
+                                        placeholder={locale === 'ar' ? "ادخل اسم المشروع..." : "Enter project name..."}
                                     />
                                 </div>
 
                                 <div className="space-y-2 col-span-1 md:col-span-2">
-                                    <label className="text-xs md:text-sm font-bold text-gray-700">صورة / شعار المشروع <span className="text-gray-400 font-normal">— اختياري</span></label>
+                                    <label className="text-xs md:text-sm font-bold text-gray-700">{locale === 'ar' ? 'صورة / شعار المشروع' : 'Project Image / Logo'} <span className="text-gray-400 font-normal">— {locale === 'ar' ? 'اختياري' : 'optional'}</span></label>
                                     <div className="flex items-center gap-4 p-4 border border-dashed border-gray-300 rounded-xl bg-gray-50/50 hover:bg-gray-50 transition-colors">
                                         <div className="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 shrink-0">
                                             <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -132,23 +134,23 @@ export default function NewProjectPage() {
                                                 accept="image/*"
                                                 className="w-full text-xs md:text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 transition-all cursor-pointer"
                                             />
-                                            <p className="mt-1 text-[10px] text-gray-400">صيغ الصور المدعومة: JPG, PNG, GIF</p>
+                                            <p className="mt-1 text-[10px] text-gray-400">{locale === 'ar' ? 'صيغ الصور المدعومة: JPG, PNG, GIF' : 'Supported formats: JPG, PNG, GIF'}</p>
                                         </div>
                                     </div>
                                 </div>
 
                                 <div className="space-y-2 col-span-1 md:col-span-2">
-                                    <label className="text-xs md:text-sm font-bold text-gray-700">وصف المشروع</label>
+                                    <label className="text-xs md:text-sm font-bold text-gray-700">{locale === 'ar' ? 'وصف المشروع' : 'Project Description'}</label>
                                     <textarea
                                         name="description"
                                         rows={4}
                                         className="w-full rounded-xl border border-gray-200 p-3.5 md:p-4 outline-none focus:ring-2 focus:ring-[#102550] resize-none text-xs md:text-sm shadow-sm font-medium"
-                                        placeholder="اكتب وصفاً مفصلاً للمشروع..."
+                                        placeholder={locale === 'ar' ? "اكتب وصفاً مفصلاً للمشروع..." : "Write a detailed project description..."}
                                     />
                                 </div>
 
                                 <div className="space-y-2">
-                                    <label className="text-xs md:text-sm font-bold text-gray-700">الميزانية التخطيطية (QAR) <span className="text-gray-400 font-normal">— اختياري</span></label>
+                                    <label className="text-xs md:text-sm font-bold text-gray-700">{locale === 'ar' ? 'الميزانية التخطيطية (QAR)' : 'Planning Budget (QAR)'} <span className="text-gray-400 font-normal">— {locale === 'ar' ? 'اختياري' : 'optional'}</span></label>
                                     <input
                                         type="number"
                                         name="budget"
@@ -158,24 +160,24 @@ export default function NewProjectPage() {
                                         className="w-full rounded-xl border border-gray-200 p-3.5 md:p-4 outline-none focus:ring-2 focus:ring-[#102550] text-xs md:text-sm shadow-sm font-medium"
                                         placeholder="0"
                                     />
-                                    <p className="text-[10px] text-gray-400 font-medium">رقم تقديري للتخطيط فقط — الميزانية الفعلية تُحوَّل من خزنة الشركة لاحقاً</p>
+                                    <p className="text-[10px] text-gray-400 font-medium">{locale === 'ar' ? 'رقم تقديري للتخطيط فقط — الميزانية الفعلية تُحوَّل من خزنة الشركة لاحقاً' : 'Estimated for planning only — actual budget is transferred from the company wallet later'}</p>
                                 </div>
 
                                 <div className="col-span-1 md:col-span-2 pt-4">
-                                    <h3 className="text-base md:text-lg font-bold text-gray-900 border-b border-gray-100 pb-2 mb-4">فريق العمل</h3>
+                                    <h3 className="text-base md:text-lg font-bold text-gray-900 border-b border-gray-100 pb-2 mb-4">{locale === 'ar' ? 'فريق العمل' : 'Team Members'}</h3>
                                 </div>
 
                                 <div className="col-span-1 md:col-span-2">
                                     {isLoading ? (
-                                        <p className="text-xs md:text-sm text-gray-500 w-full text-center py-4 bg-gray-50 rounded-xl">جاري تحميل الموظفين...</p>
+                                        <p className="text-xs md:text-sm text-gray-500 w-full text-center py-4 bg-gray-50 rounded-xl">{locale === 'ar' ? 'جاري تحميل الموظفين...' : 'Loading employees...'}</p>
                                     ) : employees.length === 0 ? (
-                                        <p className="text-xs md:text-sm text-gray-500 w-full text-center py-4 bg-gray-50 rounded-xl">لا يوجد موظفين متاحين</p>
+                                        <p className="text-xs md:text-sm text-gray-500 w-full text-center py-4 bg-gray-50 rounded-xl">{locale === 'ar' ? 'لا يوجد موظفين متاحين' : 'No available employees'}</p>
                                     ) : (
                                         <VirtualMultiSelect
                                             options={employeeOptions}
                                             selectedIds={selectedEmployees}
                                             onChange={toggleEmployee}
-                                            placeholder="البحث عن الموظفين بالاسم أو المسمى الوظيفي..."
+                                            placeholder={locale === 'ar' ? "البحث عن الموظفين بالاسم أو المسمى الوظيفي..." : "Search employees by name or job title..."}
                                             maxHeight={320}
                                         />
                                     )}
@@ -207,8 +209,8 @@ export default function NewProjectPage() {
                                                         <div className="flex flex-wrap gap-2">
                                                             {['PROJECT_EMPLOYEE', 'PROJECT_MANAGER'].map(roleOption => {
                                                                 const labels: Record<string, string> = {
-                                                                    'PROJECT_EMPLOYEE': 'موظف',
-                                                                    'PROJECT_MANAGER': 'منسق المشتريات'
+                                                                    'PROJECT_EMPLOYEE': locale === 'ar' ? 'موظف' : 'Employee',
+                                                                    'PROJECT_MANAGER': locale === 'ar' ? 'منسق المشتريات' : 'Purchases Coordinator'
                                                                 };
                                                                 const isActive = currentRoles.includes(roleOption);
                                                                 return (
@@ -235,10 +237,10 @@ export default function NewProjectPage() {
                         {/* ── Fixed mobile CTA ── */}
                         <div className="fixed bottom-0 inset-x-0 md:static bg-white/95 backdrop-blur-xl border-t border-gray-100 p-4 pb-[calc(1rem+env(safe-area-inset-bottom))] md:p-0 md:border-0 md:bg-transparent md:flex md:flex-row-reverse md:gap-3 md:pt-6 md:mt-6 md:border-t md:border-gray-100 space-y-2 md:space-y-0">
                             <Button type="submit" disabled={isPending} isLoading={isPending} variant="primary" className="w-full md:w-auto px-8 py-4 rounded-2xl font-bold shadow-sm text-sm active:scale-[0.98] transition-transform">
-                                اضافة التغييرات
+                                {locale === 'ar' ? 'اضافة التغييرات' : 'Save Changes'}
                             </Button>
                             <button type="button" onClick={() => router.push('/projects')} className="w-full md:w-auto py-3 text-sm text-gray-500 hover:text-gray-800 font-medium transition-colors text-center">
-                                إلغاء
+                                {locale === 'ar' ? 'إلغاء' : 'Cancel'}
                             </button>
                         </div>
 

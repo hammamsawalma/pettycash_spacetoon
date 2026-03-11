@@ -2,7 +2,7 @@ import DashboardLayout from "@/components/layout/DashboardLayout";
 
 export default function ManualPage() {
     return (
-        <DashboardLayout title="دليل الاستخدام">
+        <DashboardLayout title="User Manual">
             <ManualContent />
         </DashboardLayout>
     );
@@ -10,7 +10,7 @@ export default function ManualPage() {
 
 function ManualContent() {
     return (
-        <div className="max-w-4xl mx-auto space-y-6 pb-12" dir="rtl">
+        <div className="max-w-4xl mx-auto space-y-6 pb-12">
 
             {/* ── Header Banner ── */}
             <div className="rounded-2xl overflow-hidden bg-gradient-to-br from-[#102550] via-[#1a3a7c] to-[#122b5e] text-white p-8 flex items-center gap-6 shadow-xl shadow-blue-200/40">
@@ -18,204 +18,204 @@ function ManualContent() {
                     📋
                 </div>
                 <div>
-                    <p className="text-blue-200 text-sm font-medium mb-1">وثيقة داخلية للموظفين</p>
-                    <h1 className="text-2xl md:text-3xl font-bold">دليل استخدام نظام إدارة المشاريع</h1>
-                    <p className="text-blue-200 text-sm mt-1">إصدار 5.0 — مارس 2026</p>
+                    <p className="text-blue-200 text-sm font-medium mb-1">Internal Employee Document</p>
+                    <h1 className="text-2xl md:text-3xl font-bold">Project Management System Manual</h1>
+                    <p className="text-blue-200 text-sm mt-1">Version 5.0 — March 2026</p>
                 </div>
             </div>
 
             {/* ── Chapter 1: Overview ── */}
-            <Chapter icon="🏢" num="الفصل الأول" title="نظرة عامة على النظام">
-                <Section title="ما هو النظام؟">
-                    <p>نظام إدارة المشاريع هو منصة رقمية متكاملة تتيح للشركة متابعة مشاريعها ومصروفاتها وموظفيها في مكان واحد. يساعد النظام على تنظيم العمل، تتبع المبالغ المالية، والتأكد من أن كل ريال يُصرف في مكانه الصحيح.</p>
-                    <p>يعمل النظام عبر الإنترنت من أي متصفح دون الحاجة لتنزيل أي برنامج.</p>
+            <Chapter icon="🏢" num="Chapter 1" title="System Overview">
+                <Section title="What is the System?">
+                    <p>The Project Management System is an integrated digital platform that allows the company to track its projects, expenses, and employees in one place. The system helps organize work, track financial amounts, and ensure every riyal is spent correctly.</p>
+                    <p>The system works online from any browser without needing to download any software.</p>
                 </Section>
-                <Section title="الفكرة الأساسية للنظام">
-                    <p>يعتمد النظام على مسار مالي واضح يتدفق على ثلاثة مستويات:</p>
+                <Section title="Core Concept">
+                    <p>The system relies on a clear financial path that flows across three levels:</p>
                     <Steps items={[
-                        { n: "1", text: <><strong>خزنة الشركة ← المشاريع:</strong> يوافق المدير على تخصيص ميزانية من خزنة الشركة لكل مشروع.</> },
-                        { n: "2", text: <><strong>المشاريع ← الموظفون (عهدة):</strong> يصرف المدير أو المحاسب مبالغ نقدية للموظفين تُسمى "العهدة" لتغطية مصروفات الميدان.</> },
-                        { n: "3", text: <><strong>الموظفون ← فواتير:</strong> يرفع الموظف فواتير مصروفاته، يراجعها المحاسب ويعتمدها أو يرفضها.</> },
+                        { n: "1", text: <><strong>Company Wallet ← Projects:</strong> The Admin approves allocating a budget from the company wallet to each project.</> },
+                        { n: "2", text: <><strong>Projects ← Employees (Custody):</strong> The Admin or Accountant issues cash amounts to employees called "Custody" to cover field expenses.</> },
+                        { n: "3", text: <><strong>Employees ← Invoices:</strong> The employee uploads expense invoices, which the Accountant reviews and approves or rejects.</> },
                     ]} />
                 </Section>
-                <InfoBox type="info" title="ملاحظة مهمة" text="كل عملية في النظام مسجلة ومتتبعة. لا يمكن حذف أي سجل نهائياً دون مرور بمرحلة سلة المهملات، مما يضمن الشفافية الكاملة." />
-                <Section title="كيف تسجّل الدخول؟">
+                <InfoBox type="info" title="Important Note" text="Every action in the system is recorded and tracked. No record can be permanently deleted without passing through the trash, ensuring full transparency." />
+                <Section title="How to Login?">
                     <Steps items={[
-                        { n: "1", text: "افتح متصفح الإنترنت وادخل على رابط النظام الذي زوّدك به مدير النظام." },
-                        { n: "2", text: <><b>البريد الإلكتروني</b> وكلمة المرور التي أعطاك إياها المدير.  </> },
-                        { n: "3", text: <>اضغط <b>"تسجيل الدخول"</b>. ستنتقل تلقائياً إلى لوحة التحكم.</> },
-                        { n: "4", text: <>تبقى جلستك نشطة لمدة <b>7 أيام</b> دون الحاجة لإعادة تسجيل الدخول.</> },
+                        { n: "1", text: "Open your web browser and navigate to the system link provided by the system admin." },
+                        { n: "2", text: <>Enter the <b>Email</b> and Password given to you by the Admin.</> },
+                        { n: "3", text: <>Click <b>"Login"</b>. You will be redirected to the dashboard.</> },
+                        { n: "4", text: <>Your session remains active for <b>7 days</b> without needing to log in again.</> },
                     ]} />
                 </Section>
-                <InfoBox type="warn" title="أمان حسابك" text="لا تشارك كلمة مرورك مع أي شخص. إذا نسيتها تواصل مع مدير النظام فوراً." />
+                <InfoBox type="warn" title="Account Security" text="Do not share your password with anyone. If you forget it, contact the system admin immediately." />
             </Chapter>
 
             {/* ── Chapter 2: Roles ── */}
-            <Chapter icon="👥" num="الفصل الثاني" title="الأدوار والصلاحيات">
-                <p className="text-gray-600 mb-4">يعمل النظام بنظام الأدوار — كل موظف له حسابه الخاص بصلاحيات محددة. هناك <strong>أربعة أدوار</strong> رئيسية:</p>
+            <Chapter icon="👥" num="Chapter 2" title="Roles and Permissions">
+                <p className="text-gray-600 mb-4">The system operates on a role-based model — each employee has their own account with specific permissions. There are <strong>four main roles</strong>:</p>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
-                    <RoleCard icon="👑" name="المدير (Admin)" color="blue" desc="يملك كامل الصلاحيات على النظام. يدير المشاريع والموظفين والخزنة. يوافق على الإجراءات الكبرى ويتحكم بإعدادات النظام." />
-                    <RoleCard icon="📊" name="المحاسب العام (Accountant)" color="blue" desc="مسؤول عن مراجعة الفواتير واعتمادها أو رفضها، ومتابعة خزنة الشركة. يمكنه صرف وإدارة العهدات وتسوية ديون الموظفين." />
-                    <RoleCard icon="🧭" name="المدير العام (General Manager)" color="green" desc="يطّلع على كامل النظام المالي والمشاريع والتقارير. يمكنه الموافقة على المشتريات، لكن لا يمكنه إنشاء مشاريع أو رفع فواتير." />
-                    <RoleCard icon="👷" name="الموظف (Employee)" color="orange" desc="يعمل داخل مشاريعه المسجل فيها. يتسلم العهدات ويؤكد استلامها بتوقيع إلكتروني، ويرفع فواتير مصروفاته. يرى ديونه الشخصية." />
+                    <RoleCard icon="👑" name="Admin" color="blue" desc="Has full control over the system. Manages projects, employees, and the wallet. Approves major actions and controls system settings." />
+                    <RoleCard icon="📊" name="Accountant" color="blue" desc="Responsible for reviewing and approving or rejecting invoices, and monitoring the company wallet. Can issue and manage custodies and settle employee debts." />
+                    <RoleCard icon="🧭" name="General Manager" color="green" desc="Views the entire financial system, projects, and reports. Can approve purchases, but cannot create projects or upload invoices." />
+                    <RoleCard icon="👷" name="Employee" color="orange" desc="Works within their assigned projects. Receives custodies, confirms receipt with an e-signature, and uploads expense invoices. Views personal debts." />
                 </div>
-                <Section title="جدول مقارنة الصلاحيات">
+                <Section title="Permissions Comparison Table">
                     <PermTable rows={[
-                        ["إنشاء مشروع جديد", true, false, false, false],
-                        ["إغلاق مشروع نهائياً", true, false, false, false],
-                        ["إضافة / تعديل موظف", true, false, false, false],
-                        ["صرف عهدة للموظف", true, true, false, false],
-                        ["تأكيد استلام عهدة (توقيع إلكتروني)", false, false, false, true],
-                        ["رفع فاتورة جديدة", true, true, false, true],
-                        ["رفع فاتورة مصاريف شركة", true, true, false, false],
-                        ["اعتماد / رفض فاتورة", true, true, false, false],
-                        ["إنشاء قائمة مشتريات", true, false, true, "منسق المشتريات"],
-                        ["تسوية ديون الموظفين", true, true, false, false],
-                        ["عرض الديون الشخصية", true, true, true, true],
-                        ["إيداع في الخزنة", true, false, false, false],
-                        ["تخصيص ميزانية لمشروع", true, false, false, false],
-                        ["تغيير العملة العامة", true, false, false, false],
-                        ["التقارير والإحصائيات", true, true, true, false],
-                        ["سلة المهملات", true, false, false, false],
-                        ["إرسال تذكرة دعم فني", true, true, true, true],
+                        ["Create a new project", true, false, false, false],
+                        ["Permanently close a project", true, false, false, false],
+                        ["Add / Edit employee", true, false, false, false],
+                        ["Issue custody to employee", true, true, false, false],
+                        ["Confirm custody receipt", false, false, false, true],
+                        ["Upload new invoice", true, true, false, true],
+                        ["Upload company expense invoice", true, true, false, false],
+                        ["Approve / Reject invoice", true, true, false, false],
+                        ["Create purchase list", true, false, true, "Purchases Coordinator"],
+                        ["Settle employee debts", true, true, false, false],
+                        ["View personal debts", true, true, true, true],
+                        ["Deposit into wallet", true, false, false, false],
+                        ["Allocate budget to project", true, false, false, false],
+                        ["Change global currency", true, false, false, false],
+                        ["Reports and Statistics", true, true, true, false],
+                        ["Trash", true, false, false, false],
+                        ["Submit Tech Support ticket", true, true, true, true],
                     ]} />
                 </Section>
             </Chapter>
 
             {/* ── Chapter 3: Dashboard ── */}
-            <Chapter icon="🏠" num="الفصل الثالث" title="الصفحة الرئيسية — لوحة التحكم">
-                <p className="text-gray-600 mb-4">عند تسجيل دخولك، تُفتح لوحة التحكم الرئيسية تلقائياً. تُعرض فيها معلومات مختلفة حسب دورك.</p>
-                <Section title="ما يراه كل دور في لوحة التحكم">
-                    <SubSection title="👑 المدير والمحاسب يريان:">
+            <Chapter icon="🏠" num="Chapter 3" title="Dashboard">
+                <p className="text-gray-600 mb-4">Upon logging in, the main dashboard opens automatically. It displays different information based on your role.</p>
+                <Section title="What each role sees on the dashboard">
+                    <SubSection title="👑 Admin and Accountant see:">
                         <FeatureList items={[
-                            "لمحة مالية شاملة للشركة (إجمالي المصروفات، الرصيد النقدي، مصاريف الشركة، وتوقعات السيولة)",
-                            "إجمالي عدد المشاريع (الجارية والمكتملة)",
-                            "إيرادات ومصروفات اليوم الحالي",
-                            "آخر 4 فواتير معلقة تنتظر المراجعة",
-                            "رسم بياني للمشاريع شهرياً وسنوياً",
+                            "Comprehensive financial overview (Total Expenses, Cash Balance, Company Expenses, and Liquidity Forecast)",
+                            "Total number of projects (Ongoing and Completed)",
+                            "Today's revenues and expenses",
+                            "Last 4 pending invoices awaiting review",
+                            "Monthly and annual project charts",
                         ]} />
                     </SubSection>
-                    <SubSection title="🧭 المدير العام يرى:">
+                    <SubSection title="🧭 General Manager sees:">
                         <FeatureList items={[
-                            "نظرة شاملة على أداء الشركة: الخزنة، المشاريع، الموظفون",
-                            "التدفق المالي الشامل: إيداعات، عهد، فواتير، مصاريف شركة، رصيد الخزنة",
-                            "الفواتير المعلقة والمشتريات العاجلة",
-                            "آخر المشاريع وتفاصيلها المالية",
+                            "Comprehensive view of company performance: Wallet, Projects, Employees",
+                            "Overall cash flow: Deposits, Custodies, Invoices, Company Expenses, Wallet Balance",
+                            "Pending invoices and urgent purchases",
+                            "Latest projects and their financial details",
                         ]} />
                     </SubSection>
-                    <SubSection title="👷 الموظف يرى:">
+                    <SubSection title="👷 Employee sees:">
                         <FeatureList items={[
-                            "مشاريعه الحالية التي هو عضو فيها",
-                            "إجمالي ما استلمه من عهدات وما أنفقه والمتبقي لديه",
-                            "تنبيه ديون شخصية مع رابط مباشر (إن وُجدت)",
-                            "عهدات بانتظار التأكيد (توقيع إلكتروني)",
+                            "Current projects they are a member of",
+                            "Total received custodies, spent amounts, and remaining balance",
+                            "Personal debt alerts with a direct link (if any)",
+                            "Custodies pending confirmation (E-signature)",
                         ]} />
                     </SubSection>
                 </Section>
             </Chapter>
 
             {/* ── Chapter 4: Projects ── */}
-            <Chapter icon="📁" num="الفصل الرابع" title="إدارة المشاريع">
-                <p className="text-gray-600 mb-4">المشروع هو الوحدة الأساسية في النظام. كل مصروف، فاتورة، وعهدة مرتبطة بمشروع محدد. يمر المشروع بثلاث حالات: <strong>قيد التنفيذ — مكتمل — محذوف</strong>.</p>
-                <Section title="إنشاء مشروع جديد (المدير فقط)">
+            <Chapter icon="📁" num="Chapter 4" title="Project Management">
+                <p className="text-gray-600 mb-4">The project is the core unit in the system. Every expense, invoice, and custody is linked to a specific project. A project goes through three states: <strong>In Progress — Completed — Deleted</strong>.</p>
+                <Section title="Create a new project (Admin only)">
                     <Steps items={[
-                        { n: "1", text: <>من القائمة الجانبية، اضغط <b>"المشاريع"</b>.</> },
-                        { n: "2", text: <>اضغط على زر <b>"مشروع جديد"</b>.</> },
-                        { n: "3", text: <>أدخل <b>اسم المشروع</b> (إلزامي)، ثم الوصف، وتاريخَي البداية والنهاية، والميزانية المخططة.</> },
-                        { n: "4", text: <>اختر <b>أعضاء الفريق</b> من قائمة الموظفين، وحدد <b>دوراً مخصصاً</b> لكل عضو (مثل: مسؤول مشروع، محاسب، أو موظف عادي).</> },
-                        { n: "5", text: <>اضغط <b>"حفظ"</b>. سيظهر المشروع فوراً في القائمة.</> },
+                        { n: "1", text: <>From the sidebar, click <b>"Projects"</b>.</> },
+                        { n: "2", text: <>Click on the <b>"New Project"</b> button.</> },
+                        { n: "3", text: <>Enter the <b>Project Name</b> (mandatory), description, start/end dates, and planned budget.</> },
+                        { n: "4", text: <>Select <b>Team Members</b> from the employee list, and assign a <b>specific role</b> to each (e.g., Project Manager, Accountant, or regular Employee).</> },
+                        { n: "5", text: <>Click <b>"Save"</b>. The project will appear immediately in the list.</> },
                     ]} />
                 </Section>
-                <InfoBox type="tip" title="تحديثات العرض المالي" text="بطاقات المشاريع وصفحة تفاصيل المشروع تعرض بشكل محدث: المصروفات المعتمدة، المصروفات المعلقة، العهدة المتبقية، والرصيد المتبقي المتوقع." />
-                <InfoBox type="warn" title="ملاحظة" text="إنشاء المشروع لا يعني تخصيص ميزانية له تلقائياً. الميزانية الفعلية تُخصَّص من خزنة الشركة بشكل منفصل." />
-                <Section title="إغلاق مشروع نهائياً (المدير فقط)">
-                    <p className="text-gray-600">يشترط النظام قبل الإغلاق:</p>
+                <InfoBox type="tip" title="Financial Display Updates" text="Project cards and details pages display real-time updates: Approved Expenses, Pending Expenses, Remaining Custody, and Estimated Remaining Balance." />
+                <InfoBox type="warn" title="Note" text="Creating a project does not automatically allocate a budget to it. The actual budget is allocated separately from the company wallet." />
+                <Section title="Permanently close a project (Admin only)">
+                    <p className="text-gray-600">Before closing, the system requires:</p>
                     <FeatureList items={[
-                        "ألا تكون هناك عهدات مفتوحة برصيد غير مُرجَع",
-                        "ألا تكون هناك فواتير معلقة تنتظر المراجعة",
-                        "ألا تكون هناك ديون شخصية غير مسوَّاة",
+                        "No open custodies with unreturned balances",
+                        "No pending invoices awaiting review",
+                        "No unsettled personal debts",
                     ]} />
                 </Section>
-                <InfoBox type="danger" title="تنبيه" text="عملية الإغلاق نهائية ولا يمكن التراجع عنها إلا عبر صفحة الأرشيف من قِبَل المدير." />
+                <InfoBox type="danger" title="Warning" text="Closing is final and cannot be undone except through the archive page by the Admin." />
             </Chapter>
 
             {/* ── Chapter 5: Employees ── */}
-            <Chapter icon="👩‍💼" num="الفصل الخامس" title="إدارة الموظفين">
-                <p className="text-gray-600 mb-4">المدير والمحاسب والمدير العام يستطيعون عرض قائمة الموظفين، لكن الإضافة والتعديل والحذف للمدير حصراً. الموظف لا يرى قائمة الموظفين.</p>
-                <Section title="إضافة موظف جديد (المدير فقط)">
+            <Chapter icon="👩‍💼" num="Chapter 5" title="Employee Management">
+                <p className="text-gray-600 mb-4">The Admin, Accountant, and General Manager can view the employee list, but adding, editing, and deleting is restricted to the Admin. Employees cannot see the employee list.</p>
+                <Section title="Add a new employee (Admin only)">
                     <Steps items={[
-                        { n: "1", text: <>من القائمة الجانبية، اضغط <b>"الموظفون"</b>.</> },
-                        { n: "2", text: <>اضغط <b>"إضافة موظف"</b>.</> },
-                        { n: "3", text: <>أدخل: <b>الاسم الكامل، رقم الهاتف</b> (إلزاميان)، البريد الإلكتروني، المسمى الوظيفي، وكلمة المرور.</> },
-                        { n: "4", text: <>حدد <b>الدور</b>: موظف عادي، محاسب عام، أو مدير عام.</> },
-                        { n: "5", text: <>اضغط <b>"حفظ"</b>. يمكن للموظف الآن تسجيل الدخول فوراً.</> },
+                        { n: "1", text: <>From the sidebar, click <b>"Employees"</b>.</> },
+                        { n: "2", text: <>Click <b>"Add Employee"</b>.</> },
+                        { n: "3", text: <>Enter: <b>Full Name, Phone Number</b> (mandatory), Email, Job Title, and Password.</> },
+                        { n: "4", text: <>Select the <b>Role</b>: Employee, Accountant, or General Manager.</> },
+                        { n: "5", text: <>Click <b>"Save"</b>. The employee can now log in immediately.</> },
                     ]} />
                 </Section>
-                <InfoBox type="info" title="رقم الهاتف فريد" text="لا يمكن تسجيل رقم هاتف أو بريد إلكتروني مكرر في النظام." />
+                <InfoBox type="info" title="Unique Phone Number" text="Duplicate phone numbers or emails cannot be registered in the system." />
             </Chapter>
 
             {/* ── Chapter 6: Custody ── */}
-            <Chapter icon="💰" num="الفصل السادس" title="العهدات المالية">
-                <p className="text-gray-600 mb-4">"العهدة" هي مبلغ مالي يُسلَّم للموظف نقداً أو بنكياً ليغطي مصروفات العمل الميداني. يوجد نوعان: <strong>عهدة مشروع</strong> (من ميزانية مشروع) و<strong>عهدة خارجية</strong> (بدون مشروع).</p>
-                <Section title="كيف تعمل العهدة؟">
+            <Chapter icon="💰" num="Chapter 6" title="Financial Custodies">
+                <p className="text-gray-600 mb-4">"Custody" is a financial amount handed to an employee in cash or bank transfer to cover field work expenses. There are two types: <strong>Project Custody</strong> (from a project budget) and <strong>External Custody</strong> (without a project).</p>
+                <Section title="How does custody work?">
                     <Steps items={[
-                        { n: "1", text: <><b>الصرف:</b> يصرف المدير أو المحاسب مبلغاً للموظف من ميزانية المشروع أو كعهدة خارجية.</> },
-                        { n: "2", text: <><b>التأكيد بالتوقيع الإلكتروني:</b> يتلقى الموظف إشعاراً ويجب عليه <b>التوقيع إلكترونياً</b> لتأكيد الاستلام قبل رفع أي فاتورة.</> },
-                        { n: "3", text: <><b>الإنفاق:</b> كلما اعتُمدت فاتورة مرتبطة بالعهدة، يُخصم مبلغها من رصيدها تلقائياً.</> },
-                        { n: "4", text: <><b>الإرجاع:</b> عند التوفر فائض، يمكن للموظف تقديم طلب "إرجاع نقد" من صفحة عهداتي ليؤكد المدير أو المحاسب استلامه.</> },
+                        { n: "1", text: <><b>Issuance:</b> The Admin or Accountant issues an amount to the employee from a project budget or as an external custody.</> },
+                        { n: "2", text: <><b>E-Signature Confirmation:</b> The employee receives a notification and must <b>sign electronically</b> to confirm receipt before uploading any invoice.</> },
+                        { n: "3", text: <><b>Spending:</b> Whenever an invoice linked to the custody is approved, its amount is automatically deducted from the balance.</> },
+                        { n: "4", text: <><b>Return:</b> When there is a surplus, the employee can submit a "Cash Return" request from the My Custodies page for the Admin or Accountant to confirm receipt.</> },
                     ]} />
                 </Section>
-                <InfoBox type="danger" title="مهم جداً" text="لا يمكن رفع أي فاتورة من عهدة لم تُؤكد استلامها بالتوقيع الإلكتروني. التأكيد إلزامي عبر صفحة العهدات." />
-                <Section title="العهدة الخارجية (جديد في v5)">
-                    <p className="text-gray-600">عهدة لا ترتبط بمشروع محدد — تُستخدم للمصروفات العامة أو التشغيلية. يصرفها المدير أو المحاسب مباشرة.</p>
+                <InfoBox type="danger" title="Very Important" text="You cannot upload an invoice from a custody that has not been confirmed via e-signature. Confirmation is mandatory via the Custodies page." />
+                <Section title="External Custody (New in v5)">
+                    <p className="text-gray-600">Custody not linked to a specific project — used for general or operational expenses. Issued directly by the Admin or Accountant.</p>
                 </Section>
-                <Section title="صفحة عهداتي (My Custodies)">
-                    <p className="text-gray-600">صفحة مخصصة للموظفين تمكنهم من إدارة عهداتهم ومتابعتهم بشكل كامل:</p>
+                <Section title="My Custodies Page">
+                    <p className="text-gray-600">A dedicated page for employees enabling them to fully manage and track their custodies:</p>
                     <FeatureList items={[
-                        "الاطلاع على جميع عهدات الموظف النشطة والمكتملة.",
-                        "تأكيد استلام عهدة جديدة بالتوقيع الإلكتروني أو رفضها مع ذكر السبب.",
-                        "إرجاع مبلغ نقدي متبقي من العهدة للمدير وتوثيقه بأمان.",
+                        "View all active and completed custodies.",
+                        "Confirm receipt of new custody via e-signature or reject it with a reason.",
+                        "Return remaining custody cash to the Admin with secure documentation.",
                     ]} />
                 </Section>
             </Chapter>
 
             {/* ── Chapter 7: Invoices ── */}
-            <Chapter icon="🧾" num="الفصل السابع" title="الفواتير والمصروفات">
-                <p className="text-gray-600 mb-4">الفاتورة هي وثيقة رسمية تُثبت صرف مبلغ معين. يمكن أن تكون <strong>فاتورة مشروع</strong> (مرتبطة بمشروع) أو <strong>فاتورة مصاريف شركة</strong> (بدون مشروع — للمدير والمحاسب فقط).</p>
-                <Section title="رفع فاتورة جديدة">
+            <Chapter icon="🧾" num="Chapter 7" title="Invoices and Expenses">
+                <p className="text-gray-600 mb-4">An invoice is an official document proving the expenditure of a specific amount. It can be a <strong>Project Invoice</strong> (linked to a project) or a <strong>Company Expense Invoice</strong> (without a project — for Admin and Accountant only).</p>
+                <Section title="Upload a new invoice">
                     <Steps items={[
-                        { n: "1", text: <>من القائمة، اضغط <b>"الفواتير"</b> ثم <b>"فاتورة جديدة"</b>.</> },
-                        { n: "2", text: <>اختر <b>المشروع</b> وأدخل <b>رقم المرجع</b> (فريد)، التاريخ، والمبلغ الإجمالي. أو فعّل <b>"مصاريف شركة"</b> للفواتير غير المرتبطة بمشروع.</> },
-                        { n: "3", text: <>حدد <b>تصنيف المصروف</b> وطريقة الدفع.</> },
-                        { n: "4", text: "ارفع صورة أو ملف PDF للفاتورة (حد أقصى 5 ميجابايت)." },
-                        { n: "5", text: <>اضغط <b>"رفع الفاتورة"</b>.</> },
+                        { n: "1", text: <>From the menu, click <b>"Invoices"</b> then <b>"New Invoice"</b>.</> },
+                        { n: "2", text: <>Select the <b>Project</b> and enter the <b>Reference Number</b> (unique), Date, and Total Amount. Or enable <b>"Company Expense"</b> for non-project invoices.</> },
+                        { n: "3", text: <>Select the <b>Expense Category</b> and Payment Method.</> },
+                        { n: "4", text: "Upload an image or PDF of the invoice (max 5MB)." },
+                        { n: "5", text: <>Click <b>"Upload Invoice"</b>.</> },
                     ]} />
                 </Section>
-                <InfoBox type="info" title="صلاحيات الفواتير" text="المدير العام لا يمكنه رفع فواتير. الموظفون يرفعون فواتير مشاريعهم فقط. المدير والمحاسب يمكنهم رفع فواتير مشاريع أو مصاريف شركة." />
-                <Section title="ُأنواع طريقة الدفع">
+                <InfoBox type="info" title="Invoice Permissions" text="General Manager cannot upload invoices. Employees only upload invoices for their projects. Admin and Accountant can upload project invoices or company expenses." />
+                <Section title="Payment Methods">
                     <div className="space-y-2">
-                        <div className="p-3 rounded-xl bg-blue-50 border border-blue-100"><strong>من العهدة (CUSTODY):</strong> يُخصم المبلغ من رصيد عهدة الموظف عند الاعتماد.</div>
-                        <div className="p-3 rounded-xl bg-blue-50 border border-blue-100"><strong>من الجيب الشخصي (PERSONAL):</strong> يُسجَّل كـ"دين" على الشركة تجاه الموظف ويُسوَّى لاحقاً.</div>
-                        <div className="p-3 rounded-xl bg-green-50 border border-green-100"><strong>مختلط (SPLIT):</strong> جزء من العهدة وجزء شخصي — يحدد الموظف التوزيع.</div>
+                        <div className="p-3 rounded-xl bg-blue-50 border border-blue-100"><strong>From Custody (CUSTODY):</strong> The amount is deducted from the employee's custody balance upon approval.</div>
+                        <div className="p-3 rounded-xl bg-blue-50 border border-blue-100"><strong>From Personal Pocket (PERSONAL):</strong> Recorded as a "debt" owed by the company to the employee, settled later.</div>
+                        <div className="p-3 rounded-xl bg-green-50 border border-green-100"><strong>Split (SPLIT):</strong> Part custody and part personal — the employee specifies the distribution.</div>
                     </div>
                 </Section>
-                <InfoBox type="warn" title="فصل المهام" text="لا يمكن للموظف اعتماد فاتورة قام هو بإنشائها (باستثناء المدير)." />
-                <InfoBox type="info" title="الاعتماد التلقائي" text="قد يضبط المدير حداً أقصى للاعتماد التلقائي. إذا كان مبلغ الفاتورة أقل منه، تُعتمد فوراً." />
+                <InfoBox type="warn" title="Segregation of Duties" text="An employee cannot approve an invoice they created (except the Admin)." />
+                <InfoBox type="info" title="Auto-Approval" text="The Admin can set a maximum limit for auto-approval. If the invoice amount is below it, it is approved immediately." />
             </Chapter>
 
             {/* ── Chapter 8: Purchases ── */}
-            <Chapter icon="🛒" num="الفصل الثامن" title="قائمة المشتريات">
-                <InfoBox type="warn" title="صلاحيات إنشاء الطلبات" text="إنشاء طلبات الشراء للمدير والمدير العام على المستوى العام، ولمنسق المشتريات (PROJECT_MANAGER) داخل مشاريعه. الموظف العادي يمكنه تنفيذ الطلبات فقط." />
-                <Section title="حالات طلب الشراء">
+            <Chapter icon="🛒" num="Chapter 8" title="Purchases List">
+                <InfoBox type="warn" title="Request Creation Permissions" text="Purchase requests can be created by the Admin and General Manager at the global level, and by the Purchases Coordinator (PROJECT_MANAGER) within their projects. Regular employees can only execute requests." />
+                <Section title="Purchase Request Statuses">
                     <div className="overflow-x-auto rounded-xl">
                         <table className="w-full text-sm border-collapse min-w-[320px]">
-                            <thead><tr className="bg-[#102550] text-white"><th className="p-3 text-right rounded-tr-xl">الحالة</th><th className="p-3 text-right rounded-tl-xl">المعنى</th></tr></thead>
+                            <thead><tr className="bg-[#102550] text-white"><th className="p-3 text-left rounded-tl-xl">Status</th><th className="p-3 text-left rounded-tr-xl">Meaning</th></tr></thead>
                             <tbody className="divide-y divide-gray-100">
                                 {[
-                                    ["🟡 مطلوب", "طلب الشراء أُنشئ وينتظر التنفيذ"],
-                                    ["🔵 قيد التنفيذ", "موظف بدأ بالتوجه للشراء"],
-                                    ["🟢 تم الشراء", "اشترى الموظف الصنف وربطه بفاتورة"],
-                                    ["🔴 ملغى", "أُلغي الطلب من منسق المشتريات أو المدير"],
+                                    ["🟡 Requested", "Purchase request created and awaiting execution"],
+                                    ["🔵 In Progress", "Employee started heading out to purchase"],
+                                    ["🟢 Purchased", "Employee bought the item and linked it to an invoice"],
+                                    ["🔴 Cancelled", "Request cancelled by Purchases Coordinator or Admin"],
                                 ].map(([s, m], i) => (
                                     <tr key={i} className={i % 2 === 1 ? "bg-gray-50" : ""}><td className="p-3">{s}</td><td className="p-3 text-gray-600">{m}</td></tr>
                                 ))}
@@ -226,50 +226,50 @@ function ManualContent() {
             </Chapter>
 
             {/* ── Chapter 9: Debts ── */}
-            <Chapter icon="💳" num="الفصل التاسع" title="الديون الشخصية للموظفين">
-                <p className="text-gray-600 mb-4">عندما يدفع موظف من ماله الخاص لأغراض العمل، يُسجَّل النظام ذلك تلقائياً كـ<strong>"دين"</strong> على الشركة. يراه المدير والمحاسب لجميع الموظفين، والموظف يرى ديونه فقط.</p>
-                <Section title="تسوية دين موظف (المدير أو المحاسب)">
+            <Chapter icon="💳" num="Chapter 9" title="Personal Employee Debts">
+                <p className="text-gray-600 mb-4">When an employee pays from their own money for work purposes, the system automatically records this as a <strong>"Debt"</strong> owed by the company. Admin and Accountant see it for all employees, the employee sees only theirs.</p>
+                <Section title="Settle Employee Debt (Admin or Accountant)">
                     <Steps items={[
-                        { n: "1", text: <>افتح صفحة <b>"الديون"</b> من القائمة الجانبية وابحث عن الموظف.</> },
-                        { n: "2", text: <>اضغط <b>"تسوية"</b> أمام الدين، أو <b>"تسوية الكل"</b> لتسوية الجميع دفعة واحدة.</> },
-                        { n: "3", text: "يُسجَّل الدين كـ\"مسوَّى\" مع الوقت والتاريخ ومن قام بالتسوية." },
+                        { n: "1", text: <>Open the <b>"Debts"</b> page from the sidebar and find the employee.</> },
+                        { n: "2", text: <>Click <b>"Settle"</b> next to the debt, or <b>"Settle All"</b> to clear all at once.</> },
+                        { n: "3", text: "The debt is marked as \"Settled\" with the time, date, and user who settled it." },
                     ]} />
                 </Section>
             </Chapter>
 
             {/* ── Chapter 10: Wallet ── */}
-            <Chapter icon="🏦" num="الفصل العاشر" title="خزنة الشركة">
-                <p className="text-gray-600 mb-4">خزنة الشركة هي المستودع المالي المركزي. تظهر للمدير والمحاسب فقط.</p>
-                <Section title="الإيداع في الخزنة (المدير فقط)">
+            <Chapter icon="🏦" num="Chapter 10" title="Company Wallet">
+                <p className="text-gray-600 mb-4">The company wallet is the central financial repository. It is visible only to the Admin and Accountant.</p>
+                <Section title="Deposit into Wallet (Admin only)">
                     <Steps items={[
-                        { n: "1", text: <>من القائمة اضغط <b>"الخزنة"</b> ثم <b>"إيداع جديد"</b>.</> },
-                        { n: "2", text: "أدخل المبلغ وأضف ملاحظة توضيحية." },
-                        { n: "3", text: <>اضغط <b>"تأكيد الإيداع"</b>. يُضاف المبلغ فوراً للرصيد.</> },
+                        { n: "1", text: <>From the menu click <b>"Wallet"</b> then <b>"New Deposit"</b>.</> },
+                        { n: "2", text: "Enter the amount and add an explanatory note." },
+                        { n: "3", text: <>Click <b>"Confirm Deposit"</b>. The amount is immediately added to the balance.</> },
                     ]} />
                 </Section>
-                <InfoBox type="info" title="إرجاع الميزانية عند إغلاق المشروع" text="عند إغلاق مشروع، أي ميزانية لم تُصرف تُعاد تلقائياً إلى خزنة الشركة." />
+                <InfoBox type="info" title="Budget Return on Closure" text="When a project is closed, any unspent budget is automatically returned to the company wallet." />
             </Chapter>
 
             {/* ── Chapter 11-17 Combined ── */}
-            <Chapter icon="🗃️" num="الفصول 11 — 17" title="الطلبات المالية • التقارير • المحادثات • الإشعارات • الأرشيف • سلة المهملات • الدعم الفني">
-                <Section title="الطلبات المالية">
-                    <p className="text-gray-600">تُتيح للمحاسب تقديم طلبات رسمية للمدير. أنواعها: تسوية دين، تخصيص ميزانية، إرجاع عهدة. يوافق عليها المدير أو يرفضها مع ذكر السبب.</p>
+            <Chapter icon="🗃️" num="Chapters 11 — 17" title="Financial Requests • Reports • Chats • Notifications • Archive • Trash • Tech Support">
+                <Section title="Financial Requests">
+                    <p className="text-gray-600">Allows the Accountant to submit official requests to the Admin. Types: debt settlement, budget allocation, custody return. The Admin approves or rejects them with a reason.</p>
                 </Section>
-                <Section title="التقارير والتحليلات">
-                    <p className="text-gray-600">المدير والمحاسب والمدير العام يرون كامل التقارير. الموظف لا يرى التقارير. يمكن تصفية التقارير بفترات زمنية مختلفة.</p>
+                <Section title="Reports and Analytics">
+                    <p className="text-gray-600">Admin, Accountant, and General Manager see all reports. Employees do not see reports. Reports can be filtered by different time periods.</p>
                 </Section>
-                <Section title="محادثات المشاريع">
-                    <p className="text-gray-600">المحادثات مرتبطة بالمشاريع حصراً (لا توجد رسائل شخصية). كل مشروع له قناة محادثة خاصة يشارك فيها أعضاء المشروع. الإشعارات تصل تلقائياً لكل جهة معنية بكل حدث.</p>
+                <Section title="Project Chats">
+                    <p className="text-gray-600">Chats are strictly linked to projects (no personal messages). Each project has a dedicated chat channel for its members. Notifications are automatically sent to relevant parties for every event.</p>
                 </Section>
-                <Section title="سلة المهملات (المدير فقط)">
-                    <p className="text-gray-600">أي عنصر محذوف ينتقل للسلة أولاً. المدير يستطيع استعادته أو حذفه نهائياً. أي عنصر في السلة أكثر من 30 يوماً يُحذف تلقائياً.</p>
-                    <InfoBox type="danger" title="تحذير" text="الحذف النهائي لا يمكن التراجع عنه بأي وسيلة." />
+                <Section title="Trash (Admin only)">
+                    <p className="text-gray-600">Any deleted item goes to the trash first. The Admin can restore it or permanently delete it. Any item in the trash for over 30 days is automatically deleted.</p>
+                    <InfoBox type="danger" title="Warning" text="Permanent deletion cannot be undone by any means." />
                 </Section>
-                <Section title="الدعم الفني">
+                <Section title="Technical Support">
                     <Steps items={[
-                        { n: "1", text: <>من القائمة اضغط <b>"الدعم الفني"</b>.</> },
-                        { n: "2", text: "اختر نوع التذكرة (مشكلة / اقتراح / استفسار) ومستوى الأولوية." },
-                        { n: "3", text: <>أدخل عنواناً ووصفاً واضحاً ثم اضغط <b>"إرسال"</b>. تصل التذكرة للمدير فوراً.</> },
+                        { n: "1", text: <>From the menu click <b>"Support"</b>.</> },
+                        { n: "2", text: "Select the ticket type (Issue / Suggestion / Inquiry) and priority level." },
+                        { n: "3", text: <>Enter a clear title and description, then click <b>"Submit"</b>. The ticket instantly reaches the Admin.</> },
                     ]} />
                 </Section>
             </Chapter>
@@ -277,45 +277,45 @@ function ManualContent() {
             {/* ── Final summary table ── */}
             <div className="rounded-2xl overflow-hidden shadow-sm border border-gray-100">
                 <div className="bg-gradient-to-r from-[#102550] to-[#122b5e] text-white px-6 py-4">
-                    <h2 className="text-lg font-bold">📌 جدول الصلاحيات المرجعي الشامل</h2>
+                    <h2 className="text-lg font-bold">📌 Comprehensive Permissions Reference Table</h2>
                 </div>
                 <div className="overflow-x-auto">
                     <table className="w-full text-sm">
                         <thead className="bg-gray-50"><tr>
-                            <th className="p-3 text-right font-bold text-gray-700">الصفحة / الوظيفة</th>
-                            <th className="p-3 text-center text-blue-700">👑 مدير</th>
-                            <th className="p-3 text-center text-blue-700">📊 محاسب</th>
-                            <th className="p-3 text-center text-green-700">🧭 مدير عام</th>
-                            <th className="p-3 text-center text-orange-700">👷 موظف</th>
+                            <th className="p-3 text-left font-bold text-gray-700">Page / Function</th>
+                            <th className="p-3 text-center text-blue-700">👑 Admin</th>
+                            <th className="p-3 text-center text-blue-700">📊 Accountant</th>
+                            <th className="p-3 text-center text-green-700">🧭 General Manager</th>
+                            <th className="p-3 text-center text-orange-700">👷 Employee</th>
                         </tr></thead>
                         <tbody className="divide-y divide-gray-100">
                             {[
-                                ["لوحة التحكم الرئيسية", "✔ كاملة", "✔ مالية", "✔ شاملة", "✔ عهدته"],
-                                ["إنشاء / إغلاق مشروع", true, false, false, false],
-                                ["إضافة / تعديل موظف", true, false, false, false],
-                                ["صرف عهدة (مشروع + خارجية)", true, true, false, false],
-                                ["تأكيد استلام عهدة (توقيع)", false, false, false, true],
-                                ["رفع فاتورة مشروع", true, true, false, true],
-                                ["رفع فاتورة مصاريف شركة", true, true, false, false],
-                                ["اعتماد / رفض فاتورة", true, true, false, false],
-                                ["إنشاء مشتريات", true, false, true, "منسق المشتريات"],
-                                ["تسوية ديون", true, true, false, false],
-                                ["عرض ديوني الشخصية", true, true, true, true],
-                                ["إيداع في الخزنة", true, false, false, false],
-                                ["تغيير العملة العامة", true, false, false, false],
-                                ["التقارير", true, true, true, false],
-                                ["سلة المهملات", true, false, false, false],
-                                ["الإعدادات العامة", true, false, false, false],
-                                ["محادثات المشاريع", true, true, true, true],
-                                ["إرسال تذكرة دعم", true, true, true, true],
+                                ["Main Dashboard", "✔ Full", "✔ Financial", "✔ Comprehensive", "✔ Own Custody"],
+                                ["Create / Close Project", true, false, false, false],
+                                ["Add / Edit Employee", true, false, false, false],
+                                ["Issue Custody", true, true, false, false],
+                                ["Confirm Custody (Signature)", false, false, false, true],
+                                ["Upload Project Invoice", true, true, false, true],
+                                ["Upload Company Expense", true, true, false, false],
+                                ["Approve / Reject Invoice", true, true, false, false],
+                                ["Create Purchases", true, false, true, "Purchases Coordinator"],
+                                ["Settle Debts", true, true, false, false],
+                                ["View Personal Debts", true, true, true, true],
+                                ["Deposit into Wallet", true, false, false, false],
+                                ["Change Global Currency", true, false, false, false],
+                                ["Reports", true, true, true, false],
+                                ["Trash", true, false, false, false],
+                                ["General Settings", true, false, false, false],
+                                ["Project Chats", true, true, true, true],
+                                ["Submit Support Ticket", true, true, true, true],
                             ].map(([label, a, b, c, d], i) => (
                                 <tr key={i} className={i % 2 === 1 ? "bg-gray-50/50" : ""}>
-                                    <td className="p-3 font-medium text-gray-800">{label}</td>
+                                    <td className="p-3 font-medium text-gray-800">{String(label)}</td>
                                     {[a, b, c, d].map((v, j) => (
                                         <td key={j} className="p-3 text-center">
                                             {v === true ? <span className="text-green-600 font-bold text-base">✔</span>
                                                 : v === false ? <span className="text-red-400 font-bold text-base">✘</span>
-                                                    : <span className="text-xs text-gray-500 font-medium">{v}</span>}
+                                                    : <span className="text-xs text-gray-500 font-medium">{String(v)}</span>}
                                         </td>
                                     ))}
                                 </tr>
@@ -327,7 +327,7 @@ function ManualContent() {
 
             {/* Footer */}
             <div className="text-center text-sm text-gray-400 pt-4 border-t border-gray-100">
-                نظام إدارة المشاريع — دليل الاستخدام الشامل — إصدار 5.0 — مارس 2026
+                Project Management System — Comprehensive User Manual — Version 5.0 — March 2026
             </div>
         </div>
     );
@@ -405,7 +405,7 @@ function FeatureList({ items }: { items: string[] }) {
         <ul className="space-y-1.5">
             {items.map((item, i) => (
                 <li key={i} className="flex gap-2 items-start text-sm text-gray-700">
-                    <span className="text-[#102550] font-bold mt-0.5">←</span>
+                    <span className="text-[#102550] font-bold mt-0.5">→</span>
                     <span>{item}</span>
                 </li>
             ))}
@@ -434,22 +434,22 @@ function PermTable({ rows }: { rows: (string | boolean | null)[][] }) {
             <table className="w-full text-sm">
                 <thead>
                     <tr className="bg-[#102550] text-white">
-                        <th className="p-3 text-right">الإجراء</th>
-                        <th className="p-3 text-center">👑 المدير</th>
-                        <th className="p-3 text-center">📊 المحاسب</th>
-                        <th className="p-3 text-center">🧭 مدير عام</th>
-                        <th className="p-3 text-center">👷 الموظف</th>
+                        <th className="p-3 text-left">Action</th>
+                        <th className="p-3 text-center">👑 Admin</th>
+                        <th className="p-3 text-center">📊 Accountant</th>
+                        <th className="p-3 text-center">🧭 Gen. Manager</th>
+                        <th className="p-3 text-center">👷 Employee</th>
                     </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-100">
                     {rows.map((row, i) => (
                         <tr key={i} className={i % 2 === 1 ? "bg-gray-50/50" : ""}>
-                            <td className="p-3 font-medium text-gray-800">{row[0]}</td>
+                            <td className="p-3 font-medium text-gray-800">{String(row[0])}</td>
                             {row.slice(1).map((v, j) => (
                                 <td key={j} className="p-3 text-center">
                                     {v === true ? <span className="text-green-600 font-bold">✔</span>
                                         : v === false ? <span className="text-red-400 font-bold">✘</span>
-                                            : <span className="text-xs text-gray-500">{v}</span>}
+                                            : <span className="text-xs text-gray-500">{String(v)}</span>}
                                 </td>
                             ))}
                         </tr>

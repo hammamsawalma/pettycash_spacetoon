@@ -4,8 +4,8 @@ import { redirect } from "next/navigation";
 import MyCustodiesClient from "./MyCustodiesClient";
 
 export const metadata = {
-    title: "إدارة عهدي | نظام إدارة المشاريع",
-    description: "استعراض وإدارة العهد المسندة إليك",
+    title: "My Custodies | Project Manager",
+    description: "View and manage custodies assigned to you",
 };
 
 export default async function MyCustodiesPage() {
