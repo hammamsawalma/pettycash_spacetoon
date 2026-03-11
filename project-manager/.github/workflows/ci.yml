@@ -98,22 +98,49 @@ jobs:
           # Pull latest image
           sudo docker pull ${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}:latest
 
+          # ══════════════════════════════════════════════════════════
+          # Read ALL secrets from the server-side .env.production file
+          # This is the SINGLE SOURCE OF TRUTH for production secrets.
+          # To update a secret, edit /home/ec2-user/.env.production on the server.
+          # ══════════════════════════════════════════════════════════
+          ENV_FILE="/home/ec2-user/.env.production"
+          if [ ! -f "$ENV_FILE" ]; then
+            echo "❌ FATAL: $ENV_FILE not found on server!"
+            exit 1
+          fi
+
+          DB_URL=$(grep '^DATABASE_URL=' "$ENV_FILE" | cut -d= -f2-)
+          DIRECT=$(grep '^DIRECT_URL=' "$ENV_FILE" | cut -d= -f2-)
+          JWT=$(grep '^JWT_SECRET=' "$ENV_FILE" | cut -d= -f2-)
+          VAPID_PRIV=$(grep '^VAPID_PRIVATE_KEY=' "$ENV_FILE" | cut -d= -f2-)
+          VAPID_PUB=$(grep '^NEXT_PUBLIC_VAPID_PUBLIC_KEY=' "$ENV_FILE" | cut -d= -f2-)
+          GEMINI=$(grep '^GEMINI_API_KEY=' "$ENV_FILE" | cut -d= -f2-)
+
+          # Validate critical secrets
+          if [ -z "$DB_URL" ] || [ -z "$JWT" ] || [ -z "$GEMINI" ]; then
+            echo "❌ FATAL: Missing critical env vars in $ENV_FILE!"
+            echo "  DATABASE_URL: $([ -n "$DB_URL" ] && echo 'OK' || echo 'MISSING')"
+            echo "  JWT_SECRET: $([ -n "$JWT" ] && echo 'OK' || echo 'MISSING')"
+            echo "  GEMINI_API_KEY: $([ -n "$GEMINI" ] && echo 'OK' || echo 'MISSING')"
+            exit 1
+          fi
+
           # Stop and remove old container
           sudo docker stop spacetoon-pocket 2>/dev/null || true
           sudo docker rm spacetoon-pocket 2>/dev/null || true
 
-          # Run new container
+          # Run new container with env vars from .env.production
           sudo docker run -d \
             --name spacetoon-pocket \
             --restart always \
             -p 3000:3000 \
-            -e "DATABASE_URL=${{ secrets.DATABASE_URL }}" \
-            -e "DIRECT_URL=${{ secrets.DATABASE_URL }}" \
-            -e "JWT_SECRET=${{ secrets.JWT_SECRET }}" \
-            -e "VAPID_PRIVATE_KEY=${{ secrets.VAPID_PRIVATE_KEY }}" \
-            -e "NEXT_PUBLIC_VAPID_PUBLIC_KEY=${{ secrets.VAPID_PUBLIC_KEY }}" \
-            -e "GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }}" \
-            -e "COOKIE_SECURE=true" \
+            -e DATABASE_URL="$DB_URL" \
+            -e DIRECT_URL="$DIRECT" \
+            -e JWT_SECRET="$JWT" \
+            -e VAPID_PRIVATE_KEY="$VAPID_PRIV" \
+            -e NEXT_PUBLIC_VAPID_PUBLIC_KEY="$VAPID_PUB" \
+            -e GEMINI_API_KEY="$GEMINI" \
+            -e COOKIE_SECURE=true \
             --log-opt max-size=10m \
             --log-opt max-file=3 \
             ${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}:latest
