@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { Search, FolderKanban, Wallet, Link as LinkIcon, HeadphonesIcon, Settings, X, ChevronRight, User, FileText, ShoppingBag, Loader2, History, AlertCircle, Trash2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { globalSearch, SearchResult } from '@/app/actions/search';
+import { useLanguage } from "@/context/LanguageContext";
 
 const HighlightText = ({ text, highlight }: { text: string; highlight: string }) => {
     if (!highlight.trim() || !text) return <span>{text}</span>;
@@ -45,6 +46,16 @@ export function GlobalSearch({ isOpen, onClose }: GlobalSearchProps) {
     const [recentSearches, setRecentSearches] = useState<string[]>([]);
     const inputRef = useRef<HTMLInputElement>(null);
     const router = useRouter();
+    const { locale } = useLanguage();
+
+    const navigationPages = [
+        { id: 'nav-1', name: locale === 'ar' ? 'الرئيسية (لوحة التحكم)' : 'Dashboard', icon: <FolderKanban className="w-5 h-5 text-gray-500" />, url: '/', type: 'page' },
+        { id: 'nav-2', name: locale === 'ar' ? 'المشاريع' : 'Projects', icon: <FolderKanban className="w-5 h-5 text-[#102550]" />, url: '/projects', type: 'page' },
+        { id: 'nav-3', name: locale === 'ar' ? 'المالية (العهد)' : 'Finance (Custody)', icon: <Wallet className="w-5 h-5 text-emerald-500" />, url: '/finances', type: 'page' },
+        { id: 'nav-4', name: locale === 'ar' ? 'الروابط الهامة' : 'Important Links', icon: <LinkIcon className="w-5 h-5 text-blue-500" />, url: '/links', type: 'page' },
+        { id: 'nav-5', name: locale === 'ar' ? 'الدعم الفني' : 'Technical Support', icon: <HeadphonesIcon className="w-5 h-5 text-orange-500" />, url: '/support', type: 'page' },
+        { id: 'nav-6', name: locale === 'ar' ? 'الإعدادات' : 'Settings', icon: <Settings className="w-5 h-5 text-gray-600" />, url: '/settings', type: 'page' },
+    ];
 
     useEffect(() => {
         const stored = localStorage.getItem('recentSearches');
@@ -158,12 +169,12 @@ export function GlobalSearch({ isOpen, onClose }: GlobalSearchProps) {
 
     const getCategoryName = (type: string) => {
         switch (type) {
-            case 'project': return 'المشاريع (قاعدة البيانات)';
-            case 'invoice': return 'الفواتير (قاعدة البيانات)';
-            case 'purchase': return 'المشتريات (قاعدة البيانات)';
-            case 'user': return 'المستخدمين (قاعدة البيانات)';
-            case 'page': return 'صفحات النظام';
-            default: return 'نتائج أخرى';
+            case 'project': return locale === 'ar' ? 'المشاريع (قاعدة البيانات)' : 'Projects (Database)';
+            case 'invoice': return locale === 'ar' ? 'الفواتير (قاعدة البيانات)' : 'Invoices (Database)';
+            case 'purchase': return locale === 'ar' ? 'المشتريات (قاعدة البيانات)' : 'Purchases (Database)';
+            case 'user': return locale === 'ar' ? 'المستخدمين (قاعدة البيانات)' : 'Users (Database)';
+            case 'page': return locale === 'ar' ? 'صفحات النظام' : 'System Pages';
+            default: return locale === 'ar' ? 'نتائج أخرى' : 'Other Results';
         }
     }
 
@@ -205,7 +216,7 @@ export function GlobalSearch({ isOpen, onClose }: GlobalSearchProps) {
                                     ref={inputRef}
                                     type="text"
                                     className="flex-1 px-3 py-2 text-base text-gray-900 bg-transparent outline-none placeholder:text-gray-400"
-                                    placeholder="ابحث عن صفحة، مشروع، مستخدم، أو فاتورة..."
+                                    placeholder={locale === 'ar' ? "ابحث عن صفحة، مشروع، مستخدم، أو فاتورة..." : "Search for page, project, user, or invoice..."}
                                     value={query}
                                     onChange={(e) => {
                                         setQuery(e.target.value);
@@ -280,20 +291,20 @@ export function GlobalSearch({ isOpen, onClose }: GlobalSearchProps) {
                                         {isPending ? (
                                             <>
                                                 <Loader2 className="mx-auto h-10 w-10 text-[#102550] animate-spin" />
-                                                <h3 className="mt-4 text-sm font-semibold text-gray-900">جاري البحث...</h3>
+                                                <h3 className="mt-4 text-sm font-semibold text-gray-900">{locale === 'ar' ? 'جاري البحث...' : 'Searching...'}</h3>
                                             </>
                                         ) : searchError ? (
                                             <>
                                                 <AlertCircle className="mx-auto h-12 w-12 text-red-300" />
-                                                <h3 className="mt-4 text-sm font-semibold text-red-900">خطأ في البحث</h3>
+                                                <h3 className="mt-4 text-sm font-semibold text-red-900">{locale === 'ar' ? 'خطأ في البحث' : 'Search error'}</h3>
                                                 <p className="mt-1 text-sm text-red-500">{searchError}</p>
                                             </>
                                         ) : (
                                             <>
                                                 <FolderKanban className="mx-auto h-12 w-12 text-gray-300" />
-                                                <h3 className="mt-4 text-sm font-semibold text-gray-900">لم يتم العثور على نتائج</h3>
+                                                <h3 className="mt-4 text-sm font-semibold text-gray-900">{locale === 'ar' ? 'لم يتم العثور على نتائج' : 'No results found'}</h3>
                                                 <p className="mt-1 text-sm text-gray-500">
-                                                    يرجى التأكد من الكلمة المدخلة والمحاولةمرة أخرى. البحث يبدأ بعد حرفين.
+                                                    {locale === 'ar' ? 'يرجى التأكد من الكلمة المدخلة والمحاولةمرة أخرى. البحث يبدأ بعد حرفين.' : 'Please check your input and try again. Search starts after 2 characters.'}
                                                 </p>
                                             </>
                                         )}
@@ -313,7 +324,7 @@ export function GlobalSearch({ isOpen, onClose }: GlobalSearchProps) {
                                                 className="text-xs text-gray-400 hover:text-red-500 flex items-center gap-1 transition-colors"
                                             >
                                                 <Trash2 className="w-3 h-3" />
-                                                مسح
+                                                {locale === 'ar' ? 'مسح' : 'Clear'}
                                             </button>
                                         </div>
                                         <div className="flex flex-wrap gap-2">
@@ -338,14 +349,14 @@ export function GlobalSearch({ isOpen, onClose }: GlobalSearchProps) {
                             <div className="px-4 py-3 bg-gray-50/50 border-t border-gray-100 text-xs text-gray-500 flex items-center justify-between mt-auto">
                                 <div className="flex items-center gap-4">
                                     <span className="flex items-center gap-1">
-                                        <kbd className="px-1.5 py-0.5 bg-white border border-gray-200 rounded text-[10px] font-mono shadow-sm">Enter</kbd> للإختيار
+                                        <kbd className="px-1.5 py-0.5 bg-white border border-gray-200 rounded text-[10px] font-mono shadow-sm">Enter</kbd> {locale === 'ar' ? 'للإختيار' : 'to select'}
                                     </span>
                                     <span className="flex items-center gap-1">
                                         <kbd className="px-1.5 py-0.5 bg-white border border-gray-200 rounded text-[10px] font-mono shadow-sm">↑</kbd>
-                                        <kbd className="px-1.5 py-0.5 bg-white border border-gray-200 rounded text-[10px] font-mono shadow-sm">↓</kbd> للتنقل
+                                        <kbd className="px-1.5 py-0.5 bg-white border border-gray-200 rounded text-[10px] font-mono shadow-sm">↓</kbd> {locale === 'ar' ? 'للتنقل' : 'to navigate'}
                                     </span>
                                     <span className="flex items-center gap-1">
-                                        <kbd className="px-1.5 py-0.5 bg-white border border-gray-200 rounded text-[10px] font-mono shadow-sm">Esc</kbd> للإغلاق
+                                        <kbd className="px-1.5 py-0.5 bg-white border border-gray-200 rounded text-[10px] font-mono shadow-sm">Esc</kbd> {locale === 'ar' ? 'للإغلاق' : 'to close'}
                                     </span>
                                 </div>
                             </div>

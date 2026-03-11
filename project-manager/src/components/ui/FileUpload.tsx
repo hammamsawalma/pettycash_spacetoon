@@ -3,6 +3,7 @@
 import React, { useState, useRef } from 'react';
 import { Image as ImageIcon, X, UploadCloud, FileType } from 'lucide-react';
 import Image from 'next/image';
+import { useLanguage } from "@/context/LanguageContext";
 
 interface FileUploadProps {
     name: string;
@@ -31,6 +32,9 @@ export function FileUpload({
     capture,
     maxImageDimension = 1920,
 }: FileUploadProps) {
+    const { locale } = useLanguage();
+    const displayPlaceholder = placeholder || (locale === 'ar' ? 'اضغط لرفع ملف' : 'Click to upload');
+    const displayDescription = description || (locale === 'ar' ? 'أو اسحب واسقط الملف هنا' : 'Or drag and drop here');
     const [dragActive, setDragActive] = useState(false);
     const [file, setFile] = useState<File | null>(null);
     const [preview, setPreview] = useState<string | null>(previewUrl);
@@ -59,7 +63,7 @@ export function FileUpload({
                 if (items[i].kind === 'file' && typeof items[i].webkitGetAsEntry === 'function') {
                     const entry = items[i].webkitGetAsEntry();
                     if (entry && entry.isDirectory) {
-                        setError("لا يمكن رفع المجلدات. يرجى اختيار ملفات فقط.");
+                        setError(locale === 'ar' ? "لا يمكن رفع المجلدات. يرجى اختيار ملفات فقط." : "Folders cannot be uploaded. Please select files only.");
                         return;
                     }
                 }
@@ -83,13 +87,13 @@ export function FileUpload({
 
         // Validate Size
         if (selectedFile.size > maxSizeMB * 1024 * 1024) {
-            setError(`حجم الملف يجب أن لا يتجاوز ${maxSizeMB} ميجابايت`);
+            setError(locale === 'ar' ? `حجم الملف يجب أن لا يتجاوز ${maxSizeMB} ميجابايت` : `File size must not exceed ${maxSizeMB} MB`);
             return;
         }
 
         // Validate empty files or folders dragged directly
         if (selectedFile.size === 0 || selectedFile.type === "") {
-            setError("ملف غير صالح أو المجلدات غير مدعومة.");
+            setError(locale === 'ar' ? "ملف غير صالح أو المجلدات غير مدعومة." : "Invalid file or folders not supported.");
             return;
         }
 
@@ -105,7 +109,7 @@ export function FileUpload({
             });
 
             if (!isAccepted) {
-                setError(`نوع الملف غير مدعوم. الأنواع المدعومة: ${accept}`);
+                setError(locale === 'ar' ? `نوع الملف غير مدعوم. الأنواع المدعومة: ${accept}` : `Unsupported file type. Accepted: ${accept}`);
                 return;
             }
         }
@@ -226,7 +230,7 @@ export function FileUpload({
                                 />
                                 <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center rounded-xl cursor-pointer">
                                     <span className="text-white text-xs font-bold bg-black/50 px-3 py-1.5 rounded-lg drop-shadow-md">
-                                        تغيير الصورة
+                                        {locale === 'ar' ? 'تغيير الصورة' : 'Change Image'}
                                     </span>
                                 </div>
                             </div>
@@ -243,7 +247,7 @@ export function FileUpload({
                         <button
                             onClick={removeFile}
                             className={`absolute -top-3 -end-3 md:-end-4 bg-red-100 text-red-600 hover:bg-red-500 hover:text-white rounded-full p-1.5 shadow-sm transition-all focus:outline-none z-20 ${variant === 'avatar' ? 'top-0 end-1/4 rtl:-translate-x-1/2 translate-x-1/2' : ''}`}
-                            title="إزالة"
+                            title={locale === 'ar' ? "إزالة" : "Remove"}
                         >
                             <X className="w-4 h-4" />
                         </button>
@@ -260,12 +264,12 @@ export function FileUpload({
                         </div>
                         <div className="flex flex-col md:flex-row items-center justify-center text-xs md:text-sm leading-6 text-gray-600 group-hover:text-gray-900 transition-colors">
                             <span className="relative font-bold text-[#102550] px-1 md:px-2">
-                                {placeholder}
+                                {displayPlaceholder}
                             </span>
-                            <p className="hidden md:block font-medium">{description}</p>
+                            <p className="hidden md:block font-medium">{displayDescription}</p>
                         </div>
                         <p className="text-[10px] md:text-xs leading-5 text-gray-400 mt-2 font-medium">
-                            {accept.includes('pdf') ? 'PDF, PNG, JPG' : 'PNG, JPG'} حتى {maxSizeMB} ميجابايت
+                            {accept.includes('pdf') ? 'PDF, PNG, JPG' : 'PNG, JPG'} {locale === 'ar' ? `حتى ${maxSizeMB} ميجابايت` : `up to ${maxSizeMB} MB`}
                         </p>
                     </div>
                 )}

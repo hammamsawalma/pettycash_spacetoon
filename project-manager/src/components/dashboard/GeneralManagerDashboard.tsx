@@ -14,6 +14,7 @@ import {
     ChevronDown, Globe
 } from 'lucide-react';
 import { GeneralManagerDashboardSkeleton } from "@/components/ui/SkeletonCard";
+import { useLanguage } from "@/context/LanguageContext";
 
 type GMStats = Awaited<ReturnType<typeof getGMDashboardStats>>;
 type FlowStats = Awaited<ReturnType<typeof getFlowStats>>;
@@ -72,16 +73,17 @@ const fadeUp = {
 };
 
 function StatusBadge({ status }: { status: string }) {
+    const { locale } = useLanguage();
     const map: Record<string, { label: string; class: string }> = {
-        REQUESTED: { label: "مطلوب", class: "bg-amber-100 text-amber-700" },
-        IN_PROGRESS: { label: "جارٍ", class: "bg-blue-100 text-blue-700" },
-        PURCHASED: { label: "تم الشراء", class: "bg-emerald-100 text-emerald-700" },
-        CANCELLED: { label: "ملغى", class: "bg-red-100 text-red-700" },
-        PENDING: { label: "معلّق", class: "bg-yellow-100 text-yellow-700" },
-        APPROVED: { label: "معتمد", class: "bg-emerald-100 text-emerald-700" },
-        REJECTED: { label: "مرفوض", class: "bg-red-100 text-red-700" },
-        IN_PROGRESS_PROJECT: { label: "قيد التنفيذ", class: "bg-blue-100 text-blue-700" },
-        CLOSED: { label: "مغلق", class: "bg-gray-100 text-gray-600" },
+        REQUESTED: { label: locale === 'ar' ? "مطلوب" : "Requested", class: "bg-amber-100 text-amber-700" },
+        IN_PROGRESS: { label: locale === 'ar' ? "جارٍ" : "In Progress", class: "bg-blue-100 text-blue-700" },
+        PURCHASED: { label: locale === 'ar' ? "تم الشراء" : "Purchased", class: "bg-emerald-100 text-emerald-700" },
+        CANCELLED: { label: locale === 'ar' ? "ملغى" : "Cancelled", class: "bg-red-100 text-red-700" },
+        PENDING: { label: locale === 'ar' ? "معلّق" : "Pending", class: "bg-yellow-100 text-yellow-700" },
+        APPROVED: { label: locale === 'ar' ? "معتمد" : "Approved", class: "bg-emerald-100 text-emerald-700" },
+        REJECTED: { label: locale === 'ar' ? "مرفوض" : "Rejected", class: "bg-red-100 text-red-700" },
+        IN_PROGRESS_PROJECT: { label: locale === 'ar' ? "قيد التنفيذ" : "In Progress", class: "bg-blue-100 text-blue-700" },
+        CLOSED: { label: locale === 'ar' ? "مغلق" : "Closed", class: "bg-gray-100 text-gray-600" },
     };
     const badge = map[status] ?? { label: status, class: "bg-gray-100 text-gray-600" };
     return (
@@ -105,6 +107,7 @@ function BranchSelector({
     onSelect: (id: string | null) => void;
     loading: boolean;
 }) {
+    const { locale } = useLanguage();
     const [open, setOpen] = useState(false);
     const selectedBranch = branches.find(b => b.id === selectedBranchId);
 
@@ -128,7 +131,7 @@ function BranchSelector({
                 ) : (
                     <>
                         <Globe className="w-4 h-4 text-gray-500" />
-                        <span className="font-bold text-sm text-gray-700">كل الفروع</span>
+                        <span className="font-bold text-sm text-gray-700">{locale === 'ar' ? 'كل الفروع' : 'All Branches'}</span>
                     </>
                 )}
                 <ChevronDown className={`w-4 h-4 text-gray-400 transition-transform ${open ? 'rotate-180' : ''}`} />
@@ -149,7 +152,7 @@ function BranchSelector({
                                 ${!selectedBranchId ? 'bg-[#102550]/5 border-r-2 border-[#102550]' : ''}`}
                         >
                             <Globe className="w-4 h-4 text-gray-500" />
-                            <span className="font-semibold text-sm">كل الفروع</span>
+                            <span className="font-semibold text-sm">{locale === 'ar' ? 'كل الفروع' : 'All Branches'}</span>
                         </button>
                         {branches.map(branch => (
                             <button
@@ -179,6 +182,7 @@ function BranchSelector({
 // Branch Comparison Table
 // ═══════════════════════════════════════════════════════════════
 function BranchComparisonTable({ data }: { data: BranchComparison }) {
+    const { locale } = useLanguage();
     if (!data || data.length === 0) return null;
 
     return (
@@ -188,19 +192,19 @@ function BranchComparisonTable({ data }: { data: BranchComparison }) {
                     <div className="w-8 h-8 rounded-lg bg-[#102550]/10 flex items-center justify-center">
                         <BarChart3 className="w-4 h-4 text-[#102550]" />
                     </div>
-                    <h3 className="font-bold text-gray-900">مقارنة أداء الفروع</h3>
+                    <h3 className="font-bold text-gray-900">{locale === 'ar' ? 'مقارنة أداء الفروع' : 'Branch Performance Comparison'}</h3>
                 </div>
                 <div className="overflow-x-auto">
                     <table className="w-full text-sm">
                         <thead>
                             <tr className="bg-gray-50 text-gray-500">
-                                <th className="py-3 px-4 text-right font-semibold">الفرع</th>
-                                <th className="py-3 px-3 text-center font-semibold">المشاريع</th>
-                                <th className="py-3 px-3 text-center font-semibold">النشطة</th>
-                                <th className="py-3 px-3 text-center font-semibold">الموظفون</th>
-                                <th className="py-3 px-3 text-center font-semibold">رصيد الخزنة</th>
-                                <th className="py-3 px-3 text-center font-semibold">الفواتير</th>
-                                <th className="py-3 px-3 text-center font-semibold">العُهد</th>
+                                <th className="py-3 px-4 text-right font-semibold">{locale === 'ar' ? 'الفرع' : 'Branch'}</th>
+                                <th className="py-3 px-3 text-center font-semibold">{locale === 'ar' ? 'المشاريع' : 'Projects'}</th>
+                                <th className="py-3 px-3 text-center font-semibold">{locale === 'ar' ? 'النشطة' : 'Active'}</th>
+                                <th className="py-3 px-3 text-center font-semibold">{locale === 'ar' ? 'الموظفون' : 'Employees'}</th>
+                                <th className="py-3 px-3 text-center font-semibold">{locale === 'ar' ? 'رصيد الخزنة' : 'Wallet'}</th>
+                                <th className="py-3 px-3 text-center font-semibold">{locale === 'ar' ? 'الفواتير' : 'Invoices'}</th>
+                                <th className="py-3 px-3 text-center font-semibold">{locale === 'ar' ? 'العُهد' : 'Custody'}</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-50">
@@ -241,14 +245,14 @@ function BranchComparisonTable({ data }: { data: BranchComparison }) {
                                             <span className="font-black text-amber-600 text-xs">
                                                 {branch.custodyIssued.toLocaleString('en-US')}
                                             </span>
-                                            <span className="text-[9px] text-gray-400">مصروف</span>
+                                            <span className="text-[9px] text-gray-400">{locale === 'ar' ? 'مصروف' : 'Spent'}</span>
                                         </div>
                                     </td>
                                 </tr>
                             ))}
                             {/* Totals row */}
                             <tr className="bg-[#102550]/5 font-bold">
-                                <td className="py-3 px-4 text-[#102550]">📊 المجموع</td>
+                                <td className="py-3 px-4 text-[#102550]">{locale === 'ar' ? '📊 المجموع' : '📊 Total'}</td>
                                 <td className="py-3 px-3 text-center text-blue-800">
                                     {data.reduce((s, b) => s + b.projects, 0)}
                                 </td>
@@ -292,8 +296,8 @@ export default function GeneralManagerDashboard() {
     // Load branches once
     useEffect(() => {
         setIsMounted(true);
-        getBranchesForGM().then(setBranches);
-        getGMBranchComparison().then(setComparison);
+        getBranchesForGM().then(setBranches).catch(err => console.error("[GMDashboard] getBranchesForGM failed:", err));
+        getGMBranchComparison().then(setComparison).catch(err => console.error("[GMDashboard] getGMBranchComparison failed:", err));
     }, []);
 
     // Load stats whenever branch changes
@@ -306,6 +310,8 @@ export default function GeneralManagerDashboard() {
             ]);
             setStats(statsData);
             setFlow(flowData);
+        } catch (err) {
+            console.error("[GMDashboard] loadStats failed:", err);
         } finally {
             setIsLoading(false);
         }

@@ -49,7 +49,7 @@ export default function AdminDashboard() {
     const [isRefreshing, setIsRefreshing] = useState(false);
 
     const loadData = () => {
-        getDashboardStats().then(setStats);
+        getDashboardStats().then(setStats).catch(err => console.error("[AdminDashboard] getDashboardStats failed:", err));
         getFlowStats().then(data => {
             if (data && (data.role === "ADMIN" || data.role === "GLOBAL_ACCOUNTANT" || data.role === "GENERAL_MANAGER")) {
                 setFlow({
@@ -63,7 +63,7 @@ export default function AdminDashboard() {
                     companyExpenses: data.companyExpenses ?? 0,
                 });
             }
-        });
+        }).catch(err => console.error("[AdminDashboard] getFlowStats failed:", err));
     };
 
     useEffect(() => {

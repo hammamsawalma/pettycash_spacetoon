@@ -104,6 +104,7 @@ export default function EmployeeDashboard() {
     const [isRefreshing, setIsRefreshing] = useState(false);
 
     const loadData = useCallback(async () => {
+      try {
         const [statsData, flowData, custodiesData] = await Promise.all([
             getDashboardStats(),
             getFlowStats(),
@@ -133,6 +134,10 @@ export default function EmployeeDashboard() {
         setRolesLoaded(true);
 
         setUnconfirmedCustodies((custodiesData as unknown as CustodyItem[]).filter(c => !c.isConfirmed && !c.isClosed));
+      } catch (err) {
+        console.error("[EmployeeDashboard] loadData failed:", err);
+        setRolesLoaded(true); // still mark as loaded to show something
+      }
     }, []);
 
     // Load purchases for coordinator widget & invoices for accountant widget

@@ -7,6 +7,7 @@ import { getNotifications } from '@/actions/notifications';
 import { Notification } from '@prisma/client';
 import { useRouter } from 'next/navigation';
 import { AnimatePresence, motion } from 'framer-motion';
+import { useLanguage } from "@/context/LanguageContext";
 
 interface NotificationDropdownProps {
     isMobile?: boolean;
@@ -18,6 +19,7 @@ export function NotificationDropdown({ isMobile = false }: NotificationDropdownP
     const [isLoading, setIsLoading] = useState(true);
     const dropdownRef = useRef<HTMLDivElement>(null);
     const router = useRouter();
+    const { locale } = useLanguage();
 
     useEffect(() => {
         if (isOpen && notifications.length === 0 && isLoading) {
@@ -75,14 +77,14 @@ export function NotificationDropdown({ isMobile = false }: NotificationDropdownP
             <div className="max-h-[60dvh] md:max-h-[320px] overflow-y-auto overscroll-contain bg-white">
                 {isLoading ? (
                     <div className="p-8 text-center text-gray-400 text-sm">
-                        جاري تحميل الإشعارات...
+                        {locale === 'ar' ? 'جاري تحميل الإشعارات...' : 'Loading notifications...'}
                     </div>
                 ) : notifications.length === 0 ? (
                     <div className="p-8 text-center text-gray-500 flex flex-col items-center gap-3">
                         <div className="w-12 h-12 bg-gray-50 rounded-full flex items-center justify-center text-gray-300">
                             <Bell className="w-6 h-6" />
                         </div>
-                        <span className="text-sm font-medium">لا توجد إشعارات حالياً</span>
+                        <span className="text-sm font-medium">{locale === 'ar' ? 'لا توجد إشعارات حالياً' : 'No notifications yet'}</span>
                     </div>
                 ) : (
                     <div className="divide-y divide-gray-50">
@@ -123,7 +125,7 @@ export function NotificationDropdown({ isMobile = false }: NotificationDropdownP
                     }}
                     className="w-full py-2.5 text-sm font-bold text-[#102550] hover:text-[#1a3a7c] hover:bg-[#102550]/5 active:bg-[#102550]/10 rounded-xl transition-all flex items-center justify-center gap-1.5"
                 >
-                    <span>عرض كل الإشعارات</span>
+                    <span>{locale === 'ar' ? 'عرض كل الإشعارات' : 'View all notifications'}</span>
                     <ChevronLeft className="w-4 h-4" />
                 </button>
             </div>
@@ -137,13 +139,13 @@ export function NotificationDropdown({ isMobile = false }: NotificationDropdownP
                 type="button"
                 onClick={() => setIsOpen(!isOpen)}
                 aria-expanded={isOpen}
-                aria-label="الإشعارات"
+                aria-label={locale === 'ar' ? "الإشعارات" : "Notifications"}
                 className={isMobile
                     ? "h-10 w-10 flex items-center justify-center rounded-full bg-white text-[#102550] shadow-sm relative"
                     : "p-2 text-gray-400 hover:text-[#102550] hover:bg-white rounded-full transition-all duration-300 shadow-sm shadow-transparent hover:shadow-gray-200/50 relative cursor-pointer outline-none"
                 }
             >
-                <span className="sr-only">عرض الإشعارات</span>
+                <span className="sr-only">{locale === 'ar' ? 'عرض الإشعارات' : 'View notifications'}</span>
                 <span className={isMobile
                     ? "absolute top-2 start-2 flex h-2.5 w-2.5"
                     : "absolute top-1.5 start-1.5 flex h-2 w-2"
@@ -166,8 +168,8 @@ export function NotificationDropdown({ isMobile = false }: NotificationDropdownP
                     >
                         <div className="p-4 border-b border-gray-50 bg-gray-50/30 flex items-center justify-between">
                             <div className="flex items-center gap-2">
-                                <h3 className="font-bold text-gray-900">الإشعارات</h3>
-                                <span className="bg-[#102550]/10 text-[#102550] text-[10px] font-bold px-2 py-0.5 rounded-full">الجديدة</span>
+                                <h3 className="font-bold text-gray-900">{locale === 'ar' ? 'الإشعارات' : 'Notifications'}</h3>
+                                <span className="bg-[#102550]/10 text-[#102550] text-[10px] font-bold px-2 py-0.5 rounded-full">{locale === 'ar' ? 'الجديدة' : 'New'}</span>
                             </div>
                         </div>
                         {notificationContent}
@@ -203,13 +205,13 @@ export function NotificationDropdown({ isMobile = false }: NotificationDropdownP
                                     <div className="w-10 h-1 rounded-full bg-gray-300 mb-3" />
                                     <div className="flex items-center justify-between w-full px-4 pb-1">
                                         <div className="flex items-center gap-2">
-                                            <h3 className="font-bold text-gray-900 text-base">الإشعارات</h3>
-                                            <span className="bg-[#102550]/10 text-[#102550] text-[10px] font-bold px-2 py-0.5 rounded-full">الجديدة</span>
+                                            <h3 className="font-bold text-gray-900 text-base">{locale === 'ar' ? 'الإشعارات' : 'Notifications'}</h3>
+                                            <span className="bg-[#102550]/10 text-[#102550] text-[10px] font-bold px-2 py-0.5 rounded-full">{locale === 'ar' ? 'الجديدة' : 'New'}</span>
                                         </div>
                                         <button
                                             onClick={() => setIsOpen(false)}
                                             className="h-8 w-8 flex items-center justify-center rounded-full hover:bg-gray-100 text-gray-500 transition-colors"
-                                            aria-label="إغلاق"
+                                            aria-label={locale === 'ar' ? "إغلاق" : "Close"}
                                         >
                                             <X className="w-5 h-5" />
                                         </button>

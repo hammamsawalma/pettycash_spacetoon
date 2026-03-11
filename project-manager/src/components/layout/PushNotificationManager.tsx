@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Bell, X } from "lucide-react";
+import { useLanguage } from "@/context/LanguageContext";
 
 /**
  * PushNotificationManager
@@ -27,6 +28,7 @@ import { Bell, X } from "lucide-react";
 export default function PushNotificationManager() {
     const [showBanner, setShowBanner] = useState(false);
     const [isSubscribing, setIsSubscribing] = useState(false);
+    const { locale } = useLanguage();
 
     useEffect(() => {
         checkPushStatus();
@@ -154,9 +156,9 @@ export default function PushNotificationManager() {
                     <Bell className="w-5 h-5" />
                 </div>
                 <div className="flex-1 min-w-0">
-                    <p className="text-sm font-bold">تفعيل الإشعارات 🔔</p>
+                    <p className="text-sm font-bold">{locale === 'ar' ? 'تفعيل الإشعارات 🔔' : 'Enable Notifications 🔔'}</p>
                     <p className="text-xs text-blue-200 mt-0.5">
-                        احصل على تنبيهات فورية عند اعتماد فواتيرك وتحديثات المشاريع
+                        {locale === 'ar' ? 'احصل على تنبيهات فورية عند اعتماد فواتيرك وتحديثات المشاريع' : 'Get instant alerts for invoice approvals and project updates'}
                     </p>
                 </div>
                 <div className="flex items-center gap-1.5 flex-shrink-0">
@@ -165,12 +167,12 @@ export default function PushNotificationManager() {
                         disabled={isSubscribing}
                         className="bg-white text-[#102550] text-xs font-bold px-3 py-1.5 rounded-lg hover:bg-blue-100 transition disabled:opacity-50"
                     >
-                        {isSubscribing ? "..." : "تفعيل"}
+                        {isSubscribing ? "..." : (locale === 'ar' ? "تفعيل" : "Enable")}
                     </button>
                     <button
                         onClick={handleDismiss}
                         className="text-white/50 hover:text-white p-1 transition"
-                        aria-label="إغلاق"
+                        aria-label={locale === 'ar' ? "إغلاق" : "Close"}
                     >
                         <X className="w-4 h-4" />
                     </button>

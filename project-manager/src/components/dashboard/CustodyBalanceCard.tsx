@@ -6,6 +6,7 @@ import { getFlowStats } from "@/actions/dashboard";
 import { useAuth } from "@/context/AuthContext";
 import { AnimatedNumber } from "@/components/ui/AnimatedNumber";
 import { CurrencyDisplay } from "@/components/ui/CurrencyDisplay";
+import { useLanguage } from "@/context/LanguageContext";
 
 type FlowData = {
     role: string;
@@ -32,6 +33,7 @@ export default function CustodyBalanceCard({ className = "" }: { className?: str
     const { role } = useAuth();
     const [flow, setFlow] = useState<FlowData | null>(null);
     const [isLoading, setIsLoading] = useState(true);
+    const { locale } = useLanguage();
 
     useEffect(() => {
         if (!role) return;
@@ -42,25 +44,25 @@ export default function CustodyBalanceCard({ className = "" }: { className?: str
     }, [role]);
 
     // ─── حساب الثلاثة أرقام حسب الدور ─────────────────────────────────────
-    let labelReceived = "وصل";
-    let labelSpent = "مُنفَّق";
-    let labelLeft = "متبقي";
+    let labelReceived = locale === 'ar' ? "وصل" : "Received";
+    let labelSpent = locale === 'ar' ? "مُنفَّق" : "Spent";
+    let labelLeft = locale === 'ar' ? "متبقي" : "Remaining";
     let valReceived = 0;
     let valSpent = 0;
     let valLeft = 0;
 
     if (flow) {
         if (flow.role === "ADMIN" || flow.role === "GLOBAL_ACCOUNTANT" || flow.role === "GENERAL_MANAGER") {
-            labelReceived = "إجمالي ما وُدِع في الخزنة";
-            labelSpent = "موزَّع على المشاريع";
-            labelLeft = "متبقي في الخزنة";
+            labelReceived = locale === 'ar' ? "إجمالي ما وُدِع في الخزنة" : "Total Wallet Deposits";
+            labelSpent = locale === 'ar' ? "موزَّع على المشاريع" : "Allocated to Projects";
+            labelLeft = locale === 'ar' ? "متبقي في الخزنة" : "Wallet Balance";
             valReceived = flow.walletReceived ?? 0;
             valSpent = flow.walletSpent ?? 0;
             valLeft = flow.walletRemaining ?? 0;
         } else if (flow.role === "USER") {
-            labelReceived = "إجمالي العُهد الواردة";
-            labelSpent = "مُنفَّق (فواتير مقبولة)";
-            labelLeft = "المتبقي في ذمتك";
+            labelReceived = locale === 'ar' ? "إجمالي العُهد الواردة" : "Total Custody Received";
+            labelSpent = locale === 'ar' ? "مُنفَّق (فواتير مقبولة)" : "Spent (Approved Invoices)";
+            labelLeft = locale === 'ar' ? "المتبقي في ذمتك" : "Your Remaining Balance";
             valReceived = flow.personalReceived ?? 0;
             valSpent = flow.personalSpent ?? 0;
             valLeft = flow.personalRemaining ?? 0;
@@ -91,11 +93,11 @@ export default function CustodyBalanceCard({ className = "" }: { className?: str
                         <Wallet className="h-6 w-6 text-white" />
                     </div>
                     <div>
-                        <p className="text-blue-200 text-xs font-semibold tracking-wide">ملخص التدفق المالي</p>
+                        <p className="text-blue-200 text-xs font-semibold tracking-wide">{locale === 'ar' ? 'ملخص التدفق المالي' : 'Financial Flow Summary'}</p>
                         <p className="text-white font-black text-lg leading-tight">
                             {(flow?.role === "ADMIN" || flow?.role === "GLOBAL_ACCOUNTANT" || flow?.role === "GENERAL_MANAGER")
-                                ? "خزنة الشركة"
-                                : "رصيد عُهَدي"}
+                                ? (locale === 'ar' ? "خزنة الشركة" : "Company Wallet")
+                                : (locale === 'ar' ? "رصيد عُهَدي" : "My Custody Balance")}
                         </p>
                     </div>
                 </div>

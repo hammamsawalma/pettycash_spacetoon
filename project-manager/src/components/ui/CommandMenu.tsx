@@ -4,10 +4,12 @@ import { useState, useEffect } from "react";
 import { Command } from "cmdk";
 import { useRouter } from "next/navigation";
 import { Search, FolderKanban, Users, FileText, Settings, LayoutDashboard } from "lucide-react";
+import { useLanguage } from "@/context/LanguageContext";
 
 export function CommandMenu() {
     const [open, setOpen] = useState(false);
     const router = useRouter();
+    const { locale } = useLanguage();
 
     useEffect(() => {
         const down = (e: KeyboardEvent) => {
@@ -44,7 +46,7 @@ export function CommandMenu() {
                     <Search className="h-5 w-5 text-gray-400 shrink-0" />
                     <Command.Input
                         autoFocus
-                        placeholder="ابحث عن مشاريع، موظفين، صفحات..."
+                        placeholder={locale === 'ar' ? "ابحث عن مشاريع، موظفين، صفحات..." : "Search projects, employees, pages..."}
                         className="flex-1 border-0 bg-transparent py-5 pl-2 pr-4 text-base outline-none placeholder:text-gray-400"
                     />
                     <kbd className="hidden sm:inline-flex h-6 items-center gap-1 rounded border border-gray-200 bg-gray-50 px-2 font-mono text-[10px] font-medium text-gray-500">
@@ -54,40 +56,40 @@ export function CommandMenu() {
 
                 <Command.List className="max-h-[300px] overflow-y-auto overflow-x-hidden p-2 custom-scrollbar">
                     <Command.Empty className="py-10 text-center text-sm text-gray-500">
-                        لا توجد نتائج مطابقة.
+                        {locale === 'ar' ? 'لا توجد نتائج مطابقة.' : 'No matching results.'}
                     </Command.Empty>
 
-                    <Command.Group heading={<span className="text-[11px] font-bold text-gray-400 px-3 uppercase tracking-wider">التنقل السريع</span>}>
+                    <Command.Group heading={<span className="text-[11px] font-bold text-gray-400 px-3 uppercase tracking-wider">{locale === 'ar' ? 'التنقل السريع' : 'Quick Navigation'}</span>}>
                         <Command.Item onSelect={() => runCommand(() => router.push("/"))} className="flex items-center gap-3 px-3 py-3 text-sm text-gray-700 hover:bg-[#102550]/10 hover:text-[#102550] rounded-xl cursor-pointer transition-colors outline-none aria-[selected=true]:bg-[#102550]/10 aria-[selected=true]:text-[#102550]">
                             <LayoutDashboard className="h-4 w-4" />
-                            <span>لوحة التحكم الرئيسية</span>
+                            <span>{locale === 'ar' ? 'لوحة التحكم الرئيسية' : 'Main Dashboard'}</span>
                         </Command.Item>
                         <Command.Item onSelect={() => runCommand(() => router.push("/projects"))} className="flex items-center gap-3 px-3 py-3 text-sm text-gray-700 hover:bg-[#102550]/10 hover:text-[#102550] rounded-xl cursor-pointer transition-colors outline-none aria-[selected=true]:bg-[#102550]/10 aria-[selected=true]:text-[#102550]">
                             <FolderKanban className="h-4 w-4" />
-                            <span>المشاريع</span>
+                            <span>{locale === 'ar' ? 'المشاريع' : 'Projects'}</span>
                         </Command.Item>
                         <Command.Item onSelect={() => runCommand(() => router.push("/employees"))} className="flex items-center gap-3 px-3 py-3 text-sm text-gray-700 hover:bg-[#102550]/10 hover:text-[#102550] rounded-xl cursor-pointer transition-colors outline-none aria-[selected=true]:bg-[#102550]/10 aria-[selected=true]:text-[#102550]">
                             <Users className="h-4 w-4" />
-                            <span>الموظفين</span>
+                            <span>{locale === 'ar' ? 'الموظفين' : 'Employees'}</span>
                         </Command.Item>
                         <Command.Item onSelect={() => runCommand(() => router.push("/invoices"))} className="flex items-center gap-3 px-3 py-3 text-sm text-gray-700 hover:bg-[#102550]/10 hover:text-[#102550] rounded-xl cursor-pointer transition-colors outline-none aria-[selected=true]:bg-[#102550]/10 aria-[selected=true]:text-[#102550]">
                             <FileText className="h-4 w-4" />
-                            <span>الفواتير</span>
+                            <span>{locale === 'ar' ? 'الفواتير' : 'Invoices'}</span>
                         </Command.Item>
                         <Command.Item onSelect={() => runCommand(() => router.push("/settings"))} className="flex items-center gap-3 px-3 py-3 text-sm text-gray-700 hover:bg-[#102550]/10 hover:text-[#102550] rounded-xl cursor-pointer transition-colors outline-none aria-[selected=true]:bg-[#102550]/10 aria-[selected=true]:text-[#102550]">
                             <Settings className="h-4 w-4" />
-                            <span>الاعدادات</span>
+                            <span>{locale === 'ar' ? 'الاعدادات' : 'Settings'}</span>
                         </Command.Item>
                     </Command.Group>
 
-                    <Command.Group heading={<span className="text-[11px] font-bold text-gray-400 px-3 uppercase tracking-wider mt-4 block">إجراءات سريعة</span>}>
+                    <Command.Group heading={<span className="text-[11px] font-bold text-gray-400 px-3 uppercase tracking-wider mt-4 block">{locale === 'ar' ? 'إجراءات سريعة' : 'Quick Actions'}</span>}>
                         <Command.Item onSelect={() => runCommand(() => router.push("/projects/new"))} className="flex items-center gap-3 px-3 py-3 text-sm text-gray-700 hover:bg-green-500/10 hover:text-green-600 rounded-xl cursor-pointer transition-colors outline-none aria-[selected=true]:bg-green-500/10 aria-[selected=true]:text-green-600">
                             <FolderKanban className="h-4 w-4" />
-                            <span>إضافة مشروع جديد...</span>
+                            <span>{locale === 'ar' ? 'إضافة مشروع جديد...' : 'Add New Project...'}</span>
                         </Command.Item>
                         <Command.Item onSelect={() => runCommand(() => router.push("/employees/new"))} className="flex items-center gap-3 px-3 py-3 text-sm text-gray-700 hover:bg-blue-500/10 hover:text-blue-600 rounded-xl cursor-pointer transition-colors outline-none aria-[selected=true]:bg-blue-500/10 aria-[selected=true]:text-blue-600">
                             <Users className="h-4 w-4" />
-                            <span>تسجيل موظف جديد...</span>
+                            <span>{locale === 'ar' ? 'تسجيل موظف جديد...' : 'Register New Employee...'}</span>
                         </Command.Item>
                     </Command.Group>
                 </Command.List>

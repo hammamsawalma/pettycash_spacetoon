@@ -12,9 +12,11 @@ import { AnimatedNumber } from "@/components/ui/AnimatedNumber";
 import { useRouter } from "next/navigation";
 import { CurrencyDisplay } from "@/components/ui/CurrencyDisplay";
 import { AccountantDashboardSkeleton } from "@/components/ui/SkeletonCard";
+import { useLanguage } from "@/context/LanguageContext";
 
 export default function AccountantDashboard() {
     const router = useRouter();
+    const { locale } = useLanguage();
     const [stats, setStats] = useState({
         totalProjects: 0,
         completedProjects: 0,
@@ -42,7 +44,7 @@ export default function AccountantDashboard() {
 
     useEffect(() => {
         setIsMounted(true);
-        getDashboardStats().then(setStats);
+        getDashboardStats().then(setStats).catch(err => console.error("[AccountantDashboard] getDashboardStats failed:", err));
         getFlowStats().then(data => {
             if (data && "projectsAllocated" in data) {
                 setFlow({
@@ -53,38 +55,38 @@ export default function AccountantDashboard() {
                     companyExpenses: data.companyExpenses ?? 0,
                 });
             }
-        });
+        }).catch(err => console.error("[AccountantDashboard] getFlowStats failed:", err));
         getPendingDebts().then(debts => {
             setPendingDebtsCount(Array.isArray(debts) ? debts.length : 0);
-        });
+        }).catch(err => console.error("[AccountantDashboard] getPendingDebts failed:", err));
     }, []);
 
     if (!isMounted) {
         return (
-            <DashboardLayout title="اللوحة المالية">
+            <DashboardLayout title={locale === 'ar' ? "اللوحة المالية" : "Financial Dashboard"}>
                 <AccountantDashboardSkeleton />
             </DashboardLayout>
         );
     }
 
     const kpis = [
-        { title: "فواتير معلقة", value: stats.pendingInvoices.length, icon: FileText, color: "text-amber-500", bg: "bg-amber-500/10", isCurrency: false },
-        { title: "ديون معلقة", value: pendingDebtsCount, icon: Banknote, color: "text-red-500", bg: "bg-red-500/10", isCurrency: false },
-        { title: "إجمالي العُهد المصروفة", value: flow.custodyIssued, icon: HandCoins, color: "text-rose-500", bg: "bg-rose-500/10", isCurrency: true },
-        { title: "مُبالغ مُرجَعة من العُهد", value: flow.custodyReturned, icon: ArrowUpToLine, color: "text-emerald-500", bg: "bg-emerald-500/10", isCurrency: true },
-        { title: "مصاريف الشركة", value: flow.companyExpenses, icon: Building2, color: "text-purple-500", bg: "bg-purple-500/10", isCurrency: true },
-        { title: "فواتير معتمدة", value: flow.invoicesApproved, icon: FileText, color: "text-blue-500", bg: "bg-blue-500/10", isCurrency: true },
+        { title: locale === 'ar' ? "فواتير معلقة" : "Pending Invoices", value: stats.pendingInvoices.length, icon: FileText, color: "text-amber-500", bg: "bg-amber-500/10", isCurrency: false },
+        { title: locale === 'ar' ? "ديون معلقة" : "Pending Debts", value: pendingDebtsCount, icon: Banknote, color: "text-red-500", bg: "bg-red-500/10", isCurrency: false },
+        { title: locale === 'ar' ? "إجمالي العُهد المصروفة" : "Total Custody Issued", value: flow.custodyIssued, icon: HandCoins, color: "text-rose-500", bg: "bg-rose-500/10", isCurrency: true },
+        { title: locale === 'ar' ? "مُبالغ مُرجَعة من العُهد" : "Custody Returns", value: flow.custodyReturned, icon: ArrowUpToLine, color: "text-emerald-500", bg: "bg-emerald-500/10", isCurrency: true },
+        { title: locale === 'ar' ? "مصاريف الشركة" : "Company Expenses", value: flow.companyExpenses, icon: Building2, color: "text-purple-500", bg: "bg-purple-500/10", isCurrency: true },
+        { title: locale === 'ar' ? "فواتير معتمدة" : "Approved Invoices", value: flow.invoicesApproved, icon: FileText, color: "text-blue-500", bg: "bg-blue-500/10", isCurrency: true },
     ];
 
     const quickActions = [
-        { label: "فاتورة جديدة", href: "/invoices/new", icon: FileText, color: "bg-green-50 text-green-700 border-green-100" },
-        { label: "سجل العهدة", href: "/deposits", icon: Wallet, color: "bg-blue-50 text-blue-700 border-blue-100" },
-        { label: "الديون", href: "/debts", icon: Banknote, color: "bg-red-50 text-red-700 border-red-100" },
-        { label: "طلب مالي", href: "/finance-requests", icon: BadgeDollarSign, color: "bg-amber-50 text-amber-700 border-amber-100" },
+        { label: locale === 'ar' ? "فاتورة جديدة" : "New Invoice", href: "/invoices/new", icon: FileText, color: "bg-green-50 text-green-700 border-green-100" },
+        { label: locale === 'ar' ? "سجل العهدة" : "Custody Log", href: "/deposits", icon: Wallet, color: "bg-blue-50 text-blue-700 border-blue-100" },
+        { label: locale === 'ar' ? "الديون" : "Debts", href: "/debts", icon: Banknote, color: "bg-red-50 text-red-700 border-red-100" },
+        { label: locale === 'ar' ? "طلب مالي" : "Finance Request", href: "/finance-requests", icon: BadgeDollarSign, color: "bg-amber-50 text-amber-700 border-amber-100" },
     ];
 
     return (
-        <DashboardLayout title="اللوحة المالية">
+        <DashboardLayout title={locale === 'ar' ? "اللوحة المالية" : "Financial Dashboard"}>
             <div className="space-y-6 md:space-y-8 pb-6">
                 {/* الملخص المالي الموحد */}
                 <ManagerFinancialOverview />
@@ -127,7 +129,7 @@ export default function AccountantDashboard() {
                     {/* آخر المشاريع */}
                     <Card className="p-0 overflow-hidden flex flex-col h-[350px] md:h-[400px] shadow-sm border-gray-100">
                         <div className="flex justify-between items-center p-5 md:p-6 border-b border-gray-100/50 bg-gray-50/50">
-                            <h3 className="font-bold text-base md:text-lg text-gray-900">آخر المشاريع</h3>
+                            <h3 className="font-bold text-base md:text-lg text-gray-900">{locale === 'ar' ? 'آخر المشاريع' : 'Recent Projects'}</h3>
                         </div>
                         <div className="flex-1 overflow-y-auto p-5 md:p-6 space-y-3 custom-scrollbar bg-white">
                             {stats.recentProjects.length > 0 ? stats.recentProjects.map(p => (
@@ -139,16 +141,16 @@ export default function AccountantDashboard() {
                                     <div>
                                         <p className="text-sm font-bold text-gray-900">{p.name}</p>
                                         <p className="text-xs text-gray-400 font-medium mt-0.5">
-                                            ميزانية: {(p.budgetAllocated ?? 0).toLocaleString('en-US')} <CurrencyDisplay />
-                                            {" • "}عُهد: {(p.custodyIssued ?? 0).toLocaleString('en-US')} <CurrencyDisplay />
+                                            {locale === 'ar' ? 'ميزانية' : 'Budget'}: {(p.budgetAllocated ?? 0).toLocaleString('en-US')} <CurrencyDisplay />
+                                            {" • "}{locale === 'ar' ? 'عُهد' : 'Custody'}: {(p.custodyIssued ?? 0).toLocaleString('en-US')} <CurrencyDisplay />
                                         </p>
                                     </div>
                                     <span className={`px-2 py-1 text-[10px] font-bold rounded-lg ${p.status === 'COMPLETED' ? 'bg-emerald-50 text-emerald-600' : 'bg-amber-50 text-amber-600'}`}>
-                                        {p.status === 'COMPLETED' ? 'مكتمل' : 'قيد التنفيذ'}
+                                        {p.status === 'COMPLETED' ? (locale === 'ar' ? 'مكتمل' : 'Completed') : (locale === 'ar' ? 'قيد التنفيذ' : 'In Progress')}
                                     </span>
                                 </div>
                             )) : (
-                                <div className="flex justify-center items-center h-full text-gray-400 text-sm font-medium">لا توجد مشاريع</div>
+                                <div className="flex justify-center items-center h-full text-gray-400 text-sm font-medium">{locale === 'ar' ? 'لا توجد مشاريع' : 'No projects'}</div>
                             )}
                         </div>
                     </Card>
@@ -156,7 +158,7 @@ export default function AccountantDashboard() {
                     {/* الفواتير المعلقة */}
                     <Card className="p-0 overflow-hidden flex flex-col h-[350px] md:h-[400px] shadow-sm border-gray-100">
                         <div className="p-5 md:p-6 border-b border-gray-100/50 bg-gray-50/50">
-                            <h3 className="font-bold text-base md:text-lg text-gray-900">الفواتير المعلقة</h3>
+                            <h3 className="font-bold text-base md:text-lg text-gray-900">{locale === 'ar' ? 'الفواتير المعلقة' : 'Pending Invoices'}</h3>
                         </div>
                         <div className="flex-1 overflow-y-auto p-5 md:p-6 space-y-4 md:space-y-6 custom-scrollbar bg-white">
                             {stats.pendingInvoices.length > 0 ? stats.pendingInvoices.map((invoice) => (
@@ -167,9 +169,9 @@ export default function AccountantDashboard() {
                                         </div>
                                         <div>
                                             <p className="text-xs md:text-sm font-bold text-gray-900">
-                                                {invoice.type === 'SALES' ? 'مبيعات' : 'مشتريات'} — {(invoice.amount || 0).toLocaleString('en-US')} <CurrencyDisplay />
+                                                {invoice.type === 'SALES' ? (locale === 'ar' ? 'مبيعات' : 'Sales') : (locale === 'ar' ? 'مشتريات' : 'Purchases')} — {(invoice.amount || 0).toLocaleString('en-US')} <CurrencyDisplay />
                                             </p>
-                                            <p className="text-[10px] md:text-xs text-gray-400 font-medium mt-0.5">{invoice.project?.name || 'بدون مشروع'}</p>
+                                            <p className="text-[10px] md:text-xs text-gray-400 font-medium mt-0.5">{invoice.project?.name || (locale === 'ar' ? 'بدون مشروع' : 'No project')}</p>
                                         </div>
                                     </div>
                                     <div className="flex gap-2 w-full sm:w-auto mt-2 sm:mt-0">
@@ -178,17 +180,17 @@ export default function AccountantDashboard() {
                                             className="flex-1 sm:flex-none h-8 md:h-9 px-4 text-[11px] md:text-xs bg-[#102550] hover:bg-[#102550]/90 font-bold rounded-lg shadow-sm"
                                             onClick={() => router.push(`/invoices/${invoice.id}`)}
                                         >
-                                            مراجعة
+                                            {locale === 'ar' ? 'مراجعة' : 'Review'}
                                         </Button>
                                     </div>
                                 </div>
                             )) : (
-                                <p className="text-xs md:text-sm text-gray-400 font-medium text-center py-8">لا توجد فواتير معلقة.</p>
+                                <p className="text-xs md:text-sm text-gray-400 font-medium text-center py-8">{locale === 'ar' ? 'لا توجد فواتير معلقة.' : 'No pending invoices.'}</p>
                             )}
                         </div>
                         <div className="p-4 md:p-6 pt-0 bg-white">
                             <Button onClick={() => router.push('/invoices')} variant="secondary" className="w-full text-[11px] md:text-xs h-10 font-bold bg-gray-50 hover:bg-gray-100 text-[#102550] border-none transition-colors">
-                                عرض كل الفواتير <ChevronLeft className="w-3 h-3 md:w-4 md:h-4 ml-1" />
+                                {locale === 'ar' ? 'عرض كل الفواتير' : 'View All Invoices'} <ChevronLeft className="w-3 h-3 md:w-4 md:h-4 ml-1" />
                             </Button>
                         </div>
                     </Card>

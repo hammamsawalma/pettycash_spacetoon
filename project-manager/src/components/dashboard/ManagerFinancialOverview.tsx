@@ -6,6 +6,7 @@ import { getFlowStats } from "@/actions/dashboard";
 import { useAuth } from "@/context/AuthContext";
 import { AnimatedNumber } from "@/components/ui/AnimatedNumber";
 import { CurrencyDisplay } from "@/components/ui/CurrencyDisplay";
+import { useLanguage } from "@/context/LanguageContext";
 
 type FlowData = {
     role: string;
@@ -24,6 +25,7 @@ export default function ManagerFinancialOverview({ className = "" }: { className
     const { role } = useAuth();
     const [flow, setFlow] = useState<FlowData | null>(null);
     const [isLoading, setIsLoading] = useState(true);
+    const { locale } = useLanguage();
 
     useEffect(() => {
         if (!role || (role !== "ADMIN" && role !== "GLOBAL_ACCOUNTANT" && role !== "GENERAL_MANAGER")) {
@@ -50,26 +52,26 @@ export default function ManagerFinancialOverview({ className = "" }: { className
 
     const mainCards = [
         {
-            title: "السيولة الفعليّة (المتاحة)",
+            title: locale === 'ar' ? "السيولة الفعليّة (المتاحة)" : "Actual Liquidity (Available)",
             value: actualLiquidity,
             icon: PiggyBank,
             color: "text-emerald-600",
             bg: "bg-emerald-600/10",
             border: "border-emerald-200",
             highlight: true,
-            subtitle: "السيولة الحالية المتبقية",
+            subtitle: locale === 'ar' ? "السيولة الحالية المتبقية" : "Current remaining liquidity",
             gradient: "from-emerald-50 to-white",
             shadow: "shadow-emerald-100/50"
         },
         {
-            title: "السيولة المتوقعة",
+            title: locale === 'ar' ? "السيولة المتوقعة" : "Expected Liquidity",
             value: expectedLiquidity,
             icon: ArrowRightLeft,
             color: "text-blue-600",
             bg: "bg-blue-600/10",
             border: "border-blue-200",
             highlight: true,
-            subtitle: "السيولة المتبقية إذا تم اعتماد جميع الفواتير",
+            subtitle: locale === 'ar' ? "السيولة المتبقية إذا تم اعتماد جميع الفواتير" : "Remaining if all invoices are approved",
             gradient: "from-blue-50 to-white",
             shadow: "shadow-blue-100/50"
         }
@@ -77,28 +79,28 @@ export default function ManagerFinancialOverview({ className = "" }: { className
 
     const detailsCards = [
         {
-            title: "إجمالي رأس المال بالشركة",
+            title: locale === 'ar' ? "إجمالي رأس المال بالشركة" : "Total Company Capital",
             value: walletReceived,
             icon: Wallet,
             color: "text-blue-500",
             bg: "bg-blue-500/10",
         },
         {
-            title: "المصروفات المعتمدة (إنفاق فعلي)",
+            title: locale === 'ar' ? "المصروفات المعتمدة (إنفاق فعلي)" : "Approved Expenses (Actual Spending)",
             value: invoicesApproved,
             icon: CheckCircle,
             color: "text-rose-500",
             bg: "bg-rose-500/10",
         },
         {
-            title: "فواتير قيد الاعتماد",
+            title: locale === 'ar' ? "فواتير قيد الاعتماد" : "Invoices Pending Approval",
             value: invoicesPending,
             icon: Clock,
             color: "text-amber-500",
             bg: "bg-amber-500/10",
         },
         {
-            title: "ميزانيات موزعة على مشاريع",
+            title: locale === 'ar' ? "ميزانيات موزعة على مشاريع" : "Budgets Allocated to Projects",
             value: projectsAllocated,
             icon: FolderKanban,
             color: "text-[#102550]",

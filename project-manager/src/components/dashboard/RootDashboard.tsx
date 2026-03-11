@@ -11,6 +11,7 @@ import {
     Globe2, TrendingUp, Building2, Shield,
     ArrowRight
 } from 'lucide-react';
+import { useLanguage } from "@/context/LanguageContext";
 
 type RootStats = NonNullable<Awaited<ReturnType<typeof getRootDashboardStats>>>;
 
@@ -27,6 +28,7 @@ export default function RootDashboard() {
     const router = useRouter();
     const [stats, setStats] = useState<RootStats | null>(null);
     const [isMounted, setIsMounted] = useState(false);
+    const { locale } = useLanguage();
 
     useEffect(() => {
         setIsMounted(true);
@@ -35,7 +37,7 @@ export default function RootDashboard() {
 
     if (!isMounted || !stats) {
         return (
-            <DashboardLayout title="لوحة تحكم ROOT">
+            <DashboardLayout title={locale === 'ar' ? "لوحة تحكم ROOT" : "ROOT Dashboard"}>
                 <div className="space-y-6">
                     {/* Skeleton */}
                     <div className="h-32 rounded-2xl bg-gray-100 animate-pulse" />
@@ -52,33 +54,33 @@ export default function RootDashboard() {
 
     const kpis = [
         {
-            title: "إجمالي المشاريع",
+            title: locale === 'ar' ? "إجمالي المشاريع" : "Total Projects",
             value: stats.totals.projects,
             icon: FolderKanban,
             bg: "from-blue-500 to-blue-600",
-            sub: `${stats.totals.activeProjects} نشط`,
+            sub: locale === 'ar' ? `${stats.totals.activeProjects} نشط` : `${stats.totals.activeProjects} active`,
         },
         {
-            title: "إجمالي الموظفين",
+            title: locale === 'ar' ? "إجمالي الموظفين" : "Total Employees",
             value: stats.totals.employees,
             icon: Users,
             bg: "from-[#102550] to-[#2563eb]",
-            sub: `عبر ${stats.branches.length} فرع`,
+            sub: locale === 'ar' ? `عبر ${stats.branches.length} فرع` : `Across ${stats.branches.length} branches`,
         },
         {
-            title: "رصيد الخزن الموحّد",
+            title: locale === 'ar' ? "رصيد الخزن الموحّد" : "Consolidated Wallet Balance",
             value: stats.totals.walletBalance,
             icon: Wallet,
             bg: "from-emerald-500 to-emerald-600",
-            sub: `وارد: ${stats.totals.walletTotalIn.toLocaleString('en-US')}`,
+            sub: `${locale === 'ar' ? 'وارد' : 'Incoming'}: ${stats.totals.walletTotalIn.toLocaleString('en-US')}`,
             isCurrency: true,
         },
         {
-            title: "فواتير معلّقة",
+            title: locale === 'ar' ? "فواتير معلّقة" : "Pending Invoices",
             value: stats.totals.pendingInvoices,
             icon: FileText,
             bg: "from-amber-500 to-orange-500",
-            sub: `بقيمة: ${stats.totals.pendingInvoiceAmount.toLocaleString('en-US')}`,
+            sub: `${locale === 'ar' ? 'بقيمة' : 'Worth'}: ${stats.totals.pendingInvoiceAmount.toLocaleString('en-US')}`,
         },
     ];
 
@@ -86,7 +88,7 @@ export default function RootDashboard() {
     const maxWallet = Math.max(...stats.branches.map(b => b.walletBalance), 1);
 
     return (
-        <DashboardLayout title="لوحة تحكم ROOT">
+        <DashboardLayout title={locale === 'ar' ? "لوحة تحكم ROOT" : "ROOT Dashboard"}>
             <div className="space-y-6 md:space-y-8">
 
                 {/* Welcome Banner */}
@@ -103,8 +105,8 @@ export default function RootDashboard() {
                                 <Shield className="w-5 h-5 text-amber-400" />
                                 <p className="text-amber-400/90 text-sm font-bold">ROOT ACCESS</p>
                             </div>
-                            <h1 className="text-2xl md:text-3xl font-black tracking-tight">لوحة التحكم المركزية</h1>
-                            <p className="text-white/50 text-sm">نظرة شاملة على جميع فروع الشركة — {stats.branches.length} فروع نشطة</p>
+                            <h1 className="text-2xl md:text-3xl font-black tracking-tight">{locale === 'ar' ? 'لوحة التحكم المركزية' : 'Central Dashboard'}</h1>
+                            <p className="text-white/50 text-sm">{locale === 'ar' ? `نظرة شاملة على جميع فروع الشركة — ${stats.branches.length} فروع نشطة` : `Overview of all company branches — ${stats.branches.length} active branches`}</p>
                         </div>
                         <div className="flex items-center gap-3">
                             <div className="w-14 h-14 rounded-2xl bg-white/10 backdrop-blur-sm flex items-center justify-center border border-white/20">
@@ -146,12 +148,12 @@ export default function RootDashboard() {
                 {/* Branch Cards Grid */}
                 <div>
                     <div className="flex justify-between items-center mb-4">
-                        <h3 className="font-bold text-lg text-gray-900">الفروع النشطة</h3>
+                        <h3 className="font-bold text-lg text-gray-900">{locale === 'ar' ? 'الفروع النشطة' : 'Active Branches'}</h3>
                         <button
                             onClick={() => router.push('/branches')}
                             className="text-xs text-[#102550] font-semibold flex items-center gap-1 hover:gap-2 transition-all"
                         >
-                            إدارة الفروع <ArrowRight className="w-3 h-3" />
+                            {locale === 'ar' ? 'إدارة الفروع' : 'Manage Branches'} <ArrowRight className="w-3 h-3" />
                         </button>
                     </div>
 
@@ -180,15 +182,15 @@ export default function RootDashboard() {
                                         {/* Branch Stats */}
                                         <div className="grid grid-cols-3 gap-2 text-center">
                                             <div className="bg-blue-50 rounded-lg p-2">
-                                                <p className="text-[10px] text-gray-500 font-semibold">المشاريع</p>
+                                                <p className="text-[10px] text-gray-500 font-semibold">{locale === 'ar' ? 'المشاريع' : 'Projects'}</p>
                                                 <p className="text-sm font-black text-blue-700">{branch.projects}</p>
                                             </div>
                                             <div className="bg-[#102550]/5 rounded-lg p-2">
-                                                <p className="text-[10px] text-gray-500 font-semibold">الموظفون</p>
+                                                <p className="text-[10px] text-gray-500 font-semibold">{locale === 'ar' ? 'الموظفون' : 'Employees'}</p>
                                                 <p className="text-sm font-black text-[#102550]">{branch.employees}</p>
                                             </div>
                                             <div className="bg-emerald-50 rounded-lg p-2">
-                                                <p className="text-[10px] text-gray-500 font-semibold">الخزنة</p>
+                                                <p className="text-[10px] text-gray-500 font-semibold">{locale === 'ar' ? 'الخزنة' : 'Wallet'}</p>
                                                 <p className="text-sm font-black text-emerald-700">{branch.walletBalance.toLocaleString('en-US')}</p>
                                             </div>
                                         </div>
@@ -197,7 +199,7 @@ export default function RootDashboard() {
                                         {branch.pendingInvoices > 0 && (
                                             <div className="flex items-center gap-2 text-xs">
                                                 <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
-                                                <span className="text-amber-600 font-semibold">{branch.pendingInvoices} فاتورة معلّقة</span>
+                                                <span className="text-amber-600 font-semibold">{locale === 'ar' ? `${branch.pendingInvoices} فاتورة معلّقة` : `${branch.pendingInvoices} pending invoices`}</span>
                                             </div>
                                         )}
                                     </div>
@@ -211,7 +213,7 @@ export default function RootDashboard() {
                 <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
                     <Card className="p-5 md:p-6">
                         <div className="flex justify-between items-center mb-5">
-                            <h3 className="font-bold text-lg text-gray-900">مقارنة رصيد الخزنة بين الفروع</h3>
+                            <h3 className="font-bold text-lg text-gray-900">{locale === 'ar' ? 'مقارنة رصيد الخزنة بين الفروع' : 'Wallet Balance Comparison'}</h3>
                             <TrendingUp className="w-5 h-5 text-[#102550]" />
                         </div>
                         <div className="space-y-3">
@@ -246,15 +248,15 @@ export default function RootDashboard() {
                 <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}>
                     <Card className="p-5 md:p-6">
                         <div className="flex justify-between items-center mb-5">
-                            <h3 className="font-bold text-lg text-gray-900">التدفق المالي الموحّد</h3>
+                            <h3 className="font-bold text-lg text-gray-900">{locale === 'ar' ? 'التدفق المالي الموحّد' : 'Consolidated Financial Flow'}</h3>
                             <Wallet className="w-5 h-5 text-emerald-600" />
                         </div>
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                             {[
-                                { label: "إجمالي الوارد", value: stats.totals.walletTotalIn, color: "text-emerald-600", bg: "bg-emerald-50" },
-                                { label: "إجمالي المنصرف", value: stats.totals.walletTotalOut, color: "text-rose-600", bg: "bg-rose-50" },
-                                { label: "الرصيد الحالي", value: stats.totals.walletBalance, color: "text-emerald-700", bg: "bg-emerald-100 ring-1 ring-emerald-200" },
-                                { label: "فواتير معلّقة", value: stats.totals.pendingInvoiceAmount, color: "text-amber-600", bg: "bg-amber-50" },
+                                { label: locale === 'ar' ? "إجمالي الوارد" : "Total Incoming", value: stats.totals.walletTotalIn, color: "text-emerald-600", bg: "bg-emerald-50" },
+                                { label: locale === 'ar' ? "إجمالي المنصرف" : "Total Outgoing", value: stats.totals.walletTotalOut, color: "text-rose-600", bg: "bg-rose-50" },
+                                { label: locale === 'ar' ? "الرصيد الحالي" : "Current Balance", value: stats.totals.walletBalance, color: "text-emerald-700", bg: "bg-emerald-100 ring-1 ring-emerald-200" },
+                                { label: locale === 'ar' ? "فواتير معلّقة" : "Pending Invoices", value: stats.totals.pendingInvoiceAmount, color: "text-amber-600", bg: "bg-amber-50" },
                             ].map((item, i) => (
                                 <div key={i} className={`rounded-xl p-4 text-center ${item.bg}`}>
                                     <p className={`text-lg font-black ${item.color}`}>

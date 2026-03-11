@@ -6,23 +6,24 @@ import { Prisma } from "@prisma/client";
 import { isGlobalFinance } from "@/lib/rbac";
 
 
+const EMPTY_DASHBOARD_STATS = {
+    totalProjects: 0,
+    completedProjects: 0,
+    employees: 0,
+    totalRevenue: 0,
+    totalExpenses: 0,
+    todayRevenue: 0,
+    todayWithdrawals: 0,
+    pendingInvoices: [] as never[],
+    recentProjects: [] as never[],
+    recentNotifications: [] as never[],
+    chartData: { monthly: [] as never[], yearly: [] as never[] }
+};
+
 export async function getDashboardStats() {
+  try {
     const session = await getSession();
-    if (!session) {
-        return {
-            totalProjects: 0,
-            completedProjects: 0,
-            employees: 0,
-            totalRevenue: 0,
-            totalExpenses: 0,
-            todayRevenue: 0,
-            todayWithdrawals: 0,
-            pendingInvoices: [],
-            recentProjects: [],
-            recentNotifications: [],
-            chartData: { monthly: [], yearly: [] }
-        };
-    }
+    if (!session) return EMPTY_DASHBOARD_STATS;
 
     const bf = getBranchFilter(session);
     const projectWhereClause: Prisma.ProjectWhereInput = (!isGlobalFinance(session.role))
@@ -138,12 +139,17 @@ export async function getDashboardStats() {
         recentNotifications,
         chartData: { monthly: monthlyData, yearly: yearlyData }
     };
+  } catch (err) {
+    console.error("[getDashboardStats] Error:", err);
+    return EMPTY_DASHBOARD_STATS;
+  }
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
 // getFlowStats — بيانات Flow المالي لكل دور: وصل / مُنفَّق / متبقي
 // ─────────────────────────────────────────────────────────────────────────────
 export async function getFlowStats() {
+  try {
     const session = await getSession();
     if (!session) return null;
     const bf = getBranchFilter(session);
@@ -284,6 +290,10 @@ export async function getFlowStats() {
     }
 
     return null;
+  } catch (err) {
+    console.error("[getFlowStats] Error:", err);
+    return null;
+  }
 }
 
 // ─────────────────────────────────────────────────────────────────────────────

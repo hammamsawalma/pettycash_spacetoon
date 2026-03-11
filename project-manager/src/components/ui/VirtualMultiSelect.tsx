@@ -1,6 +1,7 @@
 "use client";
 import React, { useState, useRef, useMemo } from 'react';
 import { Search, Check } from 'lucide-react';
+import { useLanguage } from "@/context/LanguageContext";
 
 export interface DropdownOption {
     id: string;
@@ -26,6 +27,8 @@ export function VirtualMultiSelect({
     itemHeight = 64, // Default tall enough for avatar and two lines of text
     maxHeight = 320
 }: VirtualMultiSelectProps) {
+    const { locale } = useLanguage();
+    const displayPlaceholder = placeholder || (locale === 'ar' ? 'البحث...' : 'Search...');
     const [search, setSearch] = useState('');
     const [scrollTop, setScrollTop] = useState(0);
     const containerRef = useRef<HTMLDivElement>(null);
@@ -60,7 +63,7 @@ export function VirtualMultiSelect({
                     type="text"
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
-                    placeholder={placeholder}
+                    placeholder={displayPlaceholder}
                     className="w-full bg-transparent border-none outline-none text-xs md:text-sm text-gray-700 placeholder:text-gray-400 font-medium"
                 />
             </div>
@@ -106,21 +109,21 @@ export function VirtualMultiSelect({
                 {filteredOptions.length === 0 && (
                     <div className="absolute inset-0 flex flex-col items-center justify-center text-gray-400 text-xs md:text-sm p-8 text-center bg-gray-50/30">
                         <Search className="w-8 h-8 md:w-10 md:h-10 text-gray-300 mb-2 opacity-50" />
-                        لا توجد نتائج مطابقة لبحثك
+                        {locale === 'ar' ? 'لا توجد نتائج مطابقة لبحثك' : 'No matching results'}
                     </div>
                 )}
             </div>
 
             {/* Footer Summary */}
             <div className="p-3 bg-gray-50 border-t border-gray-100 text-[10px] md:text-xs font-bold text-gray-500 flex justify-between items-center">
-                <span>تم تحديد {selectedIds.length} عنصر</span>
+                <span>{locale === 'ar' ? `تم تحديد ${selectedIds.length} عنصر` : `${selectedIds.length} selected`}</span>
                 {selectedIds.length > 0 && (
                     <button
                         type="button"
                         onClick={(e) => { e.preventDefault(); e.stopPropagation(); onChange('CLEAR_ALL'); }}
                         className="text-red-500 hover:text-red-700 transition-colors"
                     >
-                        إلغاء التحديد
+                        {locale === 'ar' ? 'إلغاء التحديد' : 'Deselect all'}
                     </button>
                 )}
             </div>

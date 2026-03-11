@@ -21,6 +21,7 @@ import {
 import { CSS } from '@dnd-kit/utilities';
 import { Project, User } from '@prisma/client';
 import { Card } from '@/components/ui/Card';
+import { useLanguage } from "@/context/LanguageContext";
 
 type ProjectWithRelations = Project & {
     manager: User | null;
@@ -51,7 +52,8 @@ function SortableProjectCard({ project, onProjectClick }: SortableProjectCardPro
 
     const isCompleted = project.status === 'COMPLETED';
     const isInProgress = project.status === 'IN_PROGRESS';
-    const statusLabel = isCompleted ? 'مكتمل' : isInProgress ? 'قيد التنفيذ' : 'متوقف';
+    const { locale } = useLanguage();
+    const statusLabel = isCompleted ? (locale === 'ar' ? 'مكتمل' : 'Completed') : isInProgress ? (locale === 'ar' ? 'قيد التنفيذ' : 'In Progress') : (locale === 'ar' ? 'متوقف' : 'Pending');
 
     return (
         <div ref={setNodeRef} style={style} {...attributes} {...listeners} className="touch-none">
@@ -72,7 +74,7 @@ function SortableProjectCard({ project, onProjectClick }: SortableProjectCardPro
 
                 <div className="flex justify-between items-center pt-2 gap-2">
                     <p className="text-[10px] text-gray-500 font-medium">
-                        {project.endDate ? new Date(project.endDate).toLocaleDateString('en-GB') : 'تاريخ غير محدد'}
+                        {project.endDate ? new Date(project.endDate).toLocaleDateString('en-GB') : (locale === 'ar' ? 'تاريخ غير محدد' : 'No date set')}
                     </p>
                     <div className="flex row gap-2 text-[10px] text-gray-500 font-bold">
                         <span>{project._count.members} 👤</span>
@@ -93,10 +95,11 @@ export function KanbanBoard({ projects, onProjectClick, onStatusChange, canDragD
         setLocalProjects(projects);
     }, [projects]);
 
+    const { locale: kanbanLocale } = useLanguage();
     const columns = [
-        { id: 'PENDING', title: 'متوقفة', color: 'border-red-200 bg-red-50/50 text-red-700' },
-        { id: 'IN_PROGRESS', title: 'قيد التنفيذ', color: 'border-blue-200 bg-blue-50/50 text-blue-700' },
-        { id: 'COMPLETED', title: 'مكتملة', color: 'border-emerald-200 bg-emerald-50/50 text-emerald-700' }
+        { id: 'PENDING', title: kanbanLocale === 'ar' ? 'متوقفة' : 'Pending', color: 'border-red-200 bg-red-50/50 text-red-700' },
+        { id: 'IN_PROGRESS', title: kanbanLocale === 'ar' ? 'قيد التنفيذ' : 'In Progress', color: 'border-blue-200 bg-blue-50/50 text-blue-700' },
+        { id: 'COMPLETED', title: kanbanLocale === 'ar' ? 'مكتملة' : 'Completed', color: 'border-emerald-200 bg-emerald-50/50 text-emerald-700' }
     ];
 
     const sensors = useSensors(
@@ -177,7 +180,7 @@ export function KanbanBoard({ projects, onProjectClick, onStatusChange, canDragD
                                 </SortableContext>
                                 {columnProjects.length === 0 && (
                                     <div className="h-full w-full border-2 border-dashed border-gray-200 rounded-xl flex items-center justify-center p-6 mt-2 text-xs font-semibold text-gray-400">
-                                        اسحب المشاريع إلى هنا
+                                        {kanbanLocale === 'ar' ? 'اسحب المشاريع إلى هنا' : 'Drag projects here'}
                                     </div>
                                 )}
                             </div>

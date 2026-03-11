@@ -11,6 +11,7 @@ import { NetworkStatus } from "../ui/NetworkStatus";
 import PWAInstallBanner from "../ui/PWAInstallBanner";
 import { useScrollRestoration } from "@/hooks/useMobileUtils";
 import { useScrollDirection } from "@/hooks/useScrollDirection";
+import { useLanguage } from "@/context/LanguageContext";
 
 export default function DashboardLayout({
     children,
@@ -20,6 +21,7 @@ export default function DashboardLayout({
     title?: string;
 }) {
     const pathname = usePathname();
+    const { locale } = useLanguage();
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
     // Restore scroll position when navigating back (#199)
@@ -37,7 +39,7 @@ export default function DashboardLayout({
                 href="#main-content"
                 className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:start-4 focus:z-[200] focus:px-4 focus:py-2 focus:bg-[#102550] focus:text-white focus:rounded-xl focus:font-bold focus:shadow-lg"
             >
-                تخطى إلى المحتوى الرئيسي
+                {locale === 'ar' ? 'تخطى إلى المحتوى الرئيسي' : 'Skip to main content'}
             </a>
 
             {/* ─── ARIA Live Region for screen reader announcements (#153) ─── */}
