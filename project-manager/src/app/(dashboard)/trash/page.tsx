@@ -9,6 +9,7 @@ import { useRouter } from "next/navigation";
 import { getTrashItems, restoreItem, permanentlyDelete, purgeOldTrash } from "@/actions/trash";
 import toast from "react-hot-toast";
 import type { Project, Invoice, Purchase, User as PrismaUser } from "@prisma/client";
+import { useLanguage } from "@/context/LanguageContext";
 
 export default function TrashPage() {
     type TrashItem = { id: string, title: string, type: string, typeLabel: string, deletedAt: string, icon: React.ElementType };
@@ -17,15 +18,16 @@ export default function TrashPage() {
     const [isPurging, setIsPurging] = useState(false);
     const { user } = useAuth();
     const router = useRouter();
+    const { locale } = useLanguage();
 
     const fetchTrash = useCallback(async () => {
         const data = await getTrashItems();
 
         const formatItems = [
-            ...data.projects.map((p: Project) => ({ id: p.id, title: p.name, type: "PROJECT", typeLabel: "مشروع", deletedAt: p.deletedAt ? new Date(p.deletedAt).toLocaleDateString("en-GB") : "", icon: FolderKanban })),
-            ...data.invoices.map((i: Invoice) => ({ id: i.id, title: i.reference, type: "INVOICE", typeLabel: "فاتورة", deletedAt: i.deletedAt ? new Date(i.deletedAt).toLocaleDateString("en-GB") : "", icon: FileText })),
-            ...data.purchases.map((p: Purchase) => ({ id: p.id, title: p.description, type: "PURCHASE", typeLabel: "مشتريات", deletedAt: p.deletedAt ? new Date(p.deletedAt).toLocaleDateString("en-GB") : "", icon: Wallet })),
-            ...data.users.map((u: PrismaUser) => ({ id: u.id, title: u.name, type: "USER", typeLabel: "مستخدم", deletedAt: u.deletedAt ? new Date(u.deletedAt).toLocaleDateString("en-GB") : "", icon: UserIcon })),
+            ...data.projects.map((p: Project) => ({ id: p.id, title: p.name, type: "PROJECT", typeLabel: locale === 'ar' ? "مشروع" : "Project", deletedAt: p.deletedAt ? new Date(p.deletedAt).toLocaleDateString("en-GB") : "", icon: FolderKanban })),
+            ...data.invoices.map((i: Invoice) => ({ id: i.id, title: i.reference, type: "INVOICE", typeLabel: locale === 'ar' ? "فاتورة" : "Invoice", deletedAt: i.deletedAt ? new Date(i.deletedAt).toLocaleDateString("en-GB") : "", icon: FileText })),
+            ...data.purchases.map((p: Purchase) => ({ id: p.id, title: p.description, type: "PURCHASE", typeLabel: locale === 'ar' ? "مشتريات" : "Purchase", deletedAt: p.deletedAt ? new Date(p.deletedAt).toLocaleDateString("en-GB") : "", icon: Wallet })),
+            ...data.users.map((u: PrismaUser) => ({ id: u.id, title: u.name, type: "USER", typeLabel: locale === 'ar' ? "مستخدم" : "User", deletedAt: u.deletedAt ? new Date(u.deletedAt).toLocaleDateString("en-GB") : "", icon: UserIcon })),
         ];
 
         setItems(formatItems);
@@ -47,25 +49,25 @@ export default function TrashPage() {
         if ('error' in res) {
             toast.error(res.error);
         } else {
-            toast.success("تمت استعادة العنصر بنجاح");
+            toast.success(locale === 'ar' ? "تمت استعادة العنصر بنجاح" : "Item restored successfully");
             fetchTrash();
         }
     };
 
     const handleDelete = async (id: string, type: "PROJECT" | "INVOICE" | "PURCHASE" | "USER") => {
-        if (!confirm("هل أنت متأكد من الحذف النهائي؟ لا يمكن التراجع عن هذا الإجراء.")) return;
+        if (!confirm(locale === 'ar' ? "هل أنت متأكد من الحذف النهائي؟ لا يمكن التراجع عن هذا الإجراء." : "Are you sure? This action cannot be undone.")) return;
 
         const res = await permanentlyDelete(type, id);
         if ('error' in res) {
             toast.error(res.error);
         } else {
-            toast.success("تم حذف العنصر نهائياً");
+            toast.success(locale === 'ar' ? "تم حذف العنصر نهائياً" : "Item permanently deleted");
             fetchTrash();
         }
     };
 
     const handleClearAll = async () => {
-        if (!confirm("هل أنت متأكد من إفراغ سلة المهملات بالكامل؟ لا يمكن التراجع عن هذا الإجراء.")) return;
+        if (!confirm(locale === 'ar' ? "هل أنت متأكد من إفراغ سلة المهملات بالكامل؟ لا يمكن التراجع عن هذا الإجراء." : "Empty the entire trash? This cannot be undone.")) return;
         setIsClearing(true);
         const results = await Promise.all(
             items.map(item => permanentlyDelete(item.type as "PROJECT" | "INVOICE" | "PURCHASE" | "USER", item.id))
@@ -73,9 +75,9 @@ export default function TrashPage() {
         const failures = results.filter(r => 'error' in r);
         setIsClearing(false);
         if (failures.length > 0) {
-            toast.error(`فشل حذف ${failures.length} عنصر من أصل ${items.length}`);
+            toast.error(locale === 'ar' ? `فشل حذف ${failures.length} عنصر من أصل ${items.length}` : `Failed to delete ${failures.length} of ${items.length} items`);
         } else {
-            toast.success("تم إفراغ سلة المهملات بنجاح");
+            toast.success(locale === 'ar' ? "تم إفراغ سلة المهملات بنجاح" : "Trash emptied successfully");
         }
         fetchTrash();
     };
@@ -87,17 +89,17 @@ export default function TrashPage() {
         if ('error' in res) {
             toast.error(res.error);
         } else {
-            toast.success('message' in res ? res.message : "تم تنظيف المهملات القديمة بنجاح");
+            toast.success('message' in res ? res.message : (locale === 'ar' ? "تم تنظيف المهملات القديمة بنجاح" : "Old trash cleaned successfully"));
             fetchTrash();
         }
     };
 
     return (
-        <DashboardLayout title="سلة المهملات">
+        <DashboardLayout title={locale === 'ar' ? "سلة المهملات" : "Trash"}>
             <div className="space-y-6 md:space-y-8 pb-6">
 
                 <div className="flex flex-col sm:flex-row justify-between sm:items-center bg-red-50 p-4 md:p-5 rounded-xl border border-red-100 gap-4">
-                    <p className="text-xs md:text-sm text-red-600 font-bold leading-relaxed">سيتم مسح العناصر الموجودة في سلة المهملات نهائياً بعد مرور 30 يوماً.</p>
+                    <p className="text-xs md:text-sm text-red-600 font-bold leading-relaxed">{locale === 'ar' ? 'سيتم مسح العناصر الموجودة في سلة المهملات نهائياً بعد مرور 30 يوماً.' : 'Items in trash will be permanently deleted after 30 days.'}</p>
                     <div className="flex gap-2 w-full sm:w-auto">
                         <Button
                             variant="outline"
@@ -105,7 +107,7 @@ export default function TrashPage() {
                             onClick={handlePurgeOld}
                             disabled={isPurging || isClearing}
                         >
-                            {isPurging ? "جاري التنظيف..." : "تنظيف الملفات القديمة"}
+                            {isPurging ? (locale === 'ar' ? "جاري التنظيف..." : "Cleaning...") : (locale === 'ar' ? "تنظيف الملفات القديمة" : "Clean Old Files")}
                         </Button>
                         <Button
                             variant="outline"
@@ -113,14 +115,14 @@ export default function TrashPage() {
                             onClick={handleClearAll}
                             disabled={items.length === 0 || isClearing || isPurging}
                         >
-                            {isClearing ? "جاري الإفراغ..." : "إفراغ السلة بالكامل"}
+                            {isClearing ? (locale === 'ar' ? "جاري الإفراغ..." : "Emptying...") : (locale === 'ar' ? "إفراغ السلة بالكامل" : "Empty Trash")}
                         </Button>
                     </div>
                 </div>
 
                 {items.length === 0 ? (
                     <div className="text-center py-20 bg-gray-50 rounded-2xl border border-gray-100">
-                        <p className="text-sm font-medium text-gray-500">سلة المهملات فارغة.</p>
+                        <p className="text-sm font-medium text-gray-500">{locale === 'ar' ? 'سلة المهملات فارغة.' : 'Trash is empty.'}</p>
                     </div>
                 ) : (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
@@ -133,7 +135,7 @@ export default function TrashPage() {
                                     <span className="text-[10px] md:text-xs bg-gray-50 text-gray-500 px-2.5 py-1 rounded-lg font-bold border border-gray-100">{item.typeLabel}</span>
                                 </div>
                                 <h4 className="font-bold text-gray-900 mb-1.5 line-through decoration-red-300 decoration-2 text-sm md:text-base">{item.title}</h4>
-                                <p className="text-[10px] md:text-xs text-gray-400 mb-6 font-medium">تم الحذف في: {item.deletedAt}</p>
+                                <p className="text-[10px] md:text-xs text-gray-400 mb-6 font-medium">{locale === 'ar' ? 'تم الحذف في:' : 'Deleted on:'} {item.deletedAt}</p>
 
                                 <div className="flex gap-2 mt-auto pt-4 border-t border-gray-50">
                                     <Button
@@ -142,7 +144,7 @@ export default function TrashPage() {
                                         onClick={() => handleRestore(item.id, item.type as "PROJECT" | "INVOICE" | "PURCHASE" | "USER")}
                                     >
                                         <RefreshCw className="w-3.5 h-3.5 md:w-4 md:h-4" />
-                                        استعادة
+                                        {locale === 'ar' ? 'استعادة' : 'Restore'}
                                     </Button>
                                     <Button
                                         variant="outline"

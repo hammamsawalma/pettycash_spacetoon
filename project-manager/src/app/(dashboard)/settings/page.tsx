@@ -196,7 +196,7 @@ export default function SettingsPage() {
                                                 defaultValue={user?.phone || (locale === 'ar' ? "لم يتم تسجيل رقم جوال" : "No phone registered")}
                                                 disabled
                                                 className="w-full bg-transparent font-bold text-gray-600 text-sm md:text-base outline-none pr-1 dir-ltr text-right cursor-not-allowed"
-                                                title={locale === 'ar' ? "لتغيير رقم الجوال الرجاء الانتقال الى تبويب رقم الجوال" : "To change phone go to Phone tab"}"
+                                                title={locale === 'ar' ? "لتغيير رقم الجوال الرجاء الانتقال الى تبويب رقم الجوال" : "To change phone go to Phone tab"}
                                             />
                                         </div>
                                         <button type="button" onClick={() => setActiveTab("phone")} className="shrink-0 me-2 text-[#102550] bg-blue-50 px-3 py-1.5 rounded-lg hover:bg-[#102550] hover:text-white transition-colors text-[10px] md:text-xs font-bold shadow-sm">

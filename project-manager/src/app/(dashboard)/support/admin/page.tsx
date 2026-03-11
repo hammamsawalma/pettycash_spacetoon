@@ -9,6 +9,7 @@ import { getSupportConversations, getSupportMessages, sendSupportMessage } from 
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
+import { useLanguage } from "@/context/LanguageContext";
 
 type Conversation = {
     userId: string;
@@ -35,6 +36,7 @@ type SupportMessage = {
 export default function AdminSupportPage() {
     const { user } = useAuth();
     const router = useRouter();
+    const { locale } = useLanguage();
 
     const [conversations, setConversations] = useState<Conversation[]>([]);
     const [activeUserId, setActiveUserId] = useState<string | null>(null);
@@ -126,7 +128,7 @@ export default function AdminSupportPage() {
     if (!user || user.role !== "ADMIN") return null;
 
     return (
-        <DashboardLayout title="محادثات الدعم الفني">
+        <DashboardLayout title={locale === 'ar' ? "محادثات الدعم الفني" : "Support Chats"}>
             <Card className="flex h-[calc(100vh-10rem)] overflow-hidden rounded-2xl shadow-sm border-gray-100">
 
                 {/* ─── Conversations List ─── */}
@@ -137,19 +139,19 @@ export default function AdminSupportPage() {
                             <HeadphonesIcon className="w-5 h-5" />
                         </div>
                         <div>
-                            <h3 className="font-bold text-sm text-gray-900">محادثات الدعم</h3>
-                            <p className="text-[10px] text-gray-400">{conversations.length} محادثة</p>
+                            <h3 className="font-bold text-sm text-gray-900">{locale === 'ar' ? 'محادثات الدعم' : 'Support Chats'}</h3>
+                            <p className="text-[10px] text-gray-400">{conversations.length} {locale === 'ar' ? 'محادثة' : 'conversations'}</p>
                         </div>
                     </div>
 
                     {/* List */}
                     <div className="flex-1 overflow-y-auto">
                         {isLoadingConversations ? (
-                            <div className="p-8 text-center text-gray-400 text-sm">جاري التحميل...</div>
+                            <div className="p-8 text-center text-gray-400 text-sm">{locale === 'ar' ? 'جاري التحميل...' : 'Loading...'}</div>
                         ) : conversations.length === 0 ? (
                             <div className="p-8 text-center">
                                 <Inbox className="w-10 h-10 text-gray-200 mx-auto mb-3" />
-                                <p className="text-sm text-gray-400 font-medium">لا توجد محادثات دعم حالياً</p>
+                                <p className="text-sm text-gray-400 font-medium">{locale === 'ar' ? 'لا توجد محادثات دعم حالياً' : 'No support conversations yet'}</p>
                             </div>
                         ) : (
                             conversations.map(conv => (
@@ -181,7 +183,7 @@ export default function AdminSupportPage() {
                                             </span>
                                         </div>
                                         <p className="text-xs text-gray-500 truncate">
-                                            {conv.lastMessageByAdmin ? '← أنت: ' : ''}{conv.lastMessage}
+                                            {conv.lastMessageByAdmin ? (locale === 'ar' ? '← أنت: ' : '← You: ') : ''}{conv.lastMessage}
                                         </p>
                                     </div>
                                 </div>
@@ -205,11 +207,11 @@ export default function AdminSupportPage() {
                                     </div>
                                     <div>
                                         <h3 className="font-bold text-sm text-gray-900">{activeConversation.userName}</h3>
-                                        <p className="text-[10px] text-gray-400">{activeConversation.userJobTitle || activeConversation.userRole} • {activeConversation.totalMessages} رسالة</p>
+                                        <p className="text-[10px] text-gray-400">{activeConversation.userJobTitle || activeConversation.userRole} • {activeConversation.totalMessages} {locale === 'ar' ? 'رسالة' : 'messages'}</p>
                                     </div>
                                 </>
                             ) : (
-                                <h3 className="text-sm text-gray-400 font-medium">اختر محادثة من القائمة</h3>
+                                <h3 className="text-sm text-gray-400 font-medium">{locale === 'ar' ? 'اختر محادثة من القائمة' : 'Select a conversation'}</h3>
                             )}
                         </div>
                     </div>
@@ -219,8 +221,8 @@ export default function AdminSupportPage() {
                         {!activeUserId ? (
                             <div className="flex-1 flex flex-col items-center justify-center py-20 text-center text-gray-400">
                                 <Users className="w-12 h-12 mb-3 opacity-30" />
-                                <p className="font-bold text-sm">اختر محادثة للبدء</p>
-                                <p className="text-xs mt-1">المحادثات مرتبة حسب آخر رسالة</p>
+                                <p className="font-bold text-sm">{locale === 'ar' ? 'اختر محادثة للبدء' : 'Select a conversation to start'}</p>
+                                <p className="text-xs mt-1">{locale === 'ar' ? 'المحادثات مرتبة حسب آخر رسالة' : 'Conversations sorted by latest message'}</p>
                             </div>
                         ) : isLoadingMessages ? (
                             <div className="flex items-center justify-center py-20">
@@ -229,7 +231,7 @@ export default function AdminSupportPage() {
                         ) : messages.length === 0 ? (
                             <div className="flex flex-col items-center justify-center py-16 text-center text-gray-400">
                                 <MessageCircle className="w-10 h-10 mb-3 opacity-30" />
-                                <p className="font-bold text-sm">لا توجد رسائل في هذه المحادثة</p>
+                                <p className="font-bold text-sm">{locale === 'ar' ? 'لا توجد رسائل في هذه المحادثة' : 'No messages in this conversation'}</p>
                             </div>
                         ) : (
                             messages.map(msg => {
@@ -264,7 +266,7 @@ export default function AdminSupportPage() {
                                 type="text"
                                 value={inputValue}
                                 onChange={e => setInputValue(e.target.value)}
-                                placeholder={`الرد على ${activeConversation?.userName || ''}...`}
+                                placeholder={locale === 'ar' ? `الرد على ${activeConversation?.userName || ''}...` : `Reply to ${activeConversation?.userName || ''}...`}
                                 className="flex-1 bg-gray-50 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-blue-100 text-sm border-none"
                                 maxLength={2000}
                             />

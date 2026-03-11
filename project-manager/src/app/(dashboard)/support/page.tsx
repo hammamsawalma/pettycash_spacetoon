@@ -7,6 +7,7 @@ import { useActionState, useEffect, useRef, useState, useCallback } from "react"
 import { createSupportTicket, getSupportMessages, sendSupportMessage } from "@/actions/communications";
 import { useAuth } from "@/context/AuthContext";
 import toast from "react-hot-toast";
+import { useLanguage } from "@/context/LanguageContext";
 
 type SupportMessage = {
     id: string;
@@ -19,6 +20,7 @@ type SupportMessage = {
 
 export default function SupportPage() {
     const { user } = useAuth();
+    const { locale } = useLanguage();
     const [state, formAction, isPending] = useActionState(createSupportTicket, null);
     const formRef = useRef<HTMLFormElement>(null);
 
@@ -36,7 +38,7 @@ export default function SupportPage() {
             toast.error(state.error);
         }
         if (state?.success) {
-            toast.success("تم إرسال تذكرتك بنجاح، سيتم التواصل معك قريباً.");
+            toast.success(locale === 'ar' ? "تم إرسال تذكرتك بنجاح، سيتم التواصل معك قريباً." : "Ticket submitted successfully. We'll get back to you soon.");
             formRef.current?.reset();
         }
     }, [state]);
@@ -105,14 +107,14 @@ export default function SupportPage() {
     };
 
     return (
-        <DashboardLayout title="الدعم الفني">
+        <DashboardLayout title={locale === 'ar' ? "الدعم الفني" : "Technical Support"}>
             <div className="space-y-6 md:space-y-8 pb-6 w-full max-w-6xl mx-auto">
 
                 {/* Hero / Header Card */}
                 <Card className="p-6 md:p-8 bg-gradient-to-r from-blue-50 to-white border-2 border-blue-50 flex flex-col md:flex-row items-center justify-between gap-6 text-center md:text-right rounded-2xl shadow-sm">
                     <div className="order-2 md:order-1 flex-1">
-                        <h2 className="text-xl md:text-2xl font-bold text-gray-900 mb-2 md:mb-3">كيف يمكننا مساعدتك اليوم؟</h2>
-                        <p className="text-xs md:text-sm text-gray-600 max-w-2xl leading-relaxed font-medium">فريق الدعم الفني متواجد للإجابة على جميع استفساراتك وحل المشاكل التقنية التي قد تواجهها أثناء استخدام النظام.</p>
+                        <h2 className="text-xl md:text-2xl font-bold text-gray-900 mb-2 md:mb-3">{locale === 'ar' ? 'كيف يمكننا مساعدتك اليوم؟' : 'How can we help you today?'}</h2>
+                        <p className="text-xs md:text-sm text-gray-600 max-w-2xl leading-relaxed font-medium">{locale === 'ar' ? 'فريق الدعم الفني متواجد للإجابة على جميع استفساراتك وحل المشاكل التقنية التي قد تواجهها أثناء استخدام النظام.' : 'Our support team is here to answer your questions and resolve technical issues.'}</p>
                     </div>
                     <div className="order-1 md:order-2 w-20 h-20 md:w-24 md:h-24 bg-white rounded-full border-4 border-blue-100 shadow-sm flex items-center justify-center text-[#102550] shrink-0">
                         <HeadphonesIcon className="w-10 h-10 md:w-12 md:h-12" />
@@ -126,7 +128,7 @@ export default function SupportPage() {
                             <span className="p-2 bg-blue-50 text-[#102550] rounded-lg">
                                 <Ticket className="w-5 h-5 md:w-6 md:h-6" />
                             </span>
-                            فتح تذكرة دعم فني جديدة
+                            {locale === 'ar' ? 'فتح تذكرة دعم فني جديدة' : 'Open a New Support Ticket'}
                         </h3>
 
                         <form ref={formRef} className="space-y-6" action={formAction}>
@@ -175,7 +177,7 @@ export default function SupportPage() {
 
                             <div className="flex justify-end pt-4">
                                 <Button type="submit" disabled={isPending} isLoading={isPending} variant="primary" className="px-8 py-2.5 rounded-xl text-sm font-bold shadow-sm w-full sm:w-auto">
-                                    إرسال التذكرة
+                                {locale === 'ar' ? 'إرسال التذكرة' : 'Submit Ticket'}
                                 </Button>
                             </div>
                         </form>
@@ -197,7 +199,7 @@ export default function SupportPage() {
                                 className="w-full text-xs md:text-sm h-11 md:h-12 font-bold bg-[#102550] hover:bg-blue-800"
                                 onClick={openChat}
                             >
-                                💬 بدء محادثة
+                                💬 {locale === 'ar' ? 'بدء محادثة' : 'Start Chat'}
                             </Button>
                         </Card>
 
@@ -209,7 +211,7 @@ export default function SupportPage() {
                                 <h4 className="font-bold text-gray-900 text-sm md:text-base mb-1">دليل المستخدم</h4>
                                 <p className="text-[11px] md:text-xs text-gray-500 font-medium leading-relaxed">تصفح الأسئلة الشائعة والمقالات التعليمية حول النظام.</p>
                             </div>
-                            <Button variant="secondary" className="w-full text-xs md:text-sm h-11 md:h-12 font-bold text-gray-700 bg-gray-100 border-transparent hover:bg-gray-200" onClick={() => window.open("/manual", "_blank")}>تصفح الدليل</Button>
+                            <Button variant="secondary" className="w-full text-xs md:text-sm h-11 md:h-12 font-bold text-gray-700 bg-gray-100 border-transparent hover:bg-gray-200" onClick={() => window.open("/manual", "_blank")}>{locale === 'ar' ? 'تصفح الدليل' : 'Browse Guide'}</Button>
                         </Card>
 
                         <Card className="p-5 border-l-4 border-l-yellow-400 bg-gradient-to-l from-white to-yellow-50/50 shadow-sm rounded-2xl border border-gray-100">
@@ -255,7 +257,7 @@ export default function SupportPage() {
                                 <div className="flex-1 flex items-center justify-center py-20">
                                     <div className="text-center text-gray-400">
                                         <div className="w-8 h-8 border-2 border-blue-200 border-t-blue-600 rounded-full animate-spin mx-auto mb-3" />
-                                        <p className="text-sm font-medium">جاري تحميل المحادثة...</p>
+                                        <p className="text-sm font-medium">{locale === 'ar' ? 'جاري تحميل المحادثة...' : 'Loading chat...'}</p>
                                     </div>
                                 </div>
                             ) : chatMessages.length === 0 ? (
@@ -263,8 +265,8 @@ export default function SupportPage() {
                                     <div className="w-16 h-16 bg-blue-50 rounded-full flex items-center justify-center mb-4">
                                         <MessageCircle className="w-8 h-8 text-blue-300" />
                                     </div>
-                                    <p className="font-bold text-gray-700 text-sm">مرحباً بك!</p>
-                                    <p className="text-xs text-gray-400 mt-1 max-w-[220px]">اكتب رسالتك وسنقوم بالرد عليك في أقرب وقت ممكن.</p>
+                                    <p className="font-bold text-gray-700 text-sm">{locale === 'ar' ? 'مرحباً بك!' : 'Welcome!'}</p>
+                                    <p className="text-xs text-gray-400 mt-1 max-w-[220px]">{locale === 'ar' ? 'اكتب رسالتك وسنقوم بالرد عليك في أقرب وقت ممكن.' : 'Send a message and we\'ll respond as soon as possible.'}</p>
                                 </div>
                             ) : (
                                 chatMessages.map(msg => {
@@ -279,7 +281,7 @@ export default function SupportPage() {
                                                 }`}>
                                                 {!isMine && (
                                                     <p className="text-[10px] text-blue-600 font-bold mb-1">
-                                                        {msg.sender.name} — {msg.sender.role === 'ADMIN' ? 'مدير النظام' : 'الدعم'}
+                                                        {msg.sender.name} — {msg.sender.role === 'ADMIN' ? (locale === 'ar' ? 'مدير النظام' : 'System Admin') : (locale === 'ar' ? 'الدعم' : 'Support')}
                                                     </p>
                                                 )}
                                                 <p className="text-sm leading-relaxed whitespace-pre-wrap">{msg.content}</p>
@@ -298,7 +300,7 @@ export default function SupportPage() {
                                 type="text"
                                 value={chatInput}
                                 onChange={e => setChatInput(e.target.value)}
-                                placeholder="اكتب رسالتك هنا..."
+                                placeholder={locale === 'ar' ? "اكتب رسالتك هنا..." : "Type your message here..."}
                                 className="flex-1 bg-gray-50 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-blue-100 text-sm border-none"
                                 autoFocus
                                 maxLength={2000}

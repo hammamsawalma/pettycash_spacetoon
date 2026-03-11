@@ -8,6 +8,7 @@ import { getMessages, sendMessage } from "@/actions/communications";
 import { getProjects } from "@/actions/projects";
 import { useAuth } from "@/context/AuthContext";
 import { Message, User, Project } from "@prisma/client";
+import { useLanguage } from "@/context/LanguageContext";
 
 type MessageWithRelations = Message & {
     sender: User;
@@ -16,6 +17,7 @@ type MessageWithRelations = Message & {
 
 export default function ChatPage() {
     const { user } = useAuth();
+    const { locale } = useLanguage();
     const [messages, setMessages] = useState<MessageWithRelations[]>([]);
     const [projects, setProjects] = useState<Project[]>([]);
     const [activeChat, setActiveChat] = useState<{ type: 'project', data: Project } | null>(null);
@@ -79,7 +81,7 @@ export default function ChatPage() {
         : [];
 
     return (
-        <DashboardLayout title="شات المشاريع">
+        <DashboardLayout title={locale === 'ar' ? "شات المشاريع" : "Project Chat"}>
             <Card className="flex h-[calc(100vh-10rem)] overflow-hidden">
 
                 {/* Chat Sidebar — Project Groups Only */}
@@ -88,7 +90,7 @@ export default function ChatPage() {
                         <div className="relative">
                             <input
                                 type="text"
-                                placeholder="ابحث في المشاريع..."
+                                placeholder={locale === 'ar' ? "ابحث في المشاريع..." : "Search projects..."}
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
                                 className="w-full pl-10 pr-4 py-2 bg-gray-50 rounded-lg outline-none focus:ring-1 focus:ring-[#102550] border-transparent text-sm"
@@ -98,11 +100,11 @@ export default function ChatPage() {
                     </div>
 
                     <div className="flex-1 overflow-y-auto">
-                        <div className="px-4 py-3 uppercase text-xs font-bold text-gray-400 tracking-wider">شات المشاريع</div>
+                        <div className="px-4 py-3 uppercase text-xs font-bold text-gray-400 tracking-wider">{locale === 'ar' ? 'شات المشاريع' : 'Project Chats'}</div>
                         {isLoading ? (
-                            <div className="p-4 text-center text-gray-500 text-sm">جاري التحميل...</div>
+                            <div className="p-4 text-center text-gray-500 text-sm">{locale === 'ar' ? 'جاري التحميل...' : 'Loading...'}</div>
                         ) : filteredProjects.length === 0 ? (
-                            <div className="p-4 text-center text-gray-500 text-sm">لا توجد مشاريع متاحة.</div>
+                            <div className="p-4 text-center text-gray-500 text-sm">{locale === 'ar' ? 'لا توجد مشاريع متاحة.' : 'No projects available.'}</div>
                         ) : filteredProjects.map((project) => (
                             <div
                                 key={project.id}
@@ -116,7 +118,7 @@ export default function ChatPage() {
                                     <div className="flex justify-between items-baseline mb-0.5">
                                         <p className={`text-sm font-semibold truncate ${activeChat?.data.id === project.id ? 'text-[#102550]' : 'text-gray-900'}`}>{project.name}</p>
                                     </div>
-                                    <p className="text-[10px] text-gray-500 truncate font-medium">مجموعة المشروع</p>
+                                    <p className="text-[10px] text-gray-500 truncate font-medium">{locale === 'ar' ? 'مجموعة المشروع' : 'Project Group'}</p>
                                 </div>
                             </div>
                         ))}
@@ -135,8 +137,8 @@ export default function ChatPage() {
                                 <FolderKanban className="w-4 h-4 md:w-5 md:h-5" />
                             </div>
                             <div>
-                                <h3 className="font-bold text-gray-900">{activeChat ? activeChat.data.name : "اختر مشروع"}</h3>
-                                <p className="text-xs text-gray-500">{activeChat ? 'مجموعة نقاش المشروع' : "---"}</p>
+                                <h3 className="font-bold text-gray-900">{activeChat ? activeChat.data.name : (locale === 'ar' ? "اختر مشروع" : "Select a project")}</h3>
+                                <p className="text-xs text-gray-500">{activeChat ? (locale === 'ar' ? 'مجموعة نقاش المشروع' : 'Project discussion group') : "---"}</p>
                             </div>
                         </div>
                         <button className="text-gray-400 hover:text-gray-600">
@@ -148,18 +150,18 @@ export default function ChatPage() {
                     <div className="flex-1 overflow-y-auto p-6 space-y-6 flex flex-col">
 
                         <div className="flex justify-center mb-4">
-                            <span className="text-xs bg-gray-200 text-gray-500 px-3 py-1 rounded-full font-medium">الرسائل</span>
+                            <span className="text-xs bg-gray-200 text-gray-500 px-3 py-1 rounded-full font-medium">{locale === 'ar' ? 'الرسائل' : 'Messages'}</span>
                         </div>
 
                         {!activeChat ? (
                             <div className="flex-1 flex flex-col items-center justify-center text-gray-400">
                                 <FolderKanban className="w-12 h-12 mb-3 opacity-30" />
-                                <p className="font-bold">اختر مشروعاً من القائمة للبدء</p>
-                                <p className="text-sm mt-1">المحادثات متاحة فقط ضمن المشاريع</p>
+                                <p className="font-bold">{locale === 'ar' ? 'اختر مشروعاً من القائمة للبدء' : 'Select a project to start'}</p>
+                                <p className="text-sm mt-1">{locale === 'ar' ? 'المحادثات متاحة فقط ضمن المشاريع' : 'Conversations are only within projects'}</p>
                             </div>
                         ) : activeMessages.length === 0 ? (
                             <div className="flex-1 flex flex-col items-center justify-center text-gray-400">
-                                <p className="font-bold">لا توجد رسائل سابقة. ابدأ المحادثة الآن!</p>
+                                <p className="font-bold">{locale === 'ar' ? 'لا توجد رسائل سابقة. ابدأ المحادثة الآن!' : 'No previous messages. Start chatting!'}</p>
                             </div>
                         ) : (
                             activeMessages.map((msg) => {
@@ -197,7 +199,7 @@ export default function ChatPage() {
                             </button>
                             <input
                                 type="text"
-                                placeholder="اكتب رسالتك هنا..."
+                                placeholder={locale === 'ar' ? "اكتب رسالتك هنا..." : "Type your message here..."}
                                 value={inputValue}
                                 onChange={(e) => setInputValue(e.target.value)}
                                 className="flex-1 bg-gray-50 border-none rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-blue-100 text-sm"

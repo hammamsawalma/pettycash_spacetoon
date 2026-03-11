@@ -1,6 +1,7 @@
 "use client";
 import { motion } from "framer-motion";
 import { RefreshCw, ArrowDown } from "lucide-react";
+import { useLanguage } from "@/context/LanguageContext";
 
 interface Props {
     /** 0 → 1 — from usePullToRefresh's pullProgress */
@@ -15,6 +16,7 @@ interface Props {
  * then switches to a spinner while data is loading.
  */
 export function PullToRefreshIndicator({ pullProgress, isRefreshing }: Props) {
+    const { locale } = useLanguage();
     if (pullProgress === 0 && !isRefreshing) return null;
 
     return (
@@ -29,7 +31,7 @@ export function PullToRefreshIndicator({ pullProgress, isRefreshing }: Props) {
                 {isRefreshing ? (
                     <>
                         <RefreshCw className="w-4 h-4 text-[#102550] animate-spin" />
-                        <span className="text-xs font-bold text-[#102550]">جاري التحديث...</span>
+                        <span className="text-xs font-bold text-[#102550]">{locale === 'ar' ? 'جاري التحديث...' : 'Refreshing...'}</span>
                     </>
                 ) : (
                     <>
@@ -39,7 +41,7 @@ export function PullToRefreshIndicator({ pullProgress, isRefreshing }: Props) {
                             <ArrowDown className="w-4 h-4 text-[#102550]" />
                         </motion.div>
                         <span className="text-xs font-bold text-gray-500">
-                            {pullProgress >= 1 ? "أفلت للتحديث" : "اسحب للتحديث"}
+                            {pullProgress >= 1 ? (locale === 'ar' ? "أفلت للتحديث" : "Release to refresh") : (locale === 'ar' ? "اسحب للتحديث" : "Pull to refresh")}
                         </span>
                     </>
                 )}

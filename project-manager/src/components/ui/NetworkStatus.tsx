@@ -3,12 +3,14 @@
 import { useState, useEffect } from "react";
 import { WifiOff, Wifi, RefreshCw } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useLanguage } from "@/context/LanguageContext";
 
 export function NetworkStatus() {
     const [isOnline, setIsOnline] = useState(true);
     const [showBackOnline, setShowBackOnline] = useState(false);
     const [hasUpdate, setHasUpdate] = useState(false);
     const [waitingWorker, setWaitingWorker] = useState<ServiceWorker | null>(null);
+    const { locale } = useLanguage();
 
     useEffect(() => {
         // Initial state
@@ -91,7 +93,7 @@ export function NetworkStatus() {
                 >
                     <div className="bg-red-500 text-white px-4 py-2 rounded-full shadow-lg flex items-center gap-2 text-xs md:text-sm font-bold pointer-events-auto">
                         <WifiOff className="w-4 h-4" aria-hidden="true" />
-                        <span>أنت غير متصل بالإنترنت. يرجى التحقق من اتصالك.</span>
+                        <span>{locale === 'ar' ? 'أنت غير متصل بالإنترنت. يرجى التحقق من اتصالك.' : 'You are offline. Please check your connection.'}</span>
                     </div>
                 </motion.div>
             )}
@@ -110,7 +112,7 @@ export function NetworkStatus() {
                 >
                     <div className="bg-emerald-500 text-white px-4 py-2 rounded-full shadow-lg flex items-center gap-2 text-xs md:text-sm font-bold pointer-events-auto">
                         <Wifi className="w-4 h-4" aria-hidden="true" />
-                        <span>عاد الاتصال بالإنترنت!</span>
+                        <span>{locale === 'ar' ? 'عاد الاتصال بالإنترنت!' : 'Back online!'}</span>
                     </div>
                 </motion.div>
             )}
@@ -129,16 +131,16 @@ export function NetworkStatus() {
                 >
                     <div className="bg-[#102550] text-white px-4 py-3 rounded-2xl shadow-2xl flex items-center gap-3 text-xs md:text-sm font-bold pointer-events-auto max-w-sm w-full">
                         <div className="flex-1">
-                            <p className="font-black">🎉 تحديث جديد متوفر</p>
-                            <p className="font-medium text-white/70 text-[11px] mt-0.5">اضغط لتحديث التطبيق</p>
+                            <p className="font-black">{locale === 'ar' ? '🎉 تحديث جديد متوفر' : '🎉 New update available'}</p>
+                            <p className="font-medium text-white/70 text-[11px] mt-0.5">{locale === 'ar' ? 'اضغط لتحديث التطبيق' : 'Click to update'}</p>
                         </div>
                         <button
                             onClick={applyUpdate}
                             className="flex items-center gap-1.5 bg-white/20 hover:bg-white/30 text-white px-3 py-1.5 rounded-xl transition-colors shrink-0"
-                            aria-label="تطبيق التحديث وإعادة تحميل الصفحة"
+                            aria-label={locale === 'ar' ? "تطبيق التحديث وإعادة تحميل الصفحة" : "Apply update and reload"}
                         >
                             <RefreshCw className="w-3.5 h-3.5" aria-hidden="true" />
-                            تحديث
+                            {locale === 'ar' ? 'تحديث' : 'Update'}
                         </button>
                     </div>
                 </motion.div>

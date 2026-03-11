@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import { Download, FileSpreadsheet, FileText, ChevronDown } from "lucide-react";
+import { useLanguage } from "@/context/LanguageContext";
 
 interface ExportButtonProps {
     onExportExcel: () => void | Promise<void>;
@@ -19,6 +20,8 @@ export function ExportButton({
     disabled = false,
     compact = false,
 }: ExportButtonProps) {
+    const { locale } = useLanguage();
+    const displayLabel = label || (locale === 'ar' ? 'تصدير' : 'Export');
     const [open, setOpen] = useState(false);
     const [loading, setLoading] = useState<"excel" | "pdf" | null>(null);
     const ref = useRef<HTMLDivElement>(null);
@@ -72,7 +75,7 @@ export function ExportButton({
                 `}
             >
                 <Download className={compact ? "w-3.5 h-3.5" : "w-4 h-4"} />
-                <span>{label}</span>
+                <span>{displayLabel}</span>
                 <ChevronDown className={`w-3 h-3 transition-transform ${open ? "rotate-180" : ""}`} />
             </button>
 
@@ -95,9 +98,9 @@ export function ExportButton({
                             </div>
                             <div className="text-right">
                                 <div className="text-sm font-bold">
-                                    {loading === "excel" ? "جارٍ التصدير..." : "تصدير Excel"}
+                                    {loading === "excel" ? (locale === 'ar' ? "جارٍ التصدير..." : "Exporting...") : (locale === 'ar' ? "تصدير Excel" : "Export Excel")}
                                 </div>
-                                <div className="text-[10px] text-gray-400 font-medium">ملف جدول بيانات .xlsx</div>
+                                <div className="text-[10px] text-gray-400 font-medium">{locale === 'ar' ? 'ملف جدول بيانات .xlsx' : 'Spreadsheet file .xlsx'}</div>
                             </div>
                         </button>
 
@@ -115,9 +118,9 @@ export function ExportButton({
                             </div>
                             <div className="text-right">
                                 <div className="text-sm font-bold">
-                                    {loading === "pdf" ? "جارٍ التصدير..." : "تصدير PDF / طباعة"}
+                                    {loading === "pdf" ? (locale === 'ar' ? "جارٍ التصدير..." : "Exporting...") : (locale === 'ar' ? "تصدير PDF / طباعة" : "Export PDF / Print")}
                                 </div>
-                                <div className="text-[10px] text-gray-400 font-medium">تقرير جاهز للطباعة</div>
+                                <div className="text-[10px] text-gray-400 font-medium">{locale === 'ar' ? 'تقرير جاهز للطباعة' : 'Print-ready report'}</div>
                             </div>
                         </button>
                     </div>

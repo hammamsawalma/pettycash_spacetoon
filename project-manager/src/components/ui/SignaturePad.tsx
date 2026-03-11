@@ -2,6 +2,7 @@
 import { useRef, useState, useEffect, useCallback } from "react";
 import { Button } from "./Button";
 import { Eraser, Save, RotateCcw } from "lucide-react";
+import { useLanguage } from "@/context/LanguageContext";
 
 interface SignaturePadProps {
     onSave: (dataUrl: string) => void;
@@ -11,7 +12,9 @@ interface SignaturePadProps {
     label?: string;
 }
 
-export function SignaturePad({ onSave, savedSignature, width = 400, height = 200, label = "التوقيع" }: SignaturePadProps) {
+export function SignaturePad({ onSave, savedSignature, width = 400, height = 200, label }: SignaturePadProps) {
+    const { locale } = useLanguage();
+    const displayLabel = label || (locale === 'ar' ? 'التوقيع' : 'Signature');
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const [isDrawing, setIsDrawing] = useState(false);
     const [hasDrawn, setHasDrawn] = useState(false);
@@ -95,7 +98,7 @@ export function SignaturePad({ onSave, savedSignature, width = 400, height = 200
 
     return (
         <div className="space-y-3">
-            <label className="text-sm font-bold text-gray-700 block">{label}</label>
+            <label className="text-sm font-bold text-gray-700 block">{displayLabel}</label>
             <div className="border-2 border-dashed border-gray-200 rounded-xl overflow-hidden bg-white" style={{ maxWidth: width }}>
                 <canvas
                     ref={canvasRef}
@@ -113,16 +116,16 @@ export function SignaturePad({ onSave, savedSignature, width = 400, height = 200
             </div>
             <div className="flex flex-wrap gap-2">
                 <Button type="button" variant="outline" onClick={clear} className="gap-1.5 text-sm px-3 py-2">
-                    <Eraser className="w-4 h-4" /> مسح
+                    <Eraser className="w-4 h-4" /> {locale === 'ar' ? 'مسح' : 'Clear'}
                 </Button>
                 {hasDrawn && (
                     <Button type="button" variant="primary" onClick={save} className="gap-1.5 text-sm px-4 py-2 bg-green-600 hover:bg-green-700 border-green-700">
-                        <Save className="w-4 h-4" /> تأكيد التوقيع
+                        <Save className="w-4 h-4" /> {locale === 'ar' ? 'تأكيد التوقيع' : 'Confirm Signature'}
                     </Button>
                 )}
                 {savedSignature && (
                     <Button type="button" variant="outline" onClick={useSaved} className="gap-1.5 text-sm px-3 py-2 text-blue-600 border-blue-200">
-                        <RotateCcw className="w-4 h-4" /> استخدام المحفوظ
+                        <RotateCcw className="w-4 h-4" /> {locale === 'ar' ? 'استخدام المحفوظ' : 'Use Saved'}
                     </Button>
                 )}
             </div>
