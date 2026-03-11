@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { cookies } from "next/headers";
 import prisma from "@/lib/prisma";
 import bcrypt from "bcryptjs";
 import { signToken, SessionData } from "@/lib/auth";
@@ -48,11 +49,10 @@ export async function POST(request: Request) {
 
         const token = await signToken(sessionData);
 
-        // Create the response object
-        const response = NextResponse.json({ success: true, user: sessionData });
-
-        // Force explicit cookie setting on the response itself (bulletproof)
-        response.cookies.set("session", token, {
+        // Await the cookies function from next/headers
+        const cookieStore = await cookies();
+        
+        cookieStore.set("session", token, {
             httpOnly: true,
             secure: process.env.COOKIE_SECURE === "true",
             sameSite: "lax",
@@ -60,7 +60,7 @@ export async function POST(request: Request) {
             path: "/",
         });
 
-        return response;
+        return NextResponse.json({ success: true, user: sessionData });
 
     } catch (error) {
         console.error("[POST /api/auth/login] Error:", error);
