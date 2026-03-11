@@ -135,9 +135,7 @@ export default function LoginPage() {
                                 ))}
                             </div>
                             <p className="text-[9px] text-center text-gray-300 mt-1">
-                                {locale === 'ar' 
-                                    ? '✅ عهدة مؤكدة  |  ⏳ عهدة تنتظر توقيع + دين  |  🚨 طلب شراء عاجل'
-                                    : '✅ Settled Custody  |  ⏳ Pending Custody + Debt  |  🚨 Urgent POS Request'}
+                                {t('login.custodyLegend')}
                             </p>
                         </div>
 

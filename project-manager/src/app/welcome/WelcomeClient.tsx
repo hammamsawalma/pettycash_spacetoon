@@ -78,9 +78,7 @@ export default function WelcomeClient({ branches }: { branches: Branch[] }) {
                         </h1>
                         
                         <p className="text-lg md:text-xl text-blue-200/80 max-w-2xl leading-relaxed mb-12 font-medium">
-                            {locale === 'ar' 
-                                ? 'نظام الإدارة المالية والتشغيلية الموحد الذكي لفروع ومشاريع الشركة حول العالم.'
-                                : 'The unified, intelligent financial and operational management system for our branches worldwide.'}
+                            {t('login.smartSystemDesc')}
                         </p>
 
                         <button 
@@ -90,7 +88,7 @@ export default function WelcomeClient({ branches }: { branches: Branch[] }) {
                             <div className="absolute inset-0 bg-gradient-to-r from-blue-600/0 via-blue-500/10 to-blue-600/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000" />
                             <div className="px-8 py-4 flex items-center gap-4">
                                 <span className="text-white font-semibold text-lg tracking-wide">
-                                    {locale === 'ar' ? 'الدخول لبوابة الفروع' : 'Access Branch Portal'}
+                                    {t('welcome.accessPortal')}
                                 </span>
                                 <ArrowRight className={`w-5 h-5 text-blue-400 group-hover:translate-x-1 transition-transform ${locale === 'ar' ? 'rotate-180 group-hover:-translate-x-1' : ''}`} />
                             </div>
@@ -106,12 +104,10 @@ export default function WelcomeClient({ branches }: { branches: Branch[] }) {
                         <div className="text-center mb-10 w-full relative">
                             {/* Back arrow hidden intentionally for cleaner UX, but could be added */}
                             <h2 className="text-3xl md:text-4xl font-bold text-white mb-2 tracking-tight">
-                                {locale === 'ar' ? 'اختر الفرع الإقليمي' : 'Select Regional Branch'}
+                                {t('welcome.selectRegionalBranch')}
                             </h2>
                             <p className="text-blue-200/60 font-medium">
-                                {locale === 'ar' 
-                                    ? 'اختر الفرع التابع لك للاتصال بالخادم المخصص' 
-                                    : 'Select your regional branch to connect to the dedicated server'}
+                                {t('welcome.selectConnectingSubtitle')}
                             </p>
                         </div>
 
@@ -160,7 +156,7 @@ export default function WelcomeClient({ branches }: { branches: Branch[] }) {
                                 className="px-5 py-2.5 rounded-full border border-yellow-500/20 text-xs text-yellow-500 hover:bg-yellow-500/10 hover:border-yellow-500/40 flex items-center gap-2 font-medium transition-all"
                             >
                                 <Globe className="w-3.5 h-3.5" />
-                                <span>{locale === 'ar' ? 'دخول مدير النظام المركزي' : 'HQ Admin Login'}</span>
+                                <span>{t('welcome.hqAdminLogin')}</span>
                             </button>
                         </div>
                     </div>
@@ -182,11 +178,11 @@ export default function WelcomeClient({ branches }: { branches: Branch[] }) {
                         </div>
                         
                         <h2 className="text-2xl font-bold text-white mb-3 text-center">
-                            {locale === 'ar' ? `جاري الاتصال بخوادم ${selectedBranch.name}...` : `Connecting to ${selectedBranch.country} servers...`}
+                            {t('welcome.connectingToServer').replace('{branch}', locale === 'ar' ? selectedBranch.name : selectedBranch.country)}
                         </h2>
                         <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-green-500/10 border border-green-500/20 text-green-400 text-sm font-medium">
                             <ShieldCheck className="w-4 h-4" />
-                            <span>{locale === 'ar' ? 'تأسيس قناة آمنة ومستقلة' : 'Establishing secure isolated channel'}</span>
+                            <span>{t('welcome.secureChannel')}</span>
                         </div>
                     </div>
                 )}

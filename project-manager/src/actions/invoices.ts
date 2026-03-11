@@ -5,6 +5,7 @@ import { getSession, getBranchFilter } from "@/lib/auth";
 
 import { isGlobalFinance, hasProjectPermission } from "@/lib/rbac";
 import { sendPushNotification } from "@/lib/push";
+import { generateVerificationToken } from "@/lib/verification";
 import fs from "fs";
 import path from "path";
 import { markPurchaseAsBought } from "./purchases";
@@ -91,14 +92,19 @@ export async function getInvoiceById(id: string) {
         });
         if (!invoice) return null;
 
+        const invoiceWithToken = {
+            ...invoice,
+            verificationToken: generateVerificationToken(invoice.id)
+        };
+
         // Auth: creator, global finance roles, or project member can read
-        if (isGlobalFinance(session.role)) return invoice;
-        if (invoice.creator?.id === session.id) return invoice;
+        if (isGlobalFinance(session.role)) return invoiceWithToken;
+        if (invoice.creator?.id === session.id) return invoiceWithToken;
         if (invoice.projectId) {
             const member = await prisma.projectMember.findFirst({
                 where: { projectId: invoice.projectId, userId: session.id }
             });
-            if (member) return invoice;
+            if (member) return invoiceWithToken;
         }
         return null; // unauthorized
     } catch (error) {

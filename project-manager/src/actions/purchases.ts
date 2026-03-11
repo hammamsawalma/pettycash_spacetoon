@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { getSession, getBranchFilter } from "@/lib/auth";
 import { isGlobalFinance } from "@/lib/rbac";
 import { sendPushNotification } from "@/lib/push";
+import { generateVerificationToken } from "@/lib/verification";
 import fs from "fs";
 import path from "path";
 
@@ -235,9 +236,14 @@ export async function getPurchaseById(id: string) {
 
         if (!purchase) return null;
 
+        const purchaseWithToken = {
+            ...purchase,
+            verificationToken: generateVerificationToken(purchase.id)
+        };
+
         const isUnrestricted = isGlobalFinance(session.role) || session.role === "GENERAL_MANAGER";
         if (isUnrestricted || purchase.creatorId === session.id || purchase.project?.managerId === session.id) {
-            return purchase;
+            return purchaseWithToken;
         }
 
         // Check project membership roles
@@ -246,7 +252,7 @@ export async function getPurchaseById(id: string) {
                 where: { projectId_userId: { projectId: purchase.projectId, userId: session.id } }
             });
             if (member && (member.projectRoles.includes("PROJECT_MANAGER") || member.projectRoles.includes("PROJECT_EMPLOYEE"))) {
-                return purchase;
+                return purchaseWithToken;
             }
         }
 

@@ -13,6 +13,7 @@ import { getInvoiceById, updateInvoiceStatus, softDeleteInvoice } from "@/action
 import { getCategories } from "@/actions/categories";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
+import { QRCodeDisplay } from "@/components/QRCodeDisplay";
 import { UserRole } from "@/context/AuthContext";
 import { AnimatedCheckmark } from "@/components/ui/AnimatedCheckmark";
 
@@ -45,8 +46,8 @@ type FullInvoice = {
     category: { name: string; icon: string | null } | null;
     items: InvoiceItem[];
     custody: { employee: { name: string } } | null;
-    // I9: packed project role for the current viewer (injected client-side after fetch)
     viewerProjectRole?: string | null;
+    verificationToken?: string;
 };
 
 export default function InvoiceDetailsPage({ params }: { params: Promise<{ id: string }> }) {
@@ -244,7 +245,22 @@ export default function InvoiceDetailsPage({ params }: { params: Promise<{ id: s
                             <h2 className="text-xl md:text-2xl font-bold text-gray-900">{locale === 'ar' ? `فاتورة مشتريات #${invoice.reference}` : `Purchase Invoice #${invoice.reference}`}</h2>
                             <p className="text-gray-500 mt-2 text-sm">{locale === 'ar' ? `أُضيفت في ${new Date(invoice.date).toLocaleDateString('en-GB')} بواسطة ${invoice.creator.name}` : `Added on ${new Date(invoice.date).toLocaleDateString('en-GB')} by ${invoice.creator.name}`}</p>
                         </div>
-                        <StatusBadge status={invoice.status} />
+                        <div className="flex items-center gap-4">
+                            {/* QR Code visible always but larger on print */}
+                            {invoice.verificationToken && invoice.status === "APPROVED" && (
+                                <div className="hidden sm:block">
+                                    <QRCodeDisplay
+                                        url={`${typeof window !== 'undefined' ? window.location.origin : ''}/verify/invoice/${invoice.reference}?token=${invoice.verificationToken}`}
+                                        size={72}
+                                        className="print:!w-24 print:!h-24"
+                                    />
+                                    <div className="text-[10px] text-center text-gray-500 mt-1 hidden print:block">
+                                        {locale === 'ar' ? 'امسح للتحقق' : 'Scan to Verify'}
+                                    </div>
+                                </div>
+                            )}
+                            <StatusBadge status={invoice.status} />
+                        </div>
                     </div>
 
                     {invoice.status === "REJECTED" && invoice.rejectionReason && (

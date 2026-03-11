@@ -212,7 +212,13 @@
     "directLogin": "تسجيل الدخول",
     "errorTitle": "عذراً، حدث خطأ في تحميل الصفحة",
     "errorDesc": "يرجى المحاولة مرة أخرى أو الانتقال لتسجيل الدخول مباشرة",
-    "directLoginLink": "تسجيل الدخول مباشرة →"
+    "directLoginLink": "تسجيل الدخول مباشرة →",
+    "accessPortal": "الدخول لبوابة الفروع",
+    "selectRegionalBranch": "اختر الفرع الإقليمي",
+    "selectConnectingSubtitle": "اختر الفرع التابع لك للاتصال بالخادم المخصص",
+    "connectingToServer": "جاري الاتصال بخوادم {branch}...",
+    "secureChannel": "تأسيس قناة آمنة ومستقلة",
+    "hqAdminLogin": "دخول مدير النظام المركزي"
   },
   "login": {
     "title": "تسجيل الدخول",
@@ -225,7 +231,12 @@
     "rememberMe": "تذكرني",
     "invalidCredentials": "بريد إلكتروني أو كلمة مرور غير صحيحة",
     "errorLoading": "خطأ في تحميل صفحة الدخول",
-    "branchLabel": "الفرع"
+    "branchLabel": "الفرع",
+    "welcomeToBranch": "مرحباً بك في فرع {branch}",
+    "officialPortal": "بوابة الأعمال الرسمية — {branch}",
+    "smartSystemDesc": "النظام الأذكى لإدارة مشاريعك وفريق عملك بكفاءة عالية",
+    "welcomeBack": "مرحبًا بعودتك!",
+    "signInToAccount": "تسجيل الدخول إلى حسابك"
   },
   "dashboard": {
     "title": "لوحة التحكم",

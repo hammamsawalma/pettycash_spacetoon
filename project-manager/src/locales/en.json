@@ -212,7 +212,13 @@
     "directLogin": "Login",
     "errorTitle": "Sorry, an error occurred while loading",
     "errorDesc": "Please try again or go directly to login",
-    "directLoginLink": "Login directly →"
+    "directLoginLink": "Login directly →",
+    "accessPortal": "Access Branch Portal",
+    "selectRegionalBranch": "Select Regional Branch",
+    "selectConnectingSubtitle": "Select your regional branch to connect to the dedicated server",
+    "connectingToServer": "Connecting to {branch} servers...",
+    "secureChannel": "Establishing secure isolated channel",
+    "hqAdminLogin": "HQ Admin Login"
   },
   "login": {
     "title": "Login",
@@ -225,7 +231,12 @@
     "rememberMe": "Remember me",
     "invalidCredentials": "Invalid email or password",
     "errorLoading": "Error loading login page",
-    "branchLabel": "Branch"
+    "branchLabel": "Branch",
+    "welcomeToBranch": "Welcome to {branch} Branch",
+    "officialPortal": "Official Business Portal — {branch}",
+    "smartSystemDesc": "The smartest system for managing your projects and team efficiently",
+    "welcomeBack": "Welcome back!",
+    "signInToAccount": "Sign in to your account"
   },
   "dashboard": {
     "title": "Dashboard",

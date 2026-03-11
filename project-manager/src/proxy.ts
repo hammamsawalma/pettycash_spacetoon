@@ -79,6 +79,11 @@ export function proxy(request: NextRequest) {
         return NextResponse.next();
     }
 
+    // Explicitly allow public verification routes regardless of session
+    if (path.startsWith('/verify')) {
+        return NextResponse.next();
+    }
+
     // Redirect unauthenticated users to /welcome
     if (!sessionCookie) {
         const welcomeUrl = new URL('/welcome', request.url);

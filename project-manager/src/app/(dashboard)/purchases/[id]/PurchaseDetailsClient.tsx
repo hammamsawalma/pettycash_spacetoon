@@ -11,6 +11,7 @@ import toast from "react-hot-toast";
 import { togglePurchaseRedFlag, softDeletePurchase } from "@/actions/purchases";
 import { useAuth } from "@/context/AuthContext";
 import { useLanguage } from "@/context/LanguageContext";
+import { QRCodeDisplay } from "@/components/QRCodeDisplay";
 
 export default function PurchaseDetailsClient({ initialPurchase }: { initialPurchase: any }) {
     const router = useRouter();
@@ -144,7 +145,21 @@ export default function PurchaseDetailsClient({ initialPurchase }: { initialPurc
                                             {purchase.description}
                                         </h1>
                                     </div>
-                                    <StatusBadge status={purchase.status} />
+                                    <div className="flex items-center gap-4">
+                                        {purchase.verificationToken && (
+                                            <div className="hidden sm:block">
+                                                <QRCodeDisplay
+                                                    url={`${typeof window !== 'undefined' ? window.location.origin : ''}/verify/purchase/${purchase.orderNumber}?token=${purchase.verificationToken}`}
+                                                    size={72}
+                                                    className="print:!w-24 print:!h-24"
+                                                />
+                                                <div className="text-[10px] text-center text-gray-500 mt-1 hidden print:block">
+                                                    {locale === 'ar' ? 'امسح للتحقق' : 'Scan to Verify'}
+                                                </div>
+                                            </div>
+                                        )}
+                                        <StatusBadge status={purchase.status} />
+                                    </div>
                                 </div>
 
                                 <hr className="border-gray-100" />
