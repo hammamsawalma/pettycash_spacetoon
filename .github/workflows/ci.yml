@@ -78,16 +78,59 @@ jobs:
 
     - name: Deploy to EC2
       uses: appleboy/ssh-action@v1
+      env:
+        DB_URL_SECRET: ${{ secrets.DATABASE_URL }}
+        JWT_SECRET_KEY: ${{ secrets.JWT_SECRET }}
+        VAPID_PRIV_SECRET: ${{ secrets.VAPID_PRIVATE_KEY }}
+        VAPID_PUB_SECRET: ${{ secrets.VAPID_PUBLIC_KEY }}
       with:
         host: ${{ env.EC2_HOST }}
         username: ec2-user
         key: ${{ secrets.EC2_SSH_KEY }}
+        envs: DB_URL_SECRET,JWT_SECRET_KEY,VAPID_PRIV_SECRET,VAPID_PUB_SECRET
         script: |
+          set -e
+          
           # Login to ECR
           aws ecr get-login-password --region eu-central-1 | sudo docker login --username AWS --password-stdin ${{ env.ECR_REGISTRY }}
 
           # Pull latest image
           sudo docker pull ${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}:latest
+
+          # ══════════════════════════════════════════════════════════
+          # PRIMARY: GitHub Secrets (passed securely via the envs block)
+          # GEMINI KEY: Read directly from server file to avoid SSH drops
+          # ══════════════════════════════════════════════════════════
+          ENV_FILE="/home/ec2-user/.env.production"
+
+          # Safely assign safely injected environment variables
+          DB_URL="$DB_URL_SECRET"
+          JWT="$JWT_SECRET_KEY"
+          VAPID_PRIV="$VAPID_PRIV_SECRET"
+          VAPID_PUB="$VAPID_PUB_SECRET"
+          
+          # FORCED LOCAL EXTRACTION: GEMINI_API_KEY has characters that Appleboy/SSH hates.
+          # We extract it directly from the validated file on the server.
+          GEMINI=$(grep '^GEMINI_API_KEY=' "$ENV_FILE" | cut -d= -f2-)
+
+          # Fallback for ANY empty var: Read from server file
+          if [ -f "$ENV_FILE" ]; then
+            [ -z "$DB_URL" ] && DB_URL=$(grep '^DATABASE_URL=' "$ENV_FILE" | cut -d= -f2-)
+            [ -z "$JWT" ] && JWT=$(grep '^JWT_SECRET=' "$ENV_FILE" | cut -d= -f2-)
+            [ -z "$VAPID_PRIV" ] && VAPID_PRIV=$(grep '^VAPID_PRIVATE_KEY=' "$ENV_FILE" | cut -d= -f2-)
+            [ -z "$VAPID_PUB" ] && VAPID_PUB=$(grep '^NEXT_PUBLIC_VAPID_PUBLIC_KEY=' "$ENV_FILE" | cut -d= -f2-)
+          fi
+
+          # Final validation
+          if [ -z "$DB_URL" ] || [ -z "$JWT" ] || [ -z "$GEMINI" ]; then
+            echo "❌ FATAL: Missing critical env vars!"
+            echo "  DATABASE_URL: $([ -n "$DB_URL" ] && echo 'OK' || echo 'MISSING')"
+            echo "  JWT_SECRET: $([ -n "$JWT" ] && echo 'OK' || echo 'MISSING')"
+            echo "  GEMINI_API_KEY: $([ -n "$GEMINI" ] && echo 'OK' || echo 'MISSING')"
+            exit 1
+          fi
+
+          echo "✅ All env vars loaded. GEMINI: ${#GEMINI} chars"
 
           # Stop and remove old container
           sudo docker stop spacetoon-pocket 2>/dev/null || true
@@ -98,17 +141,23 @@ jobs:
             --name spacetoon-pocket \
             --restart always \
             -p 3000:3000 \
-            -e "DATABASE_URL=${{ secrets.DATABASE_URL }}" \
-            -e "JWT_SECRET=${{ secrets.JWT_SECRET }}" \
-            -e "VAPID_PRIVATE_KEY=${{ secrets.VAPID_PRIVATE_KEY }}" \
-            -e "NEXT_PUBLIC_VAPID_PUBLIC_KEY=${{ secrets.VAPID_PUBLIC_KEY }}" \
-            -e "COOKIE_SECURE=true" \
+            -e DATABASE_URL="$DB_URL" \
+            -e DIRECT_URL="$DB_URL" \
+            -e JWT_SECRET="$JWT" \
+            -e VAPID_PRIVATE_KEY="$VAPID_PRIV" \
+            -e NEXT_PUBLIC_VAPID_PUBLIC_KEY="$VAPID_PUB" \
+            -e GEMINI_API_KEY="$GEMINI" \
+            -e COOKIE_SECURE=true \
             --log-opt max-size=10m \
             --log-opt max-file=3 \
             ${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}:latest
 
-          # Wait and verify
+          # Apply schema changes
           sleep 5
+          sudo docker exec spacetoon-pocket npx prisma migrate deploy 2>&1 || echo "⚠️ Prisma migrate deploy failed"
+
+          # Verify container
+          sleep 3
           sudo docker logs spacetoon-pocket --tail 3
 
     - name: Health Check
