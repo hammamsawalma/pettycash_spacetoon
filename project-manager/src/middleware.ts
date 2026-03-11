@@ -66,8 +66,8 @@ const ROUTE_RULES: Array<{ prefix: string; exact?: boolean; allowed: string[] }>
     { prefix: '/branches', allowed: ['ROOT'] },
 ];
 
-// ─── Proxy ────────────────────────────────────────────────────────────────────
-export function proxy(request: NextRequest) {
+// ─── Middleware ─────────────────────────────────────────────────────────────
+export function middleware(request: NextRequest) {
     const sessionCookie = request.cookies.get('session')?.value;
     const path = request.nextUrl.pathname;
 

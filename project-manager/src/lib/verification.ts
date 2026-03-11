@@ -18,13 +18,15 @@ export function generateVerificationToken(id: string): string {
  */
 export function verifyToken(id: string, token: string): boolean {
   const expectedToken = generateVerificationToken(id);
+
+  // Prevent silent truncation of invalid hex characters in Buffer.from
+  if (!/^[0-9a-f]{64}$/i.test(token)) {
+    return false;
+  }
+
   // Use timingSafeEqual to prevent timing attacks
   const expectedBuffer = Buffer.from(expectedToken, 'hex');
   const actualBuffer = Buffer.from(token, 'hex');
-  
-  if (expectedBuffer.length !== actualBuffer.length) {
-    return false;
-  }
   
   return crypto.timingSafeEqual(expectedBuffer, actualBuffer);
 }
