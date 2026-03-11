@@ -78,16 +78,10 @@ jobs:
 
     - name: Deploy to EC2
       uses: appleboy/ssh-action@v1
-      env:
-        DB_URL_SECRET: ${{ secrets.DATABASE_URL }}
-        JWT_SECRET_KEY: ${{ secrets.JWT_SECRET }}
-        VAPID_PRIV_SECRET: ${{ secrets.VAPID_PRIVATE_KEY }}
-        VAPID_PUB_SECRET: ${{ secrets.VAPID_PUBLIC_KEY }}
       with:
         host: ${{ env.EC2_HOST }}
         username: ec2-user
         key: ${{ secrets.EC2_SSH_KEY }}
-        envs: DB_URL_SECRET,JWT_SECRET_KEY,VAPID_PRIV_SECRET,VAPID_PUB_SECRET
         script: |
           set -e
           
