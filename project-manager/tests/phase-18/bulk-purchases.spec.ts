@@ -282,6 +282,148 @@ test.describe('Bulk Purchase — Validation', () => {
         // Wait for the toast error we mocked
         await expect(adminPage.locator('text="انتهت مهلة الاتصال بالذكاء الاصطناعي"').first()).toBeVisible({ timeout: 15000 });
     });
+
+    test('BULK-12: API prevents files larger than 10MB', async ({ adminPage }) => {
+        // We create a dummy file > 10MB in memory (11MB)
+        const largeBuffer = Buffer.alloc(11 * 1024 * 1024, 'A');
+        
+        const response = await adminPage.request.post('/api/parse-purchases', {
+            multipart: {
+                file: {
+                    name: 'huge.xlsx',
+                    mimeType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                    buffer: largeBuffer,
+                }
+            }
+        });
+
+        expect(response.status()).toBe(400);
+        const data = await response.json();
+        expect(data.error).toContain('حجم الملف يتجاوز الحد المسموح');
+    });
+
+    test('BULK-13: API handles Gemini Safety block gracefully', async ({ adminPage, page }) => {
+        // Intercept and simulate a safety filter block from Gemini
+        await page.route('/api/parse-purchases', async route => {
+            await route.fulfill({
+                status: 500,
+                contentType: 'application/json',
+                body: JSON.stringify({ error: 'تم حظر المحتوى من قبل فلتر الأمان' })
+            });
+        });
+
+        await adminPage.goto('/purchases/new', { waitUntil: 'networkidle', timeout: 30_000 });
+        await adminPage.click('button:has-text("إضافة مجمعة (Excel)")');
+        await adminPage.locator('select').first().selectOption({ index: 1 });
+
+        const fileChooserPromise = adminPage.waitForEvent('filechooser');
+        await adminPage.click('div:has-text("اضغط لاختيار ملف Excel") >> nth=-1');
+        const fileChooser = await fileChooserPromise;
+        await fileChooser.setFiles({
+            name: 'dangerous.xlsx',
+            mimeType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            buffer: Buffer.from('dummy data'),
+        });
+
+        await adminPage.click('button:has-text("تحليل الملف")');
+        await expect(adminPage.locator('text="تم حظر المحتوى من قبل فلتر الأمان"').first()).toBeVisible({ timeout: 15000 });
+    });
+
+    test('BULK-14: User can manually add an item in the Review step', async ({ adminPage, page }) => {
+        // Mock a successful initial AI import
+        await page.route('/api/parse-purchases', async route => {
+            await route.fulfill({
+                status: 200,
+                contentType: 'application/json',
+                body: JSON.stringify({ items: [{ description: 'Item 1', quantity: '1', notes: '' }] })
+            });
+        });
+
+        await adminPage.goto('/purchases/new', { waitUntil: 'networkidle', timeout: 30_000 });
+        await adminPage.click('button:has-text("إضافة مجمعة (Excel)")');
+        await adminPage.locator('select').first().selectOption({ index: 1 });
+
+        const fileChooserPromise = adminPage.waitForEvent('filechooser');
+        await adminPage.click('div:has-text("اضغط لاختيار ملف Excel") >> nth=-1');
+        const fileChooser = await fileChooserPromise;
+        await fileChooser.setFiles({ name: 'test.xlsx', mimeType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', buffer: Buffer.from('dummy data') });
+
+        await adminPage.click('button:has-text("تحليل الملف")');
+        
+        // Wait for review step to show
+        await adminPage.waitForSelector('text=نتائج التحليل');
+        // Initial items count: 1
+        expect(await adminPage.locator('input[placeholder*="وصف المنتج"]').count()).toBe(1);
+
+        // Click Add Manually
+        await adminPage.click('button:has-text("إضافة يدوي")');
+        
+        // Should be 2 now
+        expect(await adminPage.locator('input[placeholder*="وصف المنتج"]').count()).toBe(2);
+    });
+
+    test('BULK-15: User can edit an extracted item in the Review step', async ({ adminPage, page }) => {
+        // Mock a successful initial AI import
+        await page.route('/api/parse-purchases', async route => {
+            await route.fulfill({
+                status: 200,
+                contentType: 'application/json',
+                body: JSON.stringify({ items: [{ description: 'Original', quantity: '1', notes: '' }] })
+            });
+        });
+
+        await adminPage.goto('/purchases/new', { waitUntil: 'networkidle', timeout: 30_000 });
+        await adminPage.click('button:has-text("إضافة مجمعة (Excel)")');
+        await adminPage.locator('select').first().selectOption({ index: 1 });
+
+        const fileChooserPromise = adminPage.waitForEvent('filechooser');
+        await adminPage.click('div:has-text("اضغط لاختيار ملف Excel") >> nth=-1');
+        const fileChooser = await fileChooserPromise;
+        await fileChooser.setFiles({ name: 'test.xlsx', mimeType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', buffer: Buffer.from('dummy data') });
+
+        await adminPage.click('button:has-text("تحليل الملف")');
+        await adminPage.waitForSelector('text=نتائج التحليل');
+
+        // Edit the item
+        const descInput = adminPage.locator('input[placeholder*="وصف المنتج"]').first();
+        await descInput.fill('Edited Item');
+        expect(await descInput.inputValue()).toBe('Edited Item');
+    });
+
+    test('BULK-16: User can delete an extracted item in the Review step', async ({ adminPage, page }) => {
+        // Mock a successful initial AI import
+        await page.route('/api/parse-purchases', async route => {
+            await route.fulfill({
+                status: 200,
+                contentType: 'application/json',
+                body: JSON.stringify({ items: [{ description: 'Item 1', quantity: '1', notes: '' }] })
+            });
+        });
+
+        await adminPage.goto('/purchases/new', { waitUntil: 'networkidle', timeout: 30_000 });
+        await adminPage.click('button:has-text("إضافة مجمعة (Excel)")');
+        await adminPage.locator('select').first().selectOption({ index: 1 });
+
+        const fileChooserPromise = adminPage.waitForEvent('filechooser');
+        await adminPage.click('div:has-text("اضغط لاختيار ملف Excel") >> nth=-1');
+        const fileChooser = await fileChooserPromise;
+        await fileChooser.setFiles({ name: 'test.xlsx', mimeType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', buffer: Buffer.from('dummy data') });
+
+        await adminPage.click('button:has-text("تحليل الملف")');
+        await adminPage.waitForSelector('text=نتائج التحليل');
+        expect(await adminPage.locator('input[placeholder*="وصف المنتج"]').count()).toBe(1);
+
+        // Click delete (Trash2 icon inside button)
+        await adminPage.locator('button.text-red-400').first().click();
+        
+        // Wait for item to be removed
+        await adminPage.waitForTimeout(500);
+        expect(await adminPage.locator('input[placeholder*="وصف المنتج"]').count()).toBe(0);
+        
+        // Check if confirm button is disabled because there are no valid selected items
+        const confirmBtn = adminPage.locator('button:has-text("تأكيد واعتماد الدفعة")');
+        expect(await confirmBtn.isDisabled()).toBeTruthy();
+    });
 });
 
 // ═══════════════════════════════════════════════════════════════
