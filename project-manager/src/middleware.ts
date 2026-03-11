@@ -125,7 +125,7 @@ export function middleware(request: NextRequest) {
         return NextResponse.next();
     } catch {
         // Invalid token — clear cookie and force re-login
-        const response = NextResponse.redirect(new URL('/login', request.url));
+        const response = NextResponse.redirect(new URL('/welcome', request.url));
         response.cookies.delete('session');
         return response;
     }

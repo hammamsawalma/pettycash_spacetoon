@@ -88,5 +88,5 @@ export async function logout() {
     } catch (err) {
         console.error("[logout] Error:", err);
     }
-    redirect("/login");
+    redirect("/welcome");
 }

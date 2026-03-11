@@ -5,7 +5,7 @@ import CompanyCustodiesClient from "./CompanyCustodiesClient";
 
 export default async function CompanyCustodiesPage() {
     const session = await getSession();
-    if (!session) redirect("/login");
+    if (!session) redirect("/welcome");
 
     const canView = session.role === "ADMIN" || session.role === "GLOBAL_ACCOUNTANT" || session.role === "GENERAL_MANAGER";
     if (!canView) redirect("/");

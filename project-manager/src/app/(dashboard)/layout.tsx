@@ -17,11 +17,11 @@ export default async function DashboardLayout({
         user = await getSession();
     } catch (err) {
         console.error("[DashboardLayout] getSession() crashed:", err);
-        redirect("/login");
+        redirect("/welcome");
     }
 
     if (!user) {
-        redirect("/login");
+        redirect("/welcome");
     }
 
     // ── Currency (fallback on error) ────────────────────────────────────────
