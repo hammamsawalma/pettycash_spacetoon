@@ -92,7 +92,16 @@ export function proxy(request: NextRequest) {
         const payloadToken = sessionCookie.split('.')[1];
         if (!payloadToken) throw new Error('Invalid token format');
 
-        const decodedPayload = JSON.parse(atob(payloadToken)) as { role?: string };
+        // Robust base64 decoding for UTF-8 (supports Arabic text and emojis like 🇶🇦)
+        const base64Str = payloadToken.replace(/-/g, '+').replace(/_/g, '/');
+        const jsonPayload = decodeURIComponent(
+            atob(base64Str)
+                .split('')
+                .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+                .join('')
+        );
+
+        const decodedPayload = JSON.parse(jsonPayload) as { role?: string };
         const role = decodedPayload.role || 'USER';
 
         // Check route rules (first match wins)
