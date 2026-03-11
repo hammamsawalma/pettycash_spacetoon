@@ -50,6 +50,7 @@ function NewPurchaseForm() {
     const [items, setItems] = useState<ParsedItem[]>([]);
     const [isUploading, setIsUploading] = useState(false);
     const [isSubmittingBulk, setIsSubmittingBulk] = useState(false);
+    const [bulkFile, setBulkFile] = useState<File | null>(null);
     const fileRef = useRef<HTMLInputElement>(null);
 
     useEffect(() => {
@@ -108,8 +109,7 @@ function NewPurchaseForm() {
 
     // ─── Bulk Purchase Methods ───
     const handleFileUpload = async () => {
-        const file = fileRef.current?.files?.[0];
-        if (!file) {
+        if (!bulkFile) {
             toast.error(locale === 'ar' ? "يرجى اختيار ملف Excel أولاً" : "Please select an Excel file first");
             return;
         }
@@ -122,7 +122,7 @@ function NewPurchaseForm() {
 
         try {
             const formData = new FormData();
-            formData.append('file', file);
+            formData.append('file', bulkFile);
 
             const res = await fetch('/api/parse-purchases', {
                 method: 'POST',
@@ -387,14 +387,27 @@ function NewPurchaseForm() {
                                 </div>
 
                                 {/* File Upload Area */}
-                                <div onClick={() => fileRef.current?.click()} className="relative border-2 border-dashed border-gray-200 hover:border-[#102550]/50 rounded-2xl p-8 md:p-12 text-center cursor-pointer transition-all duration-200 hover:bg-[#102550]/5 group">
-                                    <input ref={fileRef} type="file" accept=".xlsx,.xls,.csv" className="hidden" onChange={() => {
-                                        const file = fileRef.current?.files?.[0];
-                                        if (file) toast.success(`تم اختيار: ${file.name}`);
+                                <div onClick={() => !isUploading && fileRef.current?.click()} className={`relative border-2 border-dashed ${bulkFile ? 'border-[#102550] bg-[#102550]/5' : 'border-gray-200 hover:border-[#102550]/50 hover:bg-[#102550]/5'} rounded-2xl p-8 md:p-12 text-center cursor-pointer transition-all duration-200 group`}>
+                                    <input ref={fileRef} type="file" accept=".xlsx,.xls,.csv" className="hidden" onChange={(e) => {
+                                        const file = e.target.files?.[0];
+                                        if (file) {
+                                            setBulkFile(file);
+                                            toast.success(locale === 'ar' ? `تم اختيار: ${file.name}` : `Selected: ${file.name}`);
+                                        }
                                     }} />
-                                    <Upload className="w-12 h-12 text-gray-300 mx-auto mb-4 group-hover:text-[#102550] transition-colors" />
-                                    <p className="text-sm font-bold text-gray-600 group-hover:text-[#102550]">{locale === 'ar' ? 'اضغط لاختيار ملف Excel' : 'Click to select Excel file'}</p>
-                                    <p className="text-xs text-gray-400 mt-2">{locale === 'ar' ? 'يدعم: .xlsx, .xls, .csv — حتى 10 ميجابايت' : 'Supports: .xlsx, .xls, .csv — up to 10MB'}</p>
+                                    {bulkFile ? (
+                                        <>
+                                            <FileSpreadsheet className="w-12 h-12 text-[#102550] mx-auto mb-4" />
+                                            <p className="text-sm font-bold text-[#102550]">{bulkFile.name}</p>
+                                            <p className="text-xs text-gray-500 mt-2">{(bulkFile.size / 1024).toFixed(1)} KB</p>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <Upload className="w-12 h-12 text-gray-300 mx-auto mb-4 group-hover:text-[#102550] transition-colors" />
+                                            <p className="text-sm font-bold text-gray-600 group-hover:text-[#102550]">{locale === 'ar' ? 'اضغط لاختيار ملف Excel' : 'Click to select Excel file'}</p>
+                                            <p className="text-xs text-gray-400 mt-2">{locale === 'ar' ? 'يدعم: .xlsx, .xls, .csv — حتى 10 ميجابايت' : 'Supports: .xlsx, .xls, .csv — up to 10MB'}</p>
+                                        </>
+                                    )}
                                 </div>
 
                                 <Button onClick={handleFileUpload} disabled={isUploading || !bulkProjectId} isLoading={isUploading} variant="primary" className="w-full py-4 rounded-2xl font-bold text-sm">
