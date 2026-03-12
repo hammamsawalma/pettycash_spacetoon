@@ -113,7 +113,10 @@ export default function WelcomeClient({ branches }: { branches: Branch[] }) {
 
                         {branches.length > 0 ? (
                             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 md:gap-6 w-full mx-auto">
-                                {branches.map((branch, i) => (
+                                {[...branches].sort((a, b) => {
+                                    const order: Record<string, number> = { QA: 0, SA: 1 };
+                                    return (order[a.code] ?? 99) - (order[b.code] ?? 99);
+                                }).map((branch, i) => (
                                     <button
                                         key={branch.id}
                                         onClick={() => handleSelectBranch(branch)}
