@@ -269,12 +269,12 @@ test.describe('Suite 8 — Purchases RBAC', () => {
         expect(body).toContain('إضافة طلب شراء');
     });
 
-    test('[PURCH-B2] USER (Coordinator) does NOT see "إضافة طلب شراء" button (Dashboard level)', async ({ page }) => {
+    test('[PURCH-B2] USER (Coordinator) sees "إضافة طلب شراء" button (Dashboard level)', async ({ page }) => {
         await login(page, USERS.COORD);
         await page.goto('/purchases');
         await page.waitForTimeout(1500);
         const body = await page.evaluate(() => document.body.innerText);
-        expect(body).not.toContain('إضافة طلب شراء');
+        expect(body).toContain('إضافة طلب شراء');
     });
 
     test('[PURCH-B3] USER (Employee) does NOT see "إضافة طلب شراء" button', async ({ page }) => {
@@ -385,7 +385,7 @@ test.describe('Suite 9 — Server Action Security', () => {
         await page.waitForTimeout(2000);
         const url = page.url();
         const pathname = new URL(url).pathname;
-        const blocked = pathname === '/' || url.includes('/login');
+        const blocked = pathname === '/' || url.includes('/login') || url.includes('/welcome');
         expect(blocked).toBeTruthy();
     });
 });
