@@ -99,26 +99,31 @@ jobs:
           # Login to ECR
           aws ecr get-login-password | sudo docker login --username AWS --password-stdin ${{ env.ECR_REGISTRY }}
 
-          # Cleanup old Docker data to free disk space
+          # STEP 1: Stop old container FIRST so its image becomes reclaimable
+          echo "🛑 Stopping old container..."
+          sudo docker stop spacetoon-pocket 2>/dev/null || true
+          sudo docker rm spacetoon-pocket 2>/dev/null || true
+
+          # STEP 2: Cleanup ALL old Docker data (images, volumes, build cache)
           echo "🧹 Cleaning up old Docker data..."
           sudo docker system prune -af --volumes 2>/dev/null || true
+          echo "📊 Disk after cleanup:"
+          df -h / | tail -1
 
-          # Pull latest image
+          # STEP 3: Pull latest image
           sudo docker pull ${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}:latest
 
           # ══════════════════════════════════════════════════════════
-          # Load env vars: GitHub Secrets first, .env.production fallback
+          # STEP 4: Load env vars
           # ══════════════════════════════════════════════════════════
           ENV_FILE="/home/ec2-user/.env.production"
 
-          # Start with injected secrets
           DB_URL="${DB_URL_SECRET:-}"
           JWT="${JWT_SECRET_KEY:-}"
           VAPID_PRIV="${VAPID_PRIV_SECRET:-}"
           VAPID_PUB="${VAPID_PUB_SECRET:-}"
           GEMINI=""
 
-          # Fallback: read from server file (grep || true to avoid set -e exit)
           if [ -f "$ENV_FILE" ]; then
             if [ -z "$DB_URL" ]; then
               DB_URL=$(grep '^DATABASE_URL=' "$ENV_FILE" | cut -d= -f2- || true)
@@ -147,11 +152,7 @@ jobs:
 
           echo "✅ Critical env vars OK"
 
-          # Stop and remove old container
-          sudo docker stop spacetoon-pocket 2>/dev/null || true
-          sudo docker rm spacetoon-pocket 2>/dev/null || true
-
-          # Run new container
+          # STEP 5: Run new container
           sudo docker run -d \
             --name spacetoon-pocket \
             --restart always \
