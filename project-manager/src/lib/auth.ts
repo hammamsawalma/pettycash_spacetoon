@@ -53,7 +53,7 @@ export async function verifyToken(token: string): Promise<SessionData | null> {
 
 export async function getSession(): Promise<SessionData | null> {
     const cookieStore = await cookies();
-    const token = cookieStore.get("session")?.value;
+    const token = cookieStore.get("pocket_session")?.value;
 
     if (!token) return null;
 

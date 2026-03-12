@@ -52,7 +52,7 @@ export async function POST(request: Request) {
         // We MUST use the explicit Response Cookies API, Next.js 15 blocks `cookies().set()` in some edge Route Handlers.
         const response = NextResponse.json({ success: true, user: sessionData });
         
-        response.cookies.set("session", token, {
+        response.cookies.set("pocket_session", token, {
             httpOnly: true,
             secure: process.env.COOKIE_SECURE === "true",
             sameSite: "lax",

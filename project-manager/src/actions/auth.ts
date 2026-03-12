@@ -62,7 +62,7 @@ export async function login(prevState: unknown, formData: FormData) {
         const cookieStore = await cookies();
         const token = await signToken(sessionData);
 
-        cookieStore.set("session", token, {
+        cookieStore.set("pocket_session", token, {
             httpOnly: true,
             secure: process.env.COOKIE_SECURE === "true",
             sameSite: "lax", // A1: Prevents CSRF — cookie not sent on cross-site POST
@@ -84,7 +84,7 @@ export async function login(prevState: unknown, formData: FormData) {
 export async function logout() {
     try {
         const cookieStore = await cookies();
-        cookieStore.delete("session");
+        cookieStore.delete("pocket_session");
     } catch (err) {
         console.error("[logout] Error:", err);
     }
