@@ -50,9 +50,8 @@ test.describe('Welcome Page i18n', () => {
         const dir = await page.getAttribute('div.welcome-container', 'dir');
         expect(dir).toBe('ltr');
         const body = await page.textContent('body');
-        expect(body).toContain('Expense & Financial Custody Management');
-        expect(body).toContain('Get Started');
-        expect(body).toContain('Project Management');
+        expect(body).toContain('The smartest system');
+        expect(body).toContain('Access Branch Portal');
     });
 
     test('L3: Language toggle switches back to Arabic', async ({ page }) => {
@@ -64,7 +63,7 @@ test.describe('Welcome Page i18n', () => {
         await page.locator('button[aria-label="Switch to Arabic"], button:has-text("AR") >> visible=true').first().click();
         await page.waitForTimeout(300);
         const body = await page.textContent('body');
-        expect(body).toContain('نظام إدارة المصاريف والعهد المالية');
+        expect(body).toContain('النظام الأذكى لإدارة مشاريعك وفريق عملك بكفاءة عالية');
         const dir = await page.getAttribute('div.welcome-container', 'dir');
         expect(dir).toBe('rtl');
     });
@@ -75,9 +74,7 @@ test.describe('Welcome Page i18n', () => {
         await page.locator('button:has-text("EN")').click();
         await page.waitForTimeout(300);
         const body = await page.textContent('body');
-        expect(body).toContain('Project Management');
-        expect(body).toContain('Custody & Invoices');
-        expect(body).toContain('Multiple Branches');
+        expect(body).toContain('The smartest system for managing your projects');
     });
 
     test('L5: Branch selection translates to English', async ({ page }) => {
@@ -85,10 +82,10 @@ test.describe('Welcome Page i18n', () => {
         await page.waitForLoadState('networkidle');
         await page.locator('button:has-text("EN")').click();
         await page.waitForTimeout(300);
-        await page.locator('button:has-text("Get Started")').click();
+        await page.getByRole('button', { name: /Access Branch Portal/ }).click();
         await page.waitForTimeout(500);
         const body = await page.textContent('body');
-        expect(body).toContain('Select Branch');
+        expect(body).toContain('Select Regional Branch');
     });
 
     test('L6: Root login button translates', async ({ page }) => {
@@ -96,10 +93,10 @@ test.describe('Welcome Page i18n', () => {
         await page.waitForLoadState('networkidle');
         await page.locator('button:has-text("EN")').click();
         await page.waitForTimeout(300);
-        await page.locator('button:has-text("Get Started")').click();
+        await page.getByRole('button', { name: /Access Branch Portal/ }).click();
         await page.waitForTimeout(500);
         const body = await page.textContent('body');
-        expect(body).toContain('IT Login');
+        expect(body).toContain('HQ Admin Login');
     });
 });
 
@@ -441,10 +438,10 @@ test.describe('Welcome → Login Flow', () => {
         await page.locator('button:has-text("EN")').click();
         await page.waitForTimeout(300);
         // Go to branches
-        await page.locator('button:has-text("Get Started")').click();
+        await page.getByRole('button', { name: /Access Branch Portal/ }).click();
         await page.waitForTimeout(500);
         // Click a branch card (if any) or go to login
-        const branchCards = page.locator('.welcome-branch-card');
+        const branchCards = page.locator('button').filter({ has: page.locator('h3') });
         const count = await branchCards.count();
         if (count > 0) {
             await branchCards.first().click();

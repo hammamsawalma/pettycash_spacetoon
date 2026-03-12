@@ -1,0 +1,208 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - generic [ref=e3]:
+    - link "Skip to main content" [ref=e4]:
+      - /url: "#main-content"
+    - generic "Sidebar Menu" [ref=e6]:
+      - img "Spacetoon Logo" [ref=e9]
+      - button "Quick Add" [ref=e11]:
+        - img [ref=e12]
+        - text: Quick Add
+      - navigation [ref=e14]:
+        - generic [ref=e15]:
+          - heading "Basics" [level=3] [ref=e16]
+          - list [ref=e17]:
+            - listitem [ref=e18]:
+              - link "Dashboard" [ref=e19]:
+                - /url: /
+                - img [ref=e20]
+                - text: Dashboard
+            - listitem [ref=e23]:
+              - button "Projects" [ref=e25]:
+                - generic [ref=e26]:
+                  - img [ref=e27]
+                  - text: Projects
+                - img [ref=e29]
+            - listitem [ref=e31]:
+              - link "Chat" [ref=e32]:
+                - /url: /chat
+                - img [ref=e33]
+                - text: Chat
+        - generic [ref=e35]:
+          - heading "Finance & Purchases" [level=3] [ref=e36]
+          - list [ref=e37]:
+            - listitem [ref=e38]:
+              - button "Invoices" [ref=e40]:
+                - generic [ref=e41]:
+                  - img [ref=e42]
+                  - text: Invoices
+                - img [ref=e45]
+            - listitem [ref=e47]:
+              - button "Purchases" [ref=e49]:
+                - generic [ref=e50]:
+                  - img [ref=e51]
+                  - text: Purchases
+                - img [ref=e55]
+            - listitem [ref=e57]:
+              - button "Finance Requests" [ref=e59]:
+                - generic [ref=e60]:
+                  - img [ref=e61]
+                  - text: Finance Requests
+                - img [ref=e64]
+            - listitem [ref=e66]:
+              - button "Custody" [ref=e68]:
+                - generic [ref=e69]:
+                  - img [ref=e70]
+                  - text: Custody
+                - img [ref=e76]
+            - listitem [ref=e78]:
+              - button "Company Wallet" [ref=e80]:
+                - generic [ref=e81]:
+                  - img [ref=e82]
+                  - text: Company Wallet
+                - img [ref=e85]
+            - listitem [ref=e87]:
+              - link "Debts" [ref=e88]:
+                - /url: /debts
+                - img [ref=e89]
+                - text: Debts
+        - generic [ref=e92]:
+          - heading "Management" [level=3] [ref=e93]
+          - list [ref=e94]:
+            - listitem [ref=e95]:
+              - generic [ref=e96]:
+                - button "Employees" [ref=e97]:
+                  - generic [ref=e98]:
+                    - img [ref=e99]
+                    - text: Employees
+                  - img [ref=e104]
+                - list [ref=e106]:
+                  - generic [ref=e107]:
+                    - listitem [ref=e108]:
+                      - link "Employees List" [ref=e109]:
+                        - /url: /employees
+                        - text: Employees List
+                    - listitem [ref=e111]:
+                      - link "New Employee" [ref=e112]:
+                        - /url: /employees/new
+                        - text: New Employee
+            - listitem [ref=e114]:
+              - link "Reports" [ref=e115]:
+                - /url: /reports
+                - img [ref=e116]
+                - text: Reports
+            - listitem [ref=e118]:
+              - link "Export Center" [ref=e119]:
+                - /url: /exports
+                - img [ref=e120]
+                - text: Export Center
+            - listitem [ref=e123]:
+              - link "Send Notifications" [ref=e124]:
+                - /url: /notifications/send
+                - img [ref=e125]
+                - text: Send Notifications
+        - generic [ref=e130]:
+          - heading "System" [level=3] [ref=e131]
+          - list [ref=e132]:
+            - listitem [ref=e133]:
+              - link "Manage Categories" [ref=e134]:
+                - /url: /settings/categories
+                - img [ref=e135]
+                - text: Manage Categories
+            - listitem [ref=e137]:
+              - button "Support" [ref=e139]:
+                - generic [ref=e140]:
+                  - img [ref=e141]
+                  - text: Support
+                - img [ref=e143]
+            - listitem [ref=e145]:
+              - link "Archives" [ref=e146]:
+                - /url: /archives
+                - img [ref=e147]
+                - text: Archives
+            - listitem [ref=e150]:
+              - link "Manage Branches" [ref=e151]:
+                - /url: /branches
+                - img [ref=e152]
+                - text: Manage Branches
+            - listitem [ref=e157]:
+              - link "Trash" [ref=e158]:
+                - /url: /trash
+                - img [ref=e159]
+                - text: Trash
+      - generic [ref=e162]:
+        - link "I IT IT" [ref=e164]:
+          - /url: /settings
+          - generic [ref=e166]: I
+          - generic [ref=e167]:
+            - paragraph [ref=e168]: IT
+            - paragraph [ref=e169]: IT
+          - img [ref=e170]
+        - button "Logout" [ref=e173]:
+          - img [ref=e174]
+          - text: Logout
+    - generic [ref=e177]:
+      - banner [ref=e178]:
+        - generic [ref=e179]:
+          - generic [ref=e180]:
+            - button [ref=e181]:
+              - img [ref=e182]
+            - button [ref=e184]:
+              - img [ref=e185]
+          - heading "Employees List" [level=1] [ref=e186]
+          - button "Search" [ref=e188]:
+            - img [ref=e189]
+      - main [ref=e192]:
+        - generic [ref=e193]:
+          - generic [ref=e194]:
+            - generic [ref=e195]:
+              - button "All" [ref=e196]
+              - button "Employee" [ref=e197]
+              - button "Accountant" [ref=e198]
+              - button "General Manager" [ref=e199]
+              - button "System Admin" [ref=e200]
+            - generic [ref=e201]:
+              - generic [ref=e202]:
+                - textbox "Search..." [ref=e203]
+                - img [ref=e204]
+              - button "New Employee" [ref=e207]:
+                - img [ref=e208]
+                - generic [ref=e210]: New Employee
+          - paragraph [ref=e212]: No employees match your search.
+    - navigation "Main Navigation" [ref=e213]:
+      - generic [ref=e214]:
+        - link "1 unread notifications Home" [ref=e215]:
+          - /url: /
+          - generic [ref=e216]:
+            - img [ref=e217]
+            - generic "1 unread notifications" [ref=e220]: "1"
+          - generic [ref=e221]: Home
+        - link "Projects" [ref=e222]:
+          - /url: /projects
+          - img [ref=e224]
+          - generic [ref=e226]: Projects
+        - button "Quick add menu" [ref=e228]:
+          - img [ref=e229]
+        - link "Invoices" [ref=e230]:
+          - /url: /invoices
+          - img [ref=e232]
+          - generic [ref=e235]: Invoices
+        - link "My Account" [ref=e236]:
+          - /url: /settings
+          - img [ref=e238]
+          - generic [ref=e241]: My Account
+    - generic [ref=e243]:
+      - img "SpacePocket" [ref=e244]
+      - generic [ref=e245]:
+        - paragraph [ref=e246]: Add to Home Screen
+        - paragraph [ref=e247]:
+          - text: Tap
+          - strong [ref=e248]: Share
+          - text: then
+          - strong [ref=e249]: Add to Home Screen
+      - button "Close" [ref=e250]:
+        - img [ref=e251]
+  - alert [ref=e254]
+```

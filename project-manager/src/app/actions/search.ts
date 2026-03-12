@@ -45,7 +45,7 @@ export async function globalSearch(query: string): Promise<{ error?: string; dat
         if (!query || query.trim().length < 2) return { data: [] };
 
         const cookieStore = await cookies();
-        const token = cookieStore.get('session')?.value;
+        const token = cookieStore.get('pocket_session')?.value;
 
         if (!token) return { error: "غير مصرح لك بالبحث. يرجى تسجيل الدخول." };
 

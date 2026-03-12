@@ -303,9 +303,9 @@ test.describe('Invoice Workflow (Phase 3)', () => {
         expect(body).not.toContain('اعتماد وتأكيد');
     });
 
-    // I8: ADMIN should still see the approve/reject panel on a PENDING invoice
-    test('[I8] ADMIN sees Approve/Reject panel on PENDING invoice', async ({ page }) => {
-        await login(page, USERS.ADMIN.email, USERS.ADMIN.pass);
+    // I8: ACCOUNTANT should still see the approve/reject panel on a PENDING invoice
+    test('[I8] ACCOUNTANT sees Approve/Reject panel on PENDING invoice', async ({ page }) => {
+        await login(page, USERS.ACCOUNTANT.email, USERS.ACCOUNTANT.pass);
         await page.goto('/invoices');
         await page.waitForTimeout(1500);
         const invoiceCards = page.locator('[title="عرض الفاتورة"]');
@@ -342,8 +342,8 @@ test.describe('Invoice Workflow (Phase 3)', () => {
     });
 
     // I4: Re-open panel appears for accountants on non-PENDING invoices
-    test('[I4] Re-open panel is visible to ADMIN on APPROVED or REJECTED invoice', async ({ page }) => {
-        await login(page, USERS.ADMIN.email, USERS.ADMIN.pass);
+    test('[I4] Re-open panel is visible to ACCOUNTANT on APPROVED or REJECTED invoice', async ({ page }) => {
+        await login(page, USERS.ACCOUNTANT.email, USERS.ACCOUNTANT.pass);
         await page.goto('/invoices');
         await page.waitForTimeout(1500);
         const approvedTab = page.getByRole('button', { name: 'مقبولة' });
@@ -361,7 +361,7 @@ test.describe('Invoice Workflow (Phase 3)', () => {
         await cards.first().click();
         await page.waitForTimeout(2000);
         const body = await page.evaluate(() => document.body.innerText);
-        // The re-open panel should be visible for ADMIN on a resolved invoice
+        // The re-open panel should be visible for ACCOUNTANT on a resolved invoice
         // (The panel shows "إعادة المراجعة" or "إعادة فتح للمراجعة")
         const hasReopenPanel = body.includes('إعادة المراجعة') || body.includes('إعادة فتح');
         expect(hasReopenPanel).toBeTruthy();

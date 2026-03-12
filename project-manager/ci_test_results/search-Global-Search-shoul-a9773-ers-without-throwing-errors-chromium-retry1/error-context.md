@@ -1,0 +1,422 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e1]:
+  - generic [ref=e3]:
+    - link "تخطى إلى المحتوى الرئيسي" [ref=e4] [cursor=pointer]:
+      - /url: "#main-content"
+    - generic "القائمة الجانبية" [ref=e6]:
+      - img "Spacetoon Logo" [ref=e9]
+      - button "إضافة سريعة" [ref=e11]:
+        - img [ref=e12]
+        - text: إضافة سريعة
+      - navigation [ref=e14]:
+        - generic [ref=e15]:
+          - heading "الأساسيات" [level=3] [ref=e16]
+          - list [ref=e17]:
+            - listitem [ref=e18]:
+              - link "لوحة التحكم" [ref=e20] [cursor=pointer]:
+                - /url: /
+                - img [ref=e21]
+                - text: لوحة التحكم
+            - listitem [ref=e24]:
+              - button "المشاريع" [ref=e26]:
+                - generic [ref=e27]:
+                  - img [ref=e28]
+                  - text: المشاريع
+                - img [ref=e30]
+            - listitem [ref=e32]:
+              - link "المحادثات" [ref=e33] [cursor=pointer]:
+                - /url: /chat
+                - img [ref=e34]
+                - text: المحادثات
+        - generic [ref=e36]:
+          - heading "المالية والمشتريات" [level=3] [ref=e37]
+          - list [ref=e38]:
+            - listitem [ref=e39]:
+              - button "الفواتير" [ref=e41]:
+                - generic [ref=e42]:
+                  - img [ref=e43]
+                  - text: الفواتير
+                - img [ref=e46]
+            - listitem [ref=e48]:
+              - button "المشتريات" [ref=e50]:
+                - generic [ref=e51]:
+                  - img [ref=e52]
+                  - text: المشتريات
+                - img [ref=e56]
+            - listitem [ref=e58]:
+              - button "الطلبات المالية" [ref=e60]:
+                - generic [ref=e61]:
+                  - img [ref=e62]
+                  - text: الطلبات المالية
+                - img [ref=e65]
+            - listitem [ref=e67]:
+              - button "العهدة" [ref=e69]:
+                - generic [ref=e70]:
+                  - img [ref=e71]
+                  - text: العهدة
+                - img [ref=e77]
+            - listitem [ref=e79]:
+              - button "خزنة الشركة" [ref=e81]:
+                - generic [ref=e82]:
+                  - img [ref=e83]
+                  - text: خزنة الشركة
+                - img [ref=e86]
+            - listitem [ref=e88]:
+              - link "الديون" [ref=e89] [cursor=pointer]:
+                - /url: /debts
+                - img [ref=e90]
+                - text: الديون
+        - generic [ref=e93]:
+          - heading "الإدارة" [level=3] [ref=e94]
+          - list [ref=e95]:
+            - listitem [ref=e96]:
+              - button "الموظفين" [ref=e98]:
+                - generic [ref=e99]:
+                  - img [ref=e100]
+                  - text: الموظفين
+                - img [ref=e105]
+            - listitem [ref=e107]:
+              - link "التقارير" [ref=e108] [cursor=pointer]:
+                - /url: /reports
+                - img [ref=e109]
+                - text: التقارير
+            - listitem [ref=e111]:
+              - link "مركز التصدير" [ref=e112] [cursor=pointer]:
+                - /url: /exports
+                - img [ref=e113]
+                - text: مركز التصدير
+            - listitem [ref=e116]:
+              - link "إرسال إشعارات" [ref=e117] [cursor=pointer]:
+                - /url: /notifications/send
+                - img [ref=e118]
+                - text: إرسال إشعارات
+        - generic [ref=e123]:
+          - heading "النظام" [level=3] [ref=e124]
+          - list [ref=e125]:
+            - listitem [ref=e126]:
+              - link "إدارة التصنيفات" [ref=e127] [cursor=pointer]:
+                - /url: /settings/categories
+                - img [ref=e128]
+                - text: إدارة التصنيفات
+            - listitem [ref=e130]:
+              - button "الدعم الفني" [ref=e132]:
+                - generic [ref=e133]:
+                  - img [ref=e134]
+                  - text: الدعم الفني
+                - img [ref=e136]
+            - listitem [ref=e138]:
+              - link "المؤرشفات" [ref=e139] [cursor=pointer]:
+                - /url: /archives
+                - img [ref=e140]
+                - text: المؤرشفات
+            - listitem [ref=e143]:
+              - link "السلة" [ref=e144] [cursor=pointer]:
+                - /url: /trash
+                - img [ref=e145]
+                - text: السلة
+      - generic [ref=e148]:
+        - link "م مدير النظام مدير النظام" [ref=e150] [cursor=pointer]:
+          - /url: /settings
+          - generic [ref=e152]: م
+          - generic [ref=e153]:
+            - paragraph [ref=e154]: مدير النظام
+            - paragraph [ref=e155]: مدير النظام
+          - img [ref=e156]
+        - button "تسجيل الخروج" [ref=e159]:
+          - img [ref=e160]
+          - text: تسجيل الخروج
+    - generic [ref=e163]:
+      - banner [ref=e164]:
+        - generic [ref=e165]:
+          - heading "الرئيسية" [level=1] [ref=e167]
+          - generic [ref=e168]:
+            - generic [ref=e169]:
+              - link "Home" [ref=e171] [cursor=pointer]:
+                - /url: /
+                - generic [ref=e172]: Home
+                - img [ref=e173]
+              - button "Search" [ref=e177]:
+                - generic [ref=e178]: Search
+                - img [ref=e179]
+              - link "دليل الاستخدام" [ref=e183] [cursor=pointer]:
+                - /url: /manual
+                - generic [ref=e184]: دليل الاستخدام
+                - img [ref=e185]
+              - button "الإشعارات" [ref=e190] [cursor=pointer]:
+                - generic [ref=e191]: عرض الإشعارات
+                - img [ref=e195]
+              - link "Settings" [ref=e199] [cursor=pointer]:
+                - /url: /settings
+                - generic [ref=e200]: Settings
+                - img [ref=e201]
+            - button "Switch to English" [ref=e205]:
+              - img [ref=e206]
+              - generic [ref=e209]: EN
+            - link [ref=e211] [cursor=pointer]:
+              - /url: /settings
+              - generic [ref=e212]:
+                - generic [ref=e213]: مدير النظام
+                - generic [ref=e214]: مدير النظام
+              - img [ref=e216]
+      - generic [ref=e220]:
+        - generic [ref=e221]:
+          - img [ref=e222]
+          - textbox "ابحث عن صفحة، مشروع، مستخدم، أو فاتورة..." [active] [ref=e225]: اداره
+          - button [ref=e226]:
+            - img [ref=e227]
+        - generic [ref=e231]:
+          - img [ref=e232]
+          - heading "خطأ في البحث" [level=3] [ref=e234]
+          - paragraph [ref=e235]: غير مصرح لك بالبحث. يرجى تسجيل الدخول.
+        - generic [ref=e237]:
+          - generic [ref=e238]:
+            - generic [ref=e239]: Enter
+            - text: للإختيار
+          - generic [ref=e240]:
+            - generic [ref=e241]: ↑
+            - generic [ref=e242]: ↓
+            - text: للتنقل
+          - generic [ref=e243]:
+            - generic [ref=e244]: Esc
+            - text: للإغلاق
+      - main [ref=e245]:
+        - generic [ref=e246]:
+          - button "تحديث" [ref=e248]:
+            - img [ref=e249]
+            - text: تحديث
+          - generic [ref=e254]:
+            - generic [ref=e255]:
+              - generic [ref=e256]:
+                - generic [ref=e257]:
+                  - generic [ref=e258]:
+                    - paragraph [ref=e259]: السيولة الفعليّة (المتاحة)
+                    - paragraph [ref=e260]: السيولة الحالية المتبقية
+                  - img [ref=e262]
+                - generic [ref=e266]:
+                  - generic [ref=e267]: 482,960
+                  - generic [ref=e268]: ر.ق
+              - generic [ref=e269]:
+                - generic [ref=e270]:
+                  - generic [ref=e271]:
+                    - paragraph [ref=e272]: السيولة المتوقعة
+                    - paragraph [ref=e273]: السيولة المتبقية إذا تم اعتماد جميع الفواتير
+                  - img [ref=e275]
+                - generic [ref=e279]:
+                  - generic [ref=e280]: 477,530
+                  - generic [ref=e281]: ر.ق
+            - generic [ref=e282]:
+              - generic [ref=e283]:
+                - img [ref=e285]
+                - generic [ref=e288]:
+                  - paragraph [ref=e289]: إجمالي رأس المال بالشركة
+                  - generic [ref=e290]:
+                    - paragraph [ref=e291]: 500,000
+                    - generic [ref=e292]: ر.ق
+              - generic [ref=e293]:
+                - img [ref=e295]
+                - generic [ref=e298]:
+                  - paragraph [ref=e299]: المصروفات المعتمدة (إنفاق فعلي)
+                  - generic [ref=e300]:
+                    - paragraph [ref=e301]: 17,040
+                    - generic [ref=e302]: ر.ق
+              - generic [ref=e303]:
+                - img [ref=e305]
+                - generic [ref=e308]:
+                  - paragraph [ref=e309]: فواتير قيد الاعتماد
+                  - generic [ref=e310]:
+                    - paragraph [ref=e311]: 5,430
+                    - generic [ref=e312]: ر.ق
+              - generic [ref=e313]:
+                - img [ref=e315]
+                - generic [ref=e317]:
+                  - paragraph [ref=e318]: ميزانيات موزعة على مشاريع
+                  - generic [ref=e319]:
+                    - paragraph [ref=e320]: 205,000
+                    - generic [ref=e321]: ر.ق
+          - generic [ref=e322]:
+            - generic [ref=e324]:
+              - img [ref=e326]
+              - generic [ref=e328]:
+                - paragraph [ref=e329]: عدد المشاريع
+                - paragraph [ref=e331]: "5"
+            - generic [ref=e333]:
+              - img [ref=e335]
+              - generic [ref=e340]:
+                - paragraph [ref=e341]: عدد الموظفين
+                - paragraph [ref=e343]: "5"
+            - generic [ref=e345]:
+              - img [ref=e347]
+              - generic [ref=e349]:
+                - paragraph [ref=e350]: العُهد المصروفة للموظفين
+                - generic [ref=e351]:
+                  - paragraph [ref=e352]: 94,000
+                  - generic [ref=e353]: ر.ق
+            - generic [ref=e355]:
+              - img [ref=e357]
+              - generic [ref=e361]:
+                - paragraph [ref=e362]: مصاريف الشركة
+                - generic [ref=e363]:
+                  - paragraph [ref=e364]: "0"
+                  - generic [ref=e365]: ر.ق
+          - generic [ref=e366]:
+            - generic [ref=e367]:
+              - generic [ref=e368]:
+                - heading "نسبة الإنجاز" [level=3] [ref=e369]
+                - img [ref=e370]
+              - generic [ref=e374]: 20%
+            - generic [ref=e375]:
+              - generic [ref=e376]:
+                - heading "المشاريع الكلية" [level=3] [ref=e377]
+                - img [ref=e378]
+              - generic [ref=e381]: "5"
+            - generic [ref=e382]:
+              - heading "آخر الإشعارات" [level=3] [ref=e384]
+              - generic [ref=e385]:
+                - generic [ref=e386]:
+                  - img [ref=e388]
+                  - generic [ref=e393]:
+                    - paragraph [ref=e394]: تأكيد استلام العهدة
+                    - paragraph [ref=e395]: لم تؤكدي استلام العهدة البنكية بعد يا مصممة. يرجى التوقيع من صفحة "عهدي".
+                    - paragraph [ref=e396]: 12/03/2026
+                - generic [ref=e397]:
+                  - img [ref=e399]
+                  - generic [ref=e404]:
+                    - paragraph [ref=e405]: طلب شراء عاجل ⚡
+                    - paragraph [ref=e406]: طلب شراء هدايا ترويجية بأولوية URGENT — يرجى التنسيق.
+                    - paragraph [ref=e407]: 12/03/2026
+                - generic [ref=e408]:
+                  - img [ref=e410]
+                  - generic [ref=e415]:
+                    - paragraph [ref=e416]: فواتير تنتظر المراجعة
+                    - paragraph [ref=e417]: يوجد 4 فواتير معلقة تنتظر اعتمادك (مشاريع + شركة).
+                    - paragraph [ref=e418]: 12/03/2026
+                - generic [ref=e419]:
+                  - img [ref=e421]
+                  - generic [ref=e426]:
+                    - paragraph [ref=e427]: مرحباً بكم في Pocket v5 🎉
+                    - paragraph [ref=e428]: "تم تحديث النظام بميزات جديدة: مصاريف الشركة، التوقيع الإلكتروني، وسندات الصرف."
+                    - paragraph [ref=e429]: 12/03/2026
+            - generic [ref=e430]:
+              - generic [ref=e431]:
+                - heading "عدد المشاريع حسب الفترة" [level=3] [ref=e432]
+                - combobox [ref=e433]:
+                  - option "شهري" [selected]
+                  - option "سنوي"
+              - application [ref=e437]:
+                - generic [ref=e444]:
+                  - generic [ref=e445]:
+                    - generic [ref=e447]: يناير
+                    - generic [ref=e449]: فبراير
+                    - generic [ref=e451]: مارس
+                    - generic [ref=e453]: ابريل
+                    - generic [ref=e455]: مايو
+                    - generic [ref=e457]: يونيو
+                    - generic [ref=e459]: يوليو
+                    - generic [ref=e461]: اغسطس
+                    - generic [ref=e463]: سبتمبر
+                    - generic [ref=e465]: اكتوبر
+                    - generic [ref=e467]: نوفمبر
+                    - generic [ref=e469]: ديسمبر
+                  - generic [ref=e470]:
+                    - generic [ref=e472]: "0"
+                    - generic [ref=e474]: "2"
+                    - generic [ref=e476]: "4"
+                    - generic [ref=e478]: "6"
+                    - generic [ref=e480]: "8"
+          - generic [ref=e481]:
+            - generic [ref=e482]:
+              - heading "آخر المشاريع" [level=3] [ref=e483]
+              - button "الكل" [ref=e484]
+            - generic [ref=e485]:
+              - generic [ref=e486] [cursor=pointer]:
+                - img
+                - generic [ref=e487]:
+                  - generic [ref=e488]:
+                    - heading "مشروع اختبار 1773327505258" [level=4] [ref=e489]
+                    - generic [ref=e490]: قيد التنفيذ
+                  - img [ref=e492]
+                - generic [ref=e494]:
+                  - generic [ref=e495]:
+                    - paragraph [ref=e496]: الميزانية
+                    - paragraph [ref=e497]: "0"
+                  - generic [ref=e498]:
+                    - paragraph [ref=e499]: العُهد
+                    - paragraph [ref=e500]: "0"
+                  - generic [ref=e501]:
+                    - paragraph [ref=e502]: الأعضاء
+                    - paragraph [ref=e503]: "0"
+                - paragraph [ref=e504]: "تاريخ الانتهاء: غير محدد"
+              - generic [ref=e505] [cursor=pointer]:
+                - img
+                - generic [ref=e506]:
+                  - generic [ref=e507]:
+                    - heading "موقع متجر إلكتروني" [level=4] [ref=e508]
+                    - generic [ref=e509]: مكتمل
+                  - img [ref=e511]
+                - generic [ref=e513]:
+                  - generic [ref=e514]:
+                    - paragraph [ref=e515]: الميزانية
+                    - paragraph [ref=e516]: 65,000
+                  - generic [ref=e517]:
+                    - paragraph [ref=e518]: العُهد
+                    - paragraph [ref=e519]: 65,000
+                  - generic [ref=e520]:
+                    - paragraph [ref=e521]: الأعضاء
+                    - paragraph [ref=e522]: "1"
+                - paragraph [ref=e523]: "ينتهي: ٣١‏/١٢‏/٢٠٢٥"
+              - generic [ref=e524] [cursor=pointer]:
+                - img
+                - generic [ref=e525]:
+                  - generic [ref=e526]:
+                    - heading "منصة تعليم إلكتروني" [level=4] [ref=e527]
+                    - generic [ref=e528]: قيد التنفيذ
+                  - img [ref=e530]
+                - generic [ref=e532]:
+                  - generic [ref=e533]:
+                    - paragraph [ref=e534]: الميزانية
+                    - paragraph [ref=e535]: "0"
+                  - generic [ref=e536]:
+                    - paragraph [ref=e537]: العُهد
+                    - paragraph [ref=e538]: "0"
+                  - generic [ref=e539]:
+                    - paragraph [ref=e540]: الأعضاء
+                    - paragraph [ref=e541]: "0"
+                - paragraph [ref=e542]: "ينتهي: ١‏/١١‏/٢٠٢٦"
+    - generic [ref=e545]:
+      - generic [ref=e546]: Command Menu
+      - generic [ref=e547]:
+        - img [ref=e548]
+        - combobox "Command Menu" [expanded] [ref=e551]
+        - generic [ref=e552]: ESC
+      - listbox "Suggestions" [ref=e553]:
+        - generic [ref=e554]:
+          - generic [ref=e555]: التنقل السريع
+          - group "التنقل السريع" [ref=e556]:
+            - option "لوحة التحكم الرئيسية" [selected] [ref=e557] [cursor=pointer]:
+              - img [ref=e558]
+              - generic [ref=e563]: لوحة التحكم الرئيسية
+            - option "المشاريع" [ref=e564] [cursor=pointer]:
+              - img [ref=e565]
+              - generic [ref=e567]: المشاريع
+            - option "الموظفين" [ref=e568] [cursor=pointer]:
+              - img [ref=e569]
+              - generic [ref=e574]: الموظفين
+            - option "الفواتير" [ref=e575] [cursor=pointer]:
+              - img [ref=e576]
+              - generic [ref=e579]: الفواتير
+            - option "الاعدادات" [ref=e580] [cursor=pointer]:
+              - img [ref=e581]
+              - generic [ref=e584]: الاعدادات
+          - generic [ref=e586]: إجراءات سريعة
+          - group "إجراءات سريعة" [ref=e587]:
+            - option "إضافة مشروع جديد..." [ref=e588] [cursor=pointer]:
+              - img [ref=e589]
+              - generic [ref=e591]: إضافة مشروع جديد...
+            - option "تسجيل موظف جديد..." [ref=e592] [cursor=pointer]:
+              - img [ref=e593]
+              - generic [ref=e598]: تسجيل موظف جديد...
+  - alert [ref=e599]
+  - generic [ref=e600]: "0"
+```

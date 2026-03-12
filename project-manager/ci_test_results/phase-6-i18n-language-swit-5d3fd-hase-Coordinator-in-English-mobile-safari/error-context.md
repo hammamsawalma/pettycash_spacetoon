@@ -1,0 +1,239 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - generic [ref=e3]:
+    - link "تخطى إلى المحتوى الرئيسي" [ref=e4]:
+      - /url: "#main-content"
+    - generic "القائمة الجانبية" [ref=e6]:
+      - img "Spacetoon Logo" [ref=e9]
+      - button "إضافة سريعة" [ref=e11]:
+        - img [ref=e12]
+        - text: إضافة سريعة
+      - navigation [ref=e14]:
+        - generic [ref=e15]:
+          - heading "الأساسيات" [level=3] [ref=e16]
+          - list [ref=e17]:
+            - listitem [ref=e18]:
+              - link "لوحة التحكم" [ref=e20]:
+                - /url: /
+                - img [ref=e21]
+                - text: لوحة التحكم
+            - listitem [ref=e24]:
+              - button "المشاريع" [ref=e26]:
+                - generic [ref=e27]:
+                  - img [ref=e28]
+                  - text: المشاريع
+                - img [ref=e30]
+            - listitem [ref=e32]:
+              - link "المحادثات" [ref=e33]:
+                - /url: /chat
+                - img [ref=e34]
+                - text: المحادثات
+        - generic [ref=e36]:
+          - heading "المالية والمشتريات" [level=3] [ref=e37]
+          - list [ref=e38]:
+            - listitem [ref=e39]:
+              - button "الفواتير" [ref=e41]:
+                - generic [ref=e42]:
+                  - img [ref=e43]
+                  - text: الفواتير
+                - img [ref=e46]
+            - listitem [ref=e48]:
+              - button "المشتريات" [ref=e50]:
+                - generic [ref=e51]:
+                  - img [ref=e52]
+                  - text: المشتريات
+                - img [ref=e56]
+            - listitem [ref=e58]:
+              - button "العهدة" [ref=e60]:
+                - generic [ref=e61]:
+                  - img [ref=e62]
+                  - text: العهدة
+                - img [ref=e68]
+            - listitem [ref=e70]:
+              - link "الديون" [ref=e71]:
+                - /url: /debts
+                - img [ref=e72]
+                - text: الديون
+        - generic [ref=e75]:
+          - heading "النظام" [level=3] [ref=e76]
+          - list [ref=e77]:
+            - listitem [ref=e78]:
+              - button "الدعم الفني" [ref=e80]:
+                - generic [ref=e81]:
+                  - img [ref=e82]
+                  - text: الدعم الفني
+                - img [ref=e84]
+      - generic [ref=e86]:
+        - link "م منسق مشاريع منسق المشتريات" [ref=e88]:
+          - /url: /settings
+          - generic [ref=e90]: م
+          - generic [ref=e91]:
+            - paragraph [ref=e92]: منسق مشاريع
+            - paragraph [ref=e93]: منسق المشتريات
+          - img [ref=e94]
+        - button "تسجيل الخروج" [ref=e97]:
+          - img [ref=e98]
+          - text: تسجيل الخروج
+    - generic [ref=e101]:
+      - banner [ref=e102]:
+        - generic [ref=e103]:
+          - generic [ref=e104]:
+            - button [ref=e105]:
+              - img [ref=e106]
+            - link "مرحبا منسق مشاريع" [ref=e107] [cursor=pointer]:
+              - /url: /settings
+              - img [ref=e109]
+              - generic [ref=e112]:
+                - generic [ref=e113]: مرحبا
+                - generic [ref=e114]: منسق مشاريع
+          - button "الإشعارات" [ref=e116]:
+            - generic [ref=e117]: عرض الإشعارات
+            - img [ref=e121]
+      - main [ref=e124]:
+        - generic [ref=e125]:
+          - generic [ref=e127]:
+            - generic [ref=e128]:
+              - img [ref=e130]
+              - generic [ref=e133]:
+                - paragraph [ref=e134]: ملخص التدفق المالي
+                - paragraph [ref=e135]: رصيد عُهَدي
+            - generic [ref=e136]:
+              - generic [ref=e137]:
+                - img [ref=e139]
+                - generic [ref=e141]:
+                  - paragraph [ref=e142]: إجمالي العُهد الواردة
+                  - paragraph [ref=e143]: 0ر.ق
+              - generic [ref=e144]:
+                - img [ref=e146]
+                - generic [ref=e148]:
+                  - paragraph [ref=e149]: مُنفَّق (فواتير مقبولة)
+                  - paragraph [ref=e150]: 0ر.ق
+          - generic [ref=e151]:
+            - generic [ref=e152]:
+              - img [ref=e154]
+              - generic [ref=e157]:
+                - paragraph [ref=e158]: إجمالي العُهد الواردة
+                - generic [ref=e159]:
+                  - paragraph [ref=e160]: "0"
+                  - generic [ref=e161]: ر.ق
+            - generic [ref=e162]:
+              - img [ref=e164]
+              - generic [ref=e167]:
+                - paragraph [ref=e168]: مُنفَّق (فواتير مقبولة)
+                - generic [ref=e169]:
+                  - paragraph [ref=e170]: "0"
+                  - generic [ref=e171]: ر.ق
+            - generic [ref=e172]:
+              - img [ref=e174]
+              - generic [ref=e176]:
+                - paragraph [ref=e177]: المشاريع المسندة إليك
+                - paragraph [ref=e179]: "2"
+          - generic [ref=e180]:
+            - generic [ref=e181]:
+              - generic [ref=e182]:
+                - img [ref=e183]
+                - heading "المشتريات النشطة في مشاريعك" [level=3] [ref=e187]
+              - generic [ref=e188]:
+                - button "+ طلب شراء" [ref=e189]
+                - button "الكل" [ref=e190]:
+                  - text: الكل
+                  - img [ref=e191]
+            - generic [ref=e193]:
+              - generic [ref=e194] [cursor=pointer]:
+                - generic [ref=e195]:
+                  - paragraph
+                  - paragraph [ref=e196]: حملة تسويق رمضان 2026
+                - generic [ref=e197]: طلب جديد
+              - generic [ref=e198] [cursor=pointer]:
+                - generic [ref=e199]:
+                  - paragraph
+                  - paragraph [ref=e200]: نظام إدارة عقارات
+                - generic [ref=e201]: قيد التنفيذ
+              - generic [ref=e202] [cursor=pointer]:
+                - generic [ref=e203]:
+                  - paragraph
+                  - paragraph [ref=e204]: حملة تسويق رمضان 2026
+                - generic [ref=e205]: قيد التنفيذ
+              - generic [ref=e206] [cursor=pointer]:
+                - generic [ref=e207]:
+                  - paragraph
+                  - paragraph [ref=e208]: نظام إدارة عقارات
+                - generic [ref=e209]: طلب جديد
+          - generic [ref=e210]:
+            - generic [ref=e211]:
+              - heading "إشعارات المهام" [level=3] [ref=e213]
+              - paragraph [ref=e215]: لا توجد إشعارات حديثة.
+              - button "عرض كل الإشعارات" [ref=e217]:
+                - text: عرض كل الإشعارات
+                - img [ref=e218]
+            - generic [ref=e220]:
+              - heading "المشاريع الحالية" [level=3] [ref=e222]
+              - generic [ref=e223]:
+                - generic [ref=e224]:
+                  - generic [ref=e225]:
+                    - generic [ref=e226]:
+                      - heading "حملة تسويق رمضان 2026" [level=4] [ref=e227]
+                      - paragraph [ref=e228]: ٢٠‏/٤‏/٢٠٢٦
+                    - generic [ref=e229]: قيد التنفيذ
+                  - generic [ref=e230]:
+                    - generic [ref=e231]:
+                      - paragraph [ref=e232]: العُهد المصروفة
+                      - paragraph [ref=e233]: 11,000 ر.ق
+                    - generic [ref=e234]:
+                      - paragraph [ref=e235]: الأعضاء
+                      - paragraph [ref=e236]: "3"
+                  - button "عرض التفاصيل" [ref=e238]
+                - generic [ref=e239]:
+                  - generic [ref=e240]:
+                    - generic [ref=e241]:
+                      - heading "نظام إدارة عقارات" [level=4] [ref=e242]
+                      - paragraph [ref=e243]: ٣٠‏/٧‏/٢٠٢٦
+                    - generic [ref=e244]: قيد التنفيذ
+                  - generic [ref=e245]:
+                    - generic [ref=e246]:
+                      - paragraph [ref=e247]: العُهد المصروفة
+                      - paragraph [ref=e248]: 18,000 ر.ق
+                    - generic [ref=e249]:
+                      - paragraph [ref=e250]: الأعضاء
+                      - paragraph [ref=e251]: "3"
+                  - button "عرض التفاصيل" [ref=e253]
+    - navigation "التنقل الرئيسي" [ref=e254]:
+      - generic [ref=e256]:
+        - link "حسابي" [ref=e257]:
+          - /url: /settings
+          - img [ref=e258]
+          - generic [ref=e261]: حسابي
+        - link "عهدي" [ref=e262]:
+          - /url: /my-custodies
+          - img [ref=e263]
+          - generic [ref=e266]: عهدي
+        - link "الديون" [ref=e267]:
+          - /url: /debts
+          - img [ref=e268]
+          - generic [ref=e271]: الديون
+        - button "طلب شراء" [ref=e273]:
+          - img [ref=e274]
+          - generic [ref=e278]: طلب شراء
+        - link "المشاريع" [ref=e279]:
+          - /url: /projects
+          - img [ref=e280]
+          - generic [ref=e282]: المشاريع
+        - link "الرئيسية" [ref=e283]:
+          - /url: /
+          - img [ref=e284]
+          - generic [ref=e287]: الرئيسية
+    - generic [ref=e289]:
+      - img "SpacePocket" [ref=e290]
+      - generic [ref=e291]:
+        - paragraph [ref=e292]: أضف التطبيق للشاشة الرئيسية
+        - paragraph [ref=e293]:
+          - text: اضغط
+          - strong [ref=e294]: مشاركة
+          - text: ثم
+          - strong [ref=e295]: إضافة إلى الشاشة الرئيسية
+      - button "إغلاق" [ref=e296]:
+        - img [ref=e297]
+  - alert [ref=e300]
+```

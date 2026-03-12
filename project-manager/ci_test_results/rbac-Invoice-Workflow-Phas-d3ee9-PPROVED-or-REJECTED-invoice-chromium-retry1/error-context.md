@@ -1,0 +1,235 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - generic [ref=e3]:
+    - link "تخطى إلى المحتوى الرئيسي" [ref=e4] [cursor=pointer]:
+      - /url: "#main-content"
+    - generic "القائمة الجانبية" [ref=e6]:
+      - img "Spacetoon Logo" [ref=e9]
+      - button "إضافة سريعة" [ref=e11]:
+        - img [ref=e12]
+        - text: إضافة سريعة
+      - navigation [ref=e14]:
+        - generic [ref=e15]:
+          - heading "الأساسيات" [level=3] [ref=e16]
+          - list [ref=e17]:
+            - listitem [ref=e18]:
+              - link "لوحة التحكم" [ref=e19] [cursor=pointer]:
+                - /url: /
+                - img [ref=e20]
+                - text: لوحة التحكم
+            - listitem [ref=e23]:
+              - button "المشاريع" [ref=e25]:
+                - generic [ref=e26]:
+                  - img [ref=e27]
+                  - text: المشاريع
+                - img [ref=e29]
+            - listitem [ref=e31]:
+              - link "المحادثات" [ref=e32] [cursor=pointer]:
+                - /url: /chat
+                - img [ref=e33]
+                - text: المحادثات
+        - generic [ref=e35]:
+          - heading "المالية والمشتريات" [level=3] [ref=e36]
+          - list [ref=e37]:
+            - listitem [ref=e38]:
+              - generic [ref=e39]:
+                - button "الفواتير" [ref=e40]:
+                  - generic [ref=e41]:
+                    - img [ref=e42]
+                    - text: الفواتير
+                  - img [ref=e45]
+                - list [ref=e47]:
+                  - generic [ref=e48]:
+                    - listitem [ref=e49]:
+                      - link "جميع الفواتير" [ref=e50] [cursor=pointer]:
+                        - /url: /invoices
+                        - text: جميع الفواتير
+                    - listitem [ref=e52]:
+                      - link "إضافة فاتورة" [ref=e53] [cursor=pointer]:
+                        - /url: /invoices/new
+                        - text: إضافة فاتورة
+            - listitem [ref=e55]:
+              - button "المشتريات" [ref=e57]:
+                - generic [ref=e58]:
+                  - img [ref=e59]
+                  - text: المشتريات
+                - img [ref=e63]
+            - listitem [ref=e65]:
+              - button "الطلبات المالية" [ref=e67]:
+                - generic [ref=e68]:
+                  - img [ref=e69]
+                  - text: الطلبات المالية
+                - img [ref=e72]
+            - listitem [ref=e74]:
+              - button "العهدة" [ref=e76]:
+                - generic [ref=e77]:
+                  - img [ref=e78]
+                  - text: العهدة
+                - img [ref=e84]
+            - listitem [ref=e86]:
+              - button "خزنة الشركة" [ref=e88]:
+                - generic [ref=e89]:
+                  - img [ref=e90]
+                  - text: خزنة الشركة
+                - img [ref=e93]
+            - listitem [ref=e95]:
+              - link "الديون" [ref=e96] [cursor=pointer]:
+                - /url: /debts
+                - img [ref=e97]
+                - text: الديون
+        - generic [ref=e100]:
+          - heading "الإدارة" [level=3] [ref=e101]
+          - list [ref=e102]:
+            - listitem [ref=e103]:
+              - button "الموظفين" [ref=e105]:
+                - generic [ref=e106]:
+                  - img [ref=e107]
+                  - text: الموظفين
+                - img [ref=e112]
+            - listitem [ref=e114]:
+              - link "التقارير" [ref=e115] [cursor=pointer]:
+                - /url: /reports
+                - img [ref=e116]
+                - text: التقارير
+            - listitem [ref=e118]:
+              - link "مركز التصدير" [ref=e119] [cursor=pointer]:
+                - /url: /exports
+                - img [ref=e120]
+                - text: مركز التصدير
+            - listitem [ref=e123]:
+              - link "إرسال إشعارات" [ref=e124] [cursor=pointer]:
+                - /url: /notifications/send
+                - img [ref=e125]
+                - text: إرسال إشعارات
+        - generic [ref=e130]:
+          - heading "النظام" [level=3] [ref=e131]
+          - list [ref=e132]:
+            - listitem [ref=e133]:
+              - link "إدارة التصنيفات" [ref=e134] [cursor=pointer]:
+                - /url: /settings/categories
+                - img [ref=e135]
+                - text: إدارة التصنيفات
+            - listitem [ref=e137]:
+              - button "الدعم الفني" [ref=e139]:
+                - generic [ref=e140]:
+                  - img [ref=e141]
+                  - text: الدعم الفني
+                - img [ref=e143]
+            - listitem [ref=e145]:
+              - link "المؤرشفات" [ref=e146] [cursor=pointer]:
+                - /url: /archives
+                - img [ref=e147]
+                - text: المؤرشفات
+            - listitem [ref=e150]:
+              - link "السلة" [ref=e151] [cursor=pointer]:
+                - /url: /trash
+                - img [ref=e152]
+                - text: السلة
+      - generic [ref=e155]:
+        - link "م مدير النظام مدير النظام" [ref=e157] [cursor=pointer]:
+          - /url: /settings
+          - generic [ref=e159]: م
+          - generic [ref=e160]:
+            - paragraph [ref=e161]: مدير النظام
+            - paragraph [ref=e162]: مدير النظام
+          - img [ref=e163]
+        - button "تسجيل الخروج" [ref=e166]:
+          - img [ref=e167]
+          - text: تسجيل الخروج
+    - generic [ref=e170]:
+      - banner [ref=e171]:
+        - generic [ref=e172]:
+          - navigation "Breadcrumb" [ref=e174]:
+            - link "الرئيسية" [ref=e175] [cursor=pointer]:
+              - /url: /
+            - img [ref=e176]
+            - link "الفواتير" [ref=e178] [cursor=pointer]:
+              - /url: /invoices
+            - img [ref=e179]
+            - 'heading "تفاصيل الفاتورة #INV-ARCH-01" [level=1] [ref=e181]'
+          - generic [ref=e182]:
+            - generic [ref=e183]:
+              - link "Home" [ref=e185] [cursor=pointer]:
+                - /url: /
+                - generic [ref=e186]: Home
+                - img [ref=e187]
+              - button "Search" [ref=e191]:
+                - generic [ref=e192]: Search
+                - img [ref=e193]
+              - link "دليل الاستخدام" [ref=e197] [cursor=pointer]:
+                - /url: /manual
+                - generic [ref=e198]: دليل الاستخدام
+                - img [ref=e199]
+              - button "الإشعارات" [ref=e204] [cursor=pointer]:
+                - generic [ref=e205]: عرض الإشعارات
+                - img [ref=e209]
+              - link "Settings" [ref=e213] [cursor=pointer]:
+                - /url: /settings
+                - generic [ref=e214]: Settings
+                - img [ref=e215]
+            - button "Switch to English" [ref=e219]:
+              - img [ref=e220]
+              - generic [ref=e223]: EN
+            - link [ref=e225] [cursor=pointer]:
+              - /url: /settings
+              - generic [ref=e226]:
+                - generic [ref=e227]: مدير النظام
+                - generic [ref=e228]: مدير النظام
+              - img [ref=e230]
+      - main [ref=e233]:
+        - generic [ref=e234]:
+          - generic [ref=e235]:
+            - generic [ref=e236]:
+              - generic [ref=e237]:
+                - 'heading "فاتورة مشتريات #INV-ARCH-01" [level=2] [ref=e238]'
+                - paragraph [ref=e239]: أُضيفت في 15/11/2025 بواسطة مطور برمجيات
+              - generic [ref=e240]:
+                - img [ref=e243]
+                - generic [ref=e247]: معتمد
+            - generic [ref=e248]:
+              - generic [ref=e249]:
+                - heading "المشروع" [level=3] [ref=e250]
+                - paragraph [ref=e251]: موقع متجر إلكتروني
+              - generic [ref=e252]:
+                - heading "جهة الدفع" [level=3] [ref=e253]
+                - generic [ref=e255]: من العهدة
+              - generic [ref=e256]:
+                - heading "التصنيف" [level=3] [ref=e257]
+                - paragraph [ref=e258]: 📁 أخرى
+            - generic [ref=e259]:
+              - heading "التنسيقات (بنود الفاتورة)" [level=3] [ref=e260]
+              - table [ref=e262]:
+                - rowgroup [ref=e263]:
+                  - row "# البند / السلعة الكمية الإجمالي" [ref=e264]:
+                    - columnheader "#" [ref=e265]
+                    - columnheader "البند / السلعة" [ref=e266]
+                    - columnheader "الكمية" [ref=e267]
+                    - columnheader "الإجمالي" [ref=e268]
+                - rowgroup [ref=e269]:
+                  - row "1 تطوير واجهة المتجر النهائية 1 12,000 ر.ق" [ref=e270]:
+                    - cell "1" [ref=e271]
+                    - cell "تطوير واجهة المتجر النهائية" [ref=e272]
+                    - cell "1" [ref=e273]
+                    - cell "12,000 ر.ق" [ref=e274]
+                - rowgroup [ref=e275]:
+                  - 'row "الإجمالي الكلي: 12,000 ر.ق" [ref=e276]':
+                    - cell "الإجمالي الكلي:" [ref=e277]
+                    - cell "12,000 ر.ق" [ref=e278]
+            - generic [ref=e279]:
+              - heading "ملاحظات عامة" [level=3] [ref=e280]
+              - generic [ref=e281]: دفعة تطوير المرحلة الأخيرة
+            - generic [ref=e282]:
+              - heading "صورة الفاتورة المرفقة" [level=3] [ref=e283]
+              - paragraph [ref=e284]: لا يوجد مرفقات
+          - generic [ref=e286]:
+            - link "سند الفاتورة (PDF)" [ref=e287] [cursor=pointer]:
+              - /url: /api/invoice-vouchers/9b30779c-d852-4666-bb5b-0b8a50aaed67
+              - img [ref=e288]
+              - text: سند الفاتورة (PDF)
+            - button "طباعة الصفحة" [ref=e291]:
+              - img [ref=e292]
+              - text: طباعة الصفحة
+  - alert [ref=e296]
+```

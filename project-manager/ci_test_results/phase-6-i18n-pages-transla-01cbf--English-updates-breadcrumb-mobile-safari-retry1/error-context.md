@@ -1,0 +1,370 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - generic [ref=e3]:
+    - link "Skip to main content" [ref=e4]:
+      - /url: "#main-content"
+    - generic "Sidebar Menu" [ref=e6]:
+      - img "Spacetoon Logo" [ref=e9]
+      - button "Quick Add" [ref=e11]:
+        - img [ref=e12]
+        - text: Quick Add
+      - navigation [ref=e14]:
+        - generic [ref=e15]:
+          - heading "Basics" [level=3] [ref=e16]
+          - list [ref=e17]:
+            - listitem [ref=e18]:
+              - link "Dashboard" [ref=e19]:
+                - /url: /
+                - img [ref=e20]
+                - text: Dashboard
+            - listitem [ref=e23]:
+              - generic [ref=e24]:
+                - button "Projects" [ref=e25]:
+                  - generic [ref=e26]:
+                    - img [ref=e27]
+                    - text: Projects
+                  - img [ref=e29]
+                - list [ref=e31]:
+                  - generic [ref=e32]:
+                    - listitem [ref=e33]:
+                      - link "Projects List" [ref=e34]:
+                        - /url: /projects
+                        - text: Projects List
+                    - listitem [ref=e36]:
+                      - link "New Project" [ref=e37]:
+                        - /url: /projects/new
+                        - text: New Project
+            - listitem [ref=e39]:
+              - link "Chat" [ref=e40]:
+                - /url: /chat
+                - img [ref=e41]
+                - text: Chat
+        - generic [ref=e43]:
+          - heading "Finance & Purchases" [level=3] [ref=e44]
+          - list [ref=e45]:
+            - listitem [ref=e46]:
+              - button "Invoices" [ref=e48]:
+                - generic [ref=e49]:
+                  - img [ref=e50]
+                  - text: Invoices
+                - img [ref=e53]
+            - listitem [ref=e55]:
+              - button "Purchases" [ref=e57]:
+                - generic [ref=e58]:
+                  - img [ref=e59]
+                  - text: Purchases
+                - img [ref=e63]
+            - listitem [ref=e65]:
+              - button "Finance Requests" [ref=e67]:
+                - generic [ref=e68]:
+                  - img [ref=e69]
+                  - text: Finance Requests
+                - img [ref=e72]
+            - listitem [ref=e74]:
+              - button "Custody" [ref=e76]:
+                - generic [ref=e77]:
+                  - img [ref=e78]
+                  - text: Custody
+                - img [ref=e84]
+            - listitem [ref=e86]:
+              - button "Company Wallet" [ref=e88]:
+                - generic [ref=e89]:
+                  - img [ref=e90]
+                  - text: Company Wallet
+                - img [ref=e93]
+            - listitem [ref=e95]:
+              - link "Debts" [ref=e96]:
+                - /url: /debts
+                - img [ref=e97]
+                - text: Debts
+        - generic [ref=e100]:
+          - heading "Management" [level=3] [ref=e101]
+          - list [ref=e102]:
+            - listitem [ref=e103]:
+              - button "Employees" [ref=e105]:
+                - generic [ref=e106]:
+                  - img [ref=e107]
+                  - text: Employees
+                - img [ref=e112]
+            - listitem [ref=e114]:
+              - link "Reports" [ref=e115]:
+                - /url: /reports
+                - img [ref=e116]
+                - text: Reports
+            - listitem [ref=e118]:
+              - link "Export Center" [ref=e119]:
+                - /url: /exports
+                - img [ref=e120]
+                - text: Export Center
+            - listitem [ref=e123]:
+              - link "Send Notifications" [ref=e124]:
+                - /url: /notifications/send
+                - img [ref=e125]
+                - text: Send Notifications
+        - generic [ref=e130]:
+          - heading "System" [level=3] [ref=e131]
+          - list [ref=e132]:
+            - listitem [ref=e133]:
+              - link "Manage Categories" [ref=e134]:
+                - /url: /settings/categories
+                - img [ref=e135]
+                - text: Manage Categories
+            - listitem [ref=e137]:
+              - button "Support" [ref=e139]:
+                - generic [ref=e140]:
+                  - img [ref=e141]
+                  - text: Support
+                - img [ref=e143]
+            - listitem [ref=e145]:
+              - link "Archives" [ref=e146]:
+                - /url: /archives
+                - img [ref=e147]
+                - text: Archives
+            - listitem [ref=e150]:
+              - link "Manage Branches" [ref=e151]:
+                - /url: /branches
+                - img [ref=e152]
+                - text: Manage Branches
+            - listitem [ref=e157]:
+              - link "Trash" [ref=e158]:
+                - /url: /trash
+                - img [ref=e159]
+                - text: Trash
+      - generic [ref=e162]:
+        - link "I IT IT" [ref=e164]:
+          - /url: /settings
+          - generic [ref=e166]: I
+          - generic [ref=e167]:
+            - paragraph [ref=e168]: IT
+            - paragraph [ref=e169]: IT
+          - img [ref=e170]
+        - button "Logout" [ref=e173]:
+          - img [ref=e174]
+          - text: Logout
+    - generic [ref=e177]:
+      - banner [ref=e178]:
+        - generic [ref=e179]:
+          - generic [ref=e180]:
+            - button [ref=e181]:
+              - img [ref=e182]
+            - button [ref=e184]:
+              - img [ref=e185]
+          - heading "Projects" [level=1] [ref=e186]
+          - button "Search" [ref=e188]:
+            - img [ref=e189]
+      - main [ref=e192]:
+        - generic [ref=e193]:
+          - generic [ref=e194]:
+            - generic [ref=e195]:
+              - paragraph [ref=e196]: Total Projects
+              - paragraph [ref=e197]: "5"
+            - generic [ref=e198]:
+              - paragraph [ref=e199]: Completed
+              - paragraph [ref=e200]: "1"
+            - generic [ref=e201]:
+              - paragraph [ref=e202]: On Hold
+              - paragraph [ref=e203]: "1"
+          - generic [ref=e204]:
+            - generic [ref=e205]:
+              - textbox "Search..." [ref=e206]
+              - generic:
+                - img
+            - generic [ref=e207]:
+              - generic [ref=e208]:
+                - button "All" [ref=e209]
+                - button "Completed" [ref=e210]
+                - button "In Progress" [ref=e211]
+                - button "On Hold" [ref=e212]
+              - generic [ref=e213]:
+                - button "Grid" [ref=e214]
+                - button "Board" [ref=e215]
+            - generic [ref=e216]:
+              - button "Export Projects" [ref=e218]:
+                - img [ref=e219]
+                - generic [ref=e222]: Export Projects
+                - img [ref=e223]
+              - button "New Project" [ref=e225]:
+                - generic [ref=e226]: New Project
+          - generic [ref=e227]:
+            - generic [ref=e228] [cursor=pointer]:
+              - img
+              - generic [ref=e230]:
+                - heading "مشروع اختبار 1773327505258" [level=4] [ref=e231]
+                - generic [ref=e232]: In Progress
+              - generic [ref=e233]:
+                - generic [ref=e234]:
+                  - generic "مدير النظام" [ref=e235]: م
+                  - generic [ref=e236]: +
+                - generic [ref=e237]:
+                  - generic [ref=e238]:
+                    - generic [ref=e239]: "0"
+                    - generic [ref=e240]: members
+                  - generic [ref=e241]:
+                    - generic [ref=e242]: "0"
+                    - generic [ref=e243]: invoices
+              - generic [ref=e244]:
+                - generic [ref=e245]:
+                  - generic [ref=e246]: Budget Allocated
+                  - generic [ref=e247]: 0 ر.ق
+                - generic [ref=e248]:
+                  - generic [ref=e249]: Remaining Custody
+                  - generic [ref=e250]: 0 ر.ق
+                - generic [ref=e251]:
+                  - generic [ref=e252]: Expected Remaining
+                  - generic [ref=e253]: 0 ر.ق
+                - generic [ref=e254]:
+                  - generic [ref=e255]: Approved Expenses
+                  - generic [ref=e256]: 0 ر.ق
+            - generic [ref=e257] [cursor=pointer]:
+              - img
+              - generic [ref=e259]:
+                - heading "موقع متجر إلكتروني" [level=4] [ref=e260]
+                - generic [ref=e261]: Completed
+              - generic [ref=e262]:
+                - generic [ref=e263]:
+                  - generic "مدير النظام" [ref=e264]: م
+                  - generic [ref=e265]: +
+                - generic [ref=e266]:
+                  - generic [ref=e267]:
+                    - generic [ref=e268]: "1"
+                    - generic [ref=e269]: members
+                  - generic [ref=e270]:
+                    - generic [ref=e271]: "1"
+                    - generic [ref=e272]: invoices
+              - generic [ref=e273]:
+                - generic [ref=e274]:
+                  - generic [ref=e275]: Budget Allocated
+                  - generic [ref=e276]: 65,000 ر.ق
+                - generic [ref=e277]:
+                  - generic [ref=e278]: Remaining Custody
+                  - generic [ref=e279]: 0 ر.ق
+                - generic [ref=e280]:
+                  - generic [ref=e281]: Expected Remaining
+                  - generic [ref=e282]: 53,000 ر.ق
+                - generic [ref=e283]:
+                  - generic [ref=e284]: Approved Expenses
+                  - generic [ref=e285]: 12,000 ر.ق
+            - generic [ref=e286] [cursor=pointer]:
+              - img
+              - generic [ref=e288]:
+                - heading "منصة تعليم إلكتروني" [level=4] [ref=e289]
+                - generic [ref=e290]: On Hold
+              - generic [ref=e291]:
+                - generic [ref=e292]:
+                  - generic "مدير النظام" [ref=e293]: م
+                  - generic [ref=e294]: +
+                - generic [ref=e295]:
+                  - generic [ref=e296]:
+                    - generic [ref=e297]: "0"
+                    - generic [ref=e298]: members
+                  - generic [ref=e299]:
+                    - generic [ref=e300]: "0"
+                    - generic [ref=e301]: invoices
+              - generic [ref=e302]:
+                - generic [ref=e303]:
+                  - generic [ref=e304]: Budget Allocated
+                  - generic [ref=e305]: 0 ر.ق
+                - generic [ref=e306]:
+                  - generic [ref=e307]: Remaining Custody
+                  - generic [ref=e308]: 0 ر.ق
+                - generic [ref=e309]:
+                  - generic [ref=e310]: Expected Remaining
+                  - generic [ref=e311]: 0 ر.ق
+                - generic [ref=e312]:
+                  - generic [ref=e313]: Approved Expenses
+                  - generic [ref=e314]: 0 ر.ق
+            - generic [ref=e315] [cursor=pointer]:
+              - img
+              - generic [ref=e317]:
+                - heading "حملة تسويق رمضان 2026" [level=4] [ref=e318]
+                - generic [ref=e319]: In Progress
+              - generic [ref=e320]:
+                - generic [ref=e321]:
+                  - generic "مدير النظام" [ref=e322]: م
+                  - generic [ref=e323]: +
+                - generic [ref=e324]:
+                  - generic [ref=e325]:
+                    - generic [ref=e326]: "3"
+                    - generic [ref=e327]: members
+                  - generic [ref=e328]:
+                    - generic [ref=e329]: "2"
+                    - generic [ref=e330]: invoices
+              - generic [ref=e331]:
+                - generic [ref=e332]:
+                  - generic [ref=e333]: Budget Allocated
+                  - generic [ref=e334]: 50,000 ر.ق
+                - generic [ref=e335]:
+                  - generic [ref=e336]: Remaining Custody
+                  - generic [ref=e337]: 11,000 ر.ق
+                - generic [ref=e338]:
+                  - generic [ref=e339]: Expected Remaining
+                  - generic [ref=e340]: 42,300 ر.ق
+                - generic [ref=e341]:
+                  - generic [ref=e342]: Approved Expenses
+                  - generic [ref=e343]: 3,500 ر.ق
+            - generic [ref=e344] [cursor=pointer]:
+              - img
+              - generic [ref=e346]:
+                - heading "نظام إدارة عقارات" [level=4] [ref=e347]
+                - generic [ref=e348]: In Progress
+              - generic [ref=e349]:
+                - generic [ref=e350]:
+                  - generic "مدير النظام" [ref=e351]: م
+                  - generic [ref=e352]: +
+                - generic [ref=e353]:
+                  - generic [ref=e354]:
+                    - generic [ref=e355]: "3"
+                    - generic [ref=e356]: members
+                  - generic [ref=e357]:
+                    - generic [ref=e358]: "5"
+                    - generic [ref=e359]: invoices
+              - generic [ref=e360]:
+                - generic [ref=e361]:
+                  - generic [ref=e362]: Budget Allocated
+                  - generic [ref=e363]: 90,000 ر.ق
+                - generic [ref=e364]:
+                  - generic [ref=e365]: Remaining Custody
+                  - generic [ref=e366]: 16,500 ر.ق
+                - generic [ref=e367]:
+                  - generic [ref=e368]: Expected Remaining
+                  - generic [ref=e369]: 87,230 ر.ق
+                - generic [ref=e370]:
+                  - generic [ref=e371]: Approved Expenses
+                  - generic [ref=e372]: 1,540 ر.ق
+    - navigation "Main Navigation" [ref=e373]:
+      - generic [ref=e374]:
+        - link "1 unread notifications Home" [ref=e375]:
+          - /url: /
+          - generic [ref=e376]:
+            - img [ref=e377]
+            - generic "1 unread notifications" [ref=e380]: "1"
+          - generic [ref=e381]: Home
+        - link "Projects" [ref=e382]:
+          - /url: /projects
+          - img [ref=e384]
+          - generic [ref=e386]: Projects
+        - button "Quick add menu" [ref=e388]:
+          - img [ref=e389]
+        - link "Invoices" [ref=e390]:
+          - /url: /invoices
+          - img [ref=e392]
+          - generic [ref=e395]: Invoices
+        - link "My Account" [ref=e396]:
+          - /url: /settings
+          - img [ref=e398]
+          - generic [ref=e401]: My Account
+    - generic [ref=e403]:
+      - img "SpacePocket" [ref=e404]
+      - generic [ref=e405]:
+        - paragraph [ref=e406]: Add to Home Screen
+        - paragraph [ref=e407]:
+          - text: Tap
+          - strong [ref=e408]: Share
+          - text: then
+          - strong [ref=e409]: Add to Home Screen
+      - button "Close" [ref=e410]:
+        - img [ref=e411]
+  - alert [ref=e414]
+```

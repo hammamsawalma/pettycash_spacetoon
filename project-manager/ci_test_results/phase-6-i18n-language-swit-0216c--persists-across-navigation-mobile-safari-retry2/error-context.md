@@ -1,0 +1,393 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - generic [ref=e3]:
+    - link "تخطى إلى المحتوى الرئيسي" [ref=e4]:
+      - /url: "#main-content"
+    - generic "القائمة الجانبية" [ref=e6]:
+      - img "Spacetoon Logo" [ref=e9]
+      - button "إضافة سريعة" [ref=e11]:
+        - img [ref=e12]
+        - text: إضافة سريعة
+      - navigation [ref=e14]:
+        - generic [ref=e15]:
+          - heading "الأساسيات" [level=3] [ref=e16]
+          - list [ref=e17]:
+            - listitem [ref=e18]:
+              - link "لوحة التحكم" [ref=e20]:
+                - /url: /
+                - img [ref=e21]
+                - text: لوحة التحكم
+            - listitem [ref=e24]:
+              - button "المشاريع" [ref=e26]:
+                - generic [ref=e27]:
+                  - img [ref=e28]
+                  - text: المشاريع
+                - img [ref=e30]
+            - listitem [ref=e32]:
+              - link "المحادثات" [ref=e33]:
+                - /url: /chat
+                - img [ref=e34]
+                - text: المحادثات
+        - generic [ref=e36]:
+          - heading "المالية والمشتريات" [level=3] [ref=e37]
+          - list [ref=e38]:
+            - listitem [ref=e39]:
+              - button "الفواتير" [ref=e41]:
+                - generic [ref=e42]:
+                  - img [ref=e43]
+                  - text: الفواتير
+                - img [ref=e46]
+            - listitem [ref=e48]:
+              - button "المشتريات" [ref=e50]:
+                - generic [ref=e51]:
+                  - img [ref=e52]
+                  - text: المشتريات
+                - img [ref=e56]
+            - listitem [ref=e58]:
+              - button "الطلبات المالية" [ref=e60]:
+                - generic [ref=e61]:
+                  - img [ref=e62]
+                  - text: الطلبات المالية
+                - img [ref=e65]
+            - listitem [ref=e67]:
+              - button "العهدة" [ref=e69]:
+                - generic [ref=e70]:
+                  - img [ref=e71]
+                  - text: العهدة
+                - img [ref=e77]
+            - listitem [ref=e79]:
+              - button "خزنة الشركة" [ref=e81]:
+                - generic [ref=e82]:
+                  - img [ref=e83]
+                  - text: خزنة الشركة
+                - img [ref=e86]
+            - listitem [ref=e88]:
+              - link "الديون" [ref=e89]:
+                - /url: /debts
+                - img [ref=e90]
+                - text: الديون
+        - generic [ref=e93]:
+          - heading "الإدارة" [level=3] [ref=e94]
+          - list [ref=e95]:
+            - listitem [ref=e96]:
+              - button "الموظفين" [ref=e98]:
+                - generic [ref=e99]:
+                  - img [ref=e100]
+                  - text: الموظفين
+                - img [ref=e105]
+            - listitem [ref=e107]:
+              - link "التقارير" [ref=e108]:
+                - /url: /reports
+                - img [ref=e109]
+                - text: التقارير
+            - listitem [ref=e111]:
+              - link "مركز التصدير" [ref=e112]:
+                - /url: /exports
+                - img [ref=e113]
+                - text: مركز التصدير
+            - listitem [ref=e116]:
+              - link "إرسال إشعارات" [ref=e117]:
+                - /url: /notifications/send
+                - img [ref=e118]
+                - text: إرسال إشعارات
+        - generic [ref=e123]:
+          - heading "النظام" [level=3] [ref=e124]
+          - list [ref=e125]:
+            - listitem [ref=e126]:
+              - link "إدارة التصنيفات" [ref=e127]:
+                - /url: /settings/categories
+                - img [ref=e128]
+                - text: إدارة التصنيفات
+            - listitem [ref=e130]:
+              - button "الدعم الفني" [ref=e132]:
+                - generic [ref=e133]:
+                  - img [ref=e134]
+                  - text: الدعم الفني
+                - img [ref=e136]
+            - listitem [ref=e138]:
+              - link "المؤرشفات" [ref=e139]:
+                - /url: /archives
+                - img [ref=e140]
+                - text: المؤرشفات
+            - listitem [ref=e143]:
+              - link "إدارة الفروع" [ref=e144]:
+                - /url: /branches
+                - img [ref=e145]
+                - text: إدارة الفروع
+            - listitem [ref=e150]:
+              - link "السلة" [ref=e151]:
+                - /url: /trash
+                - img [ref=e152]
+                - text: السلة
+      - generic [ref=e155]:
+        - link "I IT IT" [ref=e157]:
+          - /url: /settings
+          - generic [ref=e159]: I
+          - generic [ref=e160]:
+            - paragraph [ref=e161]: IT
+            - paragraph [ref=e162]: IT
+          - img [ref=e163]
+        - button "تسجيل الخروج" [ref=e166]:
+          - img [ref=e167]
+          - text: تسجيل الخروج
+    - generic [ref=e170]:
+      - banner [ref=e171]:
+        - generic [ref=e172]:
+          - generic [ref=e173]:
+            - button [ref=e174]:
+              - img [ref=e175]
+            - link "مرحبا IT" [ref=e176] [cursor=pointer]:
+              - /url: /settings
+              - img [ref=e178]
+              - generic [ref=e181]:
+                - generic [ref=e182]: مرحبا
+                - generic [ref=e183]: IT
+          - button "الإشعارات" [ref=e185]:
+            - generic [ref=e186]: عرض الإشعارات
+            - img [ref=e190]
+      - main [ref=e193]:
+        - generic [ref=e194]:
+          - generic [ref=e196]:
+            - generic [ref=e197]:
+              - generic [ref=e198]:
+                - img [ref=e199]
+                - paragraph [ref=e201]: ROOT ACCESS
+              - heading "لوحة التحكم المركزية" [level=1] [ref=e202]
+              - paragraph [ref=e203]: نظرة شاملة على جميع فروع الشركة — 6 فروع نشطة
+            - img [ref=e206]
+          - generic [ref=e211]:
+            - generic [ref=e214]:
+              - generic [ref=e215]:
+                - paragraph [ref=e216]: إجمالي المشاريع
+                - paragraph [ref=e218]: "5"
+                - paragraph [ref=e219]: 3 نشط
+              - img [ref=e221]
+            - generic [ref=e225]:
+              - generic [ref=e226]:
+                - paragraph [ref=e227]: إجمالي الموظفين
+                - paragraph [ref=e229]: "6"
+                - paragraph [ref=e230]: عبر 6 فرع
+              - img [ref=e232]
+            - generic [ref=e239]:
+              - generic [ref=e240]:
+                - paragraph [ref=e241]: رصيد الخزن الموحّد
+                - paragraph [ref=e243]: 350,000
+                - paragraph [ref=e244]: "وارد: 500,000"
+              - img [ref=e246]
+            - generic [ref=e251]:
+              - generic [ref=e252]:
+                - paragraph [ref=e253]: فواتير معلّقة
+                - paragraph [ref=e255]: "3"
+                - paragraph [ref=e256]: "بقيمة: 5,430"
+              - img [ref=e258]
+          - generic [ref=e261]:
+            - generic [ref=e262]:
+              - heading "الفروع النشطة" [level=3] [ref=e263]
+              - button "إدارة الفروع" [ref=e264]:
+                - text: إدارة الفروع
+                - img [ref=e265]
+            - generic [ref=e267]:
+              - generic [ref=e269] [cursor=pointer]:
+                - img
+                - generic [ref=e270]:
+                  - generic [ref=e271]:
+                    - generic [ref=e272]: 🇦🇪
+                    - generic [ref=e273]:
+                      - heading "الإمارات" [level=4] [ref=e274]
+                      - paragraph [ref=e275]: UAE · AED
+                  - generic [ref=e276]:
+                    - generic [ref=e277]:
+                      - paragraph [ref=e278]: المشاريع
+                      - paragraph [ref=e279]: "0"
+                    - generic [ref=e280]:
+                      - paragraph [ref=e281]: الموظفون
+                      - paragraph [ref=e282]: "0"
+                    - generic [ref=e283]:
+                      - paragraph [ref=e284]: الخزنة
+                      - paragraph [ref=e285]: "0"
+              - generic [ref=e287] [cursor=pointer]:
+                - img
+                - generic [ref=e288]:
+                  - generic [ref=e289]:
+                    - generic [ref=e290]: 🇧🇭
+                    - generic [ref=e291]:
+                      - heading "البحرين" [level=4] [ref=e292]
+                      - paragraph [ref=e293]: Bahrain · BHD
+                  - generic [ref=e294]:
+                    - generic [ref=e295]:
+                      - paragraph [ref=e296]: المشاريع
+                      - paragraph [ref=e297]: "0"
+                    - generic [ref=e298]:
+                      - paragraph [ref=e299]: الموظفون
+                      - paragraph [ref=e300]: "0"
+                    - generic [ref=e301]:
+                      - paragraph [ref=e302]: الخزنة
+                      - paragraph [ref=e303]: "0"
+              - generic [ref=e305] [cursor=pointer]:
+                - img
+                - generic [ref=e306]:
+                  - generic [ref=e307]:
+                    - generic [ref=e308]: 🇸🇦
+                    - generic [ref=e309]:
+                      - heading "السعودية" [level=4] [ref=e310]
+                      - paragraph [ref=e311]: Saudi Arabia · SAR
+                  - generic [ref=e312]:
+                    - generic [ref=e313]:
+                      - paragraph [ref=e314]: المشاريع
+                      - paragraph [ref=e315]: "0"
+                    - generic [ref=e316]:
+                      - paragraph [ref=e317]: الموظفون
+                      - paragraph [ref=e318]: "0"
+                    - generic [ref=e319]:
+                      - paragraph [ref=e320]: الخزنة
+                      - paragraph [ref=e321]: "0"
+              - generic [ref=e323] [cursor=pointer]:
+                - img
+                - generic [ref=e324]:
+                  - generic [ref=e325]:
+                    - generic [ref=e326]: 🇹🇷
+                    - generic [ref=e327]:
+                      - heading "تركيا" [level=4] [ref=e328]
+                      - paragraph [ref=e329]: Turkey · TRY
+                  - generic [ref=e330]:
+                    - generic [ref=e331]:
+                      - paragraph [ref=e332]: المشاريع
+                      - paragraph [ref=e333]: "0"
+                    - generic [ref=e334]:
+                      - paragraph [ref=e335]: الموظفون
+                      - paragraph [ref=e336]: "0"
+                    - generic [ref=e337]:
+                      - paragraph [ref=e338]: الخزنة
+                      - paragraph [ref=e339]: "0"
+              - generic [ref=e341] [cursor=pointer]:
+                - img
+                - generic [ref=e342]:
+                  - generic [ref=e343]:
+                    - generic [ref=e344]: 🇸🇾
+                    - generic [ref=e345]:
+                      - heading "سوريا" [level=4] [ref=e346]
+                      - paragraph [ref=e347]: Syria · SYP
+                  - generic [ref=e348]:
+                    - generic [ref=e349]:
+                      - paragraph [ref=e350]: المشاريع
+                      - paragraph [ref=e351]: "0"
+                    - generic [ref=e352]:
+                      - paragraph [ref=e353]: الموظفون
+                      - paragraph [ref=e354]: "0"
+                    - generic [ref=e355]:
+                      - paragraph [ref=e356]: الخزنة
+                      - paragraph [ref=e357]: "0"
+              - generic [ref=e359] [cursor=pointer]:
+                - img
+                - generic [ref=e360]:
+                  - generic [ref=e361]:
+                    - generic [ref=e362]: 🇶🇦
+                    - generic [ref=e363]:
+                      - heading "قطر" [level=4] [ref=e364]
+                      - paragraph [ref=e365]: Qatar · QAR
+                  - generic [ref=e366]:
+                    - generic [ref=e367]:
+                      - paragraph [ref=e368]: المشاريع
+                      - paragraph [ref=e369]: "5"
+                    - generic [ref=e370]:
+                      - paragraph [ref=e371]: الموظفون
+                      - paragraph [ref=e372]: "6"
+                    - generic [ref=e373]:
+                      - paragraph [ref=e374]: الخزنة
+                      - paragraph [ref=e375]: 350,000
+                  - generic [ref=e378]: 3 فاتورة معلّقة
+          - generic [ref=e380]:
+            - generic [ref=e381]:
+              - heading "مقارنة رصيد الخزنة بين الفروع" [level=3] [ref=e382]
+              - img [ref=e383]
+            - generic [ref=e386]:
+              - generic [ref=e388]:
+                - generic [ref=e389]:
+                  - generic [ref=e390]: 🇦🇪
+                  - generic [ref=e391]: الإمارات
+                  - generic [ref=e392]: (AED)
+                - generic [ref=e393]: "0"
+              - generic [ref=e396]:
+                - generic [ref=e397]:
+                  - generic [ref=e398]: 🇧🇭
+                  - generic [ref=e399]: البحرين
+                  - generic [ref=e400]: (BHD)
+                - generic [ref=e401]: "0"
+              - generic [ref=e404]:
+                - generic [ref=e405]:
+                  - generic [ref=e406]: 🇸🇦
+                  - generic [ref=e407]: السعودية
+                  - generic [ref=e408]: (SAR)
+                - generic [ref=e409]: "0"
+              - generic [ref=e412]:
+                - generic [ref=e413]:
+                  - generic [ref=e414]: 🇹🇷
+                  - generic [ref=e415]: تركيا
+                  - generic [ref=e416]: (TRY)
+                - generic [ref=e417]: "0"
+              - generic [ref=e420]:
+                - generic [ref=e421]:
+                  - generic [ref=e422]: 🇸🇾
+                  - generic [ref=e423]: سوريا
+                  - generic [ref=e424]: (SYP)
+                - generic [ref=e425]: "0"
+              - generic [ref=e428]:
+                - generic [ref=e429]:
+                  - generic [ref=e430]: 🇶🇦
+                  - generic [ref=e431]: قطر
+                  - generic [ref=e432]: (QAR)
+                - generic [ref=e433]: 350,000
+          - generic [ref=e437]:
+            - generic [ref=e438]:
+              - heading "التدفق المالي الموحّد" [level=3] [ref=e439]
+              - img [ref=e440]
+            - generic [ref=e443]:
+              - generic [ref=e444]:
+                - paragraph [ref=e445]: 500,000
+                - paragraph [ref=e446]: إجمالي الوارد
+              - generic [ref=e447]:
+                - paragraph [ref=e448]: 150,000
+                - paragraph [ref=e449]: إجمالي المنصرف
+              - generic [ref=e450]:
+                - paragraph [ref=e451]: 350,000
+                - paragraph [ref=e452]: الرصيد الحالي
+              - generic [ref=e453]:
+                - paragraph [ref=e454]: 5,430
+                - paragraph [ref=e455]: فواتير معلّقة
+    - navigation "التنقل الرئيسي" [ref=e456]:
+      - generic [ref=e457]:
+        - link "1 إشعار غير مقروء الرئيسية" [ref=e458]:
+          - /url: /
+          - generic [ref=e459]:
+            - img [ref=e460]
+            - generic "1 إشعار غير مقروء" [ref=e463]: "1"
+          - generic [ref=e464]: الرئيسية
+        - link "المشاريع" [ref=e465]:
+          - /url: /projects
+          - img [ref=e467]
+          - generic [ref=e469]: المشاريع
+        - button "قائمة الإضافة السريعة" [ref=e471]:
+          - img [ref=e472]
+        - link "الفواتير" [ref=e473]:
+          - /url: /invoices
+          - img [ref=e475]
+          - generic [ref=e478]: الفواتير
+        - link "حسابي" [ref=e479]:
+          - /url: /settings
+          - img [ref=e481]
+          - generic [ref=e484]: حسابي
+    - generic [ref=e486]:
+      - img "SpacePocket" [ref=e487]
+      - generic [ref=e488]:
+        - paragraph [ref=e489]: أضف التطبيق للشاشة الرئيسية
+        - paragraph [ref=e490]:
+          - text: اضغط
+          - strong [ref=e491]: مشاركة
+          - text: ثم
+          - strong [ref=e492]: إضافة إلى الشاشة الرئيسية
+      - button "إغلاق" [ref=e493]:
+        - img [ref=e494]
+  - alert [ref=e497]
+```
