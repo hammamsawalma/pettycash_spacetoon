@@ -68,7 +68,7 @@ const ROUTE_RULES: Array<{ prefix: string; exact?: boolean; allowed: string[] }>
 
 // ─── Middleware ─────────────────────────────────────────────────────────────
 export function middleware(request: NextRequest) {
-    const sessionCookie = request.cookies.get('session')?.value;
+    const sessionCookie = request.cookies.get('pocket_session')?.value;
     const path = request.nextUrl.pathname;
 
     // Allow public paths — redirect logged-in users away from /login and /welcome
@@ -130,7 +130,7 @@ export function middleware(request: NextRequest) {
     } catch {
         // Invalid token — clear cookie and force re-login
         const response = NextResponse.redirect(new URL('/welcome', request.url));
-        response.cookies.delete('session');
+        response.cookies.delete('pocket_session');
         return response;
     }
 }
