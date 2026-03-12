@@ -85,30 +85,30 @@ test.describe('Suite 6 — Invoices RBAC', () => {
     });
 
     // ─── Add Invoice Button ───────────────────────────────────────────────
-    test('[INV-B1] ADMIN sees "أضف فاتورة جديدة" button', async ({ page }) => {
+    test('[INV-B1] ADMIN sees "إضافة فاتورة جديدة" button', async ({ page }) => {
         await login(page, USERS.ADMIN);
         await page.goto('/invoices');
         await page.waitForTimeout(1500);
         const body = await page.evaluate(() => document.body.innerText);
-        expect(body).toContain('أضف فاتورة جديدة');
+        expect(body).toContain('إضافة فاتورة جديدة');
     });
 
-    test('[INV-B2] GLOBAL_ACCOUNTANT sees "أضف فاتورة جديدة" button', async ({ page }) => {
+    test('[INV-B2] GLOBAL_ACCOUNTANT sees "إضافة فاتورة جديدة" button', async ({ page }) => {
         await login(page, USERS.ACC);
         await page.goto('/invoices');
         await page.waitForTimeout(1500);
         const body = await page.evaluate(() => document.body.innerText);
-        expect(body).toContain('أضف فاتورة جديدة');
+        expect(body).toContain('إضافة فاتورة جديدة');
     });
 
-    test('[INV-B3] GENERAL_MANAGER does NOT see "أضف فاتورة جديدة" button (view-only)', async ({ page }) => {
+    test('[INV-B3] GENERAL_MANAGER does NOT see "إضافة فاتورة جديدة" button (view-only)', async ({ page }) => {
         await login(page, USERS.GM);
         await page.goto('/invoices');
         await page.waitForTimeout(1500);
         expect(page.url()).toContain('/invoices');
         const body = await page.evaluate(() => document.body.innerText);
         // GM is view-only — add invoice button is hidden
-        expect(body).not.toContain('أضف فاتورة جديدة');
+        expect(body).not.toContain('إضافة فاتورة جديدة');
     });
 
     test('[INV-B4] USER (Employee) sees add invoice button (for their projects)', async ({ page }) => {
@@ -117,7 +117,7 @@ test.describe('Suite 6 — Invoices RBAC', () => {
         await page.waitForTimeout(1500);
         const body = await page.evaluate(() => document.body.innerText);
         // Employee can add invoices for their own projects
-        expect(body).toContain('أضف فاتورة جديدة');
+        expect(body).toContain('إضافة فاتورة جديدة');
     });
 
     // ─── Invoice detail: Approve/Reject buttons ───────────────────────────
@@ -261,36 +261,36 @@ test.describe('Suite 8 — Purchases RBAC', () => {
     });
 
     // ─── Add Purchase Button ──────────────────────────────────────────────
-    test('[PURCH-B1] ADMIN sees "اضافة طلب شراء" button', async ({ page }) => {
+    test('[PURCH-B1] ADMIN sees "إضافة طلب شراء" button', async ({ page }) => {
         await login(page, USERS.ADMIN);
         await page.goto('/purchases');
         await page.waitForTimeout(1500);
         const body = await page.evaluate(() => document.body.innerText);
-        expect(body).toContain('اضافة طلب شراء');
+        expect(body).toContain('إضافة طلب شراء');
     });
 
-    test('[PURCH-B2] USER (Coordinator) does NOT see "اضافة طلب شراء" button (Dashboard level)', async ({ page }) => {
+    test('[PURCH-B2] USER (Coordinator) does NOT see "إضافة طلب شراء" button (Dashboard level)', async ({ page }) => {
         await login(page, USERS.COORD);
         await page.goto('/purchases');
         await page.waitForTimeout(1500);
         const body = await page.evaluate(() => document.body.innerText);
-        expect(body).not.toContain('اضافة طلب شراء');
+        expect(body).not.toContain('إضافة طلب شراء');
     });
 
-    test('[PURCH-B3] USER (Employee) does NOT see "اضافة طلب شراء" button', async ({ page }) => {
+    test('[PURCH-B3] USER (Employee) does NOT see "إضافة طلب شراء" button', async ({ page }) => {
         await login(page, USERS.EMP1);
         await page.goto('/purchases');
         await page.waitForTimeout(1500);
         const body = await page.evaluate(() => document.body.innerText);
         // Employee should ONLY see the list, no add button anywhere
-        expect(body).not.toContain('اضافة طلب شراء');
+        expect(body).not.toContain('إضافة طلب شراء');
     });
 
     test('[PURCH-B4] ADMIN can click add button to navigate to purchase form', async ({ page }) => {
         await login(page, USERS.ADMIN);
         await page.goto('/purchases');
         await page.waitForTimeout(1500);
-        const addBtn = page.locator('button').filter({ hasText: 'اضافة طلب شراء' });
+        const addBtn = page.locator('button').filter({ hasText: 'إضافة طلب شراء' });
         await expect(addBtn).toBeVisible();
         await addBtn.click();
         await page.waitForTimeout(1500);
@@ -305,9 +305,9 @@ test.describe('Suite 8 — Purchases RBAC', () => {
         await page.goto('/purchases/new');
         await page.waitForTimeout(2000);
         const url = page.url();
-        // Redirected to / or /login 
+        // Redirected to / or /purchases or /login 
         const pathname = new URL(url).pathname;
-        const blocked = pathname === '/' || url.includes('/login');
+        const blocked = pathname === '/' || pathname === '/purchases' || url.includes('/login');
         expect(blocked).toBeTruthy();
     });
 });

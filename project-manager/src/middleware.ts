@@ -84,10 +84,14 @@ export function middleware(request: NextRequest) {
         return NextResponse.next();
     }
 
-    // Redirect unauthenticated users to /welcome
+    // Redirect unauthenticated users
     if (!sessionCookie) {
-        const welcomeUrl = new URL('/welcome', request.url);
-        return NextResponse.redirect(welcomeUrl);
+        // If they specifically hit the root, show the welcome landing page
+        if (path === '/') {
+            return NextResponse.redirect(new URL('/welcome', request.url));
+        }
+        // Otherwise, they tried to access a protected route directly -> send to login
+        return NextResponse.redirect(new URL('/login', request.url));
     }
 
     try {

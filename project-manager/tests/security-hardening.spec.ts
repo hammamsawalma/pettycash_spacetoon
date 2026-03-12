@@ -24,7 +24,7 @@ async function login(page: Page, creds: { email: string; pass: string }) {
     await page.fill('input[name="email"]', creds.email);
     await page.fill('input[name="password"]', creds.pass);
     await page.click('button[type="submit"]');
-    await page.waitForURL('http://localhost:3001/', { timeout: 15000 });
+    await page.waitForURL('**/', { timeout: 15000 });
     await page.waitForSelector('nav', { timeout: 8000 });
 }
 
@@ -158,8 +158,9 @@ test.describe('Suite 3 — Password Security', () => {
         await page.fill('input[name="email"]', ADMIN.email);
         await page.fill('input[name="password"]', ADMIN.pass);
         await page.click('button[type="submit"]');
-        await page.waitForURL('http://localhost:3001/', { timeout: 15000 });
-        expect(page.url()).toBe('http://localhost:3001/');
+        await page.waitForURL('**/', { timeout: 15000 });
+        const pathname = new URL(page.url()).pathname;
+        expect(pathname).toBe('/');
     });
 
     test('[SEC-P2] Login with wrong password fails (stays on login page)', async ({ page }) => {
@@ -212,7 +213,8 @@ test.describe('Suite 4 — Financial Operations RBAC', () => {
         await page.waitForTimeout(2000);
         const url = page.url();
         const body = (await page.evaluate(() => document.body.innerText)).toLowerCase();
-        const isBlocked = url.includes('/login') || url === 'http://localhost:3001/' || body.includes('غير مصرح');
+        const pathname = new URL(url).pathname;
+        const isBlocked = url.includes('/login') || pathname === '/' || body.includes('غير مصرح');
         expect(isBlocked).toBeTruthy();
     });
 
@@ -222,7 +224,8 @@ test.describe('Suite 4 — Financial Operations RBAC', () => {
         await page.waitForTimeout(2000);
         const url = page.url();
         const body = (await page.evaluate(() => document.body.innerText)).toLowerCase();
-        const isBlocked = url.includes('/login') || url === 'http://localhost:3001/' || body.includes('غير مصرح');
+        const pathname = new URL(url).pathname;
+        const isBlocked = url.includes('/login') || pathname === '/' || body.includes('غير مصرح');
         expect(isBlocked).toBeTruthy();
     });
 
@@ -232,7 +235,8 @@ test.describe('Suite 4 — Financial Operations RBAC', () => {
         await page.waitForTimeout(2000);
         const url = page.url();
         const body = (await page.evaluate(() => document.body.innerText)).toLowerCase();
-        const isBlocked = url.includes('/login') || url === 'http://localhost:3001/' || body.includes('غير مصرح');
+        const pathname = new URL(url).pathname;
+        const isBlocked = url.includes('/login') || pathname === '/' || body.includes('غير مصرح');
         expect(isBlocked).toBeTruthy();
     });
 

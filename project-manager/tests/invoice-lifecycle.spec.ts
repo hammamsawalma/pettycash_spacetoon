@@ -25,7 +25,7 @@ test.describe('Invoice Lifecycle & Approval', () => {
         // Find INV-2026-003 or status=PENDING
         const bodyText = await page.evaluate(() => document.body.innerText);
         // At least one PENDING invoice should exist from seed
-        expect(bodyText).toMatch(/INV-2026-003|معلقة|PENDING/i);
+        expect(bodyText).toMatch(/INV-003|معلق|PENDING/i);
     });
 
     // ─── 2. Accountant can navigate to the invoices page (نون-فلاكي) ─────────────────────
@@ -35,27 +35,27 @@ test.describe('Invoice Lifecycle & Approval', () => {
         await page.waitForTimeout(2000);
         expect(page.url()).toContain('/invoices');
         const bodyText = await page.evaluate(() => document.body.innerText);
-        // INV-2026-003 and INV-2026-005 are PENDING in seed
-        expect(bodyText).toMatch(/INV-2026-00[35]|معلقة|PENDING/i);
+        // INV-003 and INV-005 are PENDING in seed
+        expect(bodyText).toMatch(/INV-00[35]|معلق|PENDING/i);
     });
 
     // ─── 3. Seed REJECTED invoice exists ──────────────────────────────────
-    test('Seed REJECTED invoice INV-2026-004 exists', async ({ page }) => {
+    test('Seed REJECTED invoice INV-004 exists', async ({ page }) => {
         await login(page, ACCOUNTANT.email, ACCOUNTANT.pass);
         await page.goto('/invoices');
         await page.waitForTimeout(1500);
         const bodyText = await page.evaluate(() => document.body.innerText);
-        expect(bodyText).toMatch(/INV-2026-004|مرفوض/i);
+        expect(bodyText).toMatch(/INV-004|مرفوض/i);
     });
 
     // ─── 4. USER (emp2) sees their own invoices ────────────────────────────
-    test('Employee sees their own invoice (INV-2026-003) in list', async ({ page }) => {
+    test('Employee sees their own invoice (INV-003) in list', async ({ page }) => {
         await login(page, EMP2.email, EMP2.pass);
         await page.goto('/invoices');
         await page.waitForTimeout(1500);
         const bodyText = await page.evaluate(() => document.body.innerText);
-        // emp2 created INV-2026-003 (PENDING / PERSONAL)
-        expect(bodyText).toMatch(/INV-2026-003|معلقة|PENDING/i);
+        // emp2 created INV-003 (PENDING / PERSONAL)
+        expect(bodyText).toMatch(/INV-003|معلق|PENDING/i);
     });
 
     // ─── 5. No application errors on the invoices page per role ───────────

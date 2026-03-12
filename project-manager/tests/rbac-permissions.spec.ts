@@ -31,8 +31,8 @@ async function login(page: Page, creds: { email: string; pass: string }) {
     await page.fill('input[name="email"]', creds.email);
     await page.fill('input[name="password"]', creds.pass);
     await page.click('button[type="submit"]');
-    // Use full absolute URL matching baseURL in playwright.config.ts
-    await page.waitForURL('http://localhost:3001/', { timeout: 15000 });
+    // Use relative glob to avoid port mismatch issues
+    await page.waitForURL('**/', { timeout: 15000 });
     await page.waitForSelector('nav', { timeout: 8000 });
     await page.waitForTimeout(600);
 }
@@ -43,11 +43,12 @@ async function isPageBlocked(page: Page, path: string): Promise<boolean> {
     await page.waitForTimeout(2000);
     const url = page.url();
     const body = (await page.evaluate(() => document.body.innerText)).toLowerCase();
+    const pathname = new URL(url).pathname;
     return (
         // Redirected to login
         url.includes('/login') ||
         // Redirected to root (client-side guard)
-        url === 'http://localhost:3001/' ||
+        pathname === '/' ||
         // Explicit unauthorized message
         body.includes('غير مصرح') ||
         body.includes('unauthorized') ||
