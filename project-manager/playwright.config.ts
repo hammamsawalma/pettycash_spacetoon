@@ -1,5 +1,7 @@
 import { defineConfig, devices } from '@playwright/test';
 
+const isCI = !!process.env.CI;
+
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const AUTH_DIR = './tests/.auth';
 
@@ -20,27 +22,27 @@ export default defineConfig({
     /* Retry once locally to handle intermittent timeouts, twice in CI */
     retries: process.env.CI ? 2 : 1,
 
-    /* 2 workers optimal for 16GB RAM; 1 in CI for stability */
-    workers: process.env.CI ? 1 : 2,
+    /* 2 workers everywhere — sharding handles CI load distribution */
+    workers: 2,
 
     reporter: [['html'], ['list']],
 
-    /* 45s default — prod build is fast, dev may need more */
-    timeout: isDev ? 60_000 : 45_000,
+    /* CI runners are slower — give extra time */
+    timeout: isCI ? 90_000 : isDev ? 60_000 : 45_000,
 
     use: {
         baseURL: 'http://localhost:3000',
         screenshot: 'only-on-failure',
-        video: 'retain-on-failure',
-        trace: 'retain-on-failure',
+        video: isCI ? 'off' : 'retain-on-failure',
+        trace: isCI ? 'off' : 'retain-on-failure',
 
         /* Navigation & action timeouts */
-        navigationTimeout: 30_000,
-        actionTimeout: 15_000,
+        navigationTimeout: isCI ? 45_000 : 30_000,
+        actionTimeout: isCI ? 20_000 : 15_000,
     },
 
     expect: {
-        timeout: 15_000,
+        timeout: isCI ? 20_000 : 15_000,
     },
 
     projects: [
