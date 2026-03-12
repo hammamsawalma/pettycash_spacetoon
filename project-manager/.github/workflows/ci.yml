@@ -99,6 +99,10 @@ jobs:
           # Login to ECR
           aws ecr get-login-password | sudo docker login --username AWS --password-stdin ${{ env.ECR_REGISTRY }}
 
+          # Cleanup old Docker data to free disk space
+          echo "🧹 Cleaning up old Docker data..."
+          sudo docker system prune -af --volumes 2>/dev/null || true
+
           # Pull latest image
           sudo docker pull ${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}:latest
 
