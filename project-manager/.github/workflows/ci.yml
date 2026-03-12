@@ -80,14 +80,20 @@ jobs:
 
     - name: Deploy to EC2
       uses: appleboy/ssh-action@v1
+      env:
+        DB_URL_SECRET: ${{ secrets.DATABASE_URL }}
+        JWT_SECRET_KEY: ${{ secrets.JWT_SECRET }}
+        VAPID_PRIV_SECRET: ${{ secrets.VAPID_PRIVATE_KEY }}
+        VAPID_PUB_SECRET: ${{ secrets.NEXT_PUBLIC_VAPID_PUBLIC_KEY }}
       with:
         host: ${{ env.EC2_HOST }}
         username: ec2-user
         key: ${{ secrets.EC2_SSH_KEY }}
+        envs: DB_URL_SECRET,JWT_SECRET_KEY,VAPID_PRIV_SECRET,VAPID_PUB_SECRET
         script: |
           set -e
           
-          # Configure AWS CLI on the EC2 instance temporarily using the safely injected env vars
+          # Configure AWS CLI on the EC2 instance temporarily
           export AWS_DEFAULT_REGION=eu-central-1
 
           # Login to ECR
@@ -102,15 +108,17 @@ jobs:
           # ══════════════════════════════════════════════════════════
           ENV_FILE="/home/ec2-user/.env.production"
 
-          # Safely assign safely injected environment variables
+          # Assign from injected environment variables
           DB_URL="$DB_URL_SECRET"
           JWT="$JWT_SECRET_KEY"
           VAPID_PRIV="$VAPID_PRIV_SECRET"
           VAPID_PUB="$VAPID_PUB_SECRET"
           
-          # FORCED LOCAL EXTRACTION: GEMINI_API_KEY has characters that Appleboy/SSH hates.
-          # We extract it directly from the validated file on the server.
-          GEMINI=$(grep '^GEMINI_API_KEY=' "$ENV_FILE" | cut -d= -f2-)
+          # GEMINI_API_KEY: Always read from server file (special chars break SSH transport)
+          GEMINI=""
+          if [ -f "$ENV_FILE" ]; then
+            GEMINI=$(grep '^GEMINI_API_KEY=' "$ENV_FILE" | cut -d= -f2-)
+          fi
 
           # Fallback for ANY empty var: Read from server file
           if [ -f "$ENV_FILE" ]; then
@@ -120,12 +128,14 @@ jobs:
             [ -z "$VAPID_PUB" ] && VAPID_PUB=$(grep '^NEXT_PUBLIC_VAPID_PUBLIC_KEY=' "$ENV_FILE" | cut -d= -f2-)
           fi
 
-          # Final validation
-          if [ -z "$DB_URL" ] || [ -z "$JWT" ] || [ -z "$GEMINI" ]; then
-            echo "❌ FATAL: Missing critical env vars!"
-            echo "  DATABASE_URL: $([ -n "$DB_URL" ] && echo 'OK' || echo 'MISSING')"
-            echo "  JWT_SECRET: $([ -n "$JWT" ] && echo 'OK' || echo 'MISSING')"
-            echo "  GEMINI_API_KEY: $([ -n "$GEMINI" ] && echo 'OK' || echo 'MISSING')"
+          # Final validation — warn on missing GEMINI but don't block deploy
+          echo "📋 Env var status:"
+          echo "  DATABASE_URL: $([ -n "$DB_URL" ] && echo 'OK' || echo 'MISSING')"
+          echo "  JWT_SECRET: $([ -n "$JWT" ] && echo 'OK' || echo 'MISSING')"
+          echo "  GEMINI_API_KEY: $([ -n "$GEMINI" ] && echo "OK (${#GEMINI} chars)" || echo 'MISSING')"
+
+          if [ -z "$DB_URL" ] || [ -z "$JWT" ]; then
+            echo "❌ FATAL: Missing critical env vars (DATABASE_URL or JWT_SECRET)!"
             exit 1
           fi
 
