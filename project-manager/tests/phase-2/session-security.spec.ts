@@ -30,7 +30,7 @@ test.describe('Session Security', () => {
         const context = await browser.newContext();
         // Inject a corrupted cookie
         await context.addCookies([{
-            name: 'session',
+            name: 'pocket_session',
             value: 'eyJhbGciOiJIUzI1NiJ9.CORRUPTED_PAYLOAD.invalid_signature',
             domain: 'localhost',
             path: '/',
