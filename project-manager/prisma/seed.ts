@@ -70,7 +70,7 @@ async function main() {
 
     const admin = await prisma.user.create({
         data: {
-            name: 'حمام صوالمة',
+            name: 'مدير النظام',
             email: 'admin@pocket.com',
             phone: '0500000001',
             password: hashed,
@@ -83,7 +83,7 @@ async function main() {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const gm = await prisma.user.create({
         data: {
-            name: 'سلطان الريس',
+            name: 'المدير العام',
             email: 'gm@pocket.com',
             phone: '0500000002',
             password: hashed,
@@ -95,7 +95,7 @@ async function main() {
 
     const accountant = await prisma.user.create({
         data: {
-            name: 'أحمد العلي',
+            name: 'المحاسب العام',
             email: 'accountant@pocket.com',
             phone: '0500000003',
             password: hashed,
@@ -108,7 +108,7 @@ async function main() {
     // منسق (USER + PROJECT_MANAGER في المشاريع)
     const coordinator = await prisma.user.create({
         data: {
-            name: 'خالد يوسف',
+            name: 'منسق مشاريع',
             email: 'coordinator@pocket.com',
             phone: '0500000004',
             password: hashed,
@@ -120,7 +120,7 @@ async function main() {
 
     const emp1 = await prisma.user.create({
         data: {
-            name: 'محمد طارق',
+            name: 'مطور برمجيات',
             email: 'emp1@pocket.com',
             phone: '0500000005',
             password: hashed,
@@ -132,7 +132,7 @@ async function main() {
 
     const emp2 = await prisma.user.create({
         data: {
-            name: 'سارة أحمد',
+            name: 'مصممة جرافيك',
             email: 'emp2@pocket.com',
             phone: '0500000006',
             password: hashed,
@@ -144,7 +144,7 @@ async function main() {
 
     const emp3 = await prisma.user.create({
         data: {
-            name: 'فيصل ناصر',
+            name: 'مدير موقع ميداني',
             email: 'emp3@pocket.com',
             phone: '0500000007',
             password: hashed,
@@ -219,7 +219,7 @@ async function main() {
         data: { projectId: proj1.id, userId: emp2.id, projectRoles: 'PROJECT_EMPLOYEE', custodyBalance: 5000 },
     });
 
-    // عهدة 1 — محمد طارق (مؤكدة بتوقيع + إرجاع جزئي)
+    // عهدة 1 — مطور برمجيات (مؤكدة بتوقيع + إرجاع جزئي)
     const cust1 = await prisma.employeeCustody.create({
         data: {
             projectId: proj1.id, employeeId: emp1.id, memberId: mem_emp1_p1.id,
@@ -231,7 +231,7 @@ async function main() {
     await prisma.custodyConfirmation.create({ data: { custodyId: cust1.id, signatureFile: null } });
     await prisma.custodyReturn.create({ data: { custodyId: cust1.id, amount: 1500, returnedBy: emp1.id, recordedBy: accountant.id, note: 'إرجاع فائض الأسبوع الماضي' } });
 
-    // عهدة 2 — سارة أحمد (غير مؤكدة — تنتظر التوقيع)
+    // عهدة 2 — مصممة جرافيك (غير مؤكدة — تنتظر التوقيع)
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const cust2 = await prisma.employeeCustody.create({
         data: {
@@ -332,7 +332,7 @@ async function main() {
         data: { orderNumber: 'PO-001', description: 'شراء سيرفر للاستضافة المحلية', amount: 8500, status: 'REQUESTED', projectId: proj1.id, creatorId: coordinator.id, priority: 'HIGH', notes: 'يرجى مقارنة 3 عروض أسعار' },
     });
     await prisma.purchase.create({
-        data: { orderNumber: 'PO-002', description: 'كاميرا مراقبة للمشروع (4 قطع)', amount: 2400, status: 'IN_PROGRESS', projectId: proj1.id, creatorId: coordinator.id, purchasedBy: emp1.id, priority: 'NORMAL', notes: 'محمد بالطريق لشرائها' },
+        data: { orderNumber: 'PO-002', description: 'كاميرا مراقبة للمشروع (4 قطع)', amount: 2400, status: 'IN_PROGRESS', projectId: proj1.id, creatorId: coordinator.id, purchasedBy: emp1.id, priority: 'NORMAL', notes: 'المطور بالطريق لشرائها' },
     });
 
     console.log('✔ Project 1 done (عهد + خارجية + فواتير + مشتريات)\n');
@@ -513,13 +513,13 @@ async function main() {
     // FINANCE REQUESTS
     // ═══════════════════════════════════════════════════════════════════
     await prisma.financeRequest.create({
-        data: { type: 'SETTLE_DEBT', requestedBy: accountant.id, status: 'PENDING', amount: 480, note: 'تسوية الدين الشخصي لسارة أحمد — فاتورة INV-003' },
+        data: { type: 'SETTLE_DEBT', requestedBy: accountant.id, status: 'PENDING', amount: 480, note: 'تسوية الدين الشخصي لمصممة الجرافيك — فاتورة INV-003' },
     });
     await prisma.financeRequest.create({
         data: { type: 'ALLOCATE_BUDGET', requestedBy: accountant.id, status: 'APPROVED', approvedBy: admin.id, amount: 50000, targetId: proj2.id, note: 'تخصيص ميزانية الحملة التسويقية' },
     });
     await prisma.financeRequest.create({
-        data: { type: 'RETURN_CUSTODY', requestedBy: accountant.id, status: 'PENDING', amount: 2000, note: 'إرجاع فائض عهدة محمد طارق للخزنة' },
+        data: { type: 'RETURN_CUSTODY', requestedBy: accountant.id, status: 'PENDING', amount: 2000, note: 'إرجاع فائض عهدة مطور البرمجيات للخزنة' },
     });
     console.log('✔ 3 finance requests\n');
 
@@ -538,7 +538,7 @@ async function main() {
     // ═══════════════════════════════════════════════════════════════════
     await prisma.notification.create({ data: { title: 'مرحباً بكم في Pocket v5 🎉', content: 'تم تحديث النظام بميزات جديدة: مصاريف الشركة، التوقيع الإلكتروني، وسندات الصرف.', targetRole: 'ALL' } });
     await prisma.notification.create({ data: { title: 'فواتير تنتظر المراجعة', content: 'يوجد 4 فواتير معلقة تنتظر اعتمادك (مشاريع + شركة).', targetUserId: accountant.id } });
-    await prisma.notification.create({ data: { title: 'تأكيد استلام العهدة', content: 'لم تؤكدي استلام العهدة البنكية بعد يا سارة. يرجى التوقيع من صفحة "عهدي".', targetUserId: emp2.id } });
+    await prisma.notification.create({ data: { title: 'تأكيد استلام العهدة', content: 'لم تؤكدي استلام العهدة البنكية بعد يا مصممة. يرجى التوقيع من صفحة "عهدي".', targetUserId: emp2.id } });
     await prisma.notification.create({ data: { title: 'طلب شراء عاجل ⚡', content: 'طلب شراء هدايا ترويجية بأولوية URGENT — يرجى التنسيق.', targetUserId: emp3.id } });
     console.log('✔ 4 notifications\n');
 
@@ -553,9 +553,9 @@ async function main() {
     console.log('  🌟 المدير العام      gm@pocket.com           مشاهدة فقط بدون تدخل');
     console.log('  🧾 المحاسب العام     accountant@pocket.com   اعتماد فواتير + مصاريف شركة');
     console.log('  🗂️ منسق مشاريع      coordinator@pocket.com  إدارة فرق + مشتريات');
-    console.log('  👤 موظف ١ محمد       emp1@pocket.com         عهدة مؤكدة + فواتير');
-    console.log('  👤 موظف ٢ سارة       emp2@pocket.com         عهدة تنتظر توقيع + دين');
-    console.log('  👤 موظف ٣ فيصل       emp3@pocket.com         عهدة + طلب شراء عاجل');
+    console.log('  👤 موظف ١ (مطور)     emp1@pocket.com         عهدة مؤكدة + فواتير');
+    console.log('  👤 موظف ٢ (مصممة)    emp2@pocket.com         عهدة تنتظر توقيع + دين');
+    console.log('  👤 موظف ٣ (موقع)     emp3@pocket.com         عهدة + طلب شراء عاجل');
     console.log('──────────────────────────────────────────────────────');
     console.log('  📁 مشروع ١  IN_PROGRESS  90K  عهد + خارجية + فواتير متنوعة');
     console.log('  📁 مشروع ٢  IN_PROGRESS  50K  حملة رمضان + مشتريات');

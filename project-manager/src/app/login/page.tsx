@@ -108,10 +108,10 @@ export default function LoginPage() {
                                     { label: locale === 'ar' ? "👑 مدير النظام" : "👑 Admin", email: "admin@pocket.com", color: "bg-blue-50 hover:bg-blue-100 border-blue-200 text-blue-700" },
                                     { label: locale === 'ar' ? "🌟 المدير العام" : "🌟 Gen. Manager", email: "gm@pocket.com", color: "bg-yellow-50 hover:bg-yellow-100 border-yellow-300 text-yellow-700" },
                                     { label: locale === 'ar' ? "🧾 المحاسب العام" : "🧾 Accountant", email: "accountant@pocket.com", color: "bg-purple-50 hover:bg-purple-100 border-purple-200 text-purple-700" },
-                                    { label: locale === 'ar' ? "🗂️ منسق المشتريات — خالد" : "🗂️ Coordinator — Khalid", email: "coordinator@pocket.com", color: "bg-green-50 hover:bg-green-100 border-green-200 text-green-700" },
-                                    { label: locale === 'ar' ? "👤 محمد — عهدة ✅" : "👤 Mohd — Custody ✅", email: "emp1@pocket.com", color: "bg-orange-50 hover:bg-orange-100 border-orange-200 text-orange-700" },
-                                    { label: locale === 'ar' ? "👤 سارة — عهدة ⏳" : "👤 Sara — Custody ⏳", email: "emp2@pocket.com", color: "bg-rose-50 hover:bg-rose-100 border-rose-200 text-rose-700" },
-                                    { label: locale === 'ar' ? "👤 فيصل — طلب 🚨" : "👤 Faisal — Request 🚨", email: "emp3@pocket.com", color: "bg-amber-50 hover:bg-amber-100 border-amber-200 text-amber-700" },
+                                    { label: locale === 'ar' ? "🗂️ منسق المشتريات" : "🗂️ Coordinator", email: "coordinator@pocket.com", color: "bg-green-50 hover:bg-green-100 border-green-200 text-green-700" },
+                                    { label: locale === 'ar' ? "👤 المطور — عهدة ✅" : "👤 Dev. — Custody ✅", email: "emp1@pocket.com", color: "bg-orange-50 hover:bg-orange-100 border-orange-200 text-orange-700" },
+                                    { label: locale === 'ar' ? "👤 المصممة — عهدة ⏳" : "👤 Designer — Custody ⏳", email: "emp2@pocket.com", color: "bg-rose-50 hover:bg-rose-100 border-rose-200 text-rose-700" },
+                                    { label: locale === 'ar' ? "👤 مدير الموقع — طلب 🚨" : "👤 Site Mgr — Request 🚨", email: "emp3@pocket.com", color: "bg-amber-50 hover:bg-amber-100 border-amber-200 text-amber-700" },
                                 ].map(({ label, email, color }) => (
                                     <Button
                                         key={email}
